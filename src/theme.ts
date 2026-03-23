@@ -51,6 +51,10 @@ export const mainThemeColors = {
   tabBackground: "#0f766e",         // Fondo tab bar (teal medio-claro)
   tabActive: "#87e4f0",             // Tab activo (cyan luminoso - muy visible y llamativo)
   tabInactive: "#b9bdc2",           // Tab inactivo (gris claro - visible pero discreto)
+
+  // GRADIENTS (botones)
+  buttonGradient: ["#F5CA7E", "#E9E9E9"] as const, // dorado -> gris claro
+  buttonGradientAlt: ["#F5CA7E", "#F2D59A"] as const, // dorado -> dorado suave
 };
 
 // Paleta modo oscuro: respeta la identidad teal pero con fondos oscuros elegantes
@@ -105,6 +109,10 @@ export const mainThemeColorsDark = {
   tabBackground: "#102033",
   tabActive: "#1aa38f",
   tabInactive: "#5b6b84",
+
+  // GRADIENTS (botones)
+  buttonGradient: ["#585757", "#292929"] as const, // tu dark gradient estilo Flutter
+  buttonGradientAlt: ["#F5CA7E", "#8A8A8A"] as const, // opción alternativa si 
 };
 
 export const themeApp = {
