@@ -2,6 +2,7 @@ import React from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { mainThemeColors } from "../../theme";
+import { BlurView } from "expo-blur";
 
 type Props = {
   text: string;
@@ -20,31 +21,32 @@ export function RectangularButton({ text, onPress, disabled }: Props) {
         styles.pressable,
         pressed && styles.pressed,
         disabled && styles.disabled,
+        
       ]}
     >
-      <LinearGradient
-        colors={buttonGradient}
-        start={{ x: 0, y: 0.5 }}
-        end={{ x: 1, y: 0.5 }}
-        style={styles.gradient}
-      >
-        <Text style={[styles.text, { color: textTitle }]}>
-          {text}
-        </Text>
-      </LinearGradient>
+      <BlurView intensity={20} tint="light" style={styles.glass}>
+      
+          <Text style={[styles.text, { color: textTitle }]}>
+        {text}
+          </Text>
+      </BlurView>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  pressable: {
-    width: "100%",
-  },
-  gradient: {
+  glass: {
     height: 50,
-    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
+    borderRadius: 25,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(221, 151, 0, 0.3)',
+    borderWidth: 0.9,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  pressable: {
+    width: "100%",
   },
   text: {
     fontWeight: "700",
