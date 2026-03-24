@@ -1,20 +1,19 @@
 import React, { useState } from 'react';
 import {
-  Alert,
-  Button,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
 import { RectangularButton } from '../../components/login/rectangularButton';
-import { Divider } from 'react-native-paper';
-//Solo es un ejemplo para que salga algo a la hora de iniciar el proyecto pero hay que rehacerlo.
+import { useRouter } from 'expo-router';
 
+// Nota: este es un login de ejemplo. Reemplazar con autenticación real luego.
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const router = useRouter();
 
   const handleSubmit = () => {
     if (!email || !password) {
@@ -23,7 +22,8 @@ const Login: React.FC = () => {
     }
 
     setError('');
-    Alert.alert('Login', `Logged in as ${email}`);
+    // Simular login exitoso: redirigir a Home
+    router.replace('/(app)/home');
   };
 
   return (
@@ -53,7 +53,6 @@ const Login: React.FC = () => {
       <View style={{height: 10}} />
       <RectangularButton text="Register" />
 
-      
       {!!error && <Text style={styles.error}>{error}</Text>}
     </View>
   );
