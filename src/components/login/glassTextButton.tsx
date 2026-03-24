@@ -1,16 +1,17 @@
 import React from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { mainThemeColors } from "../../theme";
 import { BlurView } from "expo-blur";
 
 type Props = {
   text: string;
+  textColor?: string;
   onPress?: () => void;
   disabled?: boolean;
+  color?: string;
 };
 
-export function RectangularButton({ text, onPress, disabled }: Props) {
+export function RectangularButton({ text, onPress, disabled, color, textColor }: Props) {
   const { buttonGradient, textTitle } = mainThemeColors;
 
   return (
@@ -24,9 +25,10 @@ export function RectangularButton({ text, onPress, disabled }: Props) {
         
       ]}
     >
-      <BlurView intensity={20} tint="light" style={styles.glass}>
       
-          <Text style={[styles.text, { color: textTitle }]}>
+      <BlurView intensity={20} tint="light" style={[styles.glass, { backgroundColor: color ? color : "rgba(175, 175, 175, 0.3)" }]}>
+      
+          <Text style={[styles.text, { color: textColor ? textColor : "#fff" }]}>
         {text}
           </Text>
       </BlurView>

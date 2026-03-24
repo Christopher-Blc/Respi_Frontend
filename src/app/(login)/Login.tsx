@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-
   Alert,
   ImageBackground, 
   Image,          
@@ -9,10 +8,10 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { RectangularButton } from '../../components/login/rectangularButton';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { IconButton } from 'react-native-paper';
+import { RectangularButton } from '../../components/login/glassTextButton';
 
 // Nota: este es un login de ejemplo. Reemplazar con autenticación real luego.
 const Login: React.FC = () => {
@@ -88,9 +87,9 @@ const Login: React.FC = () => {
           placeholder='Enter password'
           placeholderTextColor={isDarkMode ? "#888" : "#666"}
         />
-        <RectangularButton text="Login" onPress={handleSubmit} />
+        <RectangularButton text="Login" textColor="#fff" onPress={handleSubmit} color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.3)'} />
         <View style={{ height: 12 }} />
-        <RectangularButton text="Register" />
+        <RectangularButton text="Register" textColor="#fff" color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.3)'} />
 
         {!!error && <Text style={styles.error}>{error}</Text>}
       </BlurView>
