@@ -8,6 +8,7 @@ import {
 	FlatList,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { IconButton } from 'react-native-paper';
 
 type Reservation = {
 	id: string;
@@ -63,11 +64,26 @@ export default function HomeScreen() {
 				}
 				contentContainerStyle={{ paddingBottom: 40 }}
 			/>
+			{/* Boton que redirrige a la pantalla de login */}
+			 <IconButton
+				style= {styles.logoutButton}
+				icon="door"
+				iconColor={"#ffffff"}
+				size={20}
+				onPress={() => router.replace('/(login)/Login')}
+			/>
+			
 		</View>
 	);
 }
 
 const styles = StyleSheet.create({
+	logoutButton: {
+		bottom: 150,
+		left: 10,
+		backgroundColor:"#979797",
+		shadowColor:"#fff",
+	},
 	container: {
 		padding: 20,
 		backgroundColor: '#f9fafb',
