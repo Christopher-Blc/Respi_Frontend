@@ -5,6 +5,10 @@ import {
   StyleSheet,
   Text,
   View,
+  KeyboardAvoidingView,
+  Keyboard,
+  Platform,
+  TouchableWithoutFeedback
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -64,11 +68,18 @@ const Login: React.FC = () => {
   return (
     
     <ImageBackground 
-    //Implementar cuando este el dark mode, por ahora dejo la imagen clara para que se vea bien el diseño
       source={bgImage} 
       style={styles.background}
       imageStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
     >
+      <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1, width: '100%', justifyContent: 'center', alignItems: 'center' }}
+    >
+      {/* 2. Permite cerrar el teclado al tocar el fondo */}
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+
+      
       <BlurView  tint={isDarkMode ? "dark" : "light"} style={styles.glass} intensity={20}>
         {/* Logo centered at the top of the card */}
         <Image 
@@ -77,7 +88,7 @@ const Login: React.FC = () => {
           resizeMode="contain"
         />   
 
-        <Text style={[styles.title, { color: isDarkMode ? '#FFF' : '#333' }]}>Welcome back {'Id.name'}!</Text>
+        <Text style={[styles.title, { color: isDarkMode ? '#FFF' : '#333' }]}>Welcome back!</Text>
 
         <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
           Email:
@@ -124,7 +135,8 @@ const Login: React.FC = () => {
         {!!error && <Text style={styles.error}>{error}</Text>}
       </BlurView>
 
-
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
       {/* Boton para simular un darkmode */}
       <IconButton 
         icon={isDarkMode ? "weather-sunny" : "weather-night"}

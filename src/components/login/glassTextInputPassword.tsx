@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput as RNTextInput, Platform } from 'react-native';
+import { StyleSheet, View, Text, TextInput as RNTextInput } from 'react-native';
 import { TextInput } from 'react-native-paper';
 
 interface Props {
@@ -18,6 +18,8 @@ export const GlassTextInputPassword: React.FC<Props> = ({
   label 
 }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
+  // 1. Estado para detectar el foco
+  const [isFocused, setIsFocused] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -29,24 +31,36 @@ export const GlassTextInputPassword: React.FC<Props> = ({
       <TextInput
         value={value}
         onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={isDarkMode ? "#888" : "#666"}
+        // 2. Placeholder dinámico: desaparece al hacer click
+        placeholder={isFocused ? "" : placeholder}
+        placeholderTextColor={isDarkMode ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"}
         secureTextEntry={!passwordVisible}
-        mode="flat" // Usamos flat para que no choque con tu diseño personalizado
+        mode="flat"
         underlineColor="transparent"
         activeUnderlineColor="transparent"
+        
+        // 3. Control de foco
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        
+        // 4. Cursor dorado
+        selectionColor="#CA8E0E" 
+        
         style={[
           styles.input,
           { 
-            backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.5)',
-            color: isDarkMode ? '#FFF' : '#000'
+            backgroundColor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.4)',
+            // 5. Borde dinámico
+            borderColor: isFocused ? '#CA8E0E' : 'rgba(0, 0, 0, 0.1)',
+            borderWidth: isFocused ? 1.5 : 1,
           }
         ]}
         textColor={isDarkMode ? '#FFF' : '#000'}
         right={
           <TextInput.Icon 
             icon={passwordVisible ? "eye-off" : "eye"} 
-            color={isDarkMode ? "#AAA" : "#666"}
+            // El icono también puede cambiar de color al enfocar si quieres
+            color={isFocused ? "#CA8E0E" : (isDarkMode ? "#AAA" : "#666")}
             onPress={() => setPasswordVisible(!passwordVisible)}
             forceTextInputFocus={false}
           />
@@ -59,20 +73,20 @@ export const GlassTextInputPassword: React.FC<Props> = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    marginBottom: 15,
+    marginBottom: 12, // Un poco menos de margen para que quepa mejor con el teclado
   },
   label: {
     alignSelf: 'flex-start',
     marginBottom: 5,
-    fontWeight: '500',
+    fontSize: 14,
+    fontWeight: '600',
   },
   input: {
     width: '100%',
-    height: 50, // Ajustado para que se vea similar a tu padding anterior
+    height: 50, 
     borderRadius: 12,
-    borderTopLeftRadius: 12, // React Native Paper requiere resetear estos radios
+    borderTopLeftRadius: 12, 
     borderTopRightRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.12)',
+    overflow: 'hidden', 
   },
 });
