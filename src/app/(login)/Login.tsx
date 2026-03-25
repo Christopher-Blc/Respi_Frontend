@@ -68,7 +68,7 @@ const Login: React.FC = () => {
     //Implementar cuando este el dark mode, por ahora dejo la imagen clara para que se vea bien el diseño
       source={bgImage} 
       style={styles.background}
-      
+      imageStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
     >
       <BlurView  tint={isDarkMode ? "dark" : "light"} style={styles.glass} intensity={60}>
         {/* Logo centered at the top of the card */}
@@ -103,7 +103,7 @@ const Login: React.FC = () => {
         isDarkMode={isDarkMode}
         />
 
-        <RectangularButton text="Login" textColor="#fff" onPress={handleSubmit} color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.3rgba(191, 132, 4, 0.51))'} />
+        <RectangularButton text="Login" textColor="#fff" onPress={handleSubmit} color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.51)'} />
         <View style={{ height: 12 }} />
 
         <View style={{ height: 16 }} />

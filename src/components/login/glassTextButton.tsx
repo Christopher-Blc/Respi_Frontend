@@ -1,6 +1,5 @@
 import React from "react";
-import { Pressable, StyleSheet, Text } from "react-native";
-import { mainThemeColors } from "../../theme";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { BlurView } from "expo-blur";
 
 type Props = {
@@ -12,8 +11,7 @@ type Props = {
 };
 
 export function RectangularButton({ text, onPress, disabled, color, textColor }: Props) {
-  const { buttonGradient, textTitle } = mainThemeColors;
-
+  const buttonColor = color ? color : "rgba(175, 175, 175, 0.3)"; // Fallback a un color semitransparente
   return (
     <Pressable
       onPress={onPress}
@@ -25,13 +23,20 @@ export function RectangularButton({ text, onPress, disabled, color, textColor }:
         
       ]}
     >
-      
-      <BlurView intensity={20} tint="light" style={[styles.glass, { backgroundColor: color ? color : "rgba(175, 175, 175, 0.3)" }]}>
-      
-          <Text style={[styles.text, { color: textColor ? textColor : "#fff" }]}>
-        {text}
+      {/*Hacia falta meterle eso pq en web no cogia bn el color ... */}
+      {Platform.OS === 'web' ? (
+        <View style={[styles.glass, { backgroundColor: buttonColor }]}>
+          <Text style={[styles.text, { color: textColor || "#fff" }]}>
+            {text}
           </Text>
-      </BlurView>
+        </View>
+      ) : (
+        <BlurView intensity={20} tint="light" style={[styles.glass, { backgroundColor: buttonColor }]}>
+          <Text style={[styles.text, { color: textColor || "#fff" }]}>
+            {text}
+          </Text>
+        </BlurView>
+      )}
     </Pressable>
   );
 }

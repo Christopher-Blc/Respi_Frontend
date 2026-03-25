@@ -78,14 +78,15 @@ const Register: React.FC = () => {
         //Implementar cuando este el dark mode, por ahora dejo la imagen clara para que se vea bien el diseño
         source={bgImage} 
         style={styles.background}
+        imageStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
         >
         <BlurView  tint={isDarkMode ? "dark" : "light"} style={styles.glass} intensity={70}>
             <ScrollView 
-        style={{ width: '100%' }} 
+        style={{ width: '100%' , height: '100%' }} 
         contentContainerStyle={{ 
             flexGrow: 1, 
             alignItems: 'center',
-            paddingBottom: 20 // Espacio extra al final para que no corte el último botón
+            paddingBottom: 20, // Espacio extra al final para que no corte el último botón
         }}
         showsVerticalScrollIndicator={false}
     >
@@ -170,7 +171,7 @@ const Register: React.FC = () => {
             <IconButton
               icon="calendar-edit"
               style={styles.calendarIcon}
-              iconColor={isDarkMode ? '#CA8E0E' : '#5100ff'}
+              iconColor={isDarkMode ? '#CA8E0E' : '#CA8E0E'}
               size={24}
               onPress={() => setShowPicker(true)}
             />
@@ -203,9 +204,9 @@ const Register: React.FC = () => {
             />
             
 
-            <RectangularButton text="Login" textColor="#fff" onPress={handleSubmit} color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.3rgba(191, 132, 4, 0.51))'} />
+            <RectangularButton text="Register" textColor="#fff" onPress={handleSubmit} color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.51)'} />
             <View style={{ height: 12 }} />
-            <Text style={{ color: isDarkMode ? '#ccc' : '#666', textAlign: 'center' }}>
+            <Text style={{ color: isDarkMode ? '#ccc' : '#667', textAlign: 'center' }}>
                     Already have an account?{' '}
                     <Text 
                         style={{ color: '#CA8E0E', fontWeight: 'bold' }} 
@@ -259,7 +260,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center', 
     alignItems: 'center',
-    
   },
   glass: {
     width: '85%',
