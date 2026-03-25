@@ -15,6 +15,7 @@ import { IconButton } from 'react-native-paper';
 import { RectangularButton } from '../../components/login/glassTextButton';
 import { GlassTextInputPassword } from '../../components/login/glassTextInputPassword';
 import { GlassTextInput } from '../../components/login/glassTextInput';
+import api from '../../services/api';
 
 // Nota: este es un login de ejemplo. Reemplazar con autenticación real luego.
 const Login: React.FC = () => {
@@ -27,17 +28,32 @@ const Login: React.FC = () => {
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
-  const handleSubmit = () => {
+ const handleSubmit = async () => {
     if (!email || !password) {
-      setError('Please enter both email and password.');
+      setError('Por favor, rellena todos los campos.');
       return;
     }
-    if (!validEmail(email)) {
-      return;
+
+    try {
+      setError(''); // Limpiamos errores previos
+      
+      // Llamada a tu endpoint de NestJS (ej: /auth/login)
+      const response = await api.post('/auth/login', {
+        email: email.toLowerCase(),
+        password: password,
+      });
+
+      if (response.data.access_token) {
+        // AQUÍ: Guardar el token (ver paso 4)
+        console.log('Login exitoso:', response.data.access_token);
+        router.replace('/(app)/home');
+      }
+    } catch (err: any) {
+      // Manejo de errores de NestJS
+      const message = err.response?.data?.message || 'Error de conexión';
+      console.log('Error en login:', err);
+      setError(Array.isArray(message) ? message[0] : message);
     }
-    setError('');
-    // Simular login exitoso: redirigir a Home
-    router.replace('/(app)/home');
   };
 
   const validEmail = (email: string) => {
@@ -65,7 +81,7 @@ const Login: React.FC = () => {
       source={bgImage} 
       style={styles.background}
     >
-      <BlurView  tint={isDarkMode ? "dark" : "light"} style={styles.glass} intensity={15}>
+      <BlurView  tint={isDarkMode ? "dark" : "light"} style={styles.glass} intensity={60}>
         {/* Logo centered at the top of the card */}
         <Image 
           source={require('../../../assets/RespiLogo.png')} 
@@ -73,7 +89,7 @@ const Login: React.FC = () => {
           resizeMode="contain"
         />   
 
-        <Text style={[styles.title, { color: isDarkMode ? '#FFF' : '#333' }]}>Login</Text>
+        <Text style={[styles.title, { color: isDarkMode ? '#FFF' : '#333' }]}>Welcome back {'Id.name'}!</Text>
 
         <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
           Email:
@@ -154,7 +170,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '700',
     marginBottom: 20,
   },
