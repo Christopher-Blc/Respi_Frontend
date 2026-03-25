@@ -13,20 +13,21 @@ import { RectangularButton } from '../../components/login/glassTextButton';
 import { GlassTextInputPassword } from '../../components/login/glassTextInputPassword';
 import { GlassTextInput } from '../../components/login/glassTextInput';
 import api from '../../services/api';
-import AnimatedSportText from '../../components/login/animatedSportText';
+import { saveToken } from '../../services/authStorage';
+import { useAuth } from '../../context/AuthContext';
 
-// Nota: este es un login de ejemplo. Reemplazar con autenticación real luego.
+
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
- const handleSubmit = async () => {
+  const { signIn } = useAuth();
+  const handleSubmit = async () => {
     if (!email || !password) {
       setError('Por favor, rellena todos los campos.');
       return;
@@ -43,9 +44,9 @@ const Login: React.FC = () => {
 
 
       if (response.data.access_token) {
-        // AQUÍ: Guardar el token (ver paso 4)
         console.log('Login exitoso:', response.data.access_token);
-        router.replace('/(app)/home');
+        const token = response.data.access_token;
+        signIn(token);
       }
     } catch (err: any) {
       // Manejo de errores de NestJS
@@ -55,8 +56,6 @@ const Login: React.FC = () => {
     }
   };
 
-
-  // 2. Define dynamic assets based on mode
   const bgImage = isDarkMode 
     ? require('../../../assets/login-bg-dark.png') 
     : require('../../../assets/login-bg-light.png');
@@ -65,13 +64,12 @@ const Login: React.FC = () => {
   return (
     
     <ImageBackground 
-    //si es dark mide , ruta de img: ../../../assets/login-bg-light.png
     //Implementar cuando este el dark mode, por ahora dejo la imagen clara para que se vea bien el diseño
       source={bgImage} 
       style={styles.background}
       imageStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
     >
-      <BlurView  tint={isDarkMode ? "dark" : "light"} style={styles.glass} intensity={60}>
+      <BlurView  tint={isDarkMode ? "dark" : "light"} style={styles.glass} intensity={20}>
         {/* Logo centered at the top of the card */}
         <Image 
           source={require('../../../assets/RespiLogo.png')} 
@@ -86,6 +84,7 @@ const Login: React.FC = () => {
         </Text>
 
         <GlassTextInput
+        keyboardType="email-address"
         placeholder="Enter email"
         value={email}
         onChangeText={setEmail}

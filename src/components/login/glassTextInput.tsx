@@ -8,6 +8,7 @@ interface Props {
   placeholder?: string;
   isDarkMode: boolean;
   label?: string;
+  keyboardType?: React.ComponentProps<typeof RNTextInput>['keyboardType'];
 }
 
 export const GlassTextInput: React.FC<Props> = ({ 
@@ -15,7 +16,8 @@ export const GlassTextInput: React.FC<Props> = ({
   onChangeText, 
   placeholder = "Enter email", 
   isDarkMode,
-  label 
+  label,
+  keyboardType = "default",
 }) => {
 
   return (
@@ -33,6 +35,7 @@ export const GlassTextInput: React.FC<Props> = ({
         mode="flat" // Usamos flat para que no choque con el diseño personalizado
         underlineColor="transparent"
         activeUnderlineColor="transparent"
+        keyboardType={keyboardType}
         style={[
           styles.input,
           { 

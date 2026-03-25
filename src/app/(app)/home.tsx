@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { IconButton } from 'react-native-paper';
+import { useAuth } from '../../context/AuthContext';
 
 type Reservation = {
 	id: string;
@@ -17,12 +18,24 @@ type Reservation = {
 	time: string;
 };
 
+
+
 const mockReservations: Reservation[] = [
 	{ id: '1', title: 'Pista 1 - Tenis', date: '2026-04-02', time: '18:00' },
 	{ id: '2', title: 'Pista 3 - Pádel', date: '2026-04-05', time: '20:30' },
 ];
 
 export default function HomeScreen() {
+    //para el logout temporal (Moverlo despues plis cuando este la pantalla de ajustes)
+    const { signOut } = useAuth();
+    const handleLogout = async () => {
+        try {
+            signOut();
+            
+        } catch (error) {
+            console.error("Error al cerrar sesión", error);
+        }
+    };
 	const router = useRouter();
 
 	const renderReservation = ({ item }: { item: Reservation }) => (
@@ -70,7 +83,7 @@ export default function HomeScreen() {
 				icon="door"
 				iconColor={"#ffffff"}
 				size={20}
-				onPress={() => router.replace('/(login)/Login')}
+				onPress={() => handleLogout()}
 			/>
 			
 		</View>
