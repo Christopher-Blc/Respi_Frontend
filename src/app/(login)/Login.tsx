@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
 import {
-  Alert,
   ImageBackground, 
   Image,          
   StyleSheet,
   Text,
-  TextInput,
   View,
-  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -43,6 +40,7 @@ const Login: React.FC = () => {
         password: password,
       });
 
+
       if (response.data.access_token) {
         // AQUÍ: Guardar el token (ver paso 4)
         console.log('Login exitoso:', response.data.access_token);
@@ -56,17 +54,6 @@ const Login: React.FC = () => {
     }
   };
 
-  const validEmail = (email: string) => {
-    if (email) {
-      if (email.includes("@")) {
-        return true;
-      }else {
-        setError("Please enter a valid email address.\n(mete un @ y va)");
-        return false;
-      }
-    }
-    return false;
-  };
 
   // 2. Define dynamic assets based on mode
   const bgImage = isDarkMode 
@@ -75,11 +62,13 @@ const Login: React.FC = () => {
 
 
   return (
+    
     <ImageBackground 
     //si es dark mide , ruta de img: ../../../assets/login-bg-light.png
     //Implementar cuando este el dark mode, por ahora dejo la imagen clara para que se vea bien el diseño
       source={bgImage} 
       style={styles.background}
+      
     >
       <BlurView  tint={isDarkMode ? "dark" : "light"} style={styles.glass} intensity={60}>
         {/* Logo centered at the top of the card */}
@@ -116,7 +105,21 @@ const Login: React.FC = () => {
 
         <RectangularButton text="Login" textColor="#fff" onPress={handleSubmit} color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.3rgba(191, 132, 4, 0.51))'} />
         <View style={{ height: 12 }} />
-        <RectangularButton text="Register" textColor="#fff" color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.51)'} />
+
+        <View style={{ height: 16 }} />
+
+        <Text style={{ color: isDarkMode ? '#ccc' : '#666', textAlign: 'center' }}>
+          Don't have an account yet?{' '}
+          <Text 
+            style={{ color: '#CA8E0E', fontWeight: 'bold' }} 
+            onPress={() => router.replace('Register')}
+          >
+            Register
+          </Text>
+        </Text>
+
+        {/*<RectangularButton text="Register" textColor="#fff" color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.51)'} />*/}
+        
 
         {!!error && <Text style={styles.error}>{error}</Text>}
       </BlurView>
@@ -164,10 +167,6 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 5 },
   },
   title: {
     fontSize: 26,
