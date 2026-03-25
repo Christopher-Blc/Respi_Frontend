@@ -13,7 +13,7 @@ import { IconButton } from 'react-native-paper';
 import { RectangularButton } from '../../components/login/glassTextButton';
 import { GlassTextInputPassword } from '../../components/login/glassTextInputPassword';
 import { GlassTextInput } from '../../components/login/glassTextInput';
-import RNDateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import RNDateTimePicker from '@react-native-community/datetimepicker';
 import api from '../../services/api';
 
 
