@@ -13,6 +13,7 @@ import { RectangularButton } from '../../components/login/glassTextButton';
 import { GlassTextInputPassword } from '../../components/login/glassTextInputPassword';
 import { GlassTextInput } from '../../components/login/glassTextInput';
 import api from '../../services/api';
+import AnimatedSportText from '../../components/login/animatedSportText';
 
 // Nota: este es un login de ejemplo. Reemplazar con autenticación real luego.
 const Login: React.FC = () => {
