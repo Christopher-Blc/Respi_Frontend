@@ -14,6 +14,7 @@ import { RectangularButton } from '../../components/login/glassTextButton';
 import { GlassTextInputPassword } from '../../components/login/glassTextInputPassword';
 import { GlassTextInput } from '../../components/login/glassTextInput';
 import RNDateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import api from '../../services/api';
 
 
 const Register: React.FC = () => {
@@ -62,8 +63,42 @@ const Register: React.FC = () => {
   };
 
  const handleSubmit = async () => {
+    if (!email || !password || !name || !surname || !phone || !birthDate || !location) {
+      setError('Por favor, rellena todos los campos.');
+      return;
+    }
+
+     try {
+    setError(''); 
     
-  };
+    const response = await api.post('/auth/register', {
+      email: email.toLowerCase(),
+      password: password,
+      name: name,
+      surname: surname,
+      phone: phone,
+      fecha_nacimiento: date.toISOString(), 
+      direccion: location,
+    });
+
+    // Si el registro es exitoso (usualmente NestJS devuelve un 201)
+    if (response.status === 201 || response.data.access_token) {
+      
+      // Mensaje de éxito
+      alert('¡Cuenta creada con éxito! Bienvenido.');
+
+      // Redirigir
+      // Si recibes token, podrías guardarlo aquí antes de redirigir
+      router.replace('/(app)/home'); 
+    }
+
+  } catch (err: any) {
+    const message = err.response?.data?.message || 'Error de conexión';
+    console.log('Error en registro:', err);
+    setError(Array.isArray(message) ? message[0] : message);
+  }
+
+};
 
 
   // 2. Define dynamic assets based on mode
@@ -187,10 +222,6 @@ const Register: React.FC = () => {
               textColor={isDarkMode ? 'white' : 'black'}
             />
           )}
-
-          <View style={{ height: 20 }} />
-
-          
 
             <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
             Location:
