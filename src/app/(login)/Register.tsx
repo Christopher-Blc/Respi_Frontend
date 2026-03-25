@@ -7,6 +7,9 @@ import {
   View,
   ScrollView,
   Platform,
+  Keyboard,
+  TouchableWithoutFeedback,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -125,6 +128,12 @@ const Register: React.FC = () => {
         style={styles.background}
         imageStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
         >
+          <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={{ flex: 1, width: '100%', justifyContent: 'center', alignItems: 'center' }}
+              >
+                {/* 2. Permite cerrar el teclado al tocar el fondo */}
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <BlurView  tint={isDarkMode ? "dark" : "light"} style={styles.glass} intensity={20}>
             <ScrollView 
         style={{ width: '100%' , height: '100%' }} 
@@ -266,7 +275,8 @@ const Register: React.FC = () => {
         </BlurView>
 
         
-
+</TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
 
         {/* Boton para simular un darkmode (habra que quitarlo)*/}
         <IconButton 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput as RNTextInput, Platform } from 'react-native';
+import { StyleSheet, View, Text, TextInput as RNTextInput } from 'react-native';
 import { TextInput } from 'react-native-paper';
 
 interface Props {
@@ -9,16 +9,20 @@ interface Props {
   isDarkMode: boolean;
   label?: string;
   keyboardType?: React.ComponentProps<typeof RNTextInput>['keyboardType'];
+  readonly?: boolean;
 }
 
 export const GlassTextInput: React.FC<Props> = ({ 
   value, 
   onChangeText, 
-  placeholder = "Enter email", 
+  placeholder = "Enter text", 
   isDarkMode,
   label,
   keyboardType = "default",
+  readonly = false,
 }) => {
+  // 1. Estado para saber si el usuario está dentro del input
+  const [isFocused, setIsFocused] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -28,23 +32,33 @@ export const GlassTextInput: React.FC<Props> = ({
         </Text>
       )}
       <TextInput
+        readOnly={readonly}
         value={value}
         onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={isDarkMode ? "#888" : "#666"}
-        mode="flat" // Usamos flat para que no choque con el diseño personalizado
+        // 2. Si está focused, quitamos el placeholder para que no moleste
+        placeholder={isFocused ? "" : placeholder}
+        placeholderTextColor={isDarkMode ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"}
+        mode="flat"
         underlineColor="transparent"
         activeUnderlineColor="transparent"
         keyboardType={keyboardType}
+        // 3. Eventos de foco
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        // 4. Color del cursor (palito)
+        selectionColor="#CA8E0E" 
         style={[
           styles.input,
           { 
-            backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.5)',
-            color: isDarkMode ? '#FFF' : '#000'
+            backgroundColor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.4)',
+            // 5. Cambio dinámico de borde
+            borderColor: isFocused ? '#CA8E0E' : 'rgba(0, 0, 0, 0.1)',
+            borderWidth: isFocused ? 1.5 : 1,
+            // Sombra suave cuando está enfocado para el efecto Glass
+            elevation: isFocused ? 2 : 0,
           }
         ]}
         textColor={isDarkMode ? '#FFF' : '#000'}
-       
       />
     </View>
   );
@@ -53,12 +67,13 @@ export const GlassTextInput: React.FC<Props> = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    marginBottom: 15,
+    marginBottom: 12,
   },
   label: {
     alignSelf: 'flex-start',
     marginBottom: 5,
-    fontWeight: '500',
+    fontSize: 14,
+    fontWeight: '600',
   },
   input: {
     width: '100%',
@@ -66,7 +81,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderTopLeftRadius: 12, 
     borderTopRightRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.12)',
+    overflow: 'hidden', 
   },
 });
