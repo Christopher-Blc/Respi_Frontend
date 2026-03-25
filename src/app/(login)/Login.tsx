@@ -7,11 +7,14 @@ import {
   Text,
   TextInput,
   View,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { IconButton } from 'react-native-paper';
 import { RectangularButton } from '../../components/login/glassTextButton';
+import { GlassTextInputPassword } from '../../components/login/glassTextInputPassword';
+import { GlassTextInput } from '../../components/login/glassTextInput';
 
 // Nota: este es un login de ejemplo. Reemplazar con autenticación real luego.
 const Login: React.FC = () => {
@@ -29,9 +32,24 @@ const Login: React.FC = () => {
       setError('Please enter both email and password.');
       return;
     }
+    if (!validEmail(email)) {
+      return;
+    }
     setError('');
     // Simular login exitoso: redirigir a Home
     router.replace('/(app)/home');
+  };
+
+  const validEmail = (email: string) => {
+    if (email) {
+      if (email.includes("@")) {
+        return true;
+      }else {
+        setError("Please enter a valid email address.\n(mete un @ y va)");
+        return false;
+      }
+    }
+    return false;
   };
 
   // 2. Define dynamic assets based on mode
@@ -47,7 +65,7 @@ const Login: React.FC = () => {
       source={bgImage} 
       style={styles.background}
     >
-      <BlurView intensity={15} tint={isDarkMode ? "dark" : "light"} style={styles.glass}>
+      <BlurView  tint={isDarkMode ? "dark" : "light"} style={styles.glass} intensity={15}>
         {/* Logo centered at the top of the card */}
         <Image 
           source={require('../../../assets/RespiLogo.png')} 
@@ -60,39 +78,35 @@ const Login: React.FC = () => {
         <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
           Email:
         </Text>
-        <TextInput
-          value={email}
-          onChangeText={setEmail}
-          keyboardType='email-address'
-          autoCapitalize='none'
-          style={[styles.input, { 
-            backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.5)',
-            color: isDarkMode ? '#FFF' : '#000'
-          }]}
-          placeholder='Enter email'
-          placeholderTextColor={isDarkMode ? "#888" : "#666"}
+
+        <GlassTextInput
+        placeholder="Enter email"
+        value={email}
+        onChangeText={setEmail}
+        isDarkMode={isDarkMode}
         />
 
         <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
           Password:
         </Text>
-        <TextInput
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          style={[styles.input, { 
-            backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.5)',
-            color: isDarkMode ? '#FFF' : '#000'
-          }]}
-          placeholder='Enter password'
-          placeholderTextColor={isDarkMode ? "#888" : "#666"}
+
+
+        <GlassTextInputPassword 
+        placeholder="Enter password"
+        value={password}
+        onChangeText={setPassword}
+        isDarkMode={isDarkMode}
         />
-        <RectangularButton text="Login" textColor="#fff" onPress={handleSubmit} color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.3)'} />
+
+        <RectangularButton text="Login" textColor="#fff" onPress={handleSubmit} color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.3rgba(191, 132, 4, 0.51))'} />
         <View style={{ height: 12 }} />
-        <RectangularButton text="Register" textColor="#fff" color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.3)'} />
+        <RectangularButton text="Register" textColor="#fff" color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.51)'} />
 
         {!!error && <Text style={styles.error}>{error}</Text>}
       </BlurView>
+
+
+      {/* Boton para simular un darkmode */}
       <IconButton 
         icon={isDarkMode ? "weather-sunny" : "weather-night"}
         style={styles.darkModeButton}
@@ -122,8 +136,10 @@ const styles = StyleSheet.create({
     maxWidth: 340,
     padding: 25,
     borderRadius: 30, 
-    borderWidth: 0.5,
-    borderColor: '#616161',
+    borderWidth: 0.8,
+    borderColor: "#ccc",
+    //borderWidth: 0.5,
+    //borderColor: '#616161',
     //backgroundColor: 'rgba(255, 170, 0, 0.12)',
     overflow: 'hidden',
     alignItems: 'center', 
