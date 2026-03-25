@@ -6,6 +6,7 @@ import {
   Text,
   View,
   ScrollView,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -15,6 +16,8 @@ import { GlassTextInputPassword } from '../../components/login/glassTextInputPas
 import { GlassTextInput } from '../../components/login/glassTextInput';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import api from '../../services/api';
+import { saveToken } from '../../services/authStorage';
+import { useAuth } from '../../context/AuthContext';
 
 
 const Register: React.FC = () => {
@@ -34,7 +37,8 @@ const Register: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
-  // MÁSCARA DE ENTRADA MANUAL: Añade las "/" automáticamente
+
+  // Cosas para el date,  añade las "/" solo y pilladas raras del chat
   const handleTextChange = (text: string) => {
     let cleaned = text.replace(/\D/g, ''); // Solo números
     let formatted = cleaned;
@@ -50,8 +54,13 @@ const Register: React.FC = () => {
   };
 
   const onDateChange = (event: any, selectedDate?: Date) => {
-    // En Android, 'set' es cuando aceptan. 'dismissed' cuando cancelan.
-    if (event.type === 'set' && selectedDate) {
+    //Si es Android, cerramos el picker siempre (al dar OK o Cancelar)
+    if (Platform.OS === 'android') {
+      setShowPicker(false);
+    }
+
+    //Si hay una fecha seleccionada, la guardamos
+    if (selectedDate) {
       const day = String(selectedDate.getDate()).padStart(2, '0');
       const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
       const year = selectedDate.getFullYear();
@@ -59,49 +68,50 @@ const Register: React.FC = () => {
       setBirthDate(`${day}/${month}/${year}`);
       setDate(selectedDate);
     }
-    setShowPicker(false);
   };
 
- const handleSubmit = async () => {
-    if (!email || !password || !name || !surname || !phone || !birthDate || !location) {
-      setError('Por favor, rellena todos los campos.');
-      return;
-    }
+  //Accion cuando se pulsa registrar
+  const { signIn } = useAuth();
+  const handleSubmit = async () => {
+    //comprobar campos vacios
+      if (!email || !password || !name || !surname || !phone || !birthDate || !location) {
+        setError('Por favor, rellena todos los campos.');
+        return;
+      }
 
-     try {
-    setError(''); 
-    
-    const response = await api.post('/auth/register', {
-      email: email.toLowerCase(),
-      password: password,
-      name: name,
-      surname: surname,
-      phone: phone,
-      fecha_nacimiento: date.toISOString(), 
-      direccion: location,
-    });
-
-    // Si el registro es exitoso (usualmente NestJS devuelve un 201)
-    if (response.status === 201 || response.data.access_token) {
+      //tr catch dnd haremos la llamada a api
+      try {
+      setError(''); 
       
-      // Mensaje de éxito
-      alert('¡Cuenta creada con éxito! Bienvenido.');
+      //hacemos la llamada pasando los datos
+      const response = await api.post('/auth/register', {
+        email: email.toLowerCase(),
+        password: password,
+        name: name,
+        surname: surname,
+        phone: phone,
+        fecha_nacimiento: date.toISOString(), 
+        direccion: location,
+      });
 
-      // Redirigir
-      // Si recibes token, podrías guardarlo aquí antes de redirigir
-      router.replace('/(app)/home'); 
+      //si ha cinseguido una respuesta valida , lo avisamos y guardamos el token en securestorage
+      if (response.status === 201 || response.data.access_token) {
+        const token = response.data.access_token;
+        alert('¡Cuenta creada con éxito! Bienvenido.');
+        signIn(token);
+      }
+
+    } catch (err: any) {
+      //si ha habido un error lo enseñamos 
+      const message = err.response?.data?.message || 'Error de conexión';
+      console.log('Error en registro:', err);
+      setError(Array.isArray(message) ? message[0] : message);
     }
 
-  } catch (err: any) {
-    const message = err.response?.data?.message || 'Error de conexión';
-    console.log('Error en registro:', err);
-    setError(Array.isArray(message) ? message[0] : message);
-  }
-
-};
+  };
 
 
-  // 2. Define dynamic assets based on mode
+  //dependiendo del modo se pilla un fondo u otro
   const bgImage = isDarkMode 
     ? require('../../../assets/login-bg-dark.png') 
     : require('../../../assets/login-bg-light.png');
@@ -115,7 +125,7 @@ const Register: React.FC = () => {
         style={styles.background}
         imageStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
         >
-        <BlurView  tint={isDarkMode ? "dark" : "light"} style={styles.glass} intensity={70}>
+        <BlurView  tint={isDarkMode ? "dark" : "light"} style={styles.glass} intensity={20}>
             <ScrollView 
         style={{ width: '100%' , height: '100%' }} 
         contentContainerStyle={{ 
@@ -125,7 +135,7 @@ const Register: React.FC = () => {
         }}
         showsVerticalScrollIndicator={false}
     >
-            {/* Logo centered at the top of the card */}
+            {/* Logo respi en card*/}
             <Image 
             source={require('../../../assets/RespiLogo.png')} 
             style={styles.logo}
@@ -164,6 +174,7 @@ const Register: React.FC = () => {
             </Text>
 
             <GlassTextInput
+            keyboardType='email-address'
             placeholder="Enter email"
             value={email}
             onChangeText={setEmail}
@@ -175,6 +186,7 @@ const Register: React.FC = () => {
             </Text>
 
             <GlassTextInput
+            keyboardType='phone-pad'
             placeholder="Enter phone"
             value={phone}
             onChangeText={setPhone}
@@ -194,13 +206,13 @@ const Register: React.FC = () => {
             />
 
 
-            {/* --- CAMPO FECHA DE NACIMIENTO (HÍBRIDO) --- */}
+            {/* --- fecha de nacimiento  --- */}
           <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>Birth Date:</Text>
           <View style={styles.inputWrapper}>
             <GlassTextInput
               placeholder="DD/MM/YYYY"
               value={birthDate}
-              onChangeText={handleTextChange} // Aplica la máscara al escribir
+              onChangeText={handleTextChange} 
               isDarkMode={isDarkMode}
             />
             <IconButton
@@ -208,7 +220,7 @@ const Register: React.FC = () => {
               style={styles.calendarIcon}
               iconColor={isDarkMode ? '#CA8E0E' : '#CA8E0E'}
               size={24}
-              onPress={() => setShowPicker(true)}
+              onPress={() => setShowPicker(!showPicker)}
             />
           </View>
 
@@ -216,10 +228,12 @@ const Register: React.FC = () => {
             <RNDateTimePicker
               value={date}
               mode="date"
-              display="spinner" // <--- RUEDAS EN AMBOS SISTEMAS
+              display="spinner" 
               onChange={onDateChange}
               maximumDate={new Date()}
+              minimumDate={new Date('1900-01-01')}
               textColor={isDarkMode ? 'white' : 'black'}
+              
             />
           )}
 
@@ -246,7 +260,7 @@ const Register: React.FC = () => {
                         Login
                     </Text>
                     </Text>
-
+          {/*aqui se muestra el error */}
             {!!error && <Text style={styles.error}>{error}</Text>}
              </ScrollView>
         </BlurView>
@@ -254,7 +268,7 @@ const Register: React.FC = () => {
         
 
 
-        {/* Boton para simular un darkmode */}
+        {/* Boton para simular un darkmode (habra que quitarlo)*/}
         <IconButton 
             icon={isDarkMode ? "weather-sunny" : "weather-night"}
             style={styles.darkModeButton}
