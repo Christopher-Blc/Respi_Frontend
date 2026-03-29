@@ -2,12 +2,15 @@ import React from 'react';
 import {
 	View,
 	Text,
-	ScrollView,
 	StyleSheet,
 	TouchableOpacity,
 	FlatList,
+	ImageBackground,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { MODELOS } from '../../data/modelos';
 import { IconButton } from 'react-native-paper';
 import { useAuth } from '../../context/AuthContext';
 
@@ -38,12 +41,29 @@ export default function HomeScreen() {
     };
 	const router = useRouter();
 
-	const renderReservation = ({ item }: { item: Reservation }) => (
-		<View style={styles.card}>
-			<Text style={styles.cardTitle}>{item.title}</Text>
-			<Text style={styles.cardMeta}>{item.date} • {item.time}</Text>
-		</View>
-	);
+	const getImageForReservation = (title: string) => {
+		const found = MODELOS.find((m) => title.toLowerCase().includes(m.title.toLowerCase()));
+		return found ? found.img : MODELOS[0].img;
+	};
+
+	const renderReservation = ({ item }: { item: Reservation }) => {
+		const img = getImageForReservation(item.title);
+		return (
+			<TouchableOpacity style={styles.card} onPress={() => router.push(`/(app)/reservas/${item.id}`)}>
+				<ImageBackground source={img} style={styles.cardBg} imageStyle={{ borderRadius: 12 }}>
+					<LinearGradient colors={["transparent", "rgba(0,0,0,0.48)"]} style={styles.cardOverlay}>
+						<View style={styles.cardTop}>
+							<Text style={styles.cardTitle}>{item.title}</Text>
+						</View>
+						<View style={styles.cardBottom}>
+							<Text style={styles.cardMeta}>{item.date} • {item.time}</Text>
+							<Ionicons name="chevron-forward-outline" size={20} color="#fff" />
+						</View>
+					</LinearGradient>
+				</ImageBackground>
+			</TouchableOpacity>
+		);
+	};
 
 	return (
 		<View style={styles.container}>
@@ -98,9 +118,10 @@ const styles = StyleSheet.create({
 		shadowColor:"#fff",
 	},
 	container: {
-		padding: 20,
+		paddingHorizontal: 16,
+		paddingTop: 18,
 		backgroundColor: '#f9fafb',
-		minHeight: '100%'
+		minHeight: '100%',
 	},
 	header: {
 		fontSize: 28,
@@ -114,16 +135,16 @@ const styles = StyleSheet.create({
 	},
 	quickButton: {
 		flex: 1,
-		paddingVertical: 14,
-		borderRadius: 10,
+		paddingVertical: 12,
+		borderRadius: 12,
 		alignItems: 'center',
 		marginHorizontal: 6,
 	},
 	primary: {
-		backgroundColor: '#4f46e5',
+		backgroundColor: '#CA8E0E',
 	},
 	secondary: {
-		backgroundColor: '#06b6d4',
+		backgroundColor: 'rgba(10,10,10,0.06)',
 	},
 	quickText: {
 		color: '#fff',
@@ -135,17 +156,22 @@ const styles = StyleSheet.create({
 		marginBottom: 10,
 	},
 	card: {
+		width: '100%',
+		padding: 14,
+		borderRadius: 12,
 		backgroundColor: '#fff',
-		padding: 12,
-		borderRadius: 10,
 		borderWidth: 1,
 		borderColor: '#e5e7eb',
+		shadowColor: '#000',
+		shadowOffset: { width: 0, height: 6 },
+		shadowOpacity: 0.06,
+		shadowRadius: 12,
+		elevation: 4,
 	},
-	cardTitle: {
-		fontWeight: '700',
-	},
-	cardMeta: {
-		color: '#6b7280',
-		marginTop: 4,
-	},
+	cardBg: { width: '100%', height: 140, justifyContent: 'flex-end' },
+	cardOverlay: { flex: 1, justifyContent: 'space-between', padding: 12 },
+	cardTop: {},
+	cardBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+	cardTitle: { fontWeight: '800', fontSize: 16, color: '#fff' },
+	cardMeta: { color: '#fff', opacity: 0.9 },
 });
