@@ -1,6 +1,6 @@
 // Tipos de Autenticación
 // =====================================================
-export type UserRole = "ADMIN" | "NORMAL" | "MECANICO";
+export type UserRole = 'ADMIN' | 'NORMAL' | 'MECANICO';
 
 export interface AuthUser {
   id: string;
@@ -34,11 +34,11 @@ export interface User {
 }
 
 export type EstadoPedido =
-  | "PREPARADO"
-  | "ENTREGADO"
-  | "DEVUELTO"
-  | "PENDIENTE_REVISION"
-  | "FINALIZADO";
+  | 'PREPARADO'
+  | 'ENTREGADO'
+  | 'DEVUELTO'
+  | 'PENDIENTE_REVISION'
+  | 'FINALIZADO';
 
 export interface Cliente {
   id: number;
@@ -70,6 +70,7 @@ export interface Producto {
   nombre: string;
   descripcion?: string;
   precioDia: number; // precio por unidad y día
+  precioHora?: number; // precio por unidad y hora (opcional)
   activo: boolean;
 }
 
@@ -147,24 +148,24 @@ export interface PedidoConDetalle extends Pedido {
 export const clientes: Cliente[] = [
   {
     id: 1,
-    nombre: "Carlos López",
-    telefono: "612000111",
-    email: "carlos@example.com",
+    nombre: 'Carlos López',
+    telefono: '612000111',
+    email: 'carlos@example.com',
     activo: true,
   },
   {
     id: 2,
-    nombre: "Ana Torres",
-    telefono: "612000222",
-    email: "ana@example.com",
+    nombre: 'Ana Torres',
+    telefono: '612000222',
+    email: 'ana@example.com',
     activo: true,
   },
   {
     id: 3,
-    nombre: "Grupo Evento SL",
-    nifCif: "B12345678",
-    telefono: "955000333",
-    email: "contacto@eventosl.com",
+    nombre: 'Grupo Evento SL',
+    nifCif: 'B12345678',
+    telefono: '955000333',
+    email: 'contacto@eventosl.com',
     activo: true,
   },
 ];
@@ -174,34 +175,34 @@ export const direccionesCliente: DireccionCliente[] = [
   {
     id: 1,
     clienteId: 1,
-    alias: "Casa",
-    linea1: "Calle Mayor 12",
-    ciudad: "Madrid",
-    provincia: "Madrid",
-    codigoPostal: "28013",
-    pais: "España",
+    alias: 'Casa',
+    linea1: 'Calle Mayor 12',
+    ciudad: 'Madrid',
+    provincia: 'Madrid',
+    codigoPostal: '28013',
+    pais: 'España',
     esPrincipal: true,
   },
   {
     id: 2,
     clienteId: 2,
-    alias: "Piso",
-    linea1: "Avenida del Sol 88",
-    ciudad: "Valencia",
-    provincia: "Valencia",
-    codigoPostal: "46001",
-    pais: "España",
+    alias: 'Piso',
+    linea1: 'Avenida del Sol 88',
+    ciudad: 'Valencia',
+    provincia: 'Valencia',
+    codigoPostal: '46001',
+    pais: 'España',
     esPrincipal: true,
   },
   {
     id: 3,
     clienteId: 3,
-    alias: "Almacén principal",
-    linea1: "Polígono Norte 4",
-    ciudad: "Sevilla",
-    provincia: "Sevilla",
-    codigoPostal: "41001",
-    pais: "España",
+    alias: 'Almacén principal',
+    linea1: 'Polígono Norte 4',
+    ciudad: 'Sevilla',
+    provincia: 'Sevilla',
+    codigoPostal: '41001',
+    pais: 'España',
     esPrincipal: true,
   },
 ];
@@ -210,23 +211,26 @@ export const direccionesCliente: DireccionCliente[] = [
 export const productos: Producto[] = [
   {
     id: 1,
-    nombre: "Casco de moto",
-    descripcion: "Casco integral homologado",
+    nombre: 'Casco de moto',
+    descripcion: 'Casco integral homologado',
     precioDia: 8,
+    precioHora: 8,
     activo: true,
   },
   {
     id: 2,
-    nombre: "Traje de gala",
-    descripcion: "Traje de etiqueta para eventos",
+    nombre: 'Traje de gala',
+    descripcion: 'Traje de etiqueta para eventos',
     precioDia: 12,
+    precioHora: 12,
     activo: true,
   },
   {
     id: 3,
-    nombre: "Carpa XL",
-    descripcion: "Carpa para eventos exteriores 5x10m",
+    nombre: 'Carpa XL',
+    descripcion: 'Carpa para eventos exteriores 5x10m',
     precioDia: 35,
+    precioHora: 35,
     activo: true,
   },
 ];
@@ -237,38 +241,38 @@ export const tallasProducto: TallaProducto[] = [
   {
     id: 1,
     productoId: 1,
-    codigoTalla: "M",
-    descripcion: "Talla M",
+    codigoTalla: 'M',
+    descripcion: 'Talla M',
     activo: true,
   },
   {
     id: 2,
     productoId: 1,
-    codigoTalla: "L",
-    descripcion: "Talla L",
+    codigoTalla: 'L',
+    descripcion: 'Talla L',
     activo: true,
   },
   // Trajes
   {
     id: 3,
     productoId: 2,
-    codigoTalla: "M",
-    descripcion: "Talla M",
+    codigoTalla: 'M',
+    descripcion: 'Talla M',
     activo: true,
   },
   {
     id: 4,
     productoId: 2,
-    codigoTalla: "L",
-    descripcion: "Talla L",
+    codigoTalla: 'L',
+    descripcion: 'Talla L',
     activo: true,
   },
   // Carpa XL (único tamaño)
   {
     id: 5,
     productoId: 3,
-    codigoTalla: "XL",
-    descripcion: "Tamaño único XL",
+    codigoTalla: 'XL',
+    descripcion: 'Tamaño único XL',
     activo: true,
   },
 ];
@@ -277,48 +281,48 @@ export const tallasProducto: TallaProducto[] = [
 export const pedidos: Pedido[] = [
   {
     id: 1,
-    codigo: "P-001",
+    codigo: 'P-001',
     clienteId: 1,
     direccionEntregaId: 1,
     direccionRecogidaId: 1,
-    fechaInicio: "2025-12-10",
-    fechaFin: "2025-12-14",
-    estado: "PREPARADO",
+    fechaInicio: '2025-12-10',
+    fechaFin: '2025-12-14',
+    estado: 'PREPARADO',
     creadoPor: 2,
-    notas: "Entrega por la mañana",
+    notas: 'Entrega por la mañana',
   },
   {
     id: 2,
-    codigo: "P-002",
+    codigo: 'P-002',
     clienteId: 2,
     direccionEntregaId: 2,
     direccionRecogidaId: 2,
-    fechaInicio: "2025-12-08",
-    fechaFin: "2025-12-11",
-    estado: "ENTREGADO",
+    fechaInicio: '2025-12-08',
+    fechaFin: '2025-12-11',
+    estado: 'ENTREGADO',
     creadoPor: 2,
   },
   {
     id: 3,
-    codigo: "P-003",
+    codigo: 'P-003',
     clienteId: 3,
     direccionEntregaId: 3,
     direccionRecogidaId: 3,
-    fechaInicio: "2025-12-05",
-    fechaFin: "2025-12-09",
-    estado: "PENDIENTE_REVISION",
+    fechaInicio: '2025-12-05',
+    fechaFin: '2025-12-09',
+    estado: 'PENDIENTE_REVISION',
     creadoPor: 1,
-    notas: "Revisar posibles daños en carpa",
+    notas: 'Revisar posibles daños en carpa',
   },
   {
     id: 4,
-    codigo: "P-004",
+    codigo: 'P-004',
     clienteId: 1,
     direccionEntregaId: 1,
     direccionRecogidaId: 1,
-    fechaInicio: "2025-12-01",
-    fechaFin: "2025-12-03",
-    estado: "FINALIZADO",
+    fechaInicio: '2025-12-01',
+    fechaFin: '2025-12-03',
+    estado: 'FINALIZADO',
     creadoPor: 2,
   },
 ];
@@ -425,11 +429,11 @@ export const historialEstados: HistorialEstadoPedido[] = [
   {
     id: 1,
     pedidoId: 3,
-    estadoAnterior: "DEVUELTO",
-    estadoNuevo: "PENDIENTE_REVISION",
+    estadoAnterior: 'DEVUELTO',
+    estadoNuevo: 'PENDIENTE_REVISION',
     cambiadoPor: 2,
-    fechaCambio: "2025-12-09T18:30:00Z",
-    observaciones: "Faltan fotos de la carpa",
+    fechaCambio: '2025-12-09T18:30:00Z',
+    observaciones: 'Faltan fotos de la carpa',
   },
 ];
 
@@ -501,13 +505,13 @@ export const listPedidosResumen = async (): Promise<PedidoConDetalle[]> => {
 // Pedidos activos (entre fecha inicio y fin, excluyendo finalizados, por ejemplo)
 export const listPedidosActivos = async (): Promise<PedidoConDetalle[]> => {
   await wait();
-  const today = new Date("2025-12-10"); // puedes adaptar o usar new Date()
+  const today = new Date('2025-12-10'); // puedes adaptar o usar new Date()
   return pedidos
     .filter((p) => {
       const inicio = new Date(p.fechaInicio);
       const fin = new Date(p.fechaFin);
       const isInRange = inicio <= today && fin >= today;
-      const notFinalizado = p.estado !== "FINALIZADO";
+      const notFinalizado = p.estado !== 'FINALIZADO';
       return isInRange && notFinalizado;
     })
     .map(buildPedidoConDetalle);
@@ -545,7 +549,7 @@ export const updateEstadoPedido = async (
 
   const pedidoIndex = pedidos.findIndex((p) => p.id === pedidoId);
   if (pedidoIndex === -1) {
-    throw new Error("Pedido no encontrado");
+    throw new Error('Pedido no encontrado');
   }
 
   const anterior = pedidos[pedidoIndex].estado;

@@ -1,14 +1,20 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
+const DEFAULT_BASE_URL = (global as any)?.SERVER_URL || 'https://respi.es';
 
 const api = axios.create({
-  baseURL: 'https://respi.es', // Tu dominio
+  baseURL: DEFAULT_BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+export const setApiBaseUrl = (url: string) => {
+  api.defaults.baseURL = url;
+  (global as any).SERVER_URL = url;
+};
 
 // Interceptor para añadir el token a cada petición
 api.interceptors.request.use(
@@ -21,7 +27,7 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 //para q haga logout solo
@@ -31,16 +37,10 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       // Si el servidor devuelve 401 (No autorizado)
       await SecureStore.deleteItemAsync('user_auth_token');
-      // Aquí podrías disparar una redirección global
+      // Nota: el logout global debe manejarse desde AuthContext si quieres navegar automáticamente.
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;
-
-
-
-
-
-
