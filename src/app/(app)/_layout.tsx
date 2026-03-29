@@ -44,6 +44,10 @@ export default function AppLayout() {
 
         {/* ocultas (rutas que no deben aparecer en la tab bar) */}
         <Tabs.Screen name="reservas/[id]" options={{ href: null }} />
+        <Tabs.Screen name="booking/index" options={{ href: null }} />
+        <Tabs.Screen name="booking/select" options={{ href: null }} />
+        <Tabs.Screen name="booking/details" options={{ href: null }} />
+        <Tabs.Screen name="preferences" options={{ href: null }} />
       </Tabs>
     </>
   );

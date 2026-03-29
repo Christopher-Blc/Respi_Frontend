@@ -1,5 +1,5 @@
-import { StyleSheet } from "react-native";
-import { useThemeColors } from "../store/preferencesStore";
+import { StyleSheet } from 'react-native';
+import { useThemeColors } from '../store/preferencesStore';
 
 type ThemeColors = ReturnType<typeof useThemeColors>;
 
@@ -12,8 +12,8 @@ export const createReservasStyles = (colors: ThemeColors) =>
     },
     center: {
       flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
+      justifyContent: 'center',
+      alignItems: 'center',
       backgroundColor: colors.backgroundMain,
     },
     helper: {
@@ -40,14 +40,14 @@ export const createReservasStyles = (colors: ThemeColors) =>
       borderColor: colors.borderMain,
     },
     headerRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
       marginBottom: 6,
     },
     headerTitle: {
       fontSize: 14,
-      fontWeight: "700",
+      fontWeight: '700',
       color: colors.textTitle,
     },
     headerSubtitle: {
@@ -66,39 +66,35 @@ export const createReservasStyles = (colors: ThemeColors) =>
       borderRadius: 17,
       borderWidth: 1,
       borderColor: colors.borderMain,
-      alignItems: "center",
-      justifyContent: "center",
+      alignItems: 'center',
+      justifyContent: 'center',
       backgroundColor: colors.tabBackground,
     },
     cardHeader: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      gap: 10,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
       marginBottom: 6,
     },
     codeRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 6,
+      flexDirection: 'row',
+      alignItems: 'center',
     },
     code: {
       fontSize: 14,
-      fontWeight: "700",
+      fontWeight: '700',
       color: colors.textTitle,
     },
     dateRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
       marginTop: 8,
-      gap: 12,
     },
     dateItem: {
       flex: 1,
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 6,
+      flexDirection: 'row',
+      alignItems: 'center',
     },
     dateSeparator: {
       width: 1,
@@ -107,31 +103,30 @@ export const createReservasStyles = (colors: ThemeColors) =>
       opacity: 0.4,
     },
     modelRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 6,
+      flexDirection: 'row',
+      alignItems: 'center',
       marginTop: 4,
     },
     modelText: {
       fontSize: 12,
-      fontWeight: "600",
+      fontWeight: '600',
       color: colors.textBody,
     },
     metaLabel: {
       fontSize: 11,
       color: colors.grayLabelText,
-      textTransform: "uppercase",
+      textTransform: 'uppercase',
     },
     metaValue: {
       fontSize: 12,
-      fontWeight: "600",
+      fontWeight: '600',
       color: colors.textBody,
     },
     priceRow: {
       marginTop: 6,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
     },
     priceText: {
       fontSize: 12,
@@ -139,7 +134,7 @@ export const createReservasStyles = (colors: ThemeColors) =>
     },
     totalText: {
       fontSize: 13,
-      fontWeight: "700",
+      fontWeight: '700',
       color: colors.textTitle,
     },
     statusPill: {
@@ -152,53 +147,52 @@ export const createReservasStyles = (colors: ThemeColors) =>
     },
     statusText: {
       fontSize: 11,
-      fontWeight: "700",
+      fontWeight: '700',
       color: colors.textBody,
     },
     statusPrepared: {
-      backgroundColor: "rgba(59, 130, 246, 0.15)",
-      borderColor: "#3B82F6",
+      backgroundColor: 'rgba(59, 130, 246, 0.15)',
+      borderColor: '#3B82F6',
     },
     statusDelivered: {
-      backgroundColor: "rgba(16, 185, 129, 0.15)",
-      borderColor: "#10B981",
+      backgroundColor: 'rgba(16, 185, 129, 0.15)',
+      borderColor: '#10B981',
     },
     statusReturned: {
-      backgroundColor: "rgba(37, 99, 235, 0.12)",
-      borderColor: "#2563EB",
+      backgroundColor: 'rgba(37, 99, 235, 0.12)',
+      borderColor: '#2563EB',
     },
     statusReview: {
-      backgroundColor: "rgba(245, 158, 11, 0.15)",
-      borderColor: "#F59E0B",
+      backgroundColor: 'rgba(245, 158, 11, 0.15)',
+      borderColor: '#F59E0B',
     },
     statusFinished: {
-      backgroundColor: "rgba(22, 163, 74, 0.18)",
-      borderColor: "#16A34A",
+      backgroundColor: 'rgba(22, 163, 74, 0.18)',
+      borderColor: '#16A34A',
     },
     actionsRow: {
       marginTop: 12,
-      flexDirection: "row",
-      justifyContent: "flex-end",
-      gap: 8,
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
     },
     cancelButton: {
       width: 34,
       height: 34,
       borderRadius: 17,
       borderWidth: 0,
-      backgroundColor: "#EF4444",
-      shadowColor: "#000",
+      backgroundColor: '#EF4444',
+      shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.12,
       shadowRadius: 4,
       elevation: 2,
-      alignItems: "center",
-      justifyContent: "center",
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     cancelButtonText: {
       fontSize: 12,
-      fontWeight: "700",
-      color: "#ffffff",
+      fontWeight: '700',
+      color: '#ffffff',
     },
     editButton: {
       width: 34,
@@ -211,38 +205,37 @@ export const createReservasStyles = (colors: ThemeColors) =>
       shadowOpacity: 0.16,
       shadowRadius: 4,
       elevation: 2,
-      alignItems: "center",
-      justifyContent: "center",
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     editButtonText: {
       fontSize: 12,
-      fontWeight: "700",
-      color: "#ffffff",
+      fontWeight: '700',
+      color: '#ffffff',
     },
     statusCancel: {
-      backgroundColor: "rgba(239, 68, 68, 0.15)",
-      borderColor: "#EF4444",
+      backgroundColor: 'rgba(239, 68, 68, 0.15)',
+      borderColor: '#EF4444',
     },
     emptyContainer: {
       flexGrow: 1,
-      justifyContent: "center",
-      alignItems: "center",
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     emptyWrapper: {
-      alignItems: "center",
-      justifyContent: "center",
+      alignItems: 'center',
+      justifyContent: 'center',
       paddingVertical: 40,
-      gap: 8,
     },
     emptyTitle: {
       fontSize: 15,
-      fontWeight: "600",
+      fontWeight: '600',
       color: colors.textTitle,
     },
     emptyText: {
       color: colors.grayPlaceholder,
       fontSize: 13,
-      textAlign: "center",
+      textAlign: 'center',
       paddingHorizontal: 24,
     },
     notesBox: {
@@ -255,7 +248,7 @@ export const createReservasStyles = (colors: ThemeColors) =>
     },
     notesLabel: {
       fontSize: 11,
-      fontWeight: "700",
+      fontWeight: '700',
       color: colors.grayLabelText,
       marginBottom: 2,
     },
@@ -265,15 +258,15 @@ export const createReservasStyles = (colors: ThemeColors) =>
     },
     modalBackdrop: {
       ...StyleSheet.absoluteFillObject,
-      backgroundColor: "rgba(0,0,0,0.4)",
+      backgroundColor: 'rgba(0,0,0,0.4)',
     },
     modalContainer: {
       flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     modalCard: {
-      width: "90%",
+      width: '90%',
       maxWidth: 420,
       backgroundColor: colors.backgroundCard,
       borderRadius: 16,
@@ -282,25 +275,24 @@ export const createReservasStyles = (colors: ThemeColors) =>
       borderColor: colors.borderMain,
     },
     modalHeader: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
       marginBottom: 12,
     },
     modalTitle: {
       fontSize: 16,
-      fontWeight: "700",
+      fontWeight: '700',
       color: colors.textTitle,
     },
     modalAction: {
       fontSize: 13,
-      fontWeight: "600",
+      fontWeight: '600',
       color: colors.primaryButton,
     },
     modalRow: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      gap: 8,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
       marginBottom: 12,
     },
     modalDateButton: {
@@ -315,13 +307,13 @@ export const createReservasStyles = (colors: ThemeColors) =>
     modalDateLabel: {
       fontSize: 11,
       color: colors.grayLabelText,
-      textTransform: "uppercase",
+      textTransform: 'uppercase',
     },
     modalDateValue: {
       marginTop: 4,
       fontSize: 13,
       color: colors.textBody,
-      fontWeight: "600",
+      fontWeight: '600',
     },
     pickerWrapper: {
       borderWidth: 1,
@@ -333,8 +325,8 @@ export const createReservasStyles = (colors: ThemeColors) =>
     },
     modalActionsRow: {
       marginTop: 4,
-      flexDirection: "row",
-      justifyContent: "flex-end",
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
     },
     saveEditButton: {
       paddingHorizontal: 16,
@@ -347,7 +339,7 @@ export const createReservasStyles = (colors: ThemeColors) =>
     },
     saveEditButtonText: {
       fontSize: 13,
-      fontWeight: "700",
-      color: "#fff",
+      fontWeight: '700',
+      color: '#fff',
     },
   });
