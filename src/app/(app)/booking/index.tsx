@@ -16,7 +16,7 @@ export default function BookingCreate() {
     (async () => {
       try {
         const ms = await reservasService.getModelos();
-        if (mounted && ms && Array.isArray(ms)) setModelos(ms);
+        if (mounted && ms && Array.isArray(ms) && ms.length > 0) setModelos(ms);
       } catch (e) {
         // fallback already handled in service
       } finally {
@@ -41,23 +41,23 @@ export default function BookingCreate() {
 
       <Text style={styles.sectionLabel}>Elige un deporte</Text>
 
-      {loading ? (
-        <ActivityIndicator style={{ marginTop: 20 }} size={32} color="#CA8E0E" />
-      ) : (
-        <FlatList
-          style={{ marginVertical: 8 }}
-          data={modelos}
-          keyExtractor={(i) => String(i.id)}
-          renderItem={({ item }) => (
+      <FlatList
+        style={{ marginVertical: 8 }}
+        data={modelos}
+        keyExtractor={(i) => String(i.id)}
+        renderItem={({ item }) => {
+          // safe fallback image if item.img is missing
+          const imgSource = item.img ? item.img : require('../../../../assets/RespiLogo.png');
+          return (
             <TouchableOpacity
               style={styles.modelCard}
               onPress={() => router.push(`/(app)/booking/details?modelId=${item.id}`)}
             >
-              <ImageBackground source={item.img} style={styles.modelBg} imageStyle={styles.modelImageStyle}>
+              <ImageBackground source={imgSource} style={styles.modelBg} imageStyle={styles.modelImageStyle}>
                 <LinearGradient colors={["transparent", "rgba(0,0,0,0.48)"]} style={styles.modelGradient}>
                   <View style={styles.modelTopRow}>
                     <View style={styles.priceTag}>
-                      <Text style={styles.priceTagText}>{item.price} €/día</Text>
+                      <Text style={styles.priceTagText}>{item.price} €/h</Text>
                     </View>
                   </View>
 
@@ -68,10 +68,16 @@ export default function BookingCreate() {
                 </LinearGradient>
               </ImageBackground>
             </TouchableOpacity>
-          )}
-          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-          contentContainerStyle={{ paddingBottom: 40 }}
-        />
+          );
+        }}
+        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        contentContainerStyle={{ paddingBottom: 40 }}
+      />
+
+      {loading && (
+        <View style={styles.loadingOverlayList} pointerEvents="none">
+          <ActivityIndicator size={36} color="#CA8E0E" />
+        </View>
       )}
     </View>
   );
@@ -106,4 +112,11 @@ const styles = StyleSheet.create({
   priceTagText: { color: '#CA8E0E', fontWeight: '700' },
   modelBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
   modelTitle: { fontWeight: '800', fontSize: 18, color: '#fff' },
+  loadingOverlayList: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    zIndex: 20,
+  },
 });
