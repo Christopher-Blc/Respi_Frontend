@@ -56,22 +56,22 @@ const Register: React.FC = () => {
     setBirthDate(formatted.slice(0, 10)); // Límite de 10 caracteres
   };
 
+  
   const onDateChange = (event: any, selectedDate?: Date) => {
-    //Si es Android, cerramos el picker siempre (al dar OK o Cancelar)
-    if (Platform.OS === 'android') {
-      setShowPicker(false);
-    }
+  // En Web o Android, cerramos tras elegir
+  if (Platform.OS !== 'ios') {
+    setShowPicker(false);
+  }
 
-    //Si hay una fecha seleccionada, la guardamos
-    if (selectedDate) {
-      const day = String(selectedDate.getDate()).padStart(2, '0');
-      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-      const year = selectedDate.getFullYear();
-      
-      setBirthDate(`${day}/${month}/${year}`);
-      setDate(selectedDate);
-    }
-  };
+  if (selectedDate) {
+    const day = String(selectedDate.getDate()).padStart(2, '0');
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const year = selectedDate.getFullYear();
+    
+    setBirthDate(`${day}/${month}/${year}`);
+    setDate(selectedDate); // Este es el que mandas a la API con .toISOString()
+  }
+};
 
   //Accion cuando se pulsa registrar
   const { signIn } = useAuth();
@@ -120,176 +120,154 @@ const Register: React.FC = () => {
     : require('../../../assets/login-bg-light.png');
 
 
+  //Igual que en el login , hacemos una funcion de renderform para que devuelva el formulario principal
+  //y en el return normal , tenemos el control si es web o mobil    
   return (
-    
-        <ImageBackground 
-        //Implementar cuando este el dark mode, por ahora dejo la imagen clara para que se vea bien el diseño
-        source={bgImage} 
-        style={styles.background}
-        imageStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
-        >
-          <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={{ flex: 1, width: '100%', justifyContent: 'center', alignItems: 'center' }}
-              >
-                {/* 2. Permite cerrar el teclado al tocar el fondo */}
-                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <BlurView  tint={isDarkMode ? "dark" : "light"} style={styles.glass} intensity={20}>
-            <ScrollView 
-        style={{ width: '100%' , height: '100%' }} 
-        contentContainerStyle={{ 
-            flexGrow: 1, 
-            alignItems: 'center',
-            paddingBottom: 20, // Espacio extra al final para que no corte el último botón
-        }}
-        showsVerticalScrollIndicator={false}
+    <ImageBackground 
+      source={bgImage} 
+      style={styles.background}
+      imageStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
     >
-            {/* Logo respi en card*/}
-            <Image 
-            source={require('../../../assets/RespiLogo.png')} 
-            style={styles.logo}
-            resizeMode="contain"
-            />   
-
-            <Text style={[styles.title, { color: isDarkMode ? '#FFF' : '#333' }]}>Create an account</Text>
-
-
-            
-            <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
-            Name:
-            </Text>
-
-            <GlassTextInput
-            placeholder="name"
-            value={name}
-            onChangeText={setName}
-            isDarkMode={isDarkMode}
-            />
-
-            <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
-            Surname:
-            </Text>
-
-            <GlassTextInput
-            placeholder="surname"
-            value={surname}
-            onChangeText={setSurname}
-            isDarkMode={isDarkMode}
-            />
-
-
-            <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
-            Email:
-            </Text>
-
-            <GlassTextInput
-            keyboardType='email-address'
-            placeholder="Enter email"
-            value={email}
-            onChangeText={setEmail}
-            isDarkMode={isDarkMode}
-            />
-
-            <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
-            Phone:
-            </Text>
-
-            <GlassTextInput
-            keyboardType='phone-pad'
-            placeholder="Enter phone"
-            value={phone}
-            onChangeText={setPhone}
-            isDarkMode={isDarkMode}
-            />
-
-            <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
-            Password:
-            </Text>
-
-
-            <GlassTextInputPassword 
-            placeholder="Enter password"
-            value={password}
-            onChangeText={setPassword}
-            isDarkMode={isDarkMode}
-            />
-
-
-            {/* --- fecha de nacimiento  --- */}
-          <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>Birth Date:</Text>
-          <View style={styles.inputWrapper}>
-            <GlassTextInput
-              placeholder="DD/MM/YYYY"
-              value={birthDate}
-              onChangeText={handleTextChange} 
-              isDarkMode={isDarkMode}
-            />
-            <IconButton
-              icon="calendar-edit"
-              style={styles.calendarIcon}
-              iconColor={isDarkMode ? '#CA8E0E' : '#CA8E0E'}
-              size={24}
-              onPress={() => setShowPicker(!showPicker)}
-            />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1, width: '100%', justifyContent: 'center', alignItems: 'center' }}
+      >
+        {Platform.OS === 'web' ? (
+          // WEB: Directo al contenido, sin interferencias táctiles
+          <View style={{ width: '100%', alignItems: 'center', flex: 1, justifyContent: 'center' }}>
+            {renderForm()}
           </View>
+        ) : (
+          // MÓVIL: Con Touchable para cerrar teclado al tocar fuera del scroll
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={{ width: '100%', alignItems: 'center', flex: 1, justifyContent: 'center' }}>
+              {renderForm()}
+            </View>
+          </TouchableWithoutFeedback>
+        )}
+      </KeyboardAvoidingView>
 
-          {showPicker && (
-            <RNDateTimePicker
-              value={date}
-              mode="date"
-              display="spinner" 
-              onChange={onDateChange}
-              maximumDate={new Date()}
-              minimumDate={new Date('1900-01-01')}
-              textColor={isDarkMode ? 'white' : 'black'}
-              
-            />
-          )}
-
-            <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
-            Location:
-            </Text>
-
-            <GlassTextInput
-            placeholder="Location"
-            value={location}
-            onChangeText={setLocation}
-            isDarkMode={isDarkMode}
-            />
-            
-
-            <RectangularButton text="Register" textColor="#fff" onPress={handleSubmit} color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.51)'} />
-            <View style={{ height: 12 }} />
-            <Text style={{ color: isDarkMode ? '#ccc' : '#667', textAlign: 'center' }}>
-                    Already have an account?{' '}
-                    <Text 
-                        style={{ color: '#CA8E0E', fontWeight: 'bold' }} 
-                        onPress={() => router.replace('Login')}
-                    >
-                        Login
-                    </Text>
-                    </Text>
-          {/*aqui se muestra el error */}
-            {!!error && <Text style={styles.error}>{error}</Text>}
-             </ScrollView>
-        </BlurView>
-
-        
-</TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
-
-        {/* Boton para simular un darkmode (habra que quitarlo)*/}
-        <IconButton 
-            icon={isDarkMode ? "weather-sunny" : "weather-night"}
-            style={styles.darkModeButton}
-            iconColor={"#fff"}
-            size={25}
-            onPress={toggleDarkMode}
-        />
-       
+      <IconButton 
+        icon={isDarkMode ? "weather-sunny" : "weather-night"}
+        style={styles.darkModeButton}
+        iconColor={"#fff"}
+        size={25}
+        onPress={toggleDarkMode}
+      />
     </ImageBackground>
-    
   );
+
+  function renderForm(){
+    return (
+  <BlurView tint={isDarkMode ? "dark" : "light"} style={styles.glass} intensity={20}>
+    <ScrollView 
+      style={{ width: '100%' }} 
+      contentContainerStyle={{ 
+        flexGrow: 1, 
+        alignItems: 'center',
+        paddingBottom: 40, // Un poco más de aire abajo
+      }}
+      showsVerticalScrollIndicator={false}
+    >
+      <Image source={require('../../../assets/RespiLogo.png')} style={styles.logo} resizeMode="contain" />
+      <Text style={[styles.title, { color: isDarkMode ? '#FFF' : '#333' }]}>Create an account</Text>
+
+      <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>Name:</Text>
+      <GlassTextInput placeholder="Name" value={name} onChangeText={setName} isDarkMode={isDarkMode} />
+
+      <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>Surname:</Text>
+      <GlassTextInput placeholder="Surname" value={surname} onChangeText={setSurname} isDarkMode={isDarkMode} />
+
+      <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>Email:</Text>
+      <GlassTextInput keyboardType='email-address' placeholder="Enter email" value={email} onChangeText={setEmail} isDarkMode={isDarkMode} />
+
+      <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>Phone:</Text>
+      <GlassTextInput keyboardType='phone-pad' placeholder="Enter phone" value={phone} onChangeText={setPhone} isDarkMode={isDarkMode} />
+
+      <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>Password:</Text>
+      <GlassTextInputPassword placeholder="Enter password" value={password} onChangeText={setPassword} isDarkMode={isDarkMode} />
+
+      <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>Birth Date:</Text>
+
+
+      <View style={styles.inputWrapper}>
+  <GlassTextInput 
+    placeholder="DD/MM/YYYY" 
+    value={birthDate} 
+    onChangeText={handleTextChange} 
+    isDarkMode={isDarkMode} 
+  />
+  <IconButton
+    icon="calendar-edit"
+    style={styles.calendarIcon}
+    iconColor='#CA8E0E'
+    size={24}
+    onPress={() => {
+    if (Platform.OS === 'web') {
+      // Casteamos el elemento a HTMLInputElement
+      const inputElement = document.getElementById('webDatePicker') as HTMLInputElement;
+      inputElement?.showPicker?.(); 
+    } else {
+      setShowPicker(!showPicker);
+    }
+  }}
+  />
+  
+  {/* Input invisible solo para Web */}
+  {Platform.OS === 'web' && (
+    <input
+      id="webDatePicker"
+      type="date"
+      style={{
+        position: 'absolute',
+        opacity: 0,
+        width: 1,
+        height: 1,
+        right: 20,
+        top: 20,
+      }}
+      onChange={(e) => {
+        const val = e.target.value; // Formato YYYY-MM-DD
+        if (val) {
+          const [y, m, d] = val.split('-');
+          const selected = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+          onDateChange({}, selected);
+        }
+      }}
+    />
+  )}
+</View>
+
+{/* El Picker nativo solo para Móvil */}
+{Platform.OS !== 'web' && showPicker && (
+  <RNDateTimePicker
+    value={date}
+    mode="date"
+    display="spinner" 
+    onChange={onDateChange}
+    maximumDate={new Date()}
+    textColor={isDarkMode ? 'white' : 'black'}
+  />
+)}
+
+      <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>Location:</Text>
+      <GlassTextInput placeholder="Location" value={location} onChangeText={setLocation} isDarkMode={isDarkMode} />
+
+      <RectangularButton text="Register" textColor="#fff" onPress={handleSubmit} color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.51)'} />
+      
+      <View style={{ height: 16 }} />
+      <Text style={{ color: isDarkMode ? '#ccc' : '#667', textAlign: 'center' }}>
+        Already have an account?{' '}
+        <Text style={{ color: '#CA8E0E', fontWeight: 'bold' }} onPress={() => router.replace('Login')}>
+          Login
+        </Text>
+      </Text>
+
+      {!!error && <Text style={styles.error}>{error}</Text>}
+    </ScrollView>
+  </BlurView>
+    );
+  }
 };
 
 const styles = StyleSheet.create({
@@ -345,7 +323,14 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginBottom: 5,
     fontWeight: '500',
-    color: '#000000e8', 
+    fontSize: 16,
+    color: '#444', // Un pelín más oscuro para contraste
+    textAlign: 'center',
+    lineHeight: 22,
+    // Sombra de texto (funciona en iOS, Android y Web)
+    textShadowColor: 'rgba(255, 255, 255, 0.6)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 5,
   },
   input: {
     width: '100%',

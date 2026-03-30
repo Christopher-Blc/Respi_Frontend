@@ -1,5 +1,6 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import { getToken } from './authStorage';
 
 const DEFAULT_BASE_URL = (global as any)?.SERVER_URL || 'https://respi.es';
 
@@ -19,7 +20,7 @@ export const setApiBaseUrl = (url: string) => {
 // Interceptor para añadir el token a cada petición
 api.interceptors.request.use(
   async (config) => {
-    const token = await SecureStore.getItemAsync('user_auth_token');
+    const token = await getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
