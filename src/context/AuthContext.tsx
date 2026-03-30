@@ -1,5 +1,5 @@
  import React, { createContext, useContext, useState, useEffect } from 'react';
-import * as SecureStore from 'expo-secure-store';
+import { deleteToken, getToken, saveToken } from '../services/authStorage';
 
 const AuthContext = createContext<{
   userToken: string | null;
@@ -19,7 +19,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const loadToken = async () => {
-      const token = await SecureStore.getItemAsync('user_auth_token');
+      //usamos la funcion de authstorage pq alli ya se controla lo de la plataforma para que no pete en web
+      const token = await getToken(); 
       setUserToken(token);
       setIsLoading(false);
     };
@@ -30,13 +31,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     <AuthContext.Provider value={{
       userToken,
       isLoading,
-      signIn: (token) => {
+      signIn: async (token) => { //tiene q ser async pq si no es web , hace un await
         setUserToken(token);
-        SecureStore.setItemAsync('user_auth_token', token);
+        await saveToken(token); 
       },
-      signOut: () => {
+      signOut: async () => {
         setUserToken(null);
-        SecureStore.deleteItemAsync('user_auth_token');
+        await deleteToken();
       }
     }}>
       {children}
