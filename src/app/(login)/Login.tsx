@@ -17,7 +17,6 @@ import { RectangularButton } from '../../components/login/glassTextButton';
 import { GlassTextInputPassword } from '../../components/login/glassTextInputPassword';
 import { GlassTextInput } from '../../components/login/glassTextInput';
 import api from '../../services/api';
-import { saveToken } from '../../services/authStorage';
 import { useAuth } from '../../context/AuthContext';
 
 
@@ -48,7 +47,7 @@ const Login: React.FC = () => {
 
 
       if (response.data.access_token) {
-        console.log('Login exitoso:', response.data.access_token);
+        //console.log('Login exitoso:', response.data.access_token);
         const token = response.data.access_token;
         signIn(token);
       }
@@ -66,22 +65,53 @@ const Login: React.FC = () => {
 
 
   return (
-    
-    <ImageBackground 
-      source={bgImage} 
-      style={styles.background}
-      imageStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
-    >
-      <KeyboardAvoidingView
+  <ImageBackground 
+    source={bgImage} 
+    style={styles.background}
+    imageStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
+  >
+    <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={{ flex: 1, width: '100%', justifyContent: 'center', alignItems: 'center' }}
     >
-      {/* 2. Permite cerrar el teclado al tocar el fondo */}
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      {/*si es web le metemos view normal y en caso de movil le ponemos lo de 
+      touchable(renderform es simplemente la funcion que devuelve la vista del formulario) */}
+      {Platform.OS === 'web' ? (
+        <View style={{ width: '100%', alignItems: 'center' }}>
+          {renderForm()}
+        </View>
+      ) : (
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={{ width: '100%', alignItems: 'center' }}>
+            {renderForm()}
+          </View>
+        </TouchableWithoutFeedback>
+      )}
 
-      
-      <BlurView  tint={isDarkMode ? "dark" : "light"} style={styles.glass} intensity={20}>
-        {/* Logo centered at the top of the card */}
+    </KeyboardAvoidingView>
+
+    <IconButton 
+      icon={isDarkMode ? "weather-sunny" : "weather-night"}
+      style={styles.darkModeButton}
+      iconColor={"#fff"}
+      size={25}
+      onPress={toggleDarkMode}
+    />
+
+    <IconButton 
+      icon={"weather-sunny"}
+      style={styles.test404Button}
+      iconColor={"#fff"}
+      size={25}
+      onPress={() => router.push('/test')}
+    />
+  </ImageBackground>
+);
+
+//codigo de vista del formulario que se llama dependiendo de lka plataforma
+  function renderForm() {
+    return (
+      <BlurView tint={isDarkMode ? "dark" : "light"} style={styles.glass} intensity={20}>
         <Image 
           source={require('../../../assets/RespiLogo.png')} 
           style={styles.logo}
@@ -90,36 +120,28 @@ const Login: React.FC = () => {
 
         <Text style={[styles.title, { color: isDarkMode ? '#FFF' : '#333' }]}>Welcome back!</Text>
 
-        <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
-          Email:
-        </Text>
-
+        <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>Email:</Text>
         <GlassTextInput
-        keyboardType="email-address"
-        placeholder="Enter email"
-        value={email}
-        onChangeText={setEmail}
-        isDarkMode={isDarkMode}
+          keyboardType="email-address"
+          placeholder="Enter email"
+          value={email}
+          onChangeText={setEmail}
+          isDarkMode={isDarkMode}
         />
 
-        <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
-          Password:
-        </Text>
-
-
+        <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>Password:</Text>
         <GlassTextInputPassword 
-        placeholder="Enter password"
-        value={password}
-        onChangeText={setPassword}
-        isDarkMode={isDarkMode}
+          placeholder="Enter password"
+          value={password}
+          onChangeText={setPassword}
+          isDarkMode={isDarkMode}
         />
 
         <RectangularButton text="Login" textColor="#fff" onPress={handleSubmit} color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.51)'} />
-        <View style={{ height: 12 }} />
+        
+        <View style={{ height: 28 }} />
 
-        <View style={{ height: 16 }} />
-
-        <Text style={{ color: isDarkMode ? '#ccc' : '#666', textAlign: 'center' }}>
+        <Text style={{ color: isDarkMode ? '#ccc' : '#667', textAlign: 'center' }}>
           Don't have an account yet?{' '}
           <Text 
             style={{ color: '#CA8E0E', fontWeight: 'bold' }} 
@@ -129,27 +151,20 @@ const Login: React.FC = () => {
           </Text>
         </Text>
 
-        {/*<RectangularButton text="Register" textColor="#fff" color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.51)'} />*/}
-        
-
         {!!error && <Text style={styles.error}>{error}</Text>}
       </BlurView>
-
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
-      {/* Boton para simular un darkmode */}
-      <IconButton 
-        icon={isDarkMode ? "weather-sunny" : "weather-night"}
-        style={styles.darkModeButton}
-        iconColor={"#fff"}
-        size={25}
-        onPress={toggleDarkMode}
-      />
-    </ImageBackground>
-  );
+    );
+  }
 };
 
 const styles = StyleSheet.create({
+  test404Button: {
+    position: 'absolute',
+    bottom: 40,
+    right: 80,
+    zIndex: 10,
+    backgroundColor:"#5100ff"
+  },
   darkModeButton: {
     position: 'absolute',
     bottom: 40,
@@ -189,7 +204,14 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginBottom: 5,
     fontWeight: '500',
-    color: '#000000e8', 
+    fontSize: 16,
+    color: '#444', // Un pelín más oscuro para contraste
+    textAlign: 'center',
+    lineHeight: 22,
+    // Sombra de texto (funciona en iOS, Android y Web)
+    textShadowColor: 'rgba(255, 255, 255, 0.6)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 5,
   },
   input: {
     width: '100%',
