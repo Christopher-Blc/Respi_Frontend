@@ -18,7 +18,7 @@ import { GlassTextInputPassword } from '../../components/login/glassTextInputPas
 import { GlassTextInput } from '../../components/login/glassTextInput';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import styles from '../../style/register.styles';
+import styles from '../../style/login.styles';
 
 
 const Login: React.FC = () => {
