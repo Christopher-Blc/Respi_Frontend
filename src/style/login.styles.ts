@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
-  test404Button: {
+  testErrorButton: {
     position: 'absolute',
     bottom: 40,
     right: 80,

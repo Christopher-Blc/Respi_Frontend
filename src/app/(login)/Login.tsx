@@ -101,11 +101,7 @@ const Login: React.FC = () => {
 
     <IconButton 
       icon={"weather-sunny"}
-      style={{position: 'absolute',
-    bottom: 40,
-    right: 80,
-    zIndex: 10,
-    backgroundColor:"#5100ff"}}
+      style={styles.testErrorButton}
       iconColor={"#fff"}
       size={25}
       onPress={() => router.push('/test')}
