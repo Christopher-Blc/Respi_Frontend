@@ -90,8 +90,8 @@ export default function HomeScreen() {
 						{/* FILA INFERIOR: Fecha/Hora y Flecha */}
 						<View style={styles.cardBottom}>
 							<View>
-								<Text style={styles.cardMeta}>{cleanDate}</Text>
-								<Text style={styles.cardMeta}>{cleanTime}</Text>
+								<Text style={styles.cardMeta}><Ionicons name="calendar-outline" size={14} color="#fff" style={{ marginRight: 4 }} /> {cleanDate}</Text>
+								<Text style={styles.cardMeta}><Ionicons name="time-outline" size={14} color="#fff" style={{ marginRight: 4 }} /> {cleanTime}</Text>
 							</View>
 							<Ionicons name="chevron-forward-outline" size={22} color="#fff" />
 						</View>
@@ -209,9 +209,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden', 
     
     // 2. Quita o suaviza el borde
-    borderWidth: 0, // Prueba a ponerlo en 0
-    
-    // 3. Mejora la sombra para que se vea más premium
+    borderWidth: 0, 
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
