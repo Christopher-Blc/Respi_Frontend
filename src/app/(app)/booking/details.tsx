@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   ScrollView,
   KeyboardAvoidingView,
+  SafeAreaView,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
@@ -21,6 +22,8 @@ import { reservasService } from '../../../services/reservasService';
 import { MODELOS, Modelo } from '../../../data/modelos';
 import { useAuth } from '../../../context/AuthContext';
 import api from '../../../services/api';
+import { Modal } from 'react-native'; // Añade Modal a los imports de react-native
+import { WebView } from 'react-native-webview';
 
 export default function BookingDetails() {
   const params = useLocalSearchParams<{ modelId?: string }>();
@@ -41,6 +44,8 @@ export default function BookingDetails() {
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarType, setSnackbarType] = useState<'success' | 'error' | 'info'>('info');
+  const [pistaSeleccionada, setPistaSeleccionada] = useState<string | null>(null);
+  const [showMap, setShowMap] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -246,11 +251,44 @@ export default function BookingDetails() {
     setDurationMinutes(next);
     setFechaFin(new Date(fechaInicio.getTime() + next * msMinute));
   };
+  
+  // Función para recibir el mensaje del mapa 3D
+  const handleMapMessage = (event: any) => {
+    const data = event.nativeEvent.data;
+    // Si en tu Spline configuraste que al clicar envíe un mensaje con el nombre
+    if (data) {
+      setPistaSeleccionada(data);
+      setShowMap(false); // Cerramos el mapa al elegir
+      setSnackbarMessage(`Pista ${data} seleccionada`);
+      setSnackbarType('success');
+      setSnackbarVisible(true);
+    }
+  };
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
         <Stack.Screen options={{ title: 'Detalles de reserva' }} />
+
+        {/* MODAL DEL MAPA 3D */}
+        <Modal visible={showMap} animationType="slide" presentationStyle="pageSheet">
+          <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16, alignItems: 'center' }}>
+              <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>Mapa del Polideportivo</Text>
+              <TouchableOpacity onPress={() => setShowMap(false)}>
+                <Ionicons name="close-circle" size={30} color="#fff" />
+              </TouchableOpacity>
+            </View>
+            <WebView 
+              source={{ uri: "https://my.spline.design/untitled-o8FhbQhvF8XmEF9SVboAdTmE/" }}
+              style={{ flex: 1 }}
+              onMessage={handleMapMessage}
+            />
+            <View style={{ padding: 20, backgroundColor: '#111' }}>
+              <Text style={{ color: '#aaa', textAlign: 'center' }}>Toca una pista para seleccionarla</Text>
+            </View>
+          </SafeAreaView>
+        </Modal>
 
         <View style={styles.headerCard}>
           <ImageBackground source={model.img} style={styles.headerImage} imageStyle={{ borderRadius: 12 }}>
@@ -265,6 +303,17 @@ export default function BookingDetails() {
         </View>
 
         <View style={styles.formCard}>
+          <Text style={styles.label}>Ubicación / Pista</Text>
+          <TouchableOpacity 
+            style={[styles.input, { flexDirection: 'row', alignItems: 'center', borderColor: pistaSeleccionada ? '#CA8E0E' : '#eef2f4' }]} 
+            onPress={() => setShowMap(true)}
+          >
+            <Ionicons name="map-outline" size={20} color={pistaSeleccionada ? '#CA8E0E' : '#6b7280'} />
+            <Text style={{ marginLeft: 10, color: pistaSeleccionada ? '#111827' : '#9ca3af', fontWeight: pistaSeleccionada ? '700' : '400' }}>
+              {pistaSeleccionada ? `Pista: ${pistaSeleccionada}` : 'Abrir mapa 3D para elegir pista'}
+            </Text>
+            <Ionicons name="chevron-forward" size={16} color="#6b7280" style={{ marginLeft: 'auto' }} />
+          </TouchableOpacity>
           <Text style={styles.label}>Email</Text>
           <TextInput style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" />
 

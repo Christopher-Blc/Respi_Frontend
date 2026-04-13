@@ -1,8 +1,16 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { getToken } from './authStorage';
+import { Platform } from 'react-native';
 
-const DEFAULT_BASE_URL = (global as any)?.SERVER_URL || 'https://respi.es';
+//const DEFAULT_BASE_URL = (global as any)?.SERVER_URL || 'https://respi.es';
+const DEFAULT_BASE_URL = Platform.select({
+  android: 'http://10.0.2.2:8000',
+  ios: 'http://localhost:8000',
+  web: 'http://localhost:8000',
+  default: 'http://localhost:8000',
+});
+
 
 const api = axios.create({
   baseURL: DEFAULT_BASE_URL,
