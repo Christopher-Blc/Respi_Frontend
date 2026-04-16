@@ -1,92 +1,102 @@
-import { StyleSheet } from 'react-native';
-
+import { StyleSheet, Dimensions, Platform } from 'react-native';
 export const styles = StyleSheet.create({
-    logoutButton: {
-        position: 'absolute',
-        bottom: 40,
-        left: 20,
-        backgroundColor:"#979797",
-        elevation: 5,
-    },
     container: {
         flex: 1,
-        paddingHorizontal: 16,
-        paddingTop: 18,
-        backgroundColor: '#f9fafb',
+        backgroundColor: '#FBF8F2', // Fondo crema suave para coherencia con el login
+        paddingHorizontal: 20,
     },
     header: {
-        fontSize: 28,
-        fontWeight: '700',
-        marginBottom: 16,
-        color: '#111827',
-    },
-    quickRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 24,
-    },
-    quickButton: {
-        flex: 1,
-        paddingVertical: 14,
-        borderRadius: 12,
-        alignItems: 'center',
-        marginHorizontal: 6,
-    },
-    primary: {
-        backgroundColor: '#CA8E0E',
-    },
-    secondary: {
-        backgroundColor: 'rgba(10,10,10,0.06)',
-    },
-    quickText: {
-        color: '#fff',
-        fontWeight: '700',
+        fontSize: 32,
+        fontWeight: '800',
+        marginTop: 20,
+        marginBottom: 10,
+        color: '#1A2F4B', // Azul marino premium para los títulos
     },
     sectionTitle: {
-        fontSize: 20,
-        fontWeight: '600',
-        marginBottom: 12,
-        color: '#374151',
+        fontSize: 22,
+        fontWeight: '700',
+        marginTop: 25,
+        marginBottom: 15,
+        color: '#333',
     },
+
+    // --- BOTONES PREMIUM (PÍLDORA) ---
+    premiumActionRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 10,
+        gap: 12, // Espaciado moderno
+    },
+    pillButtonPrimary: {
+        flex: 1,
+        height: 52,
+        borderRadius: 26, 
+        overflow: 'hidden',
+        // Sombra sutil
+        shadowColor: "#CA8E0E",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 6,
+    },
+    pillButtonGradient: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    pillButtonText: {
+        color: '#FFFFFF',
+        fontSize: 15,
+        fontWeight: '700',
+    },
+    pillButtonOutline: {
+        flex: 1,
+        height: 52,
+        borderRadius: 26,
+        borderWidth: 2,
+        borderColor: '#CA8E0E',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'transparent',
+    },
+    pillButtonTextOutline: {
+        color: '#CA8E0E',
+        fontSize: 15,
+        fontWeight: '700',
+    },
+
+    // --- CARD DE RESERVA (Mantenido y pulido) ---
     card: {
-    width: '100%',
-    borderRadius: 12,
-    backgroundColor: '#fff',
-    
-    // 1. FUNDAMENTAL: Esto corta la imagen para que respete el borderRadius
-    overflow: 'hidden', 
-    
-    // 2. Quita o suaviza el borde
-    borderWidth: 0, 
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 5,
-},
-cardBg: { 
-    width: '100%', 
-    height: 160, 
-    justifyContent: 'flex-end',
-    // Asegúrate de que no haya padding aquí para que la imagen pegue al borde
-},
+        width: '100%',
+        borderRadius: 16,
+        backgroundColor: '#fff',
+        overflow: 'hidden', 
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.2,
+        shadowRadius: 12,
+        elevation: 8,
+    },
+    cardBg: { 
+        width: '100%', 
+        height: 160, 
+    },
     cardOverlay: { 
         flex: 1, 
-        justifyContent: 'space-between', // Separa el header del bottom
-        padding: 14 
+        justifyContent: 'space-between', 
+        padding: 16,
+        backgroundColor: 'rgba(0,0,0,0.2)' // Oscurece un poco la imagen para leer mejor
     },
     cardHeaderRow: {
         flexDirection: 'row',
-        justifyContent: 'space-between', // Empuja el título a la izq y badge a la dcha
-        alignItems: 'center', // Los centra verticalmente entre ellos
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     statusBadge: {
-        backgroundColor: 'rgba(202, 142, 14, 0.8)', // Naranja con transparencia
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.3)',
+        backgroundColor: '#CA8E0E', // Dorado sólido o semi-transparente
+        paddingHorizontal: 12,
+        paddingVertical: 5,
+        borderRadius: 20, // Badge más redondeado
     },
     statusText: {
         color: '#fff',
@@ -95,14 +105,14 @@ cardBg: {
         textTransform: 'uppercase',
     },
     cardTitle: { 
-        flex: 1, // Para que si el título es muy largo no pise al badge
-        fontWeight: '900', 
-        fontSize: 17, 
+        flex: 1,
+        fontWeight: '800', 
+        fontSize: 19, 
         color: '#fff',
         marginRight: 10,
-        textShadowColor: 'rgba(0, 0, 0, 0.6)',
+        textShadowColor: 'rgba(0, 0, 0, 0.7)',
         textShadowOffset: { width: 0, height: 1 },
-        textShadowRadius: 4
+        textShadowRadius: 6
     },
     cardBottom: { 
         flexDirection: 'row', 
@@ -112,17 +122,27 @@ cardBg: {
     cardMeta: { 
         color: '#fff', 
         fontSize: 13, 
-        fontWeight: '500',
-        opacity: 0.9
+        fontWeight: '600',
+        marginBottom: 2,
     },
+
+    // --- OTROS ---
     emptyContainer: {
-        padding: 40,
+        padding: 60,
         alignItems: 'center',
     },
     emptyText: {
-        color: '#6b7280',
+        color: '#9CA3AF',
         fontSize: 16,
-    }
+        fontWeight: '500',
+    },
+    logoutButton: {
+        position: 'absolute',
+        top: 50, // Lo moví arriba para que no estorbe con el TabBar
+        right: 15,
+        backgroundColor: 'rgba(26, 47, 75, 0.1)', // Azul muy tenue
+        borderRadius: 25,
+    },
 });
 
-export default styles;  
+export default styles;

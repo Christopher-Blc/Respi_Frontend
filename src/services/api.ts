@@ -20,10 +20,10 @@ const api = axios.create({
   },
 });
 
-export const setApiBaseUrl = (url: string) => {
-  api.defaults.baseURL = url;
-  (global as any).SERVER_URL = url;
-};
+// export const setApiBaseUrl = (url: string) => {
+//   api.defaults.baseURL = url;
+//   (global as any).SERVER_URL = url;
+// };
 
 // Interceptor para añadir el token a cada petición
 api.interceptors.request.use(
