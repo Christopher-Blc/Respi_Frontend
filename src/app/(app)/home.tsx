@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
-    StyleSheet,
     TouchableOpacity,
     FlatList,
     ImageBackground,
@@ -18,28 +17,27 @@ import api from '../../services/api';
 import { Reserva } from '../../types/types';
 import styles from '../../style/reservations.styles';
 
-// --- INTERFACES ADAPTADAS ---
 export interface Pista {
     pista_id: number;
     nombre: string;
-    // ... otros campos de Pista
 }
-
-
 
 export default function HomeScreen() {
     const { signOut } = useAuth();
     const router = useRouter();
 
-    // Estado usando la interfaz Reserva
     const [reservations, setReservations] = useState<Reserva[]>([]);
     const [loading, setLoading] = useState(true);
 
     const fetchReservas = async () => {
         try {
             setLoading(true);
-            // El interceptor de tu 'api.ts' ya añade el token automáticamente
             const response = await api.get('/reserva/mis-reservas');
+            
+            // Filtrado por estado confirmada
+            // const reservasActivas = response.data.filter(
+            //     (reserva: Reserva) => reserva.estado.toLowerCase() === 'confirmada'
+            // );
             setReservations(response.data);
         } catch (error) {
             console.error("Error al traer mis reservas:", error);
@@ -66,42 +64,43 @@ export default function HomeScreen() {
     };
 
     const renderReservation = ({ item }: { item: Reserva }) => {
-		const title = item.pista?.nombre || 'Reserva sin nombre';
-		const img = getImageForReservation(title);
-		const cleanDate = item.fecha_reserva.split('T')[0];
-		//quitamos los segundos
-		const cleanTime = item.hora_inicio.split(':').slice(0, 2).join(':') + ' - ' + item.hora_fin.split(':').slice(0, 2).join(':');
+        const title = item.pista?.nombre || 'Reserva sin nombre';
+        const img = getImageForReservation(title);
+        const cleanDate = item.fecha_reserva.split('T')[0];
+        const cleanTime = item.hora_inicio.split(':').slice(0, 2).join(':') + ' - ' + item.hora_fin.split(':').slice(0, 2).join(':');
 
-		return (
-			<TouchableOpacity 
-				style={styles.card} 
-				onPress={() => router.push(`/(app)/reservas/${item.reserva_id}`)}
-			>
-				<ImageBackground source={img} style={styles.cardBg} imageStyle={{ borderRadius: 12 }}>
-					<LinearGradient colors={["rgba(0,0,0,0.6)", "rgba(0,0,0,0.8)"]} style={styles.cardOverlay}>
-						
-						{/* FILA SUPERIOR: Título a la izquierda, Estado a la derecha */}
-						<View style={styles.cardHeaderRow}>
-							<Text style={styles.cardTitle}>{title}</Text>
-							<View style={styles.statusBadge}>
-								<Text style={styles.statusText}>{item.estado}</Text>
-							</View>
-						</View>
+        return (
+            <TouchableOpacity 
+                style={styles.card} 
+                onPress={() => router.push(`/(app)/reservas/${item.reserva_id}`)}
+            >
+                <ImageBackground source={img} style={styles.cardBg} imageStyle={{ borderRadius: 12 }}>
+                    <LinearGradient colors={["rgba(0,0,0,0.6)", "rgba(0,0,0,0.8)"]} style={styles.cardOverlay}>
+                        
+                        <View style={styles.cardHeaderRow}>
+                            <Text style={styles.cardTitle}>{title}</Text>
+                            <View style={styles.statusBadge}>
+                                <Text style={styles.statusText}>{item.estado}</Text>
+                            </View>
+                        </View>
 
-						{/* FILA INFERIOR: Fecha/Hora y Flecha */}
-						<View style={styles.cardBottom}>
-							<View>
-								<Text style={styles.cardMeta}><Ionicons name="calendar-outline" size={14} color="#fff" style={{ marginRight: 4 }} /> {cleanDate}</Text>
-								<Text style={styles.cardMeta}><Ionicons name="time-outline" size={14} color="#fff" style={{ marginRight: 4 }} /> {cleanTime}</Text>
-							</View>
-							<Ionicons name="chevron-forward-outline" size={22} color="#fff" />
-						</View>
+                        <View style={styles.cardBottom}>
+                            <View>
+                                <Text style={styles.cardMeta}>
+                                    <Ionicons name="calendar-outline" size={14} color="#fff" /> {cleanDate}
+                                </Text>
+                                <Text style={styles.cardMeta}>
+                                    <Ionicons name="time-outline" size={14} color="#fff" /> {cleanTime}
+                                </Text>
+                            </View>
+                            <Ionicons name="chevron-forward-outline" size={22} color="#fff" />
+                        </View>
 
-					</LinearGradient>
-				</ImageBackground>
-			</TouchableOpacity>
-		);
-	};
+                    </LinearGradient>
+                </ImageBackground>
+            </TouchableOpacity>
+        );
+    };
 
     return (
         <View style={styles.container}>
@@ -121,24 +120,35 @@ export default function HomeScreen() {
                     ListHeaderComponent={
                         <>
                             <Text style={styles.header}>Bienvenido a ResPi</Text>
-                            <View style={styles.quickRow}>
+                            
+                            {/* --- SECCIÓN DE BOTONES MEJORADA --- */}
+                            <View style={styles.premiumActionRow}>
                                 <TouchableOpacity
-                                    style={[styles.quickButton, styles.primary]}
+                                    style={styles.pillButtonPrimary}
                                     onPress={() => router.push('/(app)/booking')}
                                 >
-                                    <Text style={styles.quickText}>Nueva reserva</Text>
+                                    <LinearGradient 
+                                        colors={["#CA8E0E", "#A06B08"]} 
+                                        style={styles.pillButtonGradient}
+                                        start={{ x: 0, y: 0 }} 
+                                        end={{ x: 1, y: 0 }}
+                                    >
+                                        <Text style={styles.pillButtonText}>Nueva reserva</Text>
+                                    </LinearGradient>
                                 </TouchableOpacity>
+
                                 <TouchableOpacity
-                                    style={[styles.quickButton, styles.secondary]}
-                                    onPress={() => alert('Pendiente')}
+                                    style={styles.pillButtonOutline}
+                                    onPress={() => alert('Próximamente')}
                                 >
-                                    <Text style={[styles.quickText, { color: '#000' }]}>Unirse a partido</Text>
+                                    <Text style={styles.pillButtonTextOutline}>Unirse a partido</Text>
                                 </TouchableOpacity>
                             </View>
+
                             <Text style={styles.sectionTitle}>Próximas reservas</Text>
                         </>
                     }
-                    contentContainerStyle={{ paddingBottom: 100 }}
+                    contentContainerStyle={{ paddingBottom: 100, paddingTop: 60 }}
                 />
             )}
             
