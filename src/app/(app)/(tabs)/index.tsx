@@ -16,6 +16,7 @@ import { useAuth } from '../../../context/AuthContext';
 import api from '../../../services/api';
 import { Reserva } from '../../../types/types';
 import styles from '../../../style/reservations.styles';
+import { GlassTextButton } from '../../../components/login/glassTextButton';
 
 export interface Pista {
     pista_id: number;
@@ -33,12 +34,13 @@ export default function HomeScreen() {
         try {
             setLoading(true);
             const response = await api.get('/reserva/mis-reservas');
+            console.log('Reservas obtenidas:', response.data);
             
             // Filtrado por estado confirmada
-            // const reservasActivas = response.data.filter(
-            //     (reserva: Reserva) => reserva.estado.toLowerCase() === 'confirmada'
-            // );
-            setReservations(response.data);
+            const reservasActivas = response.data.filter(
+             (reserva: Reserva) => reserva.estado.toLowerCase() === 'confirmada'
+            );
+            setReservations(reservasActivas);
         } catch (error) {
             console.error("Error al traer mis reservas:", error);
         } finally {
@@ -103,7 +105,9 @@ export default function HomeScreen() {
     };
 
     return (
+        
         <View style={styles.container}>
+            <GlassTextButton text="Refetch" textColor="#fff" onPress={fetchReservas} color={'rgba(191, 132, 4, 0.51)'} />
             {loading ? (
                 <ActivityIndicator size="large" color="#CA8E0E" style={{ marginTop: 50 }} />
             ) : (

@@ -13,7 +13,7 @@ import {
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { IconButton } from 'react-native-paper';
-import { RectangularButton } from '../../components/login/glassTextButton';
+import { GlassTextButton } from '../../components/login/glassTextButton';
 import { GlassTextInputPassword } from '../../components/login/glassTextInputPassword';
 import { GlassTextInput } from '../../components/login/glassTextInput';
 import api from '../../services/api';
@@ -138,7 +138,7 @@ const Login: React.FC = () => {
           isDarkMode={isDarkMode}
         />
 
-        <RectangularButton text="Login" textColor="#fff" onPress={handleSubmit} color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.51)'} />
+        <GlassTextButton text="Login" textColor="#fff" onPress={handleSubmit} color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.51)'} />
         
         <View style={{ height: 28 }} />
 
@@ -146,7 +146,7 @@ const Login: React.FC = () => {
           Don't have an account yet?{' '}
           <Text 
             style={{ color: '#CA8E0E', fontWeight: 'bold' }} 
-            onPress={() => router.replace('Register')}
+            onPress={() => router.replace('register')}
           >
             Register
           </Text>

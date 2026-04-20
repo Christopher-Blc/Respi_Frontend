@@ -2,7 +2,7 @@ import { Link, Stack } from 'expo-router';
 import React from 'react';
 import { ImageBackground, StyleSheet, Text, View, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { RectangularButton } from '../components/login/glassTextButton'; // Usamos tu componente de botón
+import { GlassTextButton } from '../components/login/glassTextButton'; // Usamos tu componente de botón
 
 export default function NotFoundScreen() {
   // Usamos el mismo fondo que tienes en el login para coherencia visual
@@ -39,7 +39,7 @@ export default function NotFoundScreen() {
 
           {/* Usamos un Link de expo-router envolviendo tu botón o un estilo similar */}
           <Link href="/" asChild>
-            <RectangularButton 
+            <GlassTextButton 
               text="Volver al inicio" 
               textColor="#fff" 
               color='rgba(191, 132, 4, 0.51)' 

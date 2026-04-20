@@ -47,7 +47,7 @@ export default function BookingCreate() {
         keyExtractor={(i) => String(i.id)}
         renderItem={({ item }) => {
           // safe fallback image if item.img is missing
-          const imgSource = item.img ? item.img : require('../../../../assets/RespiLogo.png');
+          const imgSource = item.img ? item.img : require('../../../../../assets/RespiLogo.png');
           return (
             <TouchableOpacity
               style={styles.modelCard}
