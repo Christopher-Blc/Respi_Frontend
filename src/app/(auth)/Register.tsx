@@ -14,7 +14,7 @@ import {
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { IconButton } from 'react-native-paper';
-import { RectangularButton } from '../../components/login/glassTextButton';
+import { GlassTextButton } from '../../components/login/glassTextButton';
 import { GlassTextInputPassword } from '../../components/login/glassTextInputPassword';
 import { GlassTextInput } from '../../components/login/glassTextInput';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
@@ -26,6 +26,7 @@ import styles from '../../style/register.styles';
 
 const Register: React.FC = () => {
   const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [surname, setSurname] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -42,7 +43,7 @@ const Register: React.FC = () => {
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
-  // Cosas para el date,  añade las "/" solo y pilladas raras del chat
+  // Cosas para el date,  añade las "/" solo cuando el user escribe la fecha en vez de seleccionarla 
   const handleTextChange = (text: string) => {
     let cleaned = text.replace(/\D/g, ''); // Solo números
     let formatted = cleaned;
@@ -59,7 +60,7 @@ const Register: React.FC = () => {
 
   
   const onDateChange = (event: any, selectedDate?: Date) => {
-  // En Web o Android, cerramos tras elegir
+  // En Web o Android, cerramos despues de haber eligido la fecha  
   if (Platform.OS !== 'ios') {
     setShowPicker(false);
   }
@@ -70,7 +71,7 @@ const Register: React.FC = () => {
     const year = selectedDate.getFullYear();
     
     setBirthDate(`${day}/${month}/${year}`);
-    setDate(selectedDate); // Este es el que mandas a la API con .toISOString()
+    setDate(selectedDate);//eso se envia a api y le metemos .toISOString() para que lo accepte el back
   }
 };
 
@@ -78,39 +79,43 @@ const Register: React.FC = () => {
   const { signIn } = useAuth();
   const handleSubmit = async () => {
     //comprobar campos vacios
-      if (!email || !password || !name || !surname || !phone || !birthDate || !location) {
+      if (!email || !password || !name || !surname || !username || !phone || !birthDate || !location) {
         setError('Por favor, rellena todos los campos.');
         return;
       }
 
       //tr catch dnd haremos la llamada a api
       try {
-      setError(''); 
-      
-      //hacemos la llamada pasando los datos
-      const response = await api.post('/auth/register', {
-        email: email.toLowerCase(),
-        password: password,
-        name: name,
-        surname: surname,
-        phone: phone,
-        fecha_nacimiento: date.toISOString(), 
-        direccion: location,
-      });
+        setError(''); 
+        
+        //hacemos la llamada pasando los datos
+        const response = await api.post('/auth/register', {
+          username: username,
+          name: name,
+          surname: surname,
+          email: email.toLowerCase(),
+          phone: phone,
+          password: password,
+          fecha_nacimiento: date.toISOString(), 
+          direccion: location,
+        });
 
-      //si ha cinseguido una respuesta valida , lo avisamos y guardamos el token en securestorage
-      if (response.status === 201 || response.data.access_token) {
-        const token = response.data.access_token;
-        alert('¡Cuenta creada con éxito! Bienvenido.');
-        signIn(token);
+        //si ha cinseguido una respuesta valida , lo avisamos y guardamos el token en securestorage
+        if (response.status === 201 || response.data.access_token) {
+          const token = response.data.access_token;
+          //deleteme
+          console.log('Registro exitoso:', response.data);
+          console.log('Token recibido:', response.data.access_token);
+          alert('¡Cuenta creada correctamente! Bienvenido.');
+          signIn(token);//el signin ya se encarga de guardar el token y todo 
+        }
+
+      } catch (err: any) {
+        //si ha habido un error lo enseñamos 
+        const message = err.response?.data?.message || 'Error de conexión';
+        console.log('Error en registro:', err);
+        setError(Array.isArray(message) ? message[0] : message);
       }
-
-    } catch (err: any) {
-      //si ha habido un error lo enseñamos 
-      const message = err.response?.data?.message || 'Error de conexión';
-      console.log('Error en registro:', err);
-      setError(Array.isArray(message) ? message[0] : message);
-    }
 
   };
 
@@ -178,6 +183,9 @@ const Register: React.FC = () => {
 
       <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>Surname:</Text>
       <GlassTextInput placeholder="Surname" value={surname} onChangeText={setSurname} isDarkMode={isDarkMode} />
+
+      <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>Username:</Text>
+      <GlassTextInput placeholder="Username" value={username} onChangeText={setUsername} isDarkMode={isDarkMode} />
 
       <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>Email:</Text>
       <GlassTextInput keyboardType='email-address' placeholder="Enter email" value={email} onChangeText={setEmail} isDarkMode={isDarkMode} />
@@ -254,7 +262,7 @@ const Register: React.FC = () => {
       <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>Location:</Text>
       <GlassTextInput placeholder="Location" value={location} onChangeText={setLocation} isDarkMode={isDarkMode} />
 
-      <RectangularButton text="Register" textColor="#fff" onPress={handleSubmit} color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.51)'} />
+      <GlassTextButton text="Register" textColor="#fff" onPress={handleSubmit} color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.51)'} />
       
       <View style={{ height: 16 }} />
       <Text style={{ color: isDarkMode ? '#ccc' : '#667', textAlign: 'center' }}>

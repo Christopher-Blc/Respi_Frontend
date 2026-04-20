@@ -10,7 +10,7 @@ type Props = {
   color?: string;
 };
 
-export function RectangularButton({ text, onPress, disabled, color, textColor }: Props) {
+export function GlassTextButton({ text, onPress, disabled, color, textColor }: Props) {
   const buttonColor = color ? color : "rgba(175, 175, 175, 0.3)"; // Fallback a un color semitransparente
   return (
     <Pressable
