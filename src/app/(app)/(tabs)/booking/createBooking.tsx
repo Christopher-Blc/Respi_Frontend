@@ -18,14 +18,14 @@ import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Snackbar } from 'react-native-paper';
-import { reservasService } from '../../../services/reservasService';
-import { MODELOS, Modelo } from '../../../data/modelos';
-import { useAuth } from '../../../context/AuthContext';
-import api from '../../../services/api';
+import { reservasService } from '../../../../services/reservasService';
+import { MODELOS, Modelo } from '../../../../data/modelos';
+import { useAuth } from '../../../../context/AuthContext';
+import api from '../../../../services/api';
 import { Modal } from 'react-native'; // Añade Modal a los imports de react-native
 import { WebView } from 'react-native-webview';
 
-export default function BookingDetails() {
+export default function CreateBooking() {
   const params = useLocalSearchParams<{ modelId?: string }>();
   const modelId = params?.modelId;
   const router = useRouter();
