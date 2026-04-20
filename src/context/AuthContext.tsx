@@ -1,15 +1,12 @@
- import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { deleteToken, getToken, saveToken } from '../services/authStorage';
 import { jwtDecode } from 'jwt-decode';
-
 
 interface JWTPayload {
   sub: number;
   email: string;
   role: 'SUPER_ADMIN' | 'CLIENTE';
-  // añade aquí otros campos que vengan en tu token (sub, id, etc.)
 }
-
 
 const AuthContext = createContext<{
   userToken: string | null;
@@ -32,13 +29,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const decodeAndSetRole = (token: string) => {
     try {
-      // Usamos "as unknown as JWTPayload" para saltar el error de TS
       const decoded = jwtDecode(token) as unknown as JWTPayload;
-      
       if (decoded && decoded.role) {
         setRole(decoded.role);
-      } else {
-        setRole(null);
       }
     } catch (error) {
       console.error("Error decodificando el token:", error);
@@ -48,12 +41,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const loadToken = async () => {
-      const token = await getToken(); 
-      if (token) {
-        setUserToken(token);
-        decodeAndSetRole(token); 
+      // Seguro de vida: si en 7 segundos no hay respuesta, cortamos el loading
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 7000);
+
+      try {
+        const token = await getToken(); 
+        if (token) {
+          setUserToken(token);
+          decodeAndSetRole(token); 
+        }
+      } catch (error) {
+        console.error("Fallo al recuperar token:", error);
+      } finally {
+        clearTimeout(timer);
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
     loadToken();
   }, []);
@@ -63,9 +67,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       userToken,
       role,
       isLoading,
-      signIn: async (token) => { //tiene q ser async pq si no es web , hace un await
+      signIn: async (token) => {
         setUserToken(token);
-        decodeAndSetRole(token);  
+        decodeAndSetRole(token);   
         await saveToken(token);
       },
       signOut: async () => {
@@ -80,6 +84,3 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
-
-
-

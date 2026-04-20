@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList, ImageBackground, Ac
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { reservasService } from '../../../services/reservasService';
-import { MODELOS, Modelo } from '../../../data/modelos';
+import { reservasService } from '../../../../services/reservasService';
+import { MODELOS, Modelo } from '../../../../data/modelos';
 
 export default function BookingCreate() {
   const router = useRouter();

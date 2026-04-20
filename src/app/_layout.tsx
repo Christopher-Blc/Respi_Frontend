@@ -1,50 +1,48 @@
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
-import { useAuth } from "../context/AuthContext";
+import { AuthProvider, useAuth } from "../context/AuthContext";
 
 function AuthNavigation() {
   const { userToken, isLoading, role } = useAuth();
-  const segments = useSegments();
+  const segments = useSegments() as string[]; 
   const router = useRouter();
 
   useEffect(() => {
     if (isLoading) return;
 
-    // segments[0] suele ser el nombre del grupo entre paréntesis
-    const inAppGroup = segments[0] === '(app)';
-    const inAuthGroup = segments[0] === '(auth)';
+    const inAuthGroup = segments[0] === "(auth)";
+    // const inAppGroup = segments[0] === "(app)";
 
-    // 1. SI NO HAY TOKEN: Mandar a login si intenta entrar a cualquier sitio que no sea auth
+    //si no hay login lo mandamos al login
     if (!userToken) {
       if (!inAuthGroup) {
-        router.replace('/(auth)/login');
+        router.replace("/(auth)/login");
       }
-      return; // Detenemos aquí si no hay usuario
+      return;
     }
 
-    // 2. SI HAY TOKEN (YA ESTÁ LOGUEADO)
+    //si hay token se mira el rol y segun rol o se va a admin o a tabs que es el panel de clientes
     if (userToken) {
-      // Si el rol es Admin (Asegúrate de que coincida con tu JWT: 'SUPER_ADMIN')
-      if (role === 'SUPER_ADMIN') {
-        // Si no está en la carpeta (admin), lo mandamos para allá
-        if (segments[1] !== '(admin)') {
-          router.replace('/(app)/(admin)');
-        }
-      } 
-      // Si el rol es Cliente
-      else if (role === 'CLIENTE') {
-        // Si no está en la carpeta (tabs), lo mandamos
-        if (segments[1] !== '(tabs)') {
-          router.replace('/(app)/(tabs)');
-        }
+      if (inAuthGroup || segments.length === 0 || segments[0] === "index") {
+        const dest = role === "SUPER_ADMIN" ? "/(app)/(admin)" : "/(app)/(tabs)";
+        router.replace(dest);
+        return;
+      }
+
+      // 3. PROTECCIÓN DE ROL (Aquí evitamos el error de segments[1])
+      // Usamos segments.includes() para que no importe la posición y siempre verifique si tiene acceso a esa pantalla o no 
+      if (role === "SUPER_ADMIN" && !segments.includes("(admin)")) {
+        router.replace("/(app)/(admin)");
+      } else if (role === "CLIENTE" && !segments.includes("(tabs)")) {
+        router.replace("/(app)/(tabs)");
       }
     }
   }, [userToken, isLoading, segments, role]);
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#212121' }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#212121" }}>
         <ActivityIndicator size="large" color="#61DA5F" />
       </View>
     );
@@ -52,9 +50,17 @@ function AuthNavigation() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {/* Definimos los grupos principales */}
-      <Stack.Screen name="(auth)" options={{ animation: 'fade' }} />
-      <Stack.Screen name="(app)" options={{ animation: 'fade' }} />
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(app)" />
+      <Stack.Screen name="index" />
     </Stack>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <AuthNavigation />
+    </AuthProvider>
   );
 }
