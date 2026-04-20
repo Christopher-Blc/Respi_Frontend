@@ -43,6 +43,17 @@ const Register: React.FC = () => {
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
+  const createLocalDate = (year: number, month: number, day: number) => {
+    return new Date(year, month, day, 12, 0, 0, 0);
+  };
+
+  const formatLocalDateForApi = (value: Date) => {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, '0');
+    const day = String(value.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   // Cosas para el date,  añade las "/" solo cuando el user escribe la fecha en vez de seleccionarla 
   const handleTextChange = (text: string) => {
     let cleaned = text.replace(/\D/g, ''); // Solo números
@@ -69,9 +80,10 @@ const Register: React.FC = () => {
     const day = String(selectedDate.getDate()).padStart(2, '0');
     const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
     const year = selectedDate.getFullYear();
+    const normalizedDate = createLocalDate(year, selectedDate.getMonth(), selectedDate.getDate());
     
     setBirthDate(`${day}/${month}/${year}`);
-    setDate(selectedDate);//eso se envia a api y le metemos .toISOString() para que lo accepte el back
+    setDate(normalizedDate);
   }
 };
 
@@ -96,7 +108,7 @@ const Register: React.FC = () => {
           email: email.toLowerCase(),
           phone: phone,
           password: password,
-          fecha_nacimiento: date.toISOString(), 
+          fecha_nacimiento: formatLocalDateForApi(date), 
           direccion: location,
         });
 
@@ -200,64 +212,65 @@ const Register: React.FC = () => {
 
 
       <View style={styles.inputWrapper}>
-  <GlassTextInput 
-    placeholder="DD/MM/YYYY" 
-    value={birthDate} 
-    onChangeText={handleTextChange} 
-    isDarkMode={isDarkMode} 
-  />
-  <IconButton
-    icon="calendar-edit"
-    style={styles.calendarIcon}
-    iconColor='#CA8E0E'
-    size={24}
-    onPress={() => {
-    if (Platform.OS === 'web') {
-      // Casteamos el elemento a HTMLInputElement
-      const inputElement = document.getElementById('webDatePicker') as HTMLInputElement;
-      inputElement?.showPicker?.(); 
-    } else {
-      setShowPicker(!showPicker);
-    }
-  }}
-  />
-  
-  {/* Input invisible solo para Web */}
-  {Platform.OS === 'web' && (
-    <input
-      id="webDatePicker"
-      type="date"
-      style={{
-        position: 'absolute',
-        opacity: 0,
-        width: 1,
-        height: 1,
-        right: 20,
-        top: 20,
-      }}
-      onChange={(e) => {
-        const val = e.target.value; // Formato YYYY-MM-DD
-        if (val) {
-          const [y, m, d] = val.split('-');
-          const selected = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
-          onDateChange({}, selected);
-        }
-      }}
-    />
-  )}
-</View>
+        <GlassTextInput 
+          placeholder="DD/MM/YYYY" 
+          value={birthDate} 
+          onChangeText={handleTextChange} 
+          isDarkMode={isDarkMode} 
+        />
+        <IconButton
+          icon="calendar-edit"
+          style={styles.calendarIcon}
+          iconColor='#CA8E0E'
+          size={24}
+          onPress={() => {
+          if (Platform.OS === 'web') {
+            // Casteamos el elemento a HTMLInputElement
+            const inputElement = document.getElementById('webDatePicker') as HTMLInputElement;
+            inputElement?.showPicker?.(); 
+          } else {
+            setShowPicker(!showPicker);
+          }
+        }}
+        />
+        
+        {/* Input invisible solo para Web */}
+        {Platform.OS === 'web' && (
+          <input
+            id="webDatePicker"
+            type="date"
+            style={{
+              position: 'absolute',
+              opacity: 0,
+              width: 1,
+              height: 1,
+              right: 20,
+              top: 20,
+            }}
+            onChange={(e) => {
+              const val = e.target.value; // Formato YYYY-MM-DD
+              if (val) {
+                const [y, m, d] = val.split('-');
+                const selected = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+                onDateChange({}, selected);
+              }
+            }}
+          />
+        )}
+      </View>
 
-{/* El Picker nativo solo para Móvil */}
-{Platform.OS !== 'web' && showPicker && (
-  <RNDateTimePicker
-    value={date}
-    mode="date"
-    display="spinner" 
-    onChange={onDateChange}
-    maximumDate={new Date()}
-    textColor={isDarkMode ? 'white' : 'black'}
-  />
-)}
+    {/* El Picker nativo solo para Móvil */}
+    {Platform.OS !== 'web' && showPicker && (
+      <RNDateTimePicker
+        value={date}
+        mode="date"
+        display="spinner" 
+        onChange={onDateChange}
+        minimumDate={createLocalDate(1900, 0, 1)}
+        maximumDate={new Date()}
+        textColor={isDarkMode ? 'white' : 'black'}
+      />
+    )}
 
       <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>Location:</Text>
       <GlassTextInput placeholder="Location" value={location} onChangeText={setLocation} isDarkMode={isDarkMode} />
