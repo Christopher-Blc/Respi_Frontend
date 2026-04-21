@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import {
-  Image, 
+  Image,
   Text,
   View,
   KeyboardAvoidingView,
   Keyboard,
   Platform,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -16,15 +16,15 @@ import { GlassTextInput } from '../../components/login/glassTextInput';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import styles from '../../style/login.styles';
-import { useAuthShell } from './_layout';  
+import { useAuthShell } from './_layout';
 import RespiLogo from '../../components/login/respiLogo';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter(); 
-  const { isDarkMode } = useAuthShell(); 
+  const router = useRouter();
+  const { isDarkMode } = useAuthShell();
 
   const { signIn } = useAuth();
   const handleSubmit = async () => {
@@ -34,7 +34,7 @@ const Login: React.FC = () => {
     }
 
     try {
-      setError(''); 
+      setError('');
       const response = await api.post('/auth/login', {
         email: email.toLowerCase(),
         password: password,
@@ -44,8 +44,16 @@ const Login: React.FC = () => {
         const token = response.data.access_token;
         signIn(token);
       }
+
+      console.log('Login successful:', response.data);
     } catch (err: any) {
+      //El const y signin solo estan para pruebas pq el movil no se conectaba al back
+      //BORRAR!!!! ( cuando ya no haga falta que sino siempre hace login)
+      const token =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcsImVtYWlsIjoiY2hyaXMudGVzdEBnbWFpbC5jb20iLCJyb2xlIjoiQ0xJRU5URSIsImlhdCI6MTc3Njc2NDMyMSwiZXhwIjoxNzc2NzY3OTIxfQ.mPPX0rB3kh2cFVk24NPe6I8O0OxhGUTWgRMS1O7KwHk';
+      signIn(token);
       const message = err.response?.data?.message || 'Error de conexión';
+      console.log('Login error:', err.response?.data || err.message);
       setError(Array.isArray(message) ? message[0] : message);
     }
   };
@@ -53,7 +61,12 @@ const Login: React.FC = () => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1, width: '100%', justifyContent: 'center', alignItems: 'center' }}
+      style={{
+        flex: 1,
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
     >
       {Platform.OS === 'web' ? (
         <View style={{ width: '100%', alignItems: 'center' }}>
@@ -71,12 +84,20 @@ const Login: React.FC = () => {
 
   function renderForm() {
     return (
-      <BlurView tint={isDarkMode ? "dark" : "light"} style={styles.glass} intensity={20}>
+      <BlurView
+        tint={isDarkMode ? 'dark' : 'light'}
+        style={styles.glass}
+        intensity={20}
+      >
         <RespiLogo />
 
-        <Text style={[styles.title, { color: isDarkMode ? '#FFF' : '#333' }]}>Welcome back!</Text>
+        <Text style={[styles.title, { color: isDarkMode ? '#FFF' : '#333' }]}>
+          Welcome back!
+        </Text>
 
-        <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>Email:</Text>
+        <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
+          Email:
+        </Text>
         <GlassTextInput
           keyboardType="email-address"
           placeholder="Enter email"
@@ -85,27 +106,33 @@ const Login: React.FC = () => {
           isDarkMode={isDarkMode}
         />
 
-        <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>Password:</Text>
-        <GlassTextInputPassword 
+        <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
+          Password:
+        </Text>
+        <GlassTextInputPassword
           placeholder="Enter password"
           value={password}
           onChangeText={setPassword}
           isDarkMode={isDarkMode}
         />
 
-        <GlassTextButton 
-          text="Login" 
-          textColor="#fff" 
-          onPress={handleSubmit} 
-          color={isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.51)'} 
+        <GlassTextButton
+          text="Login"
+          textColor="#fff"
+          onPress={handleSubmit}
+          color={
+            isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.51)'
+          }
         />
-        
+
         <View style={{ height: 28 }} />
 
-        <Text style={{ color: isDarkMode ? '#ccc' : '#667', textAlign: 'center' }}>
+        <Text
+          style={{ color: isDarkMode ? '#ccc' : '#667', textAlign: 'center' }}
+        >
           Don't have an account yet?{' '}
-          <Text 
-            style={{ color: '#CA8E0E', fontWeight: 'bold' }} 
+          <Text
+            style={{ color: '#CA8E0E', fontWeight: 'bold' }}
             onPress={() => router.replace('register')}
           >
             Register
@@ -116,7 +143,6 @@ const Login: React.FC = () => {
       </BlurView>
     );
   }
-}; 
-
+};
 
 export default Login;

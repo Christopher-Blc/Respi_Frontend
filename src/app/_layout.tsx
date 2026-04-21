@@ -12,7 +12,6 @@ function AuthNavigation() {
     if (isLoading) return;
 
     const inAuthGroup = segments[0] === "(auth)";
-    // const inAppGroup = segments[0] === "(app)";
 
     //si no hay login lo mandamos al login
     if (!userToken) {

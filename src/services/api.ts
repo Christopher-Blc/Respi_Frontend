@@ -11,9 +11,9 @@ import { Platform } from 'react-native';
 
 const DEFAULT_BASE_URL = Platform.select({
   android: 'http://10.0.2.2:8000',
-  ios: 'http://192.168.0.150:8000',
-  web: 'http://192.168.0.150:8000',
-  default: 'http://192.168.0.150:8000',
+  ios: 'http://88.30.50.79:8000',
+  web: 'http://192.168.10.158:8000',
+  default: 'http://192.168.10.158:8000',  
 });
 
 
@@ -25,12 +25,7 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
-
-// export const setApiBaseUrl = (url: string) => {
-//   api.defaults.baseURL = url;
-//   (global as any).SERVER_URL = url;
-// };
-
+ 
 // Interceptor para añadir el token a cada petición
 api.interceptors.request.use(
   async (config) => {
