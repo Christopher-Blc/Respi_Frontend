@@ -1,81 +1,110 @@
 import { Tabs } from 'expo-router';
-import { View, StyleSheet, Platform } from 'react-native';
-import { MotiView } from 'moti';
-import { Ionicons } from '@expo/vector-icons'; // O tus imágenes de Images.img1
+import React from 'react';
+import { Platform, StatusBar } from 'react-native';
+import Octicons from '@expo/vector-icons/Octicons';
+import { GlassTextButton } from '../../../components/login/glassTextButton';
+import styles from '../../../style/reservations.styles';
+import { useAuth } from '../../../context/AuthContext';
 
-export default function TabLayout() {
+export default function tabLayout() {
+  const { signOut } = useAuth();
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Error al cerrar sesión', error);
+    }
+  };
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarStyle: styles.tabBar,
-        tabBarShowLabel: false, // Ocultamos el texto para que sea como tu diseño
-      }}
-    >
-      <Tabs.Screen
-        name="index" // Esto apunta a (tabs)/index.tsx
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} iconName="home" />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="reservas" // Esto apunta a (tabs)/reservas.tsx
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} iconName="calendar" />
-          ),
-        }}
-      />
-    </Tabs>
-  );
-}
+    <React.Fragment>
+      <StatusBar barStyle={'default'} animated={true} />
 
-function TabIcon({ focused, iconName }: { focused: boolean; iconName: any }) {
-  return (
-    <View style={styles.iconContainer}>
-      <MotiView
-        animate={{
-          translateY: focused ? -15 : 0,
-          scale: focused ? 1.2 : 1,
+      <Tabs
+        screenOptions={{
+          headerRight: () => (
+            <GlassTextButton
+              text="Logout"
+              style={styles.logoutButton}
+              onPress={handleLogout}
+              color="rgba(191, 4, 4, 0.27)"
+              borderColor="#ffb8b8"
+              borderWidth={1}
+            />
+          ),
+          tabBarLabelPosition: 'below-icon',
+          animation: 'fade',
+          headerShown: true,
+          headerTitleAlign: 'left',
+          headerStyle: {
+            height: 120,
+          },
+
+          tabBarStyle: {
+            height: Platform.OS === 'web' ? 72 : 90,
+            paddingTop: 6,
+            paddingBottom: Platform.OS === 'web' ? 10 : 6,
+          },
+          tabBarLabelStyle: {
+            marginBottom: Platform.OS === 'web' ? 2 : 0,
+          },
+          tabBarActiveTintColor: '#CA8E0E',
+          tabBarInactiveTintColor: 'gray',
         }}
-        transition={{ type: 'spring', damping: 15 }}
-        style={[styles.circle, focused && styles.activeCircle]}
       >
-        <Ionicons 
-          name={iconName} 
-          size={24} 
-          color={focused ? 'black' : '#A6A6A6'} 
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: 'Inicio',
+            tabBarIcon: ({ color, size }) => (
+              <Octicons name="home" size={size} color={color} />
+            ),
+          }}
         />
-      </MotiView>
-    </View>
+        <Tabs.Screen
+          name="pistas"
+          options={{
+            title: 'Pistas',
+            tabBarIcon: ({ color, size }) => (
+              <Octicons name="location" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="reservas"
+          options={{
+            title: 'Reservas',
+            tabBarIcon: ({ color, size }) => (
+              <Octicons name="calendar" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            tabBarBadge: '1',
+            tabBarBadgeStyle: {
+              backgroundColor: '#CA8E0E',
+              color: 'white',
+            },
+            title: 'Perfil',
+            tabBarIcon: ({ color, size }) => (
+              <Octicons name="person" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="booking/createBooking"
+          options={{
+            href: null,
+          }}
+        />
+        <Tabs.Screen
+          name="booking/index"
+          options={{
+            href: null,
+          }}
+        />
+      </Tabs>
+    </React.Fragment>
   );
 }
-
-const styles = StyleSheet.create({
-  tabBar: {
-    backgroundColor: '#212121',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    height: Platform.OS === 'android' ? 70 : 85,
-    position: 'absolute',
-    borderTopWidth: 0,
-    elevation: 10,
-  },
-  iconContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    top: Platform.OS === 'ios' ? 15 : 0,
-  },
-  circle: {
-    width: 45,
-    height: 45,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  activeCircle: {
-    backgroundColor: '#61DA5F', // El verde de tu diseño
-  },
-});

@@ -30,20 +30,8 @@ export const styles = StyleSheet.create({
     pillButtonPrimary: {
         flex: 1,
         height: 52,
-        borderRadius: 26, 
-        overflow: 'hidden',
-        // Sombra sutil
-        shadowColor: "#CA8E0E",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
-        elevation: 6,
-    },
-    pillButtonGradient: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
+        overflow: 'hidden', 
+    }, 
     pillButtonText: {
         color: '#FFFFFF',
         fontSize: 15,
@@ -137,11 +125,13 @@ export const styles = StyleSheet.create({
         fontWeight: '500',
     },
     logoutButton: {
-        position: 'absolute',
-        top: 50, // Lo moví arriba para que no estorbe con el TabBar
+        position: 'static',
+        bottom: 20, 
         right: 15,
-        backgroundColor: 'rgba(26, 47, 75, 0.1)', // Azul muy tenue
+        backgroundColor: 'rgba(173, 25, 25, 0.38)', // Azul muy tenue
         borderRadius: 25,
+        width: 150,
+
     },
 });
 
