@@ -22,6 +22,7 @@ import api from '../../services/api';
 import { saveToken } from '../../services/authStorage';
 import { useAuth } from '../../context/AuthContext';
 import styles from '../../style/register.styles';
+import RespiLogo from '../../components/login/respiLogo';
 
 
 const Register: React.FC = () => {
@@ -140,12 +141,7 @@ const Register: React.FC = () => {
 
   //Igual que en el login , hacemos una funcion de renderform para que devuelva el formulario principal
   //y en el return normal , tenemos el control si es web o mobil    
-  return (
-    <ImageBackground 
-      source={bgImage} 
-      style={styles.background}
-      imageStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
-    >
+  return ( 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1, width: '100%', justifyContent: 'center', alignItems: 'center' }}
@@ -163,17 +159,8 @@ const Register: React.FC = () => {
             </View>
           </TouchableWithoutFeedback>
         )}
-      </KeyboardAvoidingView>
-
-      <IconButton 
-        icon={isDarkMode ? "weather-sunny" : "weather-night"}
-        style={styles.darkModeButton}
-        iconColor={"#fff"}
-        size={25}
-        onPress={toggleDarkMode}
-      />
-    </ImageBackground>
-  );
+      </KeyboardAvoidingView> 
+   );
 
   function renderForm(){
     return (
@@ -187,7 +174,7 @@ const Register: React.FC = () => {
       }}
       showsVerticalScrollIndicator={false}
     >
-      <Image source={require('../../../assets/RespiLogo.png')} style={styles.logo} resizeMode="contain" />
+      <RespiLogo />
       <Text style={[styles.title, { color: isDarkMode ? '#FFF' : '#333' }]}>Create an account</Text>
 
       <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>Name:</Text>
@@ -280,7 +267,7 @@ const Register: React.FC = () => {
       <View style={{ height: 16 }} />
       <Text style={{ color: isDarkMode ? '#ccc' : '#667', textAlign: 'center' }}>
         Already have an account?{' '}
-        <Text style={{ color: '#CA8E0E', fontWeight: 'bold' }} onPress={() => router.replace('Login')}>
+        <Text style={{ color: '#CA8E0E', fontWeight: 'bold' }} onPress={() => router.replace('login')}>
           Login
         </Text>
       </Text>
@@ -290,7 +277,6 @@ const Register: React.FC = () => {
   </BlurView>
     );
   }
-};
+}; 
 
-
-export default Register;
+  export default Register;
