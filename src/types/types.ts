@@ -62,3 +62,8 @@ export interface Reserva {
   pista?: Pista;
   pagos?: Pago[];
 }
+
+export interface TipoPista {
+  tipo_pista_id: number;
+  nombre: string; 
+}
