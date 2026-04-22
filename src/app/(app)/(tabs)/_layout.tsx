@@ -2,41 +2,23 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform, StatusBar } from 'react-native';
 import Octicons from '@expo/vector-icons/Octicons';
-import { GlassTextButton } from '../../../components/login/glassTextButton';
-import styles from '../../../style/reservations.styles';
-import { useAuth } from '../../../context/AuthContext';
+import { Icon, IconButton } from 'react-native-paper';
 
 export default function tabLayout() {
-  const { signOut } = useAuth();
-  const handleLogout = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.error('Error al cerrar sesión', error);
-    }
-  };
   return (
     <React.Fragment>
       <StatusBar barStyle={'default'} animated={true} />
 
       <Tabs
         screenOptions={{
-          headerRight: () => (
-            <GlassTextButton
-              text="Logout"
-              style={styles.logoutButton}
-              onPress={handleLogout}
-              color="rgba(191, 4, 4, 0.27)"
-              borderColor="#ffb8b8"
-              borderWidth={1}
-            />
-          ),
+          // headerRight: () => null, //meter algun boton aqui?
           tabBarLabelPosition: 'below-icon',
           animation: 'fade',
           headerShown: true,
-          headerTitleAlign: 'left',
+          headerTitleAlign: 'center',
+          headerBackButtonDisplayMode: 'default',
           headerStyle: {
-            height: 120,
+            height: 70,
           },
 
           tabBarStyle: {
@@ -72,6 +54,7 @@ export default function tabLayout() {
         <Tabs.Screen
           name="reservas"
           options={{
+            headerShown: false,
             title: 'Reservas',
             tabBarIcon: ({ color, size }) => (
               <Octicons name="calendar" size={size} color={color} />
@@ -92,7 +75,7 @@ export default function tabLayout() {
             ),
           }}
         />
-        <Tabs.Screen
+        {/* <Tabs.Screen
           name="booking/createBooking"
           options={{
             href: null,
@@ -103,7 +86,7 @@ export default function tabLayout() {
           options={{
             href: null,
           }}
-        />
+        /> */}
       </Tabs>
     </React.Fragment>
   );
