@@ -135,6 +135,7 @@ export default function HomeScreen() {
                   onPress={() => router.push('/reservas/createBooking')}
                   style={styles.pillButtonPrimary}
                   color="rgba(191, 132, 4, 0.51)"
+                  height={90}
                 />
 
                 <GlassTextButton
@@ -145,6 +146,7 @@ export default function HomeScreen() {
                   borderColor="rgba(191, 132, 4, 0.51)"
                   borderWidth={4}
                   textColor="rgba(191, 132, 4, 0.51)"
+                  height={90}
                 />
               </View>
 
