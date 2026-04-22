@@ -132,7 +132,7 @@ export default function HomeScreen() {
               <View style={styles.premiumActionRow}>
                 <GlassTextButton
                   text="Nueva reserva"
-                  onPress={() => router.push('/(app)/booking')}
+                  onPress={() => router.push('/reservas/createBooking')}
                   style={styles.pillButtonPrimary}
                   color="rgba(191, 132, 4, 0.51)"
                 />

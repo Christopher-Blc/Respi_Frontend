@@ -8,7 +8,7 @@ import {
   ImageBackground,
   ActivityIndicator,
   ImageSourcePropType,
-  useWindowDimensions, // 1. Importamos esto
+  useWindowDimensions,
 } from 'react-native';
 import { Tabs, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,7 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import api from '../../../../services/api';
 import { TipoPista } from '../../../../types/types';
 
-export default function BookingCreate() {
+export default function PistaTypeIndex() {
   const router = useRouter();
   const [modelos, setModelos] = useState<TipoPista[]>([]);
   const [loading, setLoading] = useState(true);
