@@ -4,15 +4,15 @@ import { getToken } from './authStorage';
 import { Platform } from 'react-native';
 
 
-//const DEFAULT_BASE_URL =  'https://respi.es';
+const DEFAULT_BASE_URL =  'https://respi.es';
 
 //descomentar eso si es en local
-const DEFAULT_BASE_URL = Platform.select({
-  android: 'http://10.0.2.2:8000',
-  ios: 'http://localhost:8000',
-  web: 'http://localhost:8000',
-  default: 'http://localhost:8000',  
-});
+// const DEFAULT_BASE_URL = Platform.select({
+//   android: 'http://10.0.2.2:8000',
+//   ios: 'http://localhost:8000',
+//   web: 'http://localhost:8000',
+//   default: 'http://localhost:8000',  
+// });
 
 
 

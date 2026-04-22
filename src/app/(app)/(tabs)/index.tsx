@@ -15,6 +15,7 @@ import api from '../../../services/api';
 import { Reserva } from '../../../types/types';
 import styles from '../../../style/reservations.styles';
 import { GlassTextButton } from '../../../components/login/glassTextButton';
+import { reservasActivasFilter } from '../../../filtrosApi';
 
 //pantalla home del cliente
 
@@ -28,12 +29,15 @@ export default function HomeScreen() {
     try {
       setLoading(true);
       const response = await api.get('/reserva/mis-reservas');
-      console.log('Reservas obtenidas:', response.data);
+      console.log(
+        'Reservas obtenidas:',
+        'status:',
+        response.status,
+        response.data,
+      );
 
       // Filtrado por estado confirmada
-      const reservasActivas = response.data.filter(
-        (reserva: Reserva) => reserva.estado.toLowerCase() === 'confirmada',
-      );
+      const reservasActivas = reservasActivasFilter(response);
       setReservations(reservasActivas);
     } catch (error) {
       console.error('Error al traer mis reservas:', error);

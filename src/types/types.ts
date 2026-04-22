@@ -66,4 +66,5 @@ export interface Reserva {
 export interface TipoPista {
   tipo_pista_id: number;
   nombre: string; 
+  imagen: string; 
 }
