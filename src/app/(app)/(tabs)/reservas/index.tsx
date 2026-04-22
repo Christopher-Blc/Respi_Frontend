@@ -11,6 +11,13 @@ export default function PistaTypeIndex() {
       <GlassTextButton
         text="Nueva reserva"
         onPress={() => router.push('/reservas/createBooking')}
+        style={[styles.pillButtonPrimary]}
+        color="rgba(191, 132, 4, 0.51)"
+      />
+
+      <GlassTextButton
+        text="Ver tipo pistas"
+        onPress={() => router.push('/reservas/pistaTypes')}
         style={styles.pillButtonPrimary}
         color="rgba(191, 132, 4, 0.51)"
       />

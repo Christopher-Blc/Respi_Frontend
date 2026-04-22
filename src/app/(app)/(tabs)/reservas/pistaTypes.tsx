@@ -4,44 +4,27 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  FlatList,
   ImageBackground,
   ActivityIndicator,
-  ImageSourcePropType,
   useWindowDimensions,
+  ScrollView,
+  Platform,
 } from 'react-native';
 import { Tabs, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import api from '../../../../services/api';
 import { TipoPista } from '../../../../types/types';
+import { API_PUBLIC_URL } from '../../../../constants';
 
 export default function PistaTypeIndex() {
   const router = useRouter();
   const [modelos, setModelos] = useState<TipoPista[]>([]);
   const [loading, setLoading] = useState(true);
 
-  //guardamos el ancho de la pantalla
+  // 1. Detectar el ancho de la pantalla
   const { width } = useWindowDimensions();
-  const isWeb = width > 768; //cuando la pantalla llega a ese ancho , las cards se ponen en modo grid
-
-  // 3. Calculamos el número de columnas y el ancho dinámico
-  const numColumns = isWeb ? 3 : 1;
-  // Ajustamos el margen para que no toquen los bordes en el grid
-  const cardWidth = isWeb ? (width - 64) / numColumns : '100%';
-
-  const imageSelector = (sportType: string) => {
-    const type = sportType.toLowerCase();
-    if (type.includes('tenis'))
-      return require('../../../../../assets/fondo-tennis.png');
-    if (type.includes('padel'))
-      return require('../../../../../assets/fondo-padel.png');
-    if (type.includes('futbol'))
-      return require('../../../../../assets/fondo-futbol.png');
-    if (type.includes('basket'))
-      return require('../../../../../assets/fondo-basket.png');
-    return require('../../../../../assets/fondo-tennis.png');
-  };
+  const isWeb = width > 768;
 
   const fetchTipos = async () => {
     try {
@@ -60,9 +43,13 @@ export default function PistaTypeIndex() {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
       <Tabs.Screen options={{ title: 'Nueva reserva' }} />
 
+      {/* Header Naranja que ocupa todo el ancho */}
       <View style={styles.headerCard}>
         <View style={styles.headerOverlay}>
           <Text style={styles.headerTitle}>
@@ -70,8 +57,8 @@ export default function PistaTypeIndex() {
               name="information-circle-outline"
               size={24}
               color="#fff"
-            />{' '}
-            Reserva tu pista
+            />
+            {'  '}Reserva tu pista
           </Text>
           <Text style={styles.headerSubtitle}>
             Selecciona el deporte para continuar
@@ -79,22 +66,23 @@ export default function PistaTypeIndex() {
         </View>
       </View>
 
-      <FlatList
-        // 4. Clave importante: key cambia si cambia numColumns para forzar el re-render
-        key={isWeb ? 'grid' : 'list'}
-        style={{ marginVertical: 8 }}
-        data={modelos}
-        numColumns={numColumns} // 5. Aplicamos las columnas
-        keyExtractor={(i) => String(i.tipo_pista_id)}
-        renderItem={({ item }) => {
-          const imgSource: ImageSourcePropType = imageSelector(item.nombre);
+      {/* GRID ELÁSTICO: Se estira para llenar la pantalla */}
+      <View style={styles.gridContainer}>
+        {modelos.map((item) => {
+          const imgSource = item.imagen
+            ? { uri: `${API_PUBLIC_URL}/${item.imagen}` }
+            : require('../../../../../assets/RespiLogo.png');
+
           return (
             <TouchableOpacity
-              // 6. Aplicamos el ancho dinámico aquí
+              key={item.tipo_pista_id}
+              // flexBasis: 300 en web significa "mide al menos 300px"
+              // flexGrow: 1 hace que se estiren para rellenar el hueco blanco
               style={[
                 styles.modelCard,
-                { width: isWeb ? width / numColumns - 32 : '100%' },
+                { flexBasis: isWeb ? 320 : '100%', flexGrow: 1 },
               ]}
+              activeOpacity={0.8}
               onPress={() =>
                 router.push(
                   `/(app)/booking/details?modelId=${item.tipo_pista_id}`,
@@ -105,9 +93,10 @@ export default function PistaTypeIndex() {
                 source={imgSource}
                 style={styles.modelBg}
                 imageStyle={styles.modelImageStyle}
+                resizeMode="cover"
               >
                 <LinearGradient
-                  colors={['transparent', 'rgba(0,0,0,0.48)']}
+                  colors={['transparent', 'rgba(0,0,0,0.7)']}
                   style={styles.modelGradient}
                 >
                   <View style={styles.modelTopRow}>
@@ -115,11 +104,12 @@ export default function PistaTypeIndex() {
                       <Text style={styles.priceTagText}>desde €/h</Text>
                     </View>
                   </View>
+
                   <View style={styles.modelBottom}>
                     <Text style={styles.modelTitle}>{item.nombre}</Text>
                     <Ionicons
-                      name="chevron-forward-outline"
-                      size={20}
+                      name="chevron-forward-circle"
+                      size={26}
                       color="#fff"
                     />
                   </View>
@@ -127,66 +117,120 @@ export default function PistaTypeIndex() {
               </ImageBackground>
             </TouchableOpacity>
           );
-        }}
-        // Ajustamos los espacios entre cards en modo grid
-        columnWrapperStyle={isWeb ? { gap: 16 } : null}
-        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-        contentContainerStyle={{ paddingBottom: 40 }}
-      />
+        })}
+
+        {/* TRUCO PARA WEB: 
+            Añadimos varios Views invisibles para que si la última fila tiene 
+            menos elementos, no se estiren de forma desproporcionada. 
+        */}
+        {isWeb && <View style={styles.dummyCard} />}
+        {isWeb && <View style={styles.dummyCard} />}
+        {isWeb && <View style={styles.dummyCard} />}
+      </View>
 
       {loading && (
-        <View style={styles.loadingOverlayList} pointerEvents="none">
-          <ActivityIndicator size={36} color="#CA8E0E" />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#CA8E0E" />
         </View>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 16, backgroundColor: '#f8fafc' },
+  container: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 40,
+  },
   headerCard: {
-    marginTop: 16, // Corregido de top: 16
-    height: 60,
-    borderRadius: 12,
-    overflow: 'hidden',
-    marginBottom: 20,
+    marginTop: 16,
+    height: 80,
+    borderRadius: 14,
     backgroundColor: '#CA8E0E',
     justifyContent: 'center',
+    marginBottom: 20,
+    width: '100%',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: { elevation: 3 },
+    }),
   },
-  headerOverlay: { paddingHorizontal: 16 },
-  headerTitle: { color: '#fff', fontSize: 20, fontWeight: '800' },
-  headerSubtitle: { color: '#fff', fontSize: 13 },
+  headerOverlay: { paddingHorizontal: 20 },
+  headerTitle: { color: '#fff', fontSize: 22, fontWeight: '900' },
+  headerSubtitle: { color: 'rgba(255,255,255,0.9)', fontSize: 14 },
+
+  gridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 16,
+    width: '100%',
+  },
+
   modelCard: {
-    height: 180,
-    borderRadius: 14,
+    height: 220, // Un poco más alto para que luzca en web
+    borderRadius: 18,
     overflow: 'hidden',
-    backgroundColor: '#fff',
+    backgroundColor: '#1e293b',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
-    elevation: 4,
+    borderColor: '#e2e8f0',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+      },
+      android: { elevation: 5 },
+    }),
   },
-  modelBg: { flex: 1, justifyContent: 'flex-end' },
-  modelImageStyle: { borderRadius: 14 },
-  modelGradient: { flex: 1, justifyContent: 'space-between', padding: 12 },
+
+  // Estilo para las tarjetas invisibles que rellenan el hueco
+  dummyCard: {
+    flexBasis: 320,
+    flexGrow: 1,
+    height: 0, // No ocupan espacio vertical
+    marginHorizontal: 0,
+  },
+
+  modelBg: { flex: 1 },
+  modelImageStyle: { borderRadius: 18 },
+  modelGradient: {
+    flex: 1,
+    justifyContent: 'space-between',
+    padding: 18,
+  },
   modelTopRow: { flexDirection: 'row', justifyContent: 'flex-end' },
   priceTag: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    backgroundColor: '#fff',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     borderRadius: 20,
   },
-  priceTagText: { color: '#CA8E0E', fontWeight: '700' },
+  priceTagText: { color: '#CA8E0E', fontWeight: '800', fontSize: 12 },
   modelBottom: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-end',
-  },
-  modelTitle: { fontWeight: '800', fontSize: 18, color: '#fff' },
-  loadingOverlayList: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 20,
+  },
+  modelTitle: {
+    fontWeight: '900',
+    fontSize: 24,
+    color: '#fff',
+    textShadowColor: 'rgba(0, 0, 0, 0.6)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 4,
+  },
+  loadingContainer: {
+    marginTop: 40,
+    alignItems: 'center',
   },
 });
