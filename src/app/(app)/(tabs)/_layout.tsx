@@ -4,6 +4,9 @@ import { Platform, StatusBar } from 'react-native';
 import Octicons from '@expo/vector-icons/Octicons';
 import { Icon, IconButton } from 'react-native-paper';
 
+const unstable_settings = {
+  initialRouteName: '(tabs)',
+};
 export default function tabLayout() {
   return (
     <React.Fragment>

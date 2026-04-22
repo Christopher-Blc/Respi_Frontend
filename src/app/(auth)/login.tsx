@@ -42,16 +42,10 @@ const Login: React.FC = () => {
 
       if (response.data.access_token) {
         const token = response.data.access_token;
+        console.log('Login successful:', response.data);
         signIn(token);
       }
-
-      console.log('Login successful:', response.data);
     } catch (err: any) {
-      //El const y signin solo estan para pruebas pq el movil no se conectaba al back
-      //BORRAR!!!! ( cuando ya no haga falta que sino siempre hace login)
-      // const token =
-      //   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcsImVtYWlsIjoiY2hyaXMudGVzdEBnbWFpbC5jb20iLCJyb2xlIjoiQ0xJRU5URSIsImlhdCI6MTc3Njc2NDMyMSwiZXhwIjoxNzc2NzY3OTIxfQ.mPPX0rB3kh2cFVk24NPe6I8O0OxhGUTWgRMS1O7KwHk';
-      // signIn(token);
       const message = err.response?.data?.message || 'Error de conexión';
       console.log('Login error:', err.response?.data || err.message);
       setError(Array.isArray(message) ? message[0] : message);

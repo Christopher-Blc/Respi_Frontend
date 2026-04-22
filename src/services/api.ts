@@ -3,17 +3,15 @@ import * as SecureStore from 'expo-secure-store';
 import { getToken } from './authStorage';
 import { Platform } from 'react-native';
 
-//esos localhost son de ejemplo y la ip es de mi pc local para probar para que 
-//cuando se pruebe en dispositivos en la misma red que puedan acceder al back que esta
-//corriendo en mi pc
-//cambiar por esa cuando conectamos al server:
-//const DEFAULT_BASE_URL = (global as any)?.SERVER_URL || 'https://respi.es';
 
+//const DEFAULT_BASE_URL =  'https://respi.es';
+
+//descomentar eso si es en local
 const DEFAULT_BASE_URL = Platform.select({
   android: 'http://10.0.2.2:8000',
-  ios: 'http://88.30.50.79:8000',
-  web: 'http://192.168.10.158:8000',
-  default: 'http://192.168.10.158:8000',  
+  ios: 'http://localhost:8000',
+  web: 'http://localhost:8000',
+  default: 'http://localhost:8000',  
 });
 
 
@@ -44,10 +42,16 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response && error.response.status === 401) {
-      // Si el servidor devuelve 401 (No autorizado)
+    // Solo borramos el token si el error NO es en el login y es un 401
+    // (un 401 en login solo significa contraseña mal, no token caducado)
+    if (
+      error.response && 
+      error.response.status === 401 && 
+      !error.config.url.includes('/auth/login')  &&
+      !error.config.url.includes('/auth/register')
+    ) {
       await SecureStore.deleteItemAsync('user_auth_token');
-      // Nota: el logout global debe manejarse desde AuthContext si quieres navegar automáticamente.
+      // Aquí podrías disparar un evento de logout global si quisieras
     }
     return Promise.reject(error);
   },

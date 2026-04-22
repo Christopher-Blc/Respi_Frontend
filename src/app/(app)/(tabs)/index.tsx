@@ -17,10 +17,6 @@ import styles from '../../../style/reservations.styles';
 import { GlassTextButton } from '../../../components/login/glassTextButton';
 
 //pantalla home del cliente
-export interface Pista {
-  pista_id: number;
-  nombre: string;
-}
 
 export default function HomeScreen() {
   const router = useRouter();
