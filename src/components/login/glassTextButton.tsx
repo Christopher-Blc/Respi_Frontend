@@ -11,6 +11,7 @@ type Props = {
   borderColor?: string;
   style?: object;
   borderWidth?: number;
+  height?: number;
 };
 
 export function GlassTextButton({
@@ -22,6 +23,7 @@ export function GlassTextButton({
   style,
   borderColor,
   borderWidth,
+  height,
 }: Props) {
   const buttonColor = color ? color : 'rgba(175, 175, 175, 0.3)'; // Fallback a un color semitransparente
   return (
@@ -44,6 +46,7 @@ export function GlassTextButton({
               backgroundColor: buttonColor,
               borderColor: borderColor || 'rgba(255, 255, 255, 0.3)',
               borderWidth: borderWidth || 0.9,
+              height: height || 50,
             },
           ]}
         >
@@ -75,7 +78,6 @@ export function GlassTextButton({
 
 const styles = StyleSheet.create({
   glass: {
-    height: 50,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 25,

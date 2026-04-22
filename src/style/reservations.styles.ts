@@ -2,7 +2,7 @@ import { StyleSheet, Dimensions, Platform } from 'react-native';
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#ffffff', // Fondo crema suave para coherencia con el login
+        backgroundColor: '#FBF8F2', // Fondo crema suave para coherencia con el login
         paddingHorizontal: 20,
     },
     header: {
@@ -24,7 +24,7 @@ export const styles = StyleSheet.create({
     premiumActionRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 10,
+        marginBottom: 320,
         gap: 12, // Espaciado moderno
     },
     pillButtonPrimary: {
