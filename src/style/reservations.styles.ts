@@ -2,7 +2,7 @@ import { StyleSheet, Dimensions, Platform } from 'react-native';
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FBF8F2', // Fondo crema suave para coherencia con el login
+        backgroundColor: '#ffffff', // Fondo crema suave para coherencia con el login
         paddingHorizontal: 20,
     },
     header: {
