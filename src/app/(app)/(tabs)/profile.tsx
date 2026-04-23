@@ -21,8 +21,8 @@ import MenuOption from '../../../components/profile/menuOptions';
 import MembresiaModal from '../../../components/profile/membresia.modal';
 import DarkModeModal from '../../../components/profile/darkMode.modal';
 import IdiomaModal from '../../../components/profile/idioma.modal';
-import { ToggleButton } from 'react-native-paper';
 import { reservasActivasFilter } from '../../../filtrosApi';
+import EditUserNameModal from '../../../components/profile/editUserName.modal';
 
 export default function ProfileClientes() {
   const { signOut } = useAuth();
@@ -33,6 +33,8 @@ export default function ProfileClientes() {
   const [modalMembresiaVisible, setModalMembresiaVisible] = useState(false);
   const [modalIdiomaVisible, setModalIdiomaVisible] = useState(false);
   const [modalDarkmodeVisible, setModalDarkmodeVisible] = useState(false);
+  const [modalEditUserNameVisible, setModalEditUserNameVisible] =
+    useState(false);
 
   const handleLogout = async () => {
     try {
@@ -129,6 +131,9 @@ export default function ProfileClientes() {
               title="Nombre de usuario"
               value={user?.username || 'JuanPerez88'}
               isLast={undefined}
+              onPress={() => {
+                setModalEditUserNameVisible(true);
+              }}
             />
             <MenuOption
               icon="mail-outline"
@@ -219,6 +224,11 @@ export default function ProfileClientes() {
       <IdiomaModal
         visible={modalIdiomaVisible}
         onClose={() => setModalIdiomaVisible(false)}
+      />
+
+      <EditUserNameModal
+        visible={modalEditUserNameVisible}
+        onClose={() => setModalEditUserNameVisible(false)}
       />
     </View>
   );

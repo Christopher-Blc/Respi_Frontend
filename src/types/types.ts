@@ -68,3 +68,9 @@ export interface TipoPista {
   nombre: string; 
   imagen: string; 
 }
+
+export interface JWTPayload {
+  sub: number;
+  email: string;
+  role: 'SUPER_ADMIN' | 'CLIENTE';
+}
