@@ -1,14 +1,26 @@
 import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
-import { getToken, saveToken, getRefreshToken, saveRefreshToken, logout } from './authStorage'; // Asumo que tienes estas funciones
+import { 
+  getToken, 
+  saveToken, 
+  getRefreshToken, 
+  saveRefreshToken, 
+  logout 
+} from './authStorage';
 
+// Esta variable vive fuera de la instancia para controlar peticiones simultáneas
+let isRedirecting = false;
+let isRefreshing = false;
+ 
 const api = axios.create({
   baseURL: 'https://respi.es',
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Interceptor de Petición (Se queda casi igual)
+/**
+ * INTERCEPTOR DE PETICIÓN
+ * Añade el token de acceso a todas las cabeceras automáticamente
+ */
 api.interceptors.request.use(async (config) => {
   const token = await getToken();
   if (token) {
@@ -17,50 +29,74 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
-// INTERCEPTOR DE RESPUESTA (El que hace la magia)
+
+//interceptor que cuando sale un 401 , mira aver si es pq el token ha caducado , si es
+//el caso , intenta pillar un nuevo con el refresh , si eso tamb falla ya manda al login y 
+//borra los tokens que teniamos guardados
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // Si es un 401 y no es login/register y no hemos reintentado ya esta misma peticion
-    if (
-      error.response?.status === 401 &&
-      !originalRequest.url.includes('/auth/login') &&
-      !originalRequest.url.includes('/auth/register') &&
-      !originalRequest._retry // Evita bucles infinitos si el refresh falla
-    ) {
+    // --- FILTRO DE SEGURIDAD ---
+    // Si NO es un 401, no es cosa de "sesión caducada". 
+    // Lo devolvemos para que el componente (Login) maneje su error 400, 500, etc.
+    if (error.response?.status !== 401) {
+      return Promise.reject(error);
+    }
+
+    // A. Si el error 401 viene del LOGIN o REGISTER, no intentamos refresh ni sacamos modal.
+    // El usuario simplemente ha metido mal la contraseña o el usuario no existe.
+    if (originalRequest.url.includes('/auth/login')||originalRequest.url.includes('/auth/register')) {
+      return Promise.reject(error);
+    }
+
+    // B. Si el error 401 viene del REFRESH, ahí sí que el token ha muerto del todo.
+    if (originalRequest.url.includes('/auth/refresh')) {
+      if (!isRedirecting) {
+        isRedirecting = true;
+        await logout(true); // Sacamos modal de sesión caducada
+        setTimeout(() => { isRedirecting = false; }, 2000);
+      }
+      return Promise.reject(error);
+    }
+
+    // C. Si es un 401 en cualquier otra petición (mis-reservas, perfil, etc.)
+    if (!originalRequest._retry) {
+      if (isRefreshing) {
+        return Promise.reject(error);
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
 
       try {
-        const refreshToken = await getRefreshToken(); // Sacas el refresh de SecureStore
-
+        const refreshToken = await getRefreshToken();
         if (!refreshToken) throw new Error('No hay refresh token');
 
-        // pedimos un nuevo access token al backend
-         const res = await axios.post('https://respi.es/auth/refresh', {
+        // Intentamos el refresh con axios plano
+        const res = await axios.post('https://respi.es/auth/refresh', {
           refresh_token: refreshToken
         });
 
         if (res.status === 200 || res.status === 201) {
           const newAccessToken = res.data.access_token;
-          
-          // 1. Guardamos el nuevo access
           await saveToken(newAccessToken);
-          
-          // 2. Si el backend te da un nuevo refresh también, guárdalo:
-          if (res.data.refresh_token) {
-             await saveRefreshToken(res.data.refresh_token);
-          }
+          if (res.data.refresh_token) await saveRefreshToken(res.data.refresh_token);
 
-          // 3. Actualizamos el header de la petición que falló y la reintentamos
+          isRefreshing = false; 
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-          return axios(originalRequest);
+          return api(originalRequest);
         }
       } catch (refreshError) {
-        // Si llegamos aquí, el refresh token ha muerto o es inválido
-        console.error("Refresh token caducado. Cerrando sesión...");
-        await logout(); // Limpia SecureStore y redirige
+        isRefreshing = false;
+        if (!isRedirecting) {
+          isRedirecting = true;
+          console.error("Fallo crítico en refresh. Expulsando...");
+          await logout(true); // ¡Pum! Modal de sesión caducada
+          setTimeout(() => { isRedirecting = false; }, 2000);
+        }
         return Promise.reject(refreshError);
       }
     }
@@ -68,5 +104,4 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
 export default api;

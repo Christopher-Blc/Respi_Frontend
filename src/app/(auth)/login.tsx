@@ -42,8 +42,9 @@ const Login: React.FC = () => {
 
       if (response.data.access_token) {
         const token = response.data.access_token;
+        const refreshToken = response.data.refresh_token;
         console.log('Login successful:', response.data);
-        signIn(token);
+        signIn(token, refreshToken);
       }
     } catch (err: any) {
       const message = err.response?.data?.message || 'Error de conexión';
