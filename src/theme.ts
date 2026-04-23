@@ -196,7 +196,7 @@ export const darkTheme: AppTheme = {
   reservationsCardOverlayEnd: 'rgba(0,0,0,0.82)',
   danger: '#EF4444',
   dangerSoft: 'rgba(239, 68, 68, 0.2)',
-  errorText: '#F5B5B5',
+  errorText: '#D32F2F',
   success: '#22C55E',
   successSoft: 'rgba(34, 197, 94, 0.2)',
   info: '#60A5FA',
