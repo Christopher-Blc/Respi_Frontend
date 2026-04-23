@@ -147,18 +147,25 @@ export default function HomeScreen() {
                     styles.pillButtonPrimary,
                     { marginRight: dynamicSeparatorWidth },
                   ]}
-                  color="rgba(191, 132, 4, 0.51)"
+                  // Naranja "Golden Hour": más vivo pero con transparencia para que no sea un bloque
+                  color="rgba(202, 142, 14, 0.15)"
+                  // Borde blanco cristalino: vital para que el naranja no se "coma" el botón
+                  borderColor="rgba(255, 255, 255, 1)"
+                  borderWidth={1.5}
                   height={buttonHeight}
+                  textColor="#CA8E0E" // Un dorado/naranja oscuro para que sea legible
                 />
 
                 <GlassTextButton
                   text="Unirse a partido"
                   onPress={() => alert('Próximamente')}
-                  color="rgba(191, 132, 4, 0)"
+                  // Fondo neutro cristalino para que el otro naranja resalte
+                  color="rgba(255, 255, 255, 0.6)"
                   style={styles.pillButtonPrimary}
-                  borderColor="rgba(191, 132, 4, 0.51)"
-                  borderWidth={4}
-                  textColor="rgba(191, 132, 4, 0.51)"
+                  // Borde naranja fino
+                  borderColor="rgba(202, 142, 14, 0.3)"
+                  borderWidth={1.5}
+                  textColor="#CA8E0E"
                   height={buttonHeight}
                 />
               </View>
