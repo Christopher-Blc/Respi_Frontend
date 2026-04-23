@@ -20,9 +20,9 @@ export default function tabLayout() {
           headerShown: true,
           headerTitleAlign: 'center',
           headerBackButtonDisplayMode: 'default',
-          headerStyle: {
-            height: 70,
-          },
+          // headerStyle: {
+          //   height: 70,
+          // },
 
           tabBarStyle: {
             height: Platform.OS === 'web' ? 72 : 90,

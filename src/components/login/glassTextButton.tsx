@@ -64,6 +64,7 @@ export function GlassTextButton({
               backgroundColor: buttonColor,
               borderColor: borderColor || 'rgba(255, 255, 255, 0.3)',
               borderWidth: borderWidth || 0.9,
+              height: height || 50,
             },
           ]}
         >
