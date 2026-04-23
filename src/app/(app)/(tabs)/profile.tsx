@@ -22,6 +22,7 @@ import MembresiaModal from '../../../components/profile/membresia.modal';
 import DarkModeModal from '../../../components/profile/darkMode.modal';
 import IdiomaModal from '../../../components/profile/idioma.modal';
 import { ToggleButton } from 'react-native-paper';
+import { reservasActivasFilter } from '../../../filtrosApi';
 
 export default function ProfileClientes() {
   const { signOut } = useAuth();
@@ -56,8 +57,9 @@ export default function ProfileClientes() {
   const fetchTotalReservas = async () => {
     try {
       setLoading(true);
-      const response = await api.get('reservas/mis-reservas');
-      setTotalReservas(response.data.length);
+      const response = await api.get('reserva/mis-reservas');
+      const responseFiltrado = reservasActivasFilter(response);
+      setTotalReservas(responseFiltrado.length);
     } catch (error) {
       console.error('Error:', error);
     } finally {
