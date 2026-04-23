@@ -103,7 +103,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       <SessionExpiredModal
         visible={showExpiredModal}
         onConfirm={handleConfirmExpired}
-        isDarkMode={false}
       />
     </AuthContext.Provider>
   );

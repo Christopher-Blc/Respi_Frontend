@@ -15,15 +15,17 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MODELOS } from '../../../data/modelos';
 import api from '../../../services/api';
 import { Reserva } from '../../../types/types';
-import styles from '../../../style/reservations.styles';
+import createReservationsStyles from '../../../style/reservations.styles';
 import { GlassTextButton } from '../../../components/login/glassTextButton';
 import { reservasActivasFilter } from '../../../filtrosApi';
-import { lightModeSemanticTokens } from '../../../theme';
+import { useAppTheme } from '../../../context/ThemeContext';
 
 //pantalla home del cliente
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createReservationsStyles(theme), [theme]);
   const { width } = useWindowDimensions();
   //const buttonHeight = width > 768 ? 60 : width > 480 ? 80 : 120;
 
@@ -87,13 +89,13 @@ export default function HomeScreen() {
           style={styles.cardBg}
           imageStyle={{ borderRadius: 12 }}
         >
-          <LinearGradient
-            colors={[
-              lightModeSemanticTokens.reservationsCardOverlayStart,
-              lightModeSemanticTokens.reservationsCardOverlayEnd,
-            ]}
-            style={styles.cardOverlay}
-          >
+            <LinearGradient
+              colors={[
+                theme.reservationsCardOverlayStart,
+                theme.reservationsCardOverlayEnd,
+              ]}
+              style={styles.cardOverlay}
+            >
             <View style={styles.cardHeaderRow}>
               <Text style={styles.cardTitle}>{title}</Text>
               <View style={styles.statusBadge}>
@@ -107,7 +109,7 @@ export default function HomeScreen() {
                   <Ionicons
                     name="calendar-outline"
                     size={14}
-                    color={lightModeSemanticTokens.onPrimary}
+                    color={theme.onPrimary}
                   />{' '}
                   {cleanDate}
                 </Text>
@@ -115,7 +117,7 @@ export default function HomeScreen() {
                   <Ionicons
                     name="time-outline"
                     size={14}
-                    color={lightModeSemanticTokens.onPrimary}
+                    color={theme.onPrimary}
                   />{' '}
                   {cleanTime}
                 </Text>
@@ -123,7 +125,7 @@ export default function HomeScreen() {
               <Ionicons
                 name="chevron-forward-outline"
                 size={22}
-                color={lightModeSemanticTokens.onPrimary}
+                color={theme.onPrimary}
               />
             </View>
           </LinearGradient>
@@ -137,7 +139,7 @@ export default function HomeScreen() {
       {loading ? (
         <ActivityIndicator
           size="large"
-          color={lightModeSemanticTokens.primary}
+          color={theme.primary}
           style={{ marginTop: 50 }}
         />
       ) : (
@@ -164,24 +166,24 @@ export default function HomeScreen() {
                     { marginRight: dynamicSeparatorWidth },
                   ]}
                   // Naranja "Golden Hour": más vivo pero con transparencia para que no sea un bloque
-                  color={lightModeSemanticTokens.primarySoft}
+                  color={theme.primarySoft}
                   // Borde blanco cristalino: vital para que el naranja no se "coma" el botón
-                  borderColor={lightModeSemanticTokens.surface}
+                  borderColor={theme.surface}
                   borderWidth={1.5}
                   height={buttonHeight}
-                  textColor={lightModeSemanticTokens.primary}
+                  textColor={theme.primary}
                 />
 
                 <GlassTextButton
                   text="Unirse a partido"
                   onPress={() => alert('Próximamente')}
                   // Fondo neutro cristalino para que el otro naranja resalte
-                  color={lightModeSemanticTokens.surfaceGlass}
+                  color={theme.surfaceGlass}
                   style={styles.pillButtonPrimary}
                   // Borde naranja fino
-                  borderColor={lightModeSemanticTokens.borderAccentSoft}
+                  borderColor={theme.borderAccentSoft}
                   borderWidth={1.5}
-                  textColor={lightModeSemanticTokens.primary}
+                  textColor={theme.primary}
                   height={buttonHeight}
                 />
               </View>

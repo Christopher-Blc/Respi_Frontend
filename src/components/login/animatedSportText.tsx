@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Animated, Text, StyleSheet, Platform } from 'react-native';
-import { lightModeSemanticTokens, mainThemeColorsDark } from '../../theme';
+import { useAppTheme } from '../../context/ThemeContext';
 
 const sportSentences = [
   'Train like a pro, play like a champion.',
@@ -11,7 +11,8 @@ const sportSentences = [
   "Don't stop when you're tired, stop when you're done.",
 ];
 
-const AnimatedSportText = ({ isDarkMode }: { isDarkMode: boolean }) => {
+const AnimatedSportText = () => {
+  const { theme } = useAppTheme();
   const [index, setIndex] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
@@ -44,9 +45,7 @@ const AnimatedSportText = ({ isDarkMode }: { isDarkMode: boolean }) => {
         style={[
           styles.text,
           {
-            color: isDarkMode
-              ? mainThemeColorsDark.primaryButton
-              : lightModeSemanticTokens.primary,
+            color: theme.primary,
           },
         ]}
       >

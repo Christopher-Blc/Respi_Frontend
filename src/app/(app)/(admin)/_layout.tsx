@@ -2,18 +2,19 @@ import { Stack } from 'expo-router';
 import { TouchableOpacity, Text, View } from 'react-native';
 import { useAuth } from '../../../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons'; // Viene con Expo
-import { mainThemeColorsDark } from '../../../theme';
+import { useAppTheme } from '../../../context/ThemeContext';
 
 export default function AdminLayout() {
   const { signOut } = useAuth();
+  const { theme } = useAppTheme();
 
   return (
     <Stack
       screenOptions={{
         headerStyle: {
-          backgroundColor: mainThemeColorsDark.backgroundMain,
+          backgroundColor: theme.backgroundMain,
         },
-        headerTintColor: mainThemeColorsDark.primaryButton,
+        headerTintColor: theme.primaryButton,
         headerTitleStyle: {
           fontWeight: 'bold',
         },
@@ -28,7 +29,7 @@ export default function AdminLayout() {
           >
             <Text
               style={{
-                color: mainThemeColorsDark.errorText,
+                color: theme.errorText,
                 marginRight: 5,
                 fontWeight: '600',
               }}
@@ -38,7 +39,7 @@ export default function AdminLayout() {
             <Ionicons
               name="log-out-outline"
               size={20}
-              color={mainThemeColorsDark.errorText}
+              color={theme.errorText}
             />
           </TouchableOpacity>
         ),

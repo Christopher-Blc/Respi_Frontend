@@ -15,17 +15,17 @@ import { GlassTextInputPassword } from '../../components/login/glassTextInputPas
 import { GlassTextInput } from '../../components/login/glassTextInput';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import styles from '../../style/login.styles';
-import { useAuthShell } from './_layout';
+import createLoginStyles from '../../style/login.styles';
 import RespiLogo from '../../components/login/respiLogo';
-import { lightModeSemanticTokens, mainThemeColorsDark } from '../../theme';
+import { useAppTheme } from '../../context/ThemeContext';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-  const { isDarkMode } = useAuthShell();
+  const { isDarkMode, theme } = useAppTheme();
+  const styles = React.useMemo(() => createLoginStyles(theme), [theme]);
 
   const { signIn } = useAuth();
   const handleSubmit = async () => {
@@ -91,9 +91,7 @@ const Login: React.FC = () => {
           style={[
             styles.title,
             {
-              color: isDarkMode
-                ? mainThemeColorsDark.textTitle
-                : lightModeSemanticTokens.textPrimary,
+              color: theme.textTitle,
             },
           ]}
         >
@@ -104,9 +102,7 @@ const Login: React.FC = () => {
           style={[
             styles.label,
             {
-              color: isDarkMode
-                ? mainThemeColorsDark.grayLabelText
-                : lightModeSemanticTokens.textSecondary,
+              color: theme.grayLabelText,
             },
           ]}
         >
@@ -117,16 +113,13 @@ const Login: React.FC = () => {
           placeholder="Enter email"
           value={email}
           onChangeText={setEmail}
-          isDarkMode={isDarkMode}
         />
 
         <Text
           style={[
             styles.label,
             {
-              color: isDarkMode
-                ? mainThemeColorsDark.grayLabelText
-                : lightModeSemanticTokens.textSecondary,
+              color: theme.grayLabelText,
             },
           ]}
         >
@@ -136,32 +129,27 @@ const Login: React.FC = () => {
           placeholder="Enter password"
           value={password}
           onChangeText={setPassword}
-          isDarkMode={isDarkMode}
         />
 
         <GlassTextButton
           text="Login"
-          textColor={lightModeSemanticTokens.onPrimary}
+          textColor={theme.onPrimary}
           onPress={handleSubmit}
-          color={
-            isDarkMode ? 'rgba(202, 142, 14, 0.17)' : 'rgba(191, 132, 4, 0.51)'
-          }
+          color={theme.primarySoft}
         />
 
         <View style={{ height: 28 }} />
 
         <Text
           style={{
-            color: isDarkMode
-              ? mainThemeColorsDark.textBody
-              : lightModeSemanticTokens.textMuted,
+            color: theme.textBody,
             textAlign: 'center',
           }}
         >
           Don't have an account yet?{' '}
           <Text
             style={{
-              color: lightModeSemanticTokens.primary,
+              color: theme.primary,
               fontWeight: 'bold',
             }}
             onPress={() => router.replace('register')}

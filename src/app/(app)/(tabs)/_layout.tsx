@@ -2,16 +2,20 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform, StatusBar } from 'react-native';
 import Octicons from '@expo/vector-icons/Octicons';
-import { Icon, IconButton } from 'react-native-paper';
-import { lightModeSemanticTokens } from '../../../theme';
+import { useAppTheme } from '../../../context/ThemeContext';
 
 const unstable_settings = {
   initialRouteName: '(tabs)',
 };
 export default function tabLayout() {
+  const { isDarkMode, theme } = useAppTheme();
+
   return (
     <React.Fragment>
-      <StatusBar barStyle={'default'} animated={true} />
+      <StatusBar
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        animated
+      />
 
       <Tabs
         screenOptions={{
@@ -25,16 +29,22 @@ export default function tabLayout() {
           //   height: 70,
           // },
 
+          tabBarLabelStyle: {
+            marginBottom: Platform.OS === 'web' ? 2 : 0,
+          },
+          tabBarActiveTintColor: theme.tabActive,
+          tabBarInactiveTintColor: theme.tabInactive,
           tabBarStyle: {
             height: Platform.OS === 'web' ? 72 : 90,
             paddingTop: 6,
             paddingBottom: Platform.OS === 'web' ? 10 : 6,
+            backgroundColor: theme.tabBackground,
+            borderTopColor: theme.borderDefault,
           },
-          tabBarLabelStyle: {
-            marginBottom: Platform.OS === 'web' ? 2 : 0,
+          headerStyle: {
+            backgroundColor: theme.headerBackground,
           },
-          tabBarActiveTintColor: lightModeSemanticTokens.primary,
-          tabBarInactiveTintColor: lightModeSemanticTokens.textPlaceholder,
+          headerTintColor: theme.headerText,
         }}
       >
         <Tabs.Screen
@@ -70,8 +80,8 @@ export default function tabLayout() {
           options={{
             tabBarBadge: '1',
             tabBarBadgeStyle: {
-              backgroundColor: lightModeSemanticTokens.primary,
-              color: lightModeSemanticTokens.onPrimary,
+              backgroundColor: theme.primary,
+              color: theme.onPrimary,
             },
             title: 'Perfil',
             tabBarIcon: ({ color, size }) => (

@@ -1,9 +1,13 @@
 import React from 'react';
 import { StyleSheet, View, SafeAreaView, Text } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { mainThemeColorsDark } from '../theme';
+import { useAppTheme } from '../context/ThemeContext';
+import { AppTheme } from '../theme';
 
 export const MapaPoliRespi = () => {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
+
   // Tu URL de Spline
   const splineUrl =
     'https://my.spline.design/untitled-o8FhbQhvF8XmEF9SVboAdTmE/';
@@ -33,17 +37,18 @@ export const MapaPoliRespi = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: mainThemeColorsDark.backgroundMain },
-  header: {
-    padding: 20,
-    alignItems: 'center',
-    backgroundColor: mainThemeColorsDark.backgroundCard,
-  },
-  title: {
-    color: mainThemeColorsDark.textTitle,
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  mapa: { flex: 1 },
-});
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: theme.backgroundMain },
+    header: {
+      padding: 20,
+      alignItems: 'center',
+      backgroundColor: theme.backgroundCard,
+    },
+    title: {
+      color: theme.textTitle,
+      fontSize: 18,
+      fontWeight: 'bold',
+    },
+    mapa: { flex: 1 },
+  });
