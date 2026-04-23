@@ -6,6 +6,8 @@ import {
   FlatList,
   ImageBackground,
   ActivityIndicator,
+  useWindowDimensions,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,6 +23,14 @@ import { reservasActivasFilter } from '../../../filtrosApi';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  //const buttonHeight = width > 768 ? 60 : width > 480 ? 80 : 120;
+
+  const isWeb = Platform.OS === 'web';
+  const dynamicHeight = isWeb ? (width / 2) * 0.4 : 100;
+  // Ponemos un límite para que en pantallas 4K no sean gigantescos
+  const buttonHeight = Math.min(dynamicHeight, 200);
+  const dynamicSeparatorWidth = isWeb ? (width / 2) * 0.05 : 10;
 
   const [reservations, setReservations] = useState<Reserva[]>([]);
   const [loading, setLoading] = useState(true);
@@ -133,9 +143,12 @@ export default function HomeScreen() {
                 <GlassTextButton
                   text="Nueva reserva"
                   onPress={() => router.push('/reservas/createBooking')}
-                  style={styles.pillButtonPrimary}
+                  style={[
+                    styles.pillButtonPrimary,
+                    { marginRight: dynamicSeparatorWidth },
+                  ]}
                   color="rgba(191, 132, 4, 0.51)"
-                  height={90}
+                  height={buttonHeight}
                 />
 
                 <GlassTextButton
@@ -146,7 +159,7 @@ export default function HomeScreen() {
                   borderColor="rgba(191, 132, 4, 0.51)"
                   borderWidth={4}
                   textColor="rgba(191, 132, 4, 0.51)"
-                  height={90}
+                  height={buttonHeight}
                 />
               </View>
 

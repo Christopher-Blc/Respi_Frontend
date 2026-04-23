@@ -2,8 +2,14 @@ import { StyleSheet, Dimensions, Platform } from 'react-native';
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FBF8F2', // Fondo crema suave para coherencia con el login
+        backgroundColor: '#FBF8F2',
         paddingHorizontal: 20,
+    },
+    innerContainer: {
+        flex: 1,
+        width: '100%',
+        maxWidth: Platform.OS === 'web' ? 700 : undefined,
+        alignSelf: 'center',
     },
     header: {
         fontSize: 32,
@@ -20,12 +26,33 @@ export const styles = StyleSheet.create({
         color: '#333',
     },
 
-    // --- BOTONES PREMIUM (PÍLDORA) ---
+    // --- ACTION TILES ---
     premiumActionRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginBottom: 20,
         gap: 12,
+    },
+    actionTile: {
+        flex: 1,
+        height: 80,
+        borderRadius: 14,
+        overflow: 'hidden',
+    },
+    actionTileBg: {
+        flex: 1,
+        borderRadius: 14,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        paddingHorizontal: 12,
+    },
+    actionTileText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '700',
+        textAlign: 'center',
     },
     pillButtonPrimary: {
         flex: 1,
@@ -38,7 +65,7 @@ export const styles = StyleSheet.create({
     },
     pillButtonOutline: {
         flex: 1,
-        height: 52,
+        //height: 52,
         borderRadius: 26,
         borderWidth: 2,
         borderColor: '#CA8E0E',
