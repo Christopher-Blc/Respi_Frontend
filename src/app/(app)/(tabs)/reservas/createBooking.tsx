@@ -24,6 +24,10 @@ import { useAuth } from '../../../../context/AuthContext';
 import api from '../../../../services/api';
 import { Modal } from 'react-native'; // Añade Modal a los imports de react-native
 import { WebView } from 'react-native-webview';
+import {
+  lightModeSemanticTokens,
+  mainThemeColorsDark,
+} from '../../../../theme';
 
 export default function CreateBooking() {
   const params = useLocalSearchParams<{ modelId?: string }>();
@@ -34,8 +38,12 @@ export default function CreateBooking() {
   const [nombre, setNombre] = useState('');
   const [precioHora, setPrecioHora] = useState('10');
   const [fechaInicio, setFechaInicio] = useState(new Date());
-  const [fechaFin, setFechaFin] = useState(new Date(Date.now() + 60 * 60 * 1000));
-  const [showPicker, setShowPicker] = useState<'inicio-date' | 'inicio-time' | null>(null);
+  const [fechaFin, setFechaFin] = useState(
+    new Date(Date.now() + 60 * 60 * 1000),
+  );
+  const [showPicker, setShowPicker] = useState<
+    'inicio-date' | 'inicio-time' | null
+  >(null);
   const [durationMinutes, setDurationMinutes] = useState<number>(60);
   const [showHoursExpanded, setShowHoursExpanded] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
@@ -43,8 +51,12 @@ export default function CreateBooking() {
   const [loadingModel, setLoadingModel] = useState(true);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarType, setSnackbarType] = useState<'success' | 'error' | 'info'>('info');
-  const [pistaSeleccionada, setPistaSeleccionada] = useState<string | null>(null);
+  const [snackbarType, setSnackbarType] = useState<
+    'success' | 'error' | 'info'
+  >('info');
+  const [pistaSeleccionada, setPistaSeleccionada] = useState<string | null>(
+    null,
+  );
   const [showMap, setShowMap] = useState(false);
 
   useEffect(() => {
@@ -89,7 +101,8 @@ export default function CreateBooking() {
           if (res?.data && mounted) {
             const d = res.data;
             if (!email && (d.email || d.mail)) setEmail(d.email || d.mail);
-            if (!nombre && (d.name || d.nombre || d.displayName)) setNombre(d.name || d.nombre || d.displayName);
+            if (!nombre && (d.name || d.nombre || d.displayName))
+              setNombre(d.name || d.nombre || d.displayName);
             return;
           }
         } catch (e) {
@@ -125,11 +138,20 @@ export default function CreateBooking() {
       const endOfDay = new Date(newStart);
       endOfDay.setHours(23, 59, 59, 999);
       const msMinute = 1000 * 60;
-      const maxMinutesAvailable = Math.max(60, Math.floor((endOfDay.getTime() - newStart.getTime()) / msMinute));
-      const candidateEnd = new Date(newStart.getTime() + durationMinutes * msMinute);
+      const maxMinutesAvailable = Math.max(
+        60,
+        Math.floor((endOfDay.getTime() - newStart.getTime()) / msMinute),
+      );
+      const candidateEnd = new Date(
+        newStart.getTime() + durationMinutes * msMinute,
+      );
       if (candidateEnd.getDate() !== newStart.getDate()) {
         const newMinutes = Math.min(durationMinutes, maxMinutesAvailable);
-        if (newMinutes < durationMinutes) Alert.alert('Aviso', 'La duración se ha reducido para no cruzar el día');
+        if (newMinutes < durationMinutes)
+          Alert.alert(
+            'Aviso',
+            'La duración se ha reducido para no cruzar el día',
+          );
         setDurationMinutes(newMinutes);
         setFechaInicio(newStart);
         setFechaFin(new Date(newStart.getTime() + newMinutes * msMinute));
@@ -147,11 +169,20 @@ export default function CreateBooking() {
       const endOfDay = new Date(newStart);
       endOfDay.setHours(23, 59, 59, 999);
       const msMinute = 1000 * 60;
-      const maxMinutesAvailable = Math.max(60, Math.floor((endOfDay.getTime() - newStart.getTime()) / msMinute));
-      const candidateEnd = new Date(newStart.getTime() + durationMinutes * msMinute);
+      const maxMinutesAvailable = Math.max(
+        60,
+        Math.floor((endOfDay.getTime() - newStart.getTime()) / msMinute),
+      );
+      const candidateEnd = new Date(
+        newStart.getTime() + durationMinutes * msMinute,
+      );
       if (candidateEnd.getDate() !== newStart.getDate()) {
         const newMinutes = Math.min(durationMinutes, maxMinutesAvailable);
-        if (newMinutes < durationMinutes) Alert.alert('Aviso', 'La duración se ha reducido para no cruzar el día');
+        if (newMinutes < durationMinutes)
+          Alert.alert(
+            'Aviso',
+            'La duración se ha reducido para no cruzar el día',
+          );
         setDurationMinutes(newMinutes);
         setFechaInicio(newStart);
         setFechaFin(new Date(newStart.getTime() + newMinutes * msMinute));
@@ -204,7 +235,11 @@ export default function CreateBooking() {
     } catch (err: any) {
       console.error('createReserva error', err);
       setSnackbarType('error');
-      setSnackbarMessage(err?.response?.data?.message || err?.message || 'No se pudo crear la reserva');
+      setSnackbarMessage(
+        err?.response?.data?.message ||
+          err?.message ||
+          'No se pudo crear la reserva',
+      );
       setSnackbarVisible(true);
     } finally {
       setLoading(false);
@@ -241,17 +276,22 @@ export default function CreateBooking() {
   const MAX_MINUTES = 8 * 60;
   const MIN_MINUTES = 60;
   const adjustDuration = (deltaMinutes: number) => {
-    const next = Math.min(MAX_MINUTES, Math.max(MIN_MINUTES, durationMinutes + deltaMinutes));
+    const next = Math.min(
+      MAX_MINUTES,
+      Math.max(MIN_MINUTES, durationMinutes + deltaMinutes),
+    );
     if (next === durationMinutes) {
       setSnackbarType('info');
-      setSnackbarMessage(next <= MIN_MINUTES ? 'Duración mínima 1h' : 'Duración máxima 8h');
+      setSnackbarMessage(
+        next <= MIN_MINUTES ? 'Duración mínima 1h' : 'Duración máxima 8h',
+      );
       setSnackbarVisible(true);
       return;
     }
     setDurationMinutes(next);
     setFechaFin(new Date(fechaInicio.getTime() + next * msMinute));
   };
-  
+
   // Función para recibir el mensaje del mapa 3D
   const handleMapMessage = (event: any) => {
     const data = event.nativeEvent.data;
@@ -266,63 +306,172 @@ export default function CreateBooking() {
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}
+    >
+      <ScrollView
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}
+      >
         <Stack.Screen options={{ title: 'Detalles de reserva' }} />
 
         {/* MODAL DEL MAPA 3D */}
-        <Modal visible={showMap} animationType="slide" presentationStyle="pageSheet">
-          <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16, alignItems: 'center' }}>
-              <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>Mapa del Polideportivo</Text>
+        <Modal
+          visible={showMap}
+          animationType="slide"
+          presentationStyle="pageSheet"
+        >
+          <SafeAreaView
+            style={{
+              flex: 1,
+              backgroundColor: mainThemeColorsDark.backgroundMain,
+            }}
+          >
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                padding: 16,
+                alignItems: 'center',
+              }}
+            >
+              <Text
+                style={{
+                  color: mainThemeColorsDark.textTitle,
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                }}
+              >
+                Mapa del Polideportivo
+              </Text>
               <TouchableOpacity onPress={() => setShowMap(false)}>
-                <Ionicons name="close-circle" size={30} color="#fff" />
+                <Ionicons
+                  name="close-circle"
+                  size={30}
+                  color={mainThemeColorsDark.textTitle}
+                />
               </TouchableOpacity>
             </View>
-            <WebView 
-              source={{ uri: "https://my.spline.design/untitled-o8FhbQhvF8XmEF9SVboAdTmE/" }}
+            <WebView
+              source={{
+                uri: 'https://my.spline.design/untitled-o8FhbQhvF8XmEF9SVboAdTmE/',
+              }}
               style={{ flex: 1 }}
               onMessage={handleMapMessage}
             />
-            <View style={{ padding: 20, backgroundColor: '#111' }}>
-              <Text style={{ color: '#aaa', textAlign: 'center' }}>Toca una pista para seleccionarla</Text>
+            <View
+              style={{
+                padding: 20,
+                backgroundColor: mainThemeColorsDark.backgroundCard,
+              }}
+            >
+              <Text
+                style={{
+                  color: mainThemeColorsDark.grayPlaceholder,
+                  textAlign: 'center',
+                }}
+              >
+                Toca una pista para seleccionarla
+              </Text>
             </View>
           </SafeAreaView>
         </Modal>
 
         <View style={styles.headerCard}>
-          <ImageBackground source={model.img} style={styles.headerImage} imageStyle={{ borderRadius: 12 }}>
-            <LinearGradient colors={["transparent", "rgba(0,0,0,0.5)"]} style={styles.headerOverlay}>
+          <ImageBackground
+            source={model.img}
+            style={styles.headerImage}
+            imageStyle={{ borderRadius: 12 }}
+          >
+            <LinearGradient
+              colors={['transparent', 'rgba(0,0,0,0.5)']}
+              style={styles.headerOverlay}
+            >
               <Text style={styles.headerTitle}>{model.title}</Text>
               <Text style={styles.headerSubtitle}>{model.price} €/h</Text>
             </LinearGradient>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Ionicons name="chevron-back" size={22} color="#fff" />
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.backButton}
+            >
+              <Ionicons
+                name="chevron-back"
+                size={22}
+                color={lightModeSemanticTokens.onPrimary}
+              />
             </TouchableOpacity>
           </ImageBackground>
         </View>
 
         <View style={styles.formCard}>
           <Text style={styles.label}>Ubicación / Pista</Text>
-          <TouchableOpacity 
-            style={[styles.input, { flexDirection: 'row', alignItems: 'center', borderColor: pistaSeleccionada ? '#CA8E0E' : '#eef2f4' }]} 
+          <TouchableOpacity
+            style={[
+              styles.input,
+              {
+                flexDirection: 'row',
+                alignItems: 'center',
+                borderColor: pistaSeleccionada
+                  ? lightModeSemanticTokens.primary
+                  : lightModeSemanticTokens.borderInput,
+              },
+            ]}
             onPress={() => setShowMap(true)}
           >
-            <Ionicons name="map-outline" size={20} color={pistaSeleccionada ? '#CA8E0E' : '#6b7280'} />
-            <Text style={{ marginLeft: 10, color: pistaSeleccionada ? '#111827' : '#9ca3af', fontWeight: pistaSeleccionada ? '700' : '400' }}>
-              {pistaSeleccionada ? `Pista: ${pistaSeleccionada}` : 'Abrir mapa 3D para elegir pista'}
+            <Ionicons
+              name="map-outline"
+              size={20}
+              color={
+                pistaSeleccionada
+                  ? lightModeSemanticTokens.primary
+                  : lightModeSemanticTokens.textMuted
+              }
+            />
+            <Text
+              style={{
+                marginLeft: 10,
+                color: pistaSeleccionada
+                  ? lightModeSemanticTokens.textPrimary
+                  : lightModeSemanticTokens.textPlaceholder,
+                fontWeight: pistaSeleccionada ? '700' : '400',
+              }}
+            >
+              {pistaSeleccionada
+                ? `Pista: ${pistaSeleccionada}`
+                : 'Abrir mapa 3D para elegir pista'}
             </Text>
-            <Ionicons name="chevron-forward" size={16} color="#6b7280" style={{ marginLeft: 'auto' }} />
+            <Ionicons
+              name="chevron-forward"
+              size={16}
+              color={lightModeSemanticTokens.textMuted}
+              style={{ marginLeft: 'auto' }}
+            />
           </TouchableOpacity>
           <Text style={styles.label}>Email</Text>
-          <TextInput style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" />
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+          />
 
           <Text style={styles.label}>Nombre (opcional)</Text>
-          <TextInput style={styles.input} value={nombre} onChangeText={setNombre} />
+          <TextInput
+            style={styles.input}
+            value={nombre}
+            onChangeText={setNombre}
+          />
 
           <Text style={styles.label}>Precio/hora (€)</Text>
-          <View style={[styles.input, { justifyContent: 'center' }]}> 
-            <Text style={{ color: '#111827', fontWeight: '700' }}>{precioHora} €/h</Text>
+          <View style={[styles.input, { justifyContent: 'center' }]}>
+            <Text
+              style={{
+                color: lightModeSemanticTokens.textPrimary,
+                fontWeight: '700',
+              }}
+            >
+              {precioHora} €/h
+            </Text>
           </View>
 
           <View style={{ marginBottom: 6 }}>
@@ -333,17 +482,35 @@ export default function CreateBooking() {
                 style={[styles.dateBtn, styles.dateBtnLarge]}
                 onPress={() => setShowPicker('inicio-date')}
               >
-                <Ionicons name="calendar-outline" size={18} color="#6b7280" style={{ marginRight: 8 }} />
-                <Text style={styles.dateBtnText}>{formatDate(fechaInicio)}</Text>
+                <Ionicons
+                  name="calendar-outline"
+                  size={18}
+                  color={lightModeSemanticTokens.textMuted}
+                  style={{ marginRight: 8 }}
+                />
+                <Text style={styles.dateBtnText}>
+                  {formatDate(fechaInicio)}
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 accessibilityLabel="Seleccionar hora de inicio"
-                style={[styles.dateBtn, styles.dateBtnLarge, { marginLeft: 10 }]}
+                style={[
+                  styles.dateBtn,
+                  styles.dateBtnLarge,
+                  { marginLeft: 10 },
+                ]}
                 onPress={() => setShowPicker('inicio-time')}
               >
-                <Ionicons name="time-outline" size={18} color="#6b7280" style={{ marginRight: 8 }} />
-                <Text style={styles.dateBtnText}>{formatTime(fechaInicio)}</Text>
+                <Ionicons
+                  name="time-outline"
+                  size={18}
+                  color={lightModeSemanticTokens.textMuted}
+                  style={{ marginRight: 8 }}
+                />
+                <Text style={styles.dateBtnText}>
+                  {formatTime(fechaInicio)}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -352,78 +519,173 @@ export default function CreateBooking() {
             <DateTimePicker
               value={fechaInicio}
               mode={showPicker.endsWith('time') ? 'time' : 'date'}
-              display={Platform.OS === 'ios' ? (showPicker.endsWith('time') ? 'spinner' : 'inline') : 'default'}
+              display={
+                Platform.OS === 'ios'
+                  ? showPicker.endsWith('time')
+                    ? 'spinner'
+                    : 'inline'
+                  : 'default'
+              }
               onChange={onChangeDate}
             />
           )}
 
           <View style={{ marginTop: 12 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
               <Text style={styles.label}>Duración</Text>
-              <TouchableOpacity onPress={() => setShowHoursExpanded((s) => !s)} style={{ padding: 6 }}>
-                <Text style={{ color: '#CA8E0E', fontWeight: '700' }}>{showHoursExpanded ? 'Ocultar' : 'Editar'}</Text>
+              <TouchableOpacity
+                onPress={() => setShowHoursExpanded((s) => !s)}
+                style={{ padding: 6 }}
+              >
+                <Text
+                  style={{
+                    color: lightModeSemanticTokens.primary,
+                    fontWeight: '700',
+                  }}
+                >
+                  {showHoursExpanded ? 'Ocultar' : 'Editar'}
+                </Text>
               </TouchableOpacity>
             </View>
 
             {!showHoursExpanded ? (
-              <View style={{ marginTop: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text style={styles.summaryText}>{formatDuration(durationMinutes)}</Text>
-                <Text style={styles.summaryText}>Fin: <Text style={{ fontWeight: '800' }}>{formatTime(fechaFin)}</Text></Text>
+              <View
+                style={{
+                  marginTop: 8,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <Text style={styles.summaryText}>
+                  {formatDuration(durationMinutes)}
+                </Text>
+                <Text style={styles.summaryText}>
+                  Fin:{' '}
+                  <Text style={{ fontWeight: '800' }}>
+                    {formatTime(fechaFin)}
+                  </Text>
+                </Text>
               </View>
             ) : (
               <View style={{ marginTop: 8 }}>
                 <View style={{ marginTop: 8 }}>
                   <View style={styles.chipsRow}>
                     {DURATION_CHIPS.map((m) => (
-                        <TouchableOpacity
-                          key={m}
-                          activeOpacity={0.85}
-                          accessibilityRole="button"
-                          accessibilityLabel={`Duración ${formatDuration(m)}`}
-                          onPress={() => {
-                            const next = Math.min(MAX_MINUTES, Math.max(MIN_MINUTES, m));
-                            setDurationMinutes(next);
-                            setFechaFin(new Date(fechaInicio.getTime() + next * msMinute));
-                          }}
-                          style={[
-                            styles.chip,
-                            durationMinutes === m ? styles.chipSelected : undefined,
-                          ]}
+                      <TouchableOpacity
+                        key={m}
+                        activeOpacity={0.85}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Duración ${formatDuration(m)}`}
+                        onPress={() => {
+                          const next = Math.min(
+                            MAX_MINUTES,
+                            Math.max(MIN_MINUTES, m),
+                          );
+                          setDurationMinutes(next);
+                          setFechaFin(
+                            new Date(fechaInicio.getTime() + next * msMinute),
+                          );
+                        }}
+                        style={[
+                          styles.chip,
+                          durationMinutes === m
+                            ? styles.chipSelected
+                            : undefined,
+                        ]}
+                      >
+                        <Text
+                          style={
+                            durationMinutes === m
+                              ? styles.chipTextSelected
+                              : styles.chipText
+                          }
                         >
-                          <Text style={durationMinutes === m ? styles.chipTextSelected : styles.chipText}>{formatDuration(m)}</Text>
-                        </TouchableOpacity>
+                          {formatDuration(m)}
+                        </Text>
+                      </TouchableOpacity>
                     ))}
                   </View>
 
-                  <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
-                    <TouchableOpacity onPress={() => adjustDuration(-15)} style={styles.stepperBtn}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      marginTop: 10,
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() => adjustDuration(-15)}
+                      style={styles.stepperBtn}
+                    >
                       <Text style={styles.stepperText}>-</Text>
                     </TouchableOpacity>
                     <View style={{ flex: 1, alignItems: 'center' }}>
-                      <Text style={{ fontWeight: '800', fontSize: 16 }}>{formatDuration(durationMinutes)}</Text>
+                      <Text
+                        style={{
+                          fontWeight: '800',
+                          fontSize: 16,
+                          color: lightModeSemanticTokens.textPrimary,
+                        }}
+                      >
+                        {formatDuration(durationMinutes)}
+                      </Text>
                     </View>
-                    <TouchableOpacity onPress={() => adjustDuration(15)} style={styles.stepperBtn}>
+                    <TouchableOpacity
+                      onPress={() => adjustDuration(15)}
+                      style={styles.stepperBtn}
+                    >
                       <Text style={styles.stepperText}>+</Text>
                     </TouchableOpacity>
                   </View>
 
                   <View style={styles.summaryRow}>
-                    <Text style={styles.summaryText}>Duración: <Text style={{ fontWeight: '800' }}>{formatDuration(durationMinutes)}</Text></Text>
-                    <Text style={styles.summaryText}>Fin: <Text style={{ fontWeight: '800' }}>{formatTime(fechaFin)}</Text></Text>
-                    <Text style={styles.summaryText}>Total: <Text style={{ fontWeight: '800' }}>{total.toFixed(2)} €</Text></Text>
+                    <Text style={styles.summaryText}>
+                      Duración:{' '}
+                      <Text style={{ fontWeight: '800' }}>
+                        {formatDuration(durationMinutes)}
+                      </Text>
+                    </Text>
+                    <Text style={styles.summaryText}>
+                      Fin:{' '}
+                      <Text style={{ fontWeight: '800' }}>
+                        {formatTime(fechaFin)}
+                      </Text>
+                    </Text>
+                    <Text style={styles.summaryText}>
+                      Total:{' '}
+                      <Text style={{ fontWeight: '800' }}>
+                        {total.toFixed(2)} €
+                      </Text>
+                    </Text>
                   </View>
                 </View>
               </View>
             )}
           </View>
 
-          <TouchableOpacity style={[styles.submit, loading && { opacity: 0.7 }]} onPress={handleSubmit} disabled={loading}>
-            <Text style={styles.submitText}>{loading ? 'Creando...' : 'Crear reserva'}</Text>
+          <TouchableOpacity
+            style={[styles.submit, loading && { opacity: 0.7 }]}
+            onPress={handleSubmit}
+            disabled={loading}
+          >
+            <Text style={styles.submitText}>
+              {loading ? 'Creando...' : 'Crear reserva'}
+            </Text>
           </TouchableOpacity>
         </View>
         {loading && (
           <View style={styles.loadingOverlay} pointerEvents="none">
-            <ActivityIndicator size="large" color="#fff" />
+            <ActivityIndicator
+              size="large"
+              color={lightModeSemanticTokens.onPrimary}
+            />
           </View>
         )}
         <Snackbar
@@ -440,38 +702,111 @@ export default function CreateBooking() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 16, backgroundColor: '#f8fafc' },
-  headerCard: { height: 200, borderRadius: 12, overflow: 'hidden', marginBottom: 12 },
+  container: {
+    flex: 1,
+    paddingHorizontal: 16,
+    backgroundColor: lightModeSemanticTokens.background,
+  },
+  headerCard: {
+    height: 200,
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginBottom: 12,
+  },
   headerImage: { width: '100%', height: '100%', justifyContent: 'flex-end' },
   headerOverlay: { padding: 16, justifyContent: 'flex-end' },
-  headerTitle: { color: '#fff', fontSize: 22, fontWeight: '900' },
-  headerSubtitle: { color: '#fff', fontSize: 14, marginTop: 4 },
-  sectionLabel: { marginTop: 6, fontWeight: '700', color: '#111827' },
+  headerTitle: {
+    color: lightModeSemanticTokens.onPrimary,
+    fontSize: 22,
+    fontWeight: '900',
+  },
+  headerSubtitle: {
+    color: lightModeSemanticTokens.onPrimary,
+    fontSize: 14,
+    marginTop: 4,
+  },
+  sectionLabel: {
+    marginTop: 6,
+    fontWeight: '700',
+    color: lightModeSemanticTokens.textPrimary,
+  },
   formCard: {
     marginTop: 12,
     padding: 16,
     borderRadius: 12,
-    backgroundColor: '#ffffff',
+    backgroundColor: lightModeSemanticTokens.surface,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: lightModeSemanticTokens.borderSoft,
     borderLeftWidth: 6,
-    borderLeftColor: '#CA8E0E',
+    borderLeftColor: lightModeSemanticTokens.primary,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 3,
   },
-  label: { marginTop: 12, fontWeight: '600', color: '#111827' },
-  input: { borderWidth: 1, borderColor: '#eef2f4', padding: 12, borderRadius: 10, marginTop: 6, backgroundColor: '#fbfdfe' },
-  dateBtn: { padding: 12, borderWidth: 1, borderColor: '#eef2f4', borderRadius: 10, marginTop: 6, backgroundColor: '#fff' },
-  submit: { marginTop: 20, backgroundColor: '#CA8E0E', padding: 14, borderRadius: 10, alignItems: 'center', shadowColor: '#CA8E0E', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 2 },
-  submitText: { color: '#fff', fontWeight: '700' },
-  backButton: { position: 'absolute', top: 12, left: 12, backgroundColor: 'rgba(0,0,0,0.22)', padding: 8, borderRadius: 20 },
-  summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 14, alignItems: 'center' },
-  summaryText: { color: '#111827', fontSize: 16 },
-  stepperBtn: { width: 44, height: 36, borderRadius: 8, backgroundColor: '#f3f4f6', alignItems: 'center', justifyContent: 'center' },
-  stepperText: { fontSize: 18, fontWeight: '800', color: '#111827' },
+  label: {
+    marginTop: 12,
+    fontWeight: '600',
+    color: lightModeSemanticTokens.textPrimary,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: lightModeSemanticTokens.borderInput,
+    padding: 12,
+    borderRadius: 10,
+    marginTop: 6,
+    backgroundColor: lightModeSemanticTokens.inputBgSoft,
+  },
+  dateBtn: {
+    padding: 12,
+    borderWidth: 1,
+    borderColor: lightModeSemanticTokens.borderInput,
+    borderRadius: 10,
+    marginTop: 6,
+    backgroundColor: lightModeSemanticTokens.surface,
+  },
+  submit: {
+    marginTop: 20,
+    backgroundColor: lightModeSemanticTokens.primary,
+    padding: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+    shadowColor: lightModeSemanticTokens.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 2,
+  },
+  submitText: { color: lightModeSemanticTokens.onPrimary, fontWeight: '700' },
+  backButton: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    backgroundColor: 'rgba(0,0,0,0.22)',
+    padding: 8,
+    borderRadius: 20,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 14,
+    alignItems: 'center',
+  },
+  summaryText: { color: lightModeSemanticTokens.textPrimary, fontSize: 16 },
+  stepperBtn: {
+    width: 44,
+    height: 36,
+    borderRadius: 8,
+    backgroundColor: lightModeSemanticTokens.backgroundAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepperText: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: lightModeSemanticTokens.textPrimary,
+  },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.45)',
@@ -479,16 +814,32 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     zIndex: 30,
   },
-  dateBtnLarge: { flexDirection: 'row', alignItems: 'center', padding: 12, borderWidth: 1, borderColor: '#eef2f4', borderRadius: 10, backgroundColor: '#fff' },
-  dateBtnText: { color: '#111827', fontWeight: '600' },
-  chipsRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 8, alignItems: 'center' },
+  dateBtnLarge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderWidth: 1,
+    borderColor: lightModeSemanticTokens.borderInput,
+    borderRadius: 10,
+    backgroundColor: lightModeSemanticTokens.surface,
+  },
+  dateBtnText: {
+    color: lightModeSemanticTokens.textPrimary,
+    fontWeight: '600',
+  },
+  chipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 8,
+    alignItems: 'center',
+  },
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: '#ffffff',
+    backgroundColor: lightModeSemanticTokens.surface,
     borderWidth: 1,
-    borderColor: '#eef2f4',
+    borderColor: lightModeSemanticTokens.borderInput,
     marginRight: 10,
     marginTop: 10,
     minWidth: 84,
@@ -501,14 +852,22 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   chipSelected: {
-    backgroundColor: '#CA8E0E',
-    borderColor: '#CA8E0E',
-    shadowColor: '#CA8E0E',
+    backgroundColor: lightModeSemanticTokens.primary,
+    borderColor: lightModeSemanticTokens.primary,
+    shadowColor: lightModeSemanticTokens.primary,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.18,
     shadowRadius: 12,
     elevation: 6,
   },
-  chipText: { color: '#111827', fontWeight: '700', fontSize: 14 },
-  chipTextSelected: { color: '#ffffff', fontWeight: '800', fontSize: 14 },
+  chipText: {
+    color: lightModeSemanticTokens.textPrimary,
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  chipTextSelected: {
+    color: lightModeSemanticTokens.onPrimary,
+    fontWeight: '800',
+    fontSize: 14,
+  },
 });

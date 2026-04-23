@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Modal } from 'react-native';
 import { Button } from 'react-native-paper';
+import { lightModeSemanticTokens } from '../../theme';
 
 interface Props {
   visible: boolean;
@@ -23,7 +24,7 @@ export default function IdiomaModal({ visible, onClose }: Props) {
             paddingVertical: 20,
             backgroundColor: '#f7dca3ab',
             borderRadius: 20,
-            borderColor: '#ffffff',
+            borderColor: lightModeSemanticTokens.surface,
             borderWidth: 1,
           }}
         >

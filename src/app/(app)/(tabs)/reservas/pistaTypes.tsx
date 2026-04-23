@@ -16,6 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import api from '../../../../services/api';
 import { TipoPista } from '../../../../types/types';
 import { API_PUBLIC_URL } from '../../../../constants';
+import { lightModeSemanticTokens } from '../../../../theme';
 
 export default function PistaTypeIndex() {
   const router = useRouter();
@@ -56,7 +57,7 @@ export default function PistaTypeIndex() {
             <Ionicons
               name="information-circle-outline"
               size={24}
-              color="#fff"
+              color={lightModeSemanticTokens.onPrimary}
             />
             {'  '}Reserva tu pista
           </Text>
@@ -110,7 +111,7 @@ export default function PistaTypeIndex() {
                     <Ionicons
                       name="chevron-forward-circle"
                       size={26}
-                      color="#fff"
+                      color={lightModeSemanticTokens.onPrimary}
                     />
                   </View>
                 </LinearGradient>
@@ -130,7 +131,10 @@ export default function PistaTypeIndex() {
 
       {loading && (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#CA8E0E" />
+          <ActivityIndicator
+            size="large"
+            color={lightModeSemanticTokens.primary}
+          />
         </View>
       )}
     </ScrollView>
@@ -140,7 +144,7 @@ export default function PistaTypeIndex() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: lightModeSemanticTokens.background,
   },
   scrollContent: {
     paddingHorizontal: 16,
@@ -150,7 +154,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     height: 80,
     borderRadius: 14,
-    backgroundColor: '#CA8E0E',
+    backgroundColor: lightModeSemanticTokens.primary,
     justifyContent: 'center',
     marginBottom: 20,
     width: '100%',
@@ -165,7 +169,11 @@ const styles = StyleSheet.create({
     }),
   },
   headerOverlay: { paddingHorizontal: 20 },
-  headerTitle: { color: '#fff', fontSize: 22, fontWeight: '900' },
+  headerTitle: {
+    color: lightModeSemanticTokens.onPrimary,
+    fontSize: 22,
+    fontWeight: '900',
+  },
   headerSubtitle: { color: 'rgba(255,255,255,0.9)', fontSize: 14 },
 
   gridContainer: {
@@ -181,7 +189,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#1e293b',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: lightModeSemanticTokens.borderSoft,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -210,12 +218,16 @@ const styles = StyleSheet.create({
   },
   modelTopRow: { flexDirection: 'row', justifyContent: 'flex-end' },
   priceTag: {
-    backgroundColor: '#fff',
+    backgroundColor: lightModeSemanticTokens.surface,
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 20,
   },
-  priceTagText: { color: '#CA8E0E', fontWeight: '800', fontSize: 12 },
+  priceTagText: {
+    color: lightModeSemanticTokens.primary,
+    fontWeight: '800',
+    fontSize: 12,
+  },
   modelBottom: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -224,7 +236,7 @@ const styles = StyleSheet.create({
   modelTitle: {
     fontWeight: '900',
     fontSize: 24,
-    color: '#fff',
+    color: lightModeSemanticTokens.onPrimary,
     textShadowColor: 'rgba(0, 0, 0, 0.6)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 4,

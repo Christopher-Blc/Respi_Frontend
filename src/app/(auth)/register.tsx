@@ -23,6 +23,7 @@ import { saveToken } from '../../services/authStorage';
 import { useAuth } from '../../context/AuthContext';
 import styles from '../../style/register.styles';
 import RespiLogo from '../../components/login/respiLogo';
+import { lightModeSemanticTokens, mainThemeColorsDark } from '../../theme';
 
 const Register: React.FC = () => {
   const [name, setName] = useState('');
@@ -127,8 +128,9 @@ const Register: React.FC = () => {
       //si ha cinseguido una respuesta valida , lo avisamos y guardamos el token en securestorage
       if (response.status === 201 || response.data.access_token) {
         const token = response.data.access_token;
+        const refreshToken = response.data.refresh_token;
         alert('¡Cuenta creada correctamente! Bienvenido.');
-        signIn(token); //el signin ya se encarga de guardar el token y todo
+        signIn(token, refreshToken); //el signin ya se encarga de guardar el token y todo
       }
     } catch (err: any) {
       //si ha habido un error lo enseñamos
@@ -202,11 +204,29 @@ const Register: React.FC = () => {
           showsVerticalScrollIndicator={false}
         >
           <RespiLogo />
-          <Text style={[styles.title, { color: isDarkMode ? '#FFF' : '#333' }]}>
+          <Text
+            style={[
+              styles.title,
+              {
+                color: isDarkMode
+                  ? mainThemeColorsDark.textTitle
+                  : lightModeSemanticTokens.textPrimary,
+              },
+            ]}
+          >
             Create an account
           </Text>
 
-          <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
+          <Text
+            style={[
+              styles.label,
+              {
+                color: isDarkMode
+                  ? mainThemeColorsDark.grayLabelText
+                  : lightModeSemanticTokens.textSecondary,
+              },
+            ]}
+          >
             Name:
           </Text>
           <GlassTextInput
@@ -216,7 +236,16 @@ const Register: React.FC = () => {
             isDarkMode={isDarkMode}
           />
 
-          <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
+          <Text
+            style={[
+              styles.label,
+              {
+                color: isDarkMode
+                  ? mainThemeColorsDark.grayLabelText
+                  : lightModeSemanticTokens.textSecondary,
+              },
+            ]}
+          >
             Surname:
           </Text>
           <GlassTextInput
@@ -226,7 +255,16 @@ const Register: React.FC = () => {
             isDarkMode={isDarkMode}
           />
 
-          <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
+          <Text
+            style={[
+              styles.label,
+              {
+                color: isDarkMode
+                  ? mainThemeColorsDark.grayLabelText
+                  : lightModeSemanticTokens.textSecondary,
+              },
+            ]}
+          >
             Username:
           </Text>
           <GlassTextInput
@@ -236,7 +274,16 @@ const Register: React.FC = () => {
             isDarkMode={isDarkMode}
           />
 
-          <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
+          <Text
+            style={[
+              styles.label,
+              {
+                color: isDarkMode
+                  ? mainThemeColorsDark.grayLabelText
+                  : lightModeSemanticTokens.textSecondary,
+              },
+            ]}
+          >
             Email:
           </Text>
           <GlassTextInput
@@ -247,7 +294,16 @@ const Register: React.FC = () => {
             isDarkMode={isDarkMode}
           />
 
-          <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
+          <Text
+            style={[
+              styles.label,
+              {
+                color: isDarkMode
+                  ? mainThemeColorsDark.grayLabelText
+                  : lightModeSemanticTokens.textSecondary,
+              },
+            ]}
+          >
             Phone:
           </Text>
           <GlassTextInput
@@ -258,7 +314,16 @@ const Register: React.FC = () => {
             isDarkMode={isDarkMode}
           />
 
-          <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
+          <Text
+            style={[
+              styles.label,
+              {
+                color: isDarkMode
+                  ? mainThemeColorsDark.grayLabelText
+                  : lightModeSemanticTokens.textSecondary,
+              },
+            ]}
+          >
             Password:
           </Text>
           <GlassTextInputPassword
@@ -268,7 +333,16 @@ const Register: React.FC = () => {
             isDarkMode={isDarkMode}
           />
 
-          <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
+          <Text
+            style={[
+              styles.label,
+              {
+                color: isDarkMode
+                  ? mainThemeColorsDark.grayLabelText
+                  : lightModeSemanticTokens.textSecondary,
+              },
+            ]}
+          >
             Birth Date:
           </Text>
 
@@ -282,7 +356,7 @@ const Register: React.FC = () => {
             <IconButton
               icon="calendar-edit"
               style={styles.calendarIcon}
-              iconColor="#CA8E0E"
+              iconColor={lightModeSemanticTokens.primary}
               size={24}
               onPress={() => {
                 if (Platform.OS === 'web') {
@@ -339,7 +413,16 @@ const Register: React.FC = () => {
             />
           )}
 
-          <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
+          <Text
+            style={[
+              styles.label,
+              {
+                color: isDarkMode
+                  ? mainThemeColorsDark.grayLabelText
+                  : lightModeSemanticTokens.textSecondary,
+              },
+            ]}
+          >
             Location:
           </Text>
           <GlassTextInput
@@ -351,7 +434,7 @@ const Register: React.FC = () => {
 
           <GlassTextButton
             text="Register"
-            textColor="#fff"
+            textColor={lightModeSemanticTokens.onPrimary}
             onPress={handleSubmit}
             color={
               isDarkMode
@@ -362,11 +445,16 @@ const Register: React.FC = () => {
 
           <View style={{ height: 16 }} />
           <Text
-            style={{ color: isDarkMode ? '#ccc' : '#667', textAlign: 'center' }}
+            style={{
+              color: isDarkMode
+                ? mainThemeColorsDark.textBody
+                : lightModeSemanticTokens.textMuted,
+              textAlign: 'center',
+            }}
           >
             Already have an account?{' '}
             <Text
-              style={{ color: '#CA8E0E', fontWeight: 'bold' }}
+              style={{ color: lightModeSemanticTokens.primary, fontWeight: 'bold' }}
               onPress={() => router.replace('login')}
             >
               Login

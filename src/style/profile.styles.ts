@@ -1,12 +1,13 @@
  import { 
   StyleSheet, 
 } from 'react-native'; 
+import { lightModeSemanticTokens } from '../theme';
 
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: lightModeSemanticTokens.background,
   },
   scrollContent: {
     // El paddingBottom se maneja dinámicamente arriba
@@ -16,7 +17,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginHorizontal: 20,
     paddingVertical: 30,
-    backgroundColor: '#FFF',
+    backgroundColor: lightModeSemanticTokens.surface,
     borderRadius: 30,
     elevation: 4,
     shadowColor: '#000',
@@ -33,29 +34,29 @@ const styles = StyleSheet.create({
     height: 110,
     borderRadius: 55,
     borderWidth: 3,
-    borderColor: '#D4AF37',
+    borderColor: lightModeSemanticTokens.avatarBorder,
   },
   editBadge: {
     position: 'absolute',
     bottom: 0,
     right: 5,
-    backgroundColor: '#B89B5E',
+    backgroundColor: lightModeSemanticTokens.iconPrimary,
     width: 32,
     height: 32,
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#FFF',
+    borderColor: lightModeSemanticTokens.surface,
   },
   userName: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#333',
+    color: lightModeSemanticTokens.textPrimary,
   },
   userEmail: {
     fontSize: 14,
-    color: '#888',
+    color: lightModeSemanticTokens.textMuted,
     marginTop: 4,
   },
   section: {
@@ -69,13 +70,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#999',
+    color: lightModeSemanticTokens.textPlaceholder,
     marginBottom: 10,
     marginLeft: 5,
     textTransform: 'uppercase',
   },
   card: {
-    backgroundColor: '#FFF',
+    backgroundColor: lightModeSemanticTokens.surface,
     borderRadius: 15,
     paddingHorizontal: 15,
     shadowColor: '#000',
@@ -90,7 +91,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0', // Líneas de separación restauradas
+    borderBottomColor: lightModeSemanticTokens.borderDefault,
   },
   optionLeft: {
     flexDirection: 'row',
@@ -100,14 +101,14 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
     borderRadius: 8,
-    backgroundColor: '#FDF8ED',
+    backgroundColor: lightModeSemanticTokens.iconCardBg,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
   optionTitle: {
     fontSize: 16,
-    color: '#333',
+    color: lightModeSemanticTokens.textPrimary,
   },
   optionRight: {
     flexDirection: 'row',
@@ -115,7 +116,7 @@ const styles = StyleSheet.create({
   },
   optionValue: {
     fontSize: 14,
-    color: '#AAA',
+    color: lightModeSemanticTokens.textPlaceholder,
     marginRight: 8,
   },
   logoutContainer: {
@@ -130,13 +131,13 @@ const styles = StyleSheet.create({
   },
   RespiText: {
     textAlign: 'center',
-    color: '#CCC',
+    color: lightModeSemanticTokens.textSubtle,
     marginTop: 20,
     fontSize: 12,
   },
   versionText: {
     textAlign: 'center',
-    color: '#CCC',
+    color: lightModeSemanticTokens.textSubtle,
     fontSize: 12,
     marginBottom: -25,
   },
@@ -148,7 +149,7 @@ const styles = StyleSheet.create({
   },
   // Añade esto a tu archivo de estilos
 reservasCountCard: {
-  backgroundColor: '#FAF3E0', // Color crema suave de la foto
+  backgroundColor: lightModeSemanticTokens.surfaceMuted,
   width: '90%',
   borderRadius: 15,
   paddingVertical: 12,

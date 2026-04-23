@@ -3,6 +3,7 @@ import React from 'react';
 import { Platform, StatusBar } from 'react-native';
 import Octicons from '@expo/vector-icons/Octicons';
 import { Icon, IconButton } from 'react-native-paper';
+import { lightModeSemanticTokens } from '../../../theme';
 
 const unstable_settings = {
   initialRouteName: '(tabs)',
@@ -32,8 +33,8 @@ export default function tabLayout() {
           tabBarLabelStyle: {
             marginBottom: Platform.OS === 'web' ? 2 : 0,
           },
-          tabBarActiveTintColor: '#CA8E0E',
-          tabBarInactiveTintColor: 'gray',
+          tabBarActiveTintColor: lightModeSemanticTokens.primary,
+          tabBarInactiveTintColor: lightModeSemanticTokens.textPlaceholder,
         }}
       >
         <Tabs.Screen
@@ -69,8 +70,8 @@ export default function tabLayout() {
           options={{
             tabBarBadge: '1',
             tabBarBadgeStyle: {
-              backgroundColor: '#CA8E0E',
-              color: 'white',
+              backgroundColor: lightModeSemanticTokens.primary,
+              color: lightModeSemanticTokens.onPrimary,
             },
             title: 'Perfil',
             tabBarIcon: ({ color, size }) => (

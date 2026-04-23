@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput as RNTextInput } from 'react-native';
 import { TextInput } from 'react-native-paper';
+import { lightModeSemanticTokens, mainThemeColorsDark } from '../../theme';
 
 interface Props {
   value: string;
@@ -12,13 +13,13 @@ interface Props {
   readonly?: boolean;
 }
 
-export const GlassTextInput: React.FC<Props> = ({ 
-  value, 
-  onChangeText, 
-  placeholder = "Enter text", 
+export const GlassTextInput: React.FC<Props> = ({
+  value,
+  onChangeText,
+  placeholder = 'Enter text',
   isDarkMode,
   label,
-  keyboardType = "default",
+  keyboardType = 'default',
   readonly = false,
 }) => {
   // 1. Estado para saber si el usuario está dentro del input
@@ -27,7 +28,16 @@ export const GlassTextInput: React.FC<Props> = ({
   return (
     <View style={styles.container}>
       {label && (
-        <Text style={[styles.label, { color: isDarkMode ? '#BBB' : '#444' }]}>
+        <Text
+          style={[
+            styles.label,
+            {
+              color: isDarkMode
+                ? mainThemeColorsDark.grayLabelText
+                : lightModeSemanticTokens.textSecondary,
+            },
+          ]}
+        >
           {label}
         </Text>
       )}
@@ -36,8 +46,12 @@ export const GlassTextInput: React.FC<Props> = ({
         value={value}
         onChangeText={onChangeText}
         // 2. Si está focused, quitamos el placeholder para que no moleste
-        placeholder={isFocused ? "" : placeholder}
-        placeholderTextColor={isDarkMode ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"}
+        placeholder={isFocused ? '' : placeholder}
+        placeholderTextColor={
+          isDarkMode
+            ? mainThemeColorsDark.inputPlaceholder
+            : lightModeSemanticTokens.inputPlaceholder
+        }
         mode="flat"
         underlineColor="transparent"
         activeUnderlineColor="transparent"
@@ -46,19 +60,23 @@ export const GlassTextInput: React.FC<Props> = ({
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         // 4. Color del cursor (palito)
-        selectionColor="#CA8E0E" 
+        selectionColor={lightModeSemanticTokens.inputFocus}
         style={[
           styles.input,
-          { 
-            backgroundColor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.4)',
+          {
+            backgroundColor: isDarkMode
+              ? mainThemeColorsDark.inputBackground
+              : lightModeSemanticTokens.inputBg,
             // 5. Cambio dinámico de borde
-            borderColor: isFocused ? '#CA8E0E' : 'rgba(0, 0, 0, 0.1)',
+            borderColor: isFocused
+              ? lightModeSemanticTokens.inputFocus
+              : lightModeSemanticTokens.borderInput,
             borderWidth: isFocused ? 1.5 : 1,
             // Sombra suave cuando está enfocado para el efecto Glass
             elevation: isFocused ? 2 : 0,
-          }
+          },
         ]}
-        textColor={isDarkMode ? '#FFF' : '#000'}
+        textColor={isDarkMode ? mainThemeColorsDark.textInput : '#000'}
       />
     </View>
   );
@@ -77,10 +95,10 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    height: 50, 
+    height: 50,
     borderRadius: 12,
-    borderTopLeftRadius: 12, 
+    borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
-    overflow: 'hidden', 
+    overflow: 'hidden',
   },
 });

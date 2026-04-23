@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { lightModeSemanticTokens } from '../theme';
 
 const styles = StyleSheet.create({
   testErrorButton: {
@@ -6,14 +7,14 @@ const styles = StyleSheet.create({
     bottom: 40,
     right: 80,
     zIndex: 10,
-    backgroundColor:"#5100ff"
+    backgroundColor: lightModeSemanticTokens.debugButton,
   },
   darkModeButton: {
     position: 'absolute',
     bottom: 40,
     right: 20,
     zIndex: 10,
-    backgroundColor:"#5100ff"
+    backgroundColor: lightModeSemanticTokens.debugButton,
   },
   background: {
     flex: 1,
@@ -26,7 +27,7 @@ const styles = StyleSheet.create({
     padding: 25,
     borderRadius: 30, 
     borderWidth: 0.8,
-    borderColor: "#ccc",
+    borderColor: lightModeSemanticTokens.textSubtle,
     //borderWidth: 0.5,
     //borderColor: '#616161',
     //backgroundColor: 'rgba(255, 170, 0, 0.12)',
@@ -48,27 +49,27 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     fontWeight: '500',
     fontSize: 16,
-    color: '#444', // Un pelín más oscuro para contraste
+    color: lightModeSemanticTokens.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
     // Sombra de texto (funciona en iOS, Android y Web)
-    textShadowColor: 'rgba(255, 255, 255, 0.6)',
+    textShadowColor: lightModeSemanticTokens.surfaceGlass,
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 5,
   },
   input: {
     width: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+    backgroundColor: lightModeSemanticTokens.inputBgSoft,
     borderRadius: 12,
     paddingHorizontal: 15,
     paddingVertical: 12,
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.12)',
-    color: '#000000', 
+    borderColor: lightModeSemanticTokens.borderInput,
+    color: '#000000',
   },
   error: {
-    color: '#D32F2F',
+    color: lightModeSemanticTokens.errorText,
     marginTop: 10,
     fontWeight: 'bold',
   },
