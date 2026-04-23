@@ -24,13 +24,12 @@ export const styles = StyleSheet.create({
     premiumActionRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 320,
-        gap: 12, // Espaciado moderno
+        marginBottom: 20,
+        gap: 12,
     },
     pillButtonPrimary: {
         flex: 1,
-        height: 52,
-        overflow: 'hidden', 
+        overflow: 'hidden',
     }, 
     pillButtonText: {
         color: '#FFFFFF',
