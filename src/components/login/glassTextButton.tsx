@@ -1,7 +1,7 @@
 import React from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { lightModeSemanticTokens } from '../../theme';
+import { useAppTheme } from '../../context/ThemeContext';
 
 type Props = {
   text: string;
@@ -26,6 +26,7 @@ export function GlassTextButton({
   borderWidth,
   height,
 }: Props) {
+  const { isDarkMode, theme } = useAppTheme();
   const buttonColor = color ? color : 'rgba(175, 175, 175, 0.3)';
   return (
     <Pressable
@@ -45,7 +46,7 @@ export function GlassTextButton({
             styles.glass,
             {
               backgroundColor: buttonColor,
-              borderColor: borderColor || lightModeSemanticTokens.borderGlass,
+              borderColor: borderColor || theme.borderGlass,
               borderWidth: borderWidth || 0.9,
               height: height || 50,
             },
@@ -54,7 +55,7 @@ export function GlassTextButton({
           <Text
             style={[
               styles.text,
-              { color: textColor || lightModeSemanticTokens.onPrimary },
+              { color: textColor || theme.onPrimary },
             ]}
           >
             {text}
@@ -63,12 +64,12 @@ export function GlassTextButton({
       ) : (
         <BlurView
           intensity={20}
-          tint="light"
+          tint={isDarkMode ? 'dark' : 'light'}
           style={[
             styles.glass,
             {
               backgroundColor: buttonColor,
-              borderColor: borderColor || lightModeSemanticTokens.borderGlass,
+              borderColor: borderColor || theme.borderGlass,
               borderWidth: borderWidth || 0.9,
               height: height || 50,
             },
@@ -77,7 +78,7 @@ export function GlassTextButton({
           <Text
             style={[
               styles.text,
-              { color: textColor || lightModeSemanticTokens.onPrimary },
+              { color: textColor || theme.onPrimary },
             ]}
           >
             {text}
@@ -96,7 +97,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: 'rgba(221, 151, 0, 0.3)',
     borderWidth: 0.9,
-    borderColor: lightModeSemanticTokens.borderGlass,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   pressable: {
     width: '100%',

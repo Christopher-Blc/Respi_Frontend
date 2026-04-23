@@ -1,47 +1,33 @@
-import React, { useState, createContext, useContext } from 'react';
-import { ImageBackground, View, StyleSheet, Platform } from 'react-native';
+import React from 'react';
+import { ImageBackground, View, StyleSheet } from 'react-native';
 import { Slot } from 'expo-router';
 import { IconButton } from 'react-native-paper';
-import { mainThemeColorsDark } from '../../theme';
-
-// 1. Creamos el contexto
-const AuthShellContext = createContext({
-  isDarkMode: false,
-  toggleDarkMode: () => {},
-});
-
-// 2. Hook personalizado para usarlo fácilmente
-export const useAuthShell = () => useContext(AuthShellContext);
-const LOGO_CACHE = require('../../../assets/RespiLogo.png');
+import { useAppTheme } from '../../context/ThemeContext';
 
 export default function AuthLayout() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
+  const { isDarkMode, toggleTheme, theme } = useAppTheme();
 
   const bgImage = isDarkMode
     ? require('../../../assets/login-bg-dark.png')
     : require('../../../assets/login-bg-light.png');
 
   return (
-    // 3. Proveemos el estado a los hijos
-    <AuthShellContext.Provider value={{ isDarkMode, toggleDarkMode }}>
-      <ImageBackground
-        source={bgImage}
-        style={styles.background}
-        imageStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
-      >
-        <View style={styles.container}>
-          <Slot />
-        </View>
+    <ImageBackground
+      source={bgImage}
+      style={styles.background}
+      imageStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
+    >
+      <View style={styles.container}>
+        <Slot />
+      </View>
 
-        <IconButton
-          icon={isDarkMode ? 'weather-sunny' : 'weather-night'}
-          style={styles.darkModeButton}
-          iconColor={mainThemeColorsDark.textTitle}
-          onPress={toggleDarkMode}
-        />
-      </ImageBackground>
-    </AuthShellContext.Provider>
+      <IconButton
+        icon={isDarkMode ? 'weather-sunny' : 'weather-night'}
+        style={styles.darkModeButton}
+        iconColor={theme.textTitle}
+        onPress={toggleTheme}
+      />
+    </ImageBackground>
   );
 }
 

@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 import {
-  ImageBackground,
-  Image,
-  StyleSheet,
   Text,
   View,
   ScrollView,
@@ -19,11 +16,10 @@ import { GlassTextInputPassword } from '../../components/login/glassTextInputPas
 import { GlassTextInput } from '../../components/login/glassTextInput';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import api from '../../services/api';
-import { saveToken } from '../../services/authStorage';
 import { useAuth } from '../../context/AuthContext';
-import styles from '../../style/register.styles';
+import createRegisterStyles from '../../style/register.styles';
 import RespiLogo from '../../components/login/respiLogo';
-import { lightModeSemanticTokens, mainThemeColorsDark } from '../../theme';
+import { useAppTheme } from '../../context/ThemeContext';
 
 const Register: React.FC = () => {
   const [name, setName] = useState('');
@@ -40,9 +36,8 @@ const Register: React.FC = () => {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
+  const { isDarkMode, theme } = useAppTheme();
+  const styles = React.useMemo(() => createRegisterStyles(theme), [theme]);
 
   const createLocalDate = (year: number, month: number, day: number) => {
     return new Date(year, month, day, 12, 0, 0, 0);
@@ -140,11 +135,6 @@ const Register: React.FC = () => {
     }
   };
 
-  //dependiendo del modo se pilla un fondo u otro
-  const bgImage = isDarkMode
-    ? require('../../../assets/login-bg-dark.png')
-    : require('../../../assets/login-bg-light.png');
-
   //Igual que en el login , hacemos una funcion de renderform para que devuelva el formulario principal
   //y en el return normal , tenemos el control si es web o mobil
   return (
@@ -208,9 +198,7 @@ const Register: React.FC = () => {
             style={[
               styles.title,
               {
-                color: isDarkMode
-                  ? mainThemeColorsDark.textTitle
-                  : lightModeSemanticTokens.textPrimary,
+                color: theme.textTitle,
               },
             ]}
           >
@@ -221,9 +209,7 @@ const Register: React.FC = () => {
             style={[
               styles.label,
               {
-                color: isDarkMode
-                  ? mainThemeColorsDark.grayLabelText
-                  : lightModeSemanticTokens.textSecondary,
+                color: theme.grayLabelText,
               },
             ]}
           >
@@ -233,16 +219,13 @@ const Register: React.FC = () => {
             placeholder="Name"
             value={name}
             onChangeText={setName}
-            isDarkMode={isDarkMode}
           />
 
           <Text
             style={[
               styles.label,
               {
-                color: isDarkMode
-                  ? mainThemeColorsDark.grayLabelText
-                  : lightModeSemanticTokens.textSecondary,
+                color: theme.grayLabelText,
               },
             ]}
           >
@@ -252,16 +235,13 @@ const Register: React.FC = () => {
             placeholder="Surname"
             value={surname}
             onChangeText={setSurname}
-            isDarkMode={isDarkMode}
           />
 
           <Text
             style={[
               styles.label,
               {
-                color: isDarkMode
-                  ? mainThemeColorsDark.grayLabelText
-                  : lightModeSemanticTokens.textSecondary,
+                color: theme.grayLabelText,
               },
             ]}
           >
@@ -271,16 +251,13 @@ const Register: React.FC = () => {
             placeholder="Username"
             value={username}
             onChangeText={setUsername}
-            isDarkMode={isDarkMode}
           />
 
           <Text
             style={[
               styles.label,
               {
-                color: isDarkMode
-                  ? mainThemeColorsDark.grayLabelText
-                  : lightModeSemanticTokens.textSecondary,
+                color: theme.grayLabelText,
               },
             ]}
           >
@@ -291,16 +268,13 @@ const Register: React.FC = () => {
             placeholder="Enter email"
             value={email}
             onChangeText={setEmail}
-            isDarkMode={isDarkMode}
           />
 
           <Text
             style={[
               styles.label,
               {
-                color: isDarkMode
-                  ? mainThemeColorsDark.grayLabelText
-                  : lightModeSemanticTokens.textSecondary,
+                color: theme.grayLabelText,
               },
             ]}
           >
@@ -311,16 +285,13 @@ const Register: React.FC = () => {
             placeholder="Enter phone"
             value={phone}
             onChangeText={setPhone}
-            isDarkMode={isDarkMode}
           />
 
           <Text
             style={[
               styles.label,
               {
-                color: isDarkMode
-                  ? mainThemeColorsDark.grayLabelText
-                  : lightModeSemanticTokens.textSecondary,
+                color: theme.grayLabelText,
               },
             ]}
           >
@@ -330,16 +301,13 @@ const Register: React.FC = () => {
             placeholder="Enter password"
             value={password}
             onChangeText={setPassword}
-            isDarkMode={isDarkMode}
           />
 
           <Text
             style={[
               styles.label,
               {
-                color: isDarkMode
-                  ? mainThemeColorsDark.grayLabelText
-                  : lightModeSemanticTokens.textSecondary,
+                color: theme.grayLabelText,
               },
             ]}
           >
@@ -351,12 +319,11 @@ const Register: React.FC = () => {
               placeholder="DD/MM/YYYY"
               value={birthDate}
               onChangeText={handleTextChange}
-              isDarkMode={isDarkMode}
             />
             <IconButton
               icon="calendar-edit"
               style={styles.calendarIcon}
-              iconColor={lightModeSemanticTokens.primary}
+              iconColor={theme.primary}
               size={24}
               onPress={() => {
                 if (Platform.OS === 'web') {
@@ -409,7 +376,7 @@ const Register: React.FC = () => {
               onChange={onDateChange}
               minimumDate={createLocalDate(1900, 0, 1)}
               maximumDate={new Date()}
-              textColor={isDarkMode ? 'white' : 'black'}
+              textColor={theme.textPrimary}
             />
           )}
 
@@ -417,9 +384,7 @@ const Register: React.FC = () => {
             style={[
               styles.label,
               {
-                color: isDarkMode
-                  ? mainThemeColorsDark.grayLabelText
-                  : lightModeSemanticTokens.textSecondary,
+                color: theme.grayLabelText,
               },
             ]}
           >
@@ -429,32 +394,25 @@ const Register: React.FC = () => {
             placeholder="Location"
             value={location}
             onChangeText={setLocation}
-            isDarkMode={isDarkMode}
           />
 
           <GlassTextButton
             text="Register"
-            textColor={lightModeSemanticTokens.onPrimary}
+            textColor={theme.onPrimary}
             onPress={handleSubmit}
-            color={
-              isDarkMode
-                ? 'rgba(202, 142, 14, 0.17)'
-                : 'rgba(191, 132, 4, 0.51)'
-            }
+            color={theme.primarySoft}
           />
 
           <View style={{ height: 16 }} />
           <Text
             style={{
-              color: isDarkMode
-                ? mainThemeColorsDark.textBody
-                : lightModeSemanticTokens.textMuted,
+              color: theme.textBody,
               textAlign: 'center',
             }}
           >
             Already have an account?{' '}
             <Text
-              style={{ color: lightModeSemanticTokens.primary, fontWeight: 'bold' }}
+              style={{ color: theme.primary, fontWeight: 'bold' }}
               onPress={() => router.replace('login')}
             >
               Login

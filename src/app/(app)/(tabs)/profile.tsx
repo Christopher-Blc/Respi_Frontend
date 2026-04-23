@@ -7,33 +7,27 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
-  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient'; // Único import nuevo
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../../../context/AuthContext';
 import { GlassTextButton } from '../../../components/login/glassTextButton';
 import api from '../../../services/api';
 import { User } from '../../../types/types';
-import styles from '../../../style/profile.styles';
+import createProfileStyles from '../../../style/profile.styles';
 import MenuOption from '../../../components/profile/menuOptions';
 import MembresiaModal from '../../../components/profile/membresia.modal';
 import DarkModeModal from '../../../components/profile/darkMode.modal';
 import IdiomaModal from '../../../components/profile/idioma.modal';
 import { reservasActivasFilter } from '../../../filtrosApi';
 import EditUserNameModal from '../../../components/profile/editUserName.modal';
-import {
-  lightModeSemanticTokens,
-  mainThemeColorsDark,
-  mainThemeColors,
-} from '../../../theme';
-
-const DARK_MODE_KEY = 'respi.profile.darkMode';
+import { useAppTheme } from '../../../context/ThemeContext';
 
 export default function ProfileClientes() {
   const { signOut } = useAuth();
+  const { isDarkMode, theme, setDarkMode } = useAppTheme();
+  const styles = React.useMemo(() => createProfileStyles(theme), [theme]);
   const [loading, setLoading] = useState(true);
   const insets = useSafeAreaInsets();
   const [user, setUser] = useState<User>();
@@ -43,9 +37,6 @@ export default function ProfileClientes() {
   const [modalDarkmodeVisible, setModalDarkmodeVisible] = useState(false);
   const [modalEditUserNameVisible, setModalEditUserNameVisible] =
     useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  const palette = isDarkMode ? mainThemeColorsDark : mainThemeColors;
 
   const handleLogout = async () => {
     try {
@@ -83,25 +74,11 @@ export default function ProfileClientes() {
   useEffect(() => {
     fetchUserProfile();
     fetchTotalReservas();
-
-    const loadDarkMode = async () => {
-      try {
-        const savedValue = await AsyncStorage.getItem(DARK_MODE_KEY);
-        if (savedValue !== null) {
-          setIsDarkMode(savedValue === '1');
-        }
-      } catch (error) {
-        console.error('Error leyendo preferencia de modo oscuro', error);
-      }
-    };
-
-    loadDarkMode();
   }, []);
 
   const handleSaveDarkMode = async (nextValue: boolean) => {
     try {
-      setIsDarkMode(nextValue);
-      await AsyncStorage.setItem(DARK_MODE_KEY, nextValue ? '1' : '0');
+      setDarkMode(nextValue);
     } catch (error) {
       console.error('Error guardando preferencia de modo oscuro', error);
     } finally {
@@ -116,26 +93,16 @@ export default function ProfileClientes() {
         { justifyContent: 'center', alignItems: 'center' },
       ]}
     >
-      <ActivityIndicator size={36} color={palette.primaryButton} />
+      <ActivityIndicator size={36} color={theme.primaryButton} />
     </View>
   ) : (
-    <View
-      style={[styles.container, { backgroundColor: palette.backgroundMain }]}
-    >
+    <View style={[styles.container, { backgroundColor: theme.backgroundMain }]}>
       <LinearGradient
-        colors={
-          isDarkMode
-            ? [
-                mainThemeColorsDark.backgroundMain,
-                mainThemeColorsDark.backgroundCard,
-                mainThemeColorsDark.backgroundMain,
-              ]
-            : [
-                lightModeSemanticTokens.profileGradientStart,
-                lightModeSemanticTokens.profileGradientMiddle,
-                lightModeSemanticTokens.profileGradientEnd,
-              ]
-        }
+        colors={[
+          theme.profileGradientStart,
+          theme.profileGradientMiddle,
+          theme.profileGradientEnd,
+        ]}
         style={StyleSheet.absoluteFill}
       />
 
@@ -157,7 +124,7 @@ export default function ProfileClientes() {
               <Ionicons
                 name="camera"
                 size={16}
-                color={lightModeSemanticTokens.onPrimary}
+                color={theme.onPrimary}
               />
             </TouchableOpacity>
           </View>
@@ -170,10 +137,10 @@ export default function ProfileClientes() {
 
           {/*card dnd se ve total reservas ( no se ha probado pero en teoria el dato viene del back) */}
           <View style={styles.reservasCountCard}>
-            <Text style={[styles.reservasNumber, { color: palette.textTitle }]}>
+            <Text style={[styles.reservasNumber, { color: theme.textTitle }]}>
               {totalReservas || 0}
             </Text>
-            <Text style={[styles.reservasLabel, { color: palette.textBody }]}>
+            <Text style={[styles.reservasLabel, { color: theme.textBody }]}>
               Reservas
             </Text>
           </View>
@@ -183,13 +150,12 @@ export default function ProfileClientes() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Mi Cuenta</Text>
           <View
-            style={[styles.card, { backgroundColor: palette.backgroundCard }]}
+            style={[styles.card, { backgroundColor: theme.backgroundCard }]}
           >
             <MenuOption
               icon="person-outline"
               title="Nombre de usuario"
               value={user?.username || 'JuanPerez88'}
-              isDarkMode={isDarkMode}
               isLast={undefined}
               onPress={() => {
                 setModalEditUserNameVisible(true);
@@ -199,14 +165,12 @@ export default function ProfileClientes() {
               icon="mail-outline"
               title="Email"
               value={user?.email || 'juan@mail.com'}
-              isDarkMode={isDarkMode}
               isLast={undefined}
             />
             <MenuOption
               icon="language-outline"
               title="Idioma"
               value="Español"
-              isDarkMode={isDarkMode}
               isLast={undefined}
               onPress={() => setModalIdiomaVisible(true)}
             />
@@ -214,7 +178,6 @@ export default function ProfileClientes() {
               icon="moon-outline"
               title="Modo Oscuro"
               value={isDarkMode ? 'Activado' : 'Desactivado'}
-              isDarkMode={isDarkMode}
               isLast
               onPress={() => setModalDarkmodeVisible(true)}
             />
@@ -224,13 +187,12 @@ export default function ProfileClientes() {
         <View style={styles.membresiaCard}>
           <Text style={styles.sectionTitle}>MEMBRESIA</Text>
           <View
-            style={[styles.card, { backgroundColor: palette.backgroundCard }]}
+            style={[styles.card, { backgroundColor: theme.backgroundCard }]}
           >
             <MenuOption
               icon="diamond-outline"
               title="Membresía"
               value={undefined}
-              isDarkMode={isDarkMode}
               isLast={undefined}
               onPress={() => setModalMembresiaVisible(true)}
             />
@@ -241,20 +203,18 @@ export default function ProfileClientes() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Configuración</Text>
           <View
-            style={[styles.card, { backgroundColor: palette.backgroundCard }]}
+            style={[styles.card, { backgroundColor: theme.backgroundCard }]}
           >
             <MenuOption
               icon="notifications-outline"
               title="Notificaciones"
               value={undefined}
-              isDarkMode={isDarkMode}
               isLast={undefined}
             />
             <MenuOption
               icon="lock-closed-outline"
               title="Privacidad"
               isLast
-              isDarkMode={isDarkMode}
               value={undefined}
             />
           </View>
@@ -265,8 +225,8 @@ export default function ProfileClientes() {
           <GlassTextButton
             text="Cerrar Sesión"
             onPress={handleLogout}
-            color={lightModeSemanticTokens.logoutGlass}
-            borderColor={lightModeSemanticTokens.logoutBorder}
+            color={theme.logoutGlass}
+            borderColor={theme.logoutBorder}
             borderWidth={1}
             style={styles.logoutButtonCustom}
           />
@@ -278,7 +238,7 @@ export default function ProfileClientes() {
 
       {loading && (
         <View style={styles.loadingOverlayList} pointerEvents="none">
-          <ActivityIndicator size={36} color={palette.primaryButton} />
+          <ActivityIndicator size={36} color={theme.primaryButton} />
         </View>
       )}
       <MembresiaModal

@@ -1,14 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity, View, Text } from 'react-native';
-import styles from '../../style/profile.styles';
-import { lightModeSemanticTokens, mainThemeColorsDark } from '../../theme';
+import { useMemo } from 'react';
+import createProfileStyles from '../../style/profile.styles';
+import { useAppTheme } from '../../context/ThemeContext';
 
 type Props = {
   icon: keyof typeof Ionicons.glyphMap;
   title: string;
   value?: string;
   isLast?: boolean;
-  isDarkMode?: boolean;
   onPress?: () => void;
 };
 
@@ -17,33 +17,16 @@ export default function MenuOption({
   title,
   value,
   isLast,
-  isDarkMode,
   onPress,
 }: Props) {
-  const iconColor = isDarkMode
-    ? mainThemeColorsDark.primaryButton
-    : lightModeSemanticTokens.primary;
-  const chevronColor = isDarkMode
-    ? mainThemeColorsDark.grayLabelText
-    : lightModeSemanticTokens.iconMuted;
-  const rowBorderColor = isDarkMode
-    ? mainThemeColorsDark.borderLight
-    : lightModeSemanticTokens.borderDefault;
-  const titleColor = isDarkMode
-    ? mainThemeColorsDark.textTitle
-    : lightModeSemanticTokens.textPrimary;
-  const valueColor = isDarkMode
-    ? mainThemeColorsDark.grayPlaceholder
-    : lightModeSemanticTokens.textPlaceholder;
-  const iconContainerColor = isDarkMode
-    ? mainThemeColorsDark.backgroundInput
-    : lightModeSemanticTokens.iconCardBg;
+  const { theme } = useAppTheme();
+  const styles = useMemo(() => createProfileStyles(theme), [theme]);
 
   return (
     <TouchableOpacity
       style={[
         styles.optionRow,
-        { borderBottomColor: rowBorderColor },
+        { borderBottomColor: theme.borderDefault },
         isLast && { borderBottomWidth: 0 },
       ]}
       onPress={onPress}
@@ -52,20 +35,22 @@ export default function MenuOption({
         <View
           style={[
             styles.iconContainer,
-            { backgroundColor: iconContainerColor },
+            { backgroundColor: theme.iconCardBg },
           ]}
         >
-          <Ionicons name={icon} size={20} color={iconColor} />
+          <Ionicons name={icon} size={20} color={theme.primary} />
         </View>
-        <Text style={[styles.optionTitle, { color: titleColor }]}>{title}</Text>
+        <Text style={[styles.optionTitle, { color: theme.textTitle }]}>
+          {title}
+        </Text>
       </View>
       <View style={styles.optionRight}>
         {value && (
-          <Text style={[styles.optionValue, { color: valueColor }]}>
+          <Text style={[styles.optionValue, { color: theme.textPlaceholder }]}>
             {value}
           </Text>
         )}
-        <Ionicons name="chevron-forward" size={18} color={chevronColor} />
+        <Ionicons name="chevron-forward" size={18} color={theme.iconMuted} />
       </View>
     </TouchableOpacity>
   );

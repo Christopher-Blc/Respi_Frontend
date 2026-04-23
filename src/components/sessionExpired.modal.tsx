@@ -2,34 +2,29 @@ import React from 'react';
 import { View, Text, Modal, StyleSheet } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { GlassTextButton } from '../components/login/glassTextButton';
-import { lightModeSemanticTokens, mainThemeColorsDark } from '../theme';
+import { useAppTheme } from '../context/ThemeContext';
 
 interface Props {
   visible: boolean;
   onConfirm: () => void;
-  isDarkMode: boolean;
 }
 
-export const SessionExpiredModal = ({
-  visible,
-  onConfirm,
-  isDarkMode,
-}: Props) => {
+export const SessionExpiredModal = ({ visible, onConfirm }: Props) => {
+  const { isDarkMode, theme } = useAppTheme();
+
   return (
     <Modal transparent visible={visible} animationType="fade">
-      <View style={modalStyles.overlay}>
+      <View style={[modalStyles.overlay, { backgroundColor: theme.overlayDark }]}>
         <BlurView
           intensity={30}
           tint={isDarkMode ? 'dark' : 'light'}
-          style={modalStyles.glassContainer}
+          style={[modalStyles.glassContainer, { borderColor: theme.borderGlass }]}
         >
           <Text
             style={[
               modalStyles.title,
               {
-                color: isDarkMode
-                  ? mainThemeColorsDark.textTitle
-                  : lightModeSemanticTokens.textPrimary,
+                color: theme.textTitle,
               },
             ]}
           >
@@ -39,9 +34,7 @@ export const SessionExpiredModal = ({
             style={[
               modalStyles.message,
               {
-                color: isDarkMode
-                  ? mainThemeColorsDark.grayLabelText
-                  : lightModeSemanticTokens.textSecondary,
+                color: theme.grayLabelText,
               },
             ]}
           >
@@ -51,11 +44,9 @@ export const SessionExpiredModal = ({
 
           <GlassTextButton
             text="Entendido"
-            textColor={lightModeSemanticTokens.onPrimary}
+            textColor={theme.onPrimary}
             onPress={onConfirm}
-            color={
-              isDarkMode ? 'rgba(202, 142, 14, 0.4)' : 'rgba(191, 132, 4, 0.6)'
-            }
+            color={theme.primarySoft}
           />
         </BlurView>
       </View>
@@ -66,7 +57,6 @@ export const SessionExpiredModal = ({
 const modalStyles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: lightModeSemanticTokens.overlayDark,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -75,7 +65,6 @@ const modalStyles = StyleSheet.create({
     padding: 30,
     borderRadius: 30,
     borderWidth: 0.8,
-    borderColor: lightModeSemanticTokens.borderGlass,
     alignItems: 'center',
     overflow: 'hidden',
   },

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Modal, Switch, TouchableOpacity } from 'react-native';
-import { Button } from 'react-native-paper';
-import { lightModeSemanticTokens, mainThemeColorsDark } from '../../theme';
+import { Platform } from 'react-native';
+import { useAppTheme } from '../../context/ThemeContext';
 
 interface Props {
   visible: boolean;
@@ -16,6 +16,7 @@ export default function DarkModeModal({
   onSave,
   onClose,
 }: Props) {
+  const { theme } = useAppTheme();
   const [localValue, setLocalValue] = useState(isDarkMode);
 
   useEffect(() => {
@@ -23,6 +24,7 @@ export default function DarkModeModal({
       setLocalValue(isDarkMode);
     }
   }, [visible, isDarkMode]);
+  const isWeb = Platform.OS === 'web';
 
   return (
     <Modal
@@ -30,14 +32,54 @@ export default function DarkModeModal({
       onRequestClose={onClose}
       animationType="slide"
       presentationStyle="pageSheet"
-      transparent
     >
+      {/*Row con los textbuttons arriba*/}
+      <View
+        style={{
+          flexDirection: 'row',
+          paddingTop: 30,
+          justifyContent: 'space-between',
+          backgroundColor: theme.backgroundCard,
+        }}
+      >
+        <View style={{ paddingLeft: 30 }}>
+          <TouchableOpacity onPress={onClose}>
+            <Text
+              style={{
+                fontSize: 20,
+                //fontFamily: 'Open-Sans',
+                fontWeight: '500',
+                color: theme.textTitle,
+              }}
+            >
+              Cancelar
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={{ paddingRight: 30 }}>
+          <TouchableOpacity>
+            <Text
+              onPress={() => onSave(localValue)}
+              style={{
+                fontSize: 20,
+                fontFamily: isWeb ? 'system' : 'Segoe UI',
+                fontWeight: '500',
+                color: theme.textTitle,
+              }}
+            >
+              Guardar
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
       <View
         style={{
           justifyContent: 'center',
           alignItems: 'center',
           flex: 1,
-          backgroundColor: lightModeSemanticTokens.overlayDark,
+          backgroundColor: theme.backgroundCard,
         }}
       >
         <View
@@ -46,13 +88,9 @@ export default function DarkModeModal({
             maxWidth: 420,
             paddingHorizontal: 24,
             paddingVertical: 20,
-            backgroundColor: localValue
-              ? mainThemeColorsDark.backgroundCard
-              : lightModeSemanticTokens.surface,
+            backgroundColor: theme.backgroundCard,
             borderRadius: 20,
-            borderColor: localValue
-              ? mainThemeColorsDark.borderMain
-              : lightModeSemanticTokens.borderSoft,
+            borderColor: theme.borderSoft,
             borderWidth: 1,
           }}
         >
@@ -61,9 +99,7 @@ export default function DarkModeModal({
               fontSize: 18,
               marginBottom: 10,
               fontWeight: '700',
-              color: localValue
-                ? mainThemeColorsDark.textTitle
-                : lightModeSemanticTokens.textPrimary,
+              color: theme.textTitle,
             }}
           >
             Modo oscuro
@@ -73,9 +109,7 @@ export default function DarkModeModal({
             style={{
               fontSize: 14,
               marginBottom: 18,
-              color: localValue
-                ? mainThemeColorsDark.textBody
-                : lightModeSemanticTokens.textSecondary,
+              color: theme.textBody,
             }}
           >
             Activa o desactiva el modo oscuro para la pantalla de perfil.
@@ -93,9 +127,7 @@ export default function DarkModeModal({
               style={{
                 fontSize: 15,
                 fontWeight: '600',
-                color: localValue
-                  ? mainThemeColorsDark.textTitle
-                  : lightModeSemanticTokens.textPrimary,
+                color: theme.textTitle,
               }}
             >
               {localValue ? 'Activado' : 'Desactivado'}
@@ -103,52 +135,13 @@ export default function DarkModeModal({
             <Switch
               value={localValue}
               onValueChange={setLocalValue}
-              thumbColor={
-                localValue
-                  ? mainThemeColorsDark.primaryButton
-                  : lightModeSemanticTokens.textSubtle
-              }
+              ios_backgroundColor={theme.primary}
+              thumbColor={localValue ? theme.primary : theme.textSubtle}
               trackColor={{
-                false: lightModeSemanticTokens.borderSoft,
-                true: 'rgba(202, 142, 14, 0.4)',
+                false: theme.iconPrimary,
+                true: theme.primarySoft,
               }}
             />
-          </View>
-
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'flex-end',
-              gap: 10,
-            }}
-          >
-            <TouchableOpacity onPress={onClose}>
-              <Text
-                style={{
-                  color: localValue
-                    ? mainThemeColorsDark.grayLabelText
-                    : lightModeSemanticTokens.textSecondary,
-                  fontWeight: '600',
-                  fontSize: 15,
-                  paddingVertical: 8,
-                  paddingHorizontal: 10,
-                }}
-              >
-                Cancelar
-              </Text>
-            </TouchableOpacity>
-            <Button
-              mode="contained"
-              buttonColor={
-                localValue
-                  ? mainThemeColorsDark.primaryButton
-                  : lightModeSemanticTokens.primary
-              }
-              textColor={lightModeSemanticTokens.onPrimary}
-              onPress={() => onSave(localValue)}
-            >
-              Guardar
-            </Button>
           </View>
         </View>
       </View>

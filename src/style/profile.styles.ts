@@ -1,172 +1,166 @@
- import { 
-  StyleSheet, 
-} from 'react-native'; 
-import { lightModeSemanticTokens } from '../theme';
+import { StyleSheet } from 'react-native';
+import { AppTheme } from '../theme';
 
+export const createProfileStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
+    scrollContent: {},
+    header: {
+      alignItems: 'center',
+      marginTop: 20,
+      marginHorizontal: 20,
+      paddingVertical: 30,
+      backgroundColor: theme.surface,
+      borderRadius: 30,
+      elevation: 4,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 10,
+    },
+    avatarWrapper: {
+      position: 'relative',
+      marginBottom: 15,
+    },
+    avatar: {
+      width: 110,
+      height: 110,
+      borderRadius: 55,
+      borderWidth: 3,
+      borderColor: theme.avatarBorder,
+    },
+    editBadge: {
+      position: 'absolute',
+      bottom: 0,
+      right: 5,
+      backgroundColor: theme.iconPrimary,
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 2,
+      borderColor: theme.surface,
+    },
+    userName: {
+      fontSize: 22,
+      fontWeight: 'bold',
+      color: theme.textPrimary,
+    },
+    userEmail: {
+      fontSize: 14,
+      color: theme.textMuted,
+      marginTop: 4,
+    },
+    section: {
+      marginTop: 25,
+      paddingHorizontal: 20,
+    },
+    membresiaCard: {
+      marginTop: 25,
+      paddingHorizontal: 20,
+    },
+    sectionTitle: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: theme.textPlaceholder,
+      marginBottom: 10,
+      marginLeft: 5,
+      textTransform: 'uppercase',
+    },
+    card: {
+      backgroundColor: theme.surface,
+      borderRadius: 15,
+      paddingHorizontal: 15,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 5,
+      elevation: 2,
+    },
+    optionRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 15,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.borderDefault,
+    },
+    optionLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    iconContainer: {
+      width: 35,
+      height: 35,
+      borderRadius: 8,
+      backgroundColor: theme.iconCardBg,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 12,
+    },
+    optionTitle: {
+      fontSize: 16,
+      color: theme.textPrimary,
+    },
+    optionRight: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    optionValue: {
+      fontSize: 14,
+      color: theme.textPlaceholder,
+      marginRight: 8,
+    },
+    logoutContainer: {
+      marginTop: 40,
+      paddingHorizontal: 20,
+      alignItems: 'center',
+    },
+    logoutButtonCustom: {
+      width: '100%',
+      height: 55,
+      borderRadius: 15,
+    },
+    RespiText: {
+      textAlign: 'center',
+      color: theme.textSubtle,
+      marginTop: 20,
+      fontSize: 12,
+    },
+    versionText: {
+      textAlign: 'center',
+      color: theme.textSubtle,
+      fontSize: 12,
+      marginBottom: -25,
+    },
+    loadingOverlayList: {
+      ...StyleSheet.absoluteFillObject,
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 20,
+    },
+    reservasCountCard: {
+      backgroundColor: theme.surfaceMuted,
+      width: '90%',
+      borderRadius: 15,
+      paddingVertical: 12,
+      alignItems: 'center',
+      marginTop: 15,
+      alignSelf: 'center',
+    },
+    reservasNumber: {
+      fontSize: 22,
+      fontWeight: 'bold',
+      color: theme.textPrimary,
+    },
+    reservasLabel: {
+      fontSize: 12,
+      color: theme.textMuted,
+    },
+  });
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: lightModeSemanticTokens.background,
-  },
-  scrollContent: {
-    // El paddingBottom se maneja dinámicamente arriba
-  },
-  header: {
-    alignItems: 'center',
-    marginTop: 20,
-    marginHorizontal: 20,
-    paddingVertical: 30,
-    backgroundColor: lightModeSemanticTokens.surface,
-    borderRadius: 30,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-  },
-  avatarWrapper: {
-    position: 'relative',
-    marginBottom: 15,
-  },
-  avatar: {
-    width: 110,
-    height: 110,
-    borderRadius: 55,
-    borderWidth: 3,
-    borderColor: lightModeSemanticTokens.avatarBorder,
-  },
-  editBadge: {
-    position: 'absolute',
-    bottom: 0,
-    right: 5,
-    backgroundColor: lightModeSemanticTokens.iconPrimary,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: lightModeSemanticTokens.surface,
-  },
-  userName: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: lightModeSemanticTokens.textPrimary,
-  },
-  userEmail: {
-    fontSize: 14,
-    color: lightModeSemanticTokens.textMuted,
-    marginTop: 4,
-  },
-  section: {
-    marginTop: 25,
-    paddingHorizontal: 20,
-  },
-  membresiaCard: {
-    marginTop: 25,
-    paddingHorizontal: 20,
-  },
-  sectionTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: lightModeSemanticTokens.textPlaceholder,
-    marginBottom: 10,
-    marginLeft: 5,
-    textTransform: 'uppercase',
-  },
-  card: {
-    backgroundColor: lightModeSemanticTokens.surface,
-    borderRadius: 15,
-    paddingHorizontal: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  optionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: lightModeSemanticTokens.borderDefault,
-  },
-  optionLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  iconContainer: {
-    width: 35,
-    height: 35,
-    borderRadius: 8,
-    backgroundColor: lightModeSemanticTokens.iconCardBg,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  optionTitle: {
-    fontSize: 16,
-    color: lightModeSemanticTokens.textPrimary,
-  },
-  optionRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  optionValue: {
-    fontSize: 14,
-    color: lightModeSemanticTokens.textPlaceholder,
-    marginRight: 8,
-  },
-  logoutContainer: {
-    marginTop: 40,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-  },
-  logoutButtonCustom: {
-    width: '100%',
-    height: 55,
-    borderRadius: 15,
-  },
-  RespiText: {
-    textAlign: 'center',
-    color: lightModeSemanticTokens.textSubtle,
-    marginTop: 20,
-    fontSize: 12,
-  },
-  versionText: {
-    textAlign: 'center',
-    color: lightModeSemanticTokens.textSubtle,
-    fontSize: 12,
-    marginBottom: -25,
-  },
-  loadingOverlayList: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 20,
-  },
-  // Añade esto a tu archivo de estilos
-reservasCountCard: {
-  backgroundColor: lightModeSemanticTokens.surfaceMuted,
-  width: '90%',
-  borderRadius: 15,
-  paddingVertical: 12,
-  alignItems: 'center',
-  marginTop: 15,
-  alignSelf: 'center',
-},
-reservasNumber: {
-  fontSize: 22,
-  fontWeight: 'bold',
-  color: '#000',
-},
-reservasLabel: {
-  fontSize: 12,
-  color: '#666',
-},
-  
-});
-
-export default styles;              
+export default createProfileStyles;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Modal, TouchableOpacity } from 'react-native';
 import { Button } from 'react-native-paper';
-import { lightModeSemanticTokens } from '../../theme';
+import { useAppTheme } from '../../context/ThemeContext';
 
 interface Props {
   visible: boolean;
@@ -9,6 +9,7 @@ interface Props {
 }
 
 export default function EditUserNameModal({ visible, onClose }: Props) {
+  const { theme } = useAppTheme();
   const [saveActive, setSaveActive] = useState(false);
   return (
     <Modal
@@ -16,7 +17,6 @@ export default function EditUserNameModal({ visible, onClose }: Props) {
       onRequestClose={onClose}
       animationType="slide"
       presentationStyle="pageSheet"
-      transparent={false}
     >
       {/* boton de cancelar arriba izquierda */}
       <View
@@ -33,7 +33,7 @@ export default function EditUserNameModal({ visible, onClose }: Props) {
                 fontSize: 20,
                 fontFamily: 'Segoe UI',
                 fontWeight: '500',
-                color: '#000000',
+                color: theme.textTitle,
               }}
             >
               Cancelar
@@ -48,7 +48,7 @@ export default function EditUserNameModal({ visible, onClose }: Props) {
                 fontSize: 20,
                 fontFamily: 'Segoe UI',
                 fontWeight: '500',
-                color: saveActive ? '#000000' : 'rgb(173, 173, 173)',
+                color: saveActive ? theme.textTitle : theme.grayPlaceholder,
               }}
             >
               Guardar
@@ -57,18 +57,25 @@ export default function EditUserNameModal({ visible, onClose }: Props) {
         </View>
       </View>
 
-      <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+      <View
+        style={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          flex: 1,
+          backgroundColor: theme.backgroundMain,
+        }}
+      >
         <View
           style={{
             paddingHorizontal: 90,
             paddingVertical: 20,
-            backgroundColor: '#f7dca3ab',
+            backgroundColor: theme.surfaceMuted,
             borderRadius: 20,
-            borderColor: lightModeSemanticTokens.surface,
+            borderColor: theme.surface,
             borderWidth: 1,
           }}
         >
-          <Text style={{ fontSize: 18, marginBottom: 20 }}>
+          <Text style={{ fontSize: 18, marginBottom: 20, color: theme.textTitle }}>
             Editar nombre de usuario
           </Text>
           <Button mode="contained" onPress={() => setSaveActive(!saveActive)}>

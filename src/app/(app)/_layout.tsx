@@ -1,16 +1,18 @@
 // app/(app)/_layout.tsx
 import { Stack } from 'expo-router';
-import { lightModeSemanticTokens } from '../../theme';
+import { useAppTheme } from '../../context/ThemeContext';
 
 //creo que este layout se puede elimuinar pero ns
 
 export default function AppLayout() {
+  const { theme } = useAppTheme();
+
   return (
     <Stack
       screenOptions={{
         headerShown: false,
         contentStyle: {
-          backgroundColor: lightModeSemanticTokens.background,
+          backgroundColor: theme.background,
         },
       }}
     >

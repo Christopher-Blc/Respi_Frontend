@@ -2,10 +2,13 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { AuthProvider, useAuth } from '../context/AuthContext';
-import { mainThemeColorsDark } from '../theme';
+import { ThemeProvider, useAppTheme } from '../context/ThemeContext';
+import { PaperProvider } from 'react-native-paper';
+import { buildPaperTheme } from '../theme';
 
 function AuthNavigation() {
   const { userToken, isLoading, role } = useAuth();
+  const { theme, isThemeReady, isDarkMode } = useAppTheme();
   const segments = useSegments() as string[];
   const router = useRouter();
 
@@ -41,20 +44,17 @@ function AuthNavigation() {
     }
   }, [userToken, isLoading, segments, role]);
 
-  if (isLoading) {
+  if (isLoading || !isThemeReady) {
     return (
       <View
         style={{
           flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: mainThemeColorsDark.backgroundMain,
+          backgroundColor: theme.backgroundMain,
         }}
       >
-        <ActivityIndicator
-          size="large"
-          color={mainThemeColorsDark.primaryButton}
-        />
+        <ActivityIndicator size="large" color={theme.primaryButton} />
       </View>
     );
   }
@@ -68,10 +68,23 @@ function AuthNavigation() {
   );
 }
 
+function AppProviders() {
+  const { isDarkMode } = useAppTheme();
+  const paperTheme = buildPaperTheme(isDarkMode);
+
+  return (
+    <PaperProvider theme={paperTheme}>
+      <AuthProvider>
+        <AuthNavigation />
+      </AuthProvider>
+    </PaperProvider>
+  );
+}
+
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <AuthNavigation />
-    </AuthProvider>
+    <ThemeProvider>
+      <AppProviders />
+    </ThemeProvider>
   );
 }

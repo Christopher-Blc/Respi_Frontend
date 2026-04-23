@@ -9,11 +9,15 @@ import {
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { GlassTextButton } from '../components/login/glassTextButton'; // Usamos tu componente de botón
-import { lightModeSemanticTokens } from '../theme';
+import { useAppTheme } from '../context/ThemeContext';
+import { AppTheme } from '../theme';
 
 export default function NotFoundScreen() {
-  // Usamos el mismo fondo que tienes en el login para coherencia visual
-  const bgImage = require('../../assets/login-bg-light.png');
+  const { isDarkMode, theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
+  const bgImage = isDarkMode
+    ? require('../../assets/login-bg-dark.png')
+    : require('../../assets/login-bg-light.png');
 
   return (
     <>
@@ -25,12 +29,14 @@ export default function NotFoundScreen() {
         imageStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
       >
         <BlurView
-          tint={'light'}
+          tint={isDarkMode ? 'dark' : 'light'}
           intensity={Platform.OS === 'web' ? 40 : 20}
           style={[
             styles.glass,
             {
-              backgroundColor: 'rgba(255,255,255,0.2)',
+              backgroundColor: isDarkMode
+                ? 'rgba(22,22,22,0.5)'
+                : 'rgba(255,255,255,0.2)',
             },
           ]}
         >
@@ -48,8 +54,8 @@ export default function NotFoundScreen() {
           <Link href="/" asChild>
             <GlassTextButton
               text="Volver al inicio"
-              textColor={lightModeSemanticTokens.onPrimary}
-              color="rgba(191, 132, 4, 0.51)"
+              textColor={theme.onPrimary}
+              color={theme.primarySoft}
             />
           </Link>
         </BlurView>
@@ -58,7 +64,8 @@ export default function NotFoundScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
   background: {
     flex: 1,
     justifyContent: 'center',
@@ -70,7 +77,7 @@ const styles = StyleSheet.create({
     padding: 40,
     borderRadius: 30,
     borderWidth: 0.8,
-    borderColor: lightModeSemanticTokens.borderGlass,
+    borderColor: theme.borderGlass,
     alignItems: 'center',
     overflow: 'hidden',
     ...Platform.select({
@@ -91,25 +98,24 @@ const styles = StyleSheet.create({
   errorCode: {
     fontSize: 80,
     fontWeight: '900',
-    color: lightModeSemanticTokens.primary,
+    color: theme.primary,
     opacity: 0.8,
     marginBottom: 10,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: lightModeSemanticTokens.textPrimary,
+    color: theme.textPrimary,
     marginBottom: 10,
     textAlign: 'center',
   },
   message: {
     fontSize: 16,
-    color: lightModeSemanticTokens.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
-    // Sombra de texto (funciona en iOS, Android y Web)
-    textShadowColor: lightModeSemanticTokens.surfaceGlass,
+    textShadowColor: theme.surfaceGlass,
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 5,
   },
-});
+  });

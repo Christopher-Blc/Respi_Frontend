@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput as RNTextInput } from 'react-native';
 import { TextInput } from 'react-native-paper';
-import { lightModeSemanticTokens, mainThemeColorsDark } from '../../theme';
+import { useAppTheme } from '../../context/ThemeContext';
 
 interface Props {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
-  isDarkMode: boolean;
   label?: string;
   keyboardType?: React.ComponentProps<typeof RNTextInput>['keyboardType'];
   readonly?: boolean;
@@ -17,12 +16,11 @@ export const GlassTextInput: React.FC<Props> = ({
   value,
   onChangeText,
   placeholder = 'Enter text',
-  isDarkMode,
   label,
   keyboardType = 'default',
   readonly = false,
 }) => {
-  // 1. Estado para saber si el usuario está dentro del input
+  const { theme } = useAppTheme();
   const [isFocused, setIsFocused] = useState(false);
 
   return (
@@ -32,9 +30,7 @@ export const GlassTextInput: React.FC<Props> = ({
           style={[
             styles.label,
             {
-              color: isDarkMode
-                ? mainThemeColorsDark.grayLabelText
-                : lightModeSemanticTokens.textSecondary,
+              color: theme.grayLabelText,
             },
           ]}
         >
@@ -47,11 +43,7 @@ export const GlassTextInput: React.FC<Props> = ({
         onChangeText={onChangeText}
         // 2. Si está focused, quitamos el placeholder para que no moleste
         placeholder={isFocused ? '' : placeholder}
-        placeholderTextColor={
-          isDarkMode
-            ? mainThemeColorsDark.inputPlaceholder
-            : lightModeSemanticTokens.inputPlaceholder
-        }
+        placeholderTextColor={theme.inputPlaceholder}
         mode="flat"
         underlineColor="transparent"
         activeUnderlineColor="transparent"
@@ -60,23 +52,17 @@ export const GlassTextInput: React.FC<Props> = ({
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         // 4. Color del cursor (palito)
-        selectionColor={lightModeSemanticTokens.inputFocus}
+        selectionColor={theme.inputFocus}
         style={[
           styles.input,
           {
-            backgroundColor: isDarkMode
-              ? mainThemeColorsDark.inputBackground
-              : lightModeSemanticTokens.inputBg,
-            // 5. Cambio dinámico de borde
-            borderColor: isFocused
-              ? lightModeSemanticTokens.inputFocus
-              : lightModeSemanticTokens.borderInput,
+            backgroundColor: theme.inputBackground,
+            borderColor: isFocused ? theme.inputFocus : theme.borderInput,
             borderWidth: isFocused ? 1.5 : 1,
-            // Sombra suave cuando está enfocado para el efecto Glass
             elevation: isFocused ? 2 : 0,
           },
         ]}
-        textColor={isDarkMode ? mainThemeColorsDark.textInput : '#000'}
+        textColor={theme.textInput}
       />
     </View>
   );

@@ -24,15 +24,14 @@ import { useAuth } from '../../../../context/AuthContext';
 import api from '../../../../services/api';
 import { Modal } from 'react-native'; // Añade Modal a los imports de react-native
 import { WebView } from 'react-native-webview';
-import {
-  lightModeSemanticTokens,
-  mainThemeColorsDark,
-} from '../../../../theme';
+import { useAppTheme } from '../../../../context/ThemeContext';
+import { AppTheme } from '../../../../theme';
 
 export default function CreateBooking() {
   const params = useLocalSearchParams<{ modelId?: string }>();
   const modelId = params?.modelId;
   const router = useRouter();
+  const { theme } = useAppTheme();
   const { userToken } = useAuth();
   const [email, setEmail] = useState('');
   const [nombre, setNombre] = useState('');
@@ -58,6 +57,7 @@ export default function CreateBooking() {
     null,
   );
   const [showMap, setShowMap] = useState(false);
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
 
   useEffect(() => {
     let mounted = true;
@@ -266,8 +266,15 @@ export default function CreateBooking() {
 
   if (!model)
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator />
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: theme.background,
+        }}
+      >
+        <ActivityIndicator color={theme.primary} />
       </View>
     );
 
@@ -324,7 +331,7 @@ export default function CreateBooking() {
           <SafeAreaView
             style={{
               flex: 1,
-              backgroundColor: mainThemeColorsDark.backgroundMain,
+              backgroundColor: theme.backgroundMain,
             }}
           >
             <View
@@ -337,7 +344,7 @@ export default function CreateBooking() {
             >
               <Text
                 style={{
-                  color: mainThemeColorsDark.textTitle,
+                  color: theme.textTitle,
                   fontSize: 18,
                   fontWeight: 'bold',
                 }}
@@ -348,7 +355,7 @@ export default function CreateBooking() {
                 <Ionicons
                   name="close-circle"
                   size={30}
-                  color={mainThemeColorsDark.textTitle}
+                  color={theme.textTitle}
                 />
               </TouchableOpacity>
             </View>
@@ -362,12 +369,12 @@ export default function CreateBooking() {
             <View
               style={{
                 padding: 20,
-                backgroundColor: mainThemeColorsDark.backgroundCard,
+                backgroundColor: theme.backgroundCard,
               }}
             >
               <Text
                 style={{
-                  color: mainThemeColorsDark.grayPlaceholder,
+                  color: theme.grayPlaceholder,
                   textAlign: 'center',
                 }}
               >
@@ -397,7 +404,7 @@ export default function CreateBooking() {
               <Ionicons
                 name="chevron-back"
                 size={22}
-                color={lightModeSemanticTokens.onPrimary}
+                color={theme.onPrimary}
               />
             </TouchableOpacity>
           </ImageBackground>
@@ -412,8 +419,8 @@ export default function CreateBooking() {
                 flexDirection: 'row',
                 alignItems: 'center',
                 borderColor: pistaSeleccionada
-                  ? lightModeSemanticTokens.primary
-                  : lightModeSemanticTokens.borderInput,
+                  ? theme.primary
+                  : theme.borderInput,
               },
             ]}
             onPress={() => setShowMap(true)}
@@ -423,16 +430,16 @@ export default function CreateBooking() {
               size={20}
               color={
                 pistaSeleccionada
-                  ? lightModeSemanticTokens.primary
-                  : lightModeSemanticTokens.textMuted
+                  ? theme.primary
+                  : theme.textMuted
               }
             />
             <Text
               style={{
                 marginLeft: 10,
                 color: pistaSeleccionada
-                  ? lightModeSemanticTokens.textPrimary
-                  : lightModeSemanticTokens.textPlaceholder,
+                  ? theme.textPrimary
+                  : theme.textPlaceholder,
                 fontWeight: pistaSeleccionada ? '700' : '400',
               }}
             >
@@ -443,7 +450,7 @@ export default function CreateBooking() {
             <Ionicons
               name="chevron-forward"
               size={16}
-              color={lightModeSemanticTokens.textMuted}
+              color={theme.textMuted}
               style={{ marginLeft: 'auto' }}
             />
           </TouchableOpacity>
@@ -466,7 +473,7 @@ export default function CreateBooking() {
           <View style={[styles.input, { justifyContent: 'center' }]}>
             <Text
               style={{
-                color: lightModeSemanticTokens.textPrimary,
+                color: theme.textPrimary,
                 fontWeight: '700',
               }}
             >
@@ -485,7 +492,7 @@ export default function CreateBooking() {
                 <Ionicons
                   name="calendar-outline"
                   size={18}
-                  color={lightModeSemanticTokens.textMuted}
+                  color={theme.textMuted}
                   style={{ marginRight: 8 }}
                 />
                 <Text style={styles.dateBtnText}>
@@ -505,7 +512,7 @@ export default function CreateBooking() {
                 <Ionicons
                   name="time-outline"
                   size={18}
-                  color={lightModeSemanticTokens.textMuted}
+                  color={theme.textMuted}
                   style={{ marginRight: 8 }}
                 />
                 <Text style={styles.dateBtnText}>
@@ -545,7 +552,7 @@ export default function CreateBooking() {
               >
                 <Text
                   style={{
-                    color: lightModeSemanticTokens.primary,
+                    color: theme.primary,
                     fontWeight: '700',
                   }}
                 >
@@ -631,7 +638,7 @@ export default function CreateBooking() {
                         style={{
                           fontWeight: '800',
                           fontSize: 16,
-                          color: lightModeSemanticTokens.textPrimary,
+                          color: theme.textPrimary,
                         }}
                       >
                         {formatDuration(durationMinutes)}
@@ -684,7 +691,7 @@ export default function CreateBooking() {
           <View style={styles.loadingOverlay} pointerEvents="none">
             <ActivityIndicator
               size="large"
-              color={lightModeSemanticTokens.onPrimary}
+              color={theme.onPrimary}
             />
           </View>
         )}
@@ -701,11 +708,12 @@ export default function CreateBooking() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 16,
-    backgroundColor: lightModeSemanticTokens.background,
+    backgroundColor: theme.background,
   },
   headerCard: {
     height: 200,
@@ -716,29 +724,29 @@ const styles = StyleSheet.create({
   headerImage: { width: '100%', height: '100%', justifyContent: 'flex-end' },
   headerOverlay: { padding: 16, justifyContent: 'flex-end' },
   headerTitle: {
-    color: lightModeSemanticTokens.onPrimary,
+    color: theme.onPrimary,
     fontSize: 22,
     fontWeight: '900',
   },
   headerSubtitle: {
-    color: lightModeSemanticTokens.onPrimary,
+    color: theme.onPrimary,
     fontSize: 14,
     marginTop: 4,
   },
   sectionLabel: {
     marginTop: 6,
     fontWeight: '700',
-    color: lightModeSemanticTokens.textPrimary,
+    color: theme.textPrimary,
   },
   formCard: {
     marginTop: 12,
     padding: 16,
     borderRadius: 12,
-    backgroundColor: lightModeSemanticTokens.surface,
+    backgroundColor: theme.surface,
     borderWidth: 1,
-    borderColor: lightModeSemanticTokens.borderSoft,
+    borderColor: theme.borderSoft,
     borderLeftWidth: 6,
-    borderLeftColor: lightModeSemanticTokens.primary,
+    borderLeftColor: theme.primary,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
@@ -748,37 +756,37 @@ const styles = StyleSheet.create({
   label: {
     marginTop: 12,
     fontWeight: '600',
-    color: lightModeSemanticTokens.textPrimary,
+    color: theme.textPrimary,
   },
   input: {
     borderWidth: 1,
-    borderColor: lightModeSemanticTokens.borderInput,
+    borderColor: theme.borderInput,
     padding: 12,
     borderRadius: 10,
     marginTop: 6,
-    backgroundColor: lightModeSemanticTokens.inputBgSoft,
+    backgroundColor: theme.inputBgSoft,
   },
   dateBtn: {
     padding: 12,
     borderWidth: 1,
-    borderColor: lightModeSemanticTokens.borderInput,
+    borderColor: theme.borderInput,
     borderRadius: 10,
     marginTop: 6,
-    backgroundColor: lightModeSemanticTokens.surface,
+    backgroundColor: theme.surface,
   },
   submit: {
     marginTop: 20,
-    backgroundColor: lightModeSemanticTokens.primary,
+    backgroundColor: theme.primary,
     padding: 14,
     borderRadius: 10,
     alignItems: 'center',
-    shadowColor: lightModeSemanticTokens.primary,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 2,
   },
-  submitText: { color: lightModeSemanticTokens.onPrimary, fontWeight: '700' },
+  submitText: { color: theme.onPrimary, fontWeight: '700' },
   backButton: {
     position: 'absolute',
     top: 12,
@@ -793,19 +801,19 @@ const styles = StyleSheet.create({
     marginTop: 14,
     alignItems: 'center',
   },
-  summaryText: { color: lightModeSemanticTokens.textPrimary, fontSize: 16 },
+  summaryText: { color: theme.textPrimary, fontSize: 16 },
   stepperBtn: {
     width: 44,
     height: 36,
     borderRadius: 8,
-    backgroundColor: lightModeSemanticTokens.backgroundAlt,
+    backgroundColor: theme.backgroundAlt,
     alignItems: 'center',
     justifyContent: 'center',
   },
   stepperText: {
     fontSize: 18,
     fontWeight: '800',
-    color: lightModeSemanticTokens.textPrimary,
+    color: theme.textPrimary,
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -819,12 +827,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 12,
     borderWidth: 1,
-    borderColor: lightModeSemanticTokens.borderInput,
+    borderColor: theme.borderInput,
     borderRadius: 10,
-    backgroundColor: lightModeSemanticTokens.surface,
+    backgroundColor: theme.surface,
   },
   dateBtnText: {
-    color: lightModeSemanticTokens.textPrimary,
+    color: theme.textPrimary,
     fontWeight: '600',
   },
   chipsRow: {
@@ -837,9 +845,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: lightModeSemanticTokens.surface,
+    backgroundColor: theme.surface,
     borderWidth: 1,
-    borderColor: lightModeSemanticTokens.borderInput,
+    borderColor: theme.borderInput,
     marginRight: 10,
     marginTop: 10,
     minWidth: 84,
@@ -852,22 +860,22 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   chipSelected: {
-    backgroundColor: lightModeSemanticTokens.primary,
-    borderColor: lightModeSemanticTokens.primary,
-    shadowColor: lightModeSemanticTokens.primary,
+    backgroundColor: theme.primary,
+    borderColor: theme.primary,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.18,
     shadowRadius: 12,
     elevation: 6,
   },
   chipText: {
-    color: lightModeSemanticTokens.textPrimary,
+    color: theme.textPrimary,
     fontWeight: '700',
     fontSize: 14,
   },
   chipTextSelected: {
-    color: lightModeSemanticTokens.onPrimary,
+    color: theme.onPrimary,
     fontWeight: '800',
     fontSize: 14,
   },
-});
+  });
