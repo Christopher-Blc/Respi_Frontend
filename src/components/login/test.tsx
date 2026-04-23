@@ -1,16 +1,14 @@
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { View, StyleSheet } from 'react-native';
+import { lightModeSemanticTokens } from '../../theme';
 
 export default function LiquidGlass() {
   return (
     <View style={styles.wrapper}>
       <BlurView intensity={90} tint="light" style={styles.glass}>
         <LinearGradient
-          colors={[
-            'rgba(255,255,255,0.4)',
-            'rgba(255,255,255,0.1)'
-          ]}
+          colors={['rgba(255,255,255,0.4)', 'rgba(255,255,255,0.1)']}
           style={StyleSheet.absoluteFill}
         />
       </BlurView>
@@ -30,6 +28,6 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: lightModeSemanticTokens.borderGlass,
   },
 });

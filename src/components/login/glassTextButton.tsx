@@ -1,6 +1,7 @@
 import React from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { BlurView } from 'expo-blur';
+import { lightModeSemanticTokens } from '../../theme';
 
 type Props = {
   text: string;
@@ -25,7 +26,7 @@ export function GlassTextButton({
   borderWidth,
   height,
 }: Props) {
-  const buttonColor = color ? color : 'rgba(175, 175, 175, 0.3)'; // Fallback a un color semitransparente
+  const buttonColor = color ? color : 'rgba(175, 175, 175, 0.3)';
   return (
     <Pressable
       onPress={onPress}
@@ -44,13 +45,18 @@ export function GlassTextButton({
             styles.glass,
             {
               backgroundColor: buttonColor,
-              borderColor: borderColor || 'rgba(255, 255, 255, 0.3)',
+              borderColor: borderColor || lightModeSemanticTokens.borderGlass,
               borderWidth: borderWidth || 0.9,
               height: height || 50,
             },
           ]}
         >
-          <Text style={[styles.text, { color: textColor || '#fff' }]}>
+          <Text
+            style={[
+              styles.text,
+              { color: textColor || lightModeSemanticTokens.onPrimary },
+            ]}
+          >
             {text}
           </Text>
         </View>
@@ -62,13 +68,18 @@ export function GlassTextButton({
             styles.glass,
             {
               backgroundColor: buttonColor,
-              borderColor: borderColor || 'rgba(255, 255, 255, 0.3)',
+              borderColor: borderColor || lightModeSemanticTokens.borderGlass,
               borderWidth: borderWidth || 0.9,
               height: height || 50,
             },
           ]}
         >
-          <Text style={[styles.text, { color: textColor || '#fff' }]}>
+          <Text
+            style={[
+              styles.text,
+              { color: textColor || lightModeSemanticTokens.onPrimary },
+            ]}
+          >
             {text}
           </Text>
         </BlurView>
@@ -85,7 +96,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: 'rgba(221, 151, 0, 0.3)',
     borderWidth: 0.9,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: lightModeSemanticTokens.borderGlass,
   },
   pressable: {
     width: '100%',

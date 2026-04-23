@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
-import { useThemeColors } from '../store/preferencesStore';
+import { lightModeSemanticTokens, mainThemeColors } from '../theme';
 
-type ThemeColors = ReturnType<typeof useThemeColors>;
+type ThemeColors = typeof mainThemeColors;
 
 export const createReservasStyles = (colors: ThemeColors) =>
   StyleSheet.create({
@@ -151,24 +151,24 @@ export const createReservasStyles = (colors: ThemeColors) =>
       color: colors.textBody,
     },
     statusPrepared: {
-      backgroundColor: 'rgba(59, 130, 246, 0.15)',
-      borderColor: '#3B82F6',
+      backgroundColor: lightModeSemanticTokens.infoSoft,
+      borderColor: lightModeSemanticTokens.info,
     },
     statusDelivered: {
-      backgroundColor: 'rgba(16, 185, 129, 0.15)',
-      borderColor: '#10B981',
+      backgroundColor: lightModeSemanticTokens.successSoft,
+      borderColor: lightModeSemanticTokens.success,
     },
     statusReturned: {
       backgroundColor: 'rgba(37, 99, 235, 0.12)',
       borderColor: '#2563EB',
     },
     statusReview: {
-      backgroundColor: 'rgba(245, 158, 11, 0.15)',
-      borderColor: '#F59E0B',
+      backgroundColor: lightModeSemanticTokens.warningSoft,
+      borderColor: lightModeSemanticTokens.warning,
     },
     statusFinished: {
-      backgroundColor: 'rgba(22, 163, 74, 0.18)',
-      borderColor: '#16A34A',
+      backgroundColor: lightModeSemanticTokens.successSoft,
+      borderColor: lightModeSemanticTokens.success,
     },
     actionsRow: {
       marginTop: 12,
@@ -180,7 +180,7 @@ export const createReservasStyles = (colors: ThemeColors) =>
       height: 34,
       borderRadius: 17,
       borderWidth: 0,
-      backgroundColor: '#EF4444',
+      backgroundColor: lightModeSemanticTokens.danger,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.12,
@@ -192,7 +192,7 @@ export const createReservasStyles = (colors: ThemeColors) =>
     cancelButtonText: {
       fontSize: 12,
       fontWeight: '700',
-      color: '#ffffff',
+      color: lightModeSemanticTokens.onPrimary,
     },
     editButton: {
       width: 34,
@@ -211,11 +211,11 @@ export const createReservasStyles = (colors: ThemeColors) =>
     editButtonText: {
       fontSize: 12,
       fontWeight: '700',
-      color: '#ffffff',
+      color: lightModeSemanticTokens.onPrimary,
     },
     statusCancel: {
-      backgroundColor: 'rgba(239, 68, 68, 0.15)',
-      borderColor: '#EF4444',
+      backgroundColor: lightModeSemanticTokens.dangerSoft,
+      borderColor: lightModeSemanticTokens.danger,
     },
     emptyContainer: {
       flexGrow: 1,
@@ -258,7 +258,7 @@ export const createReservasStyles = (colors: ThemeColors) =>
     },
     modalBackdrop: {
       ...StyleSheet.absoluteFillObject,
-      backgroundColor: 'rgba(0,0,0,0.4)',
+      backgroundColor: lightModeSemanticTokens.overlayDark,
     },
     modalContainer: {
       flex: 1,

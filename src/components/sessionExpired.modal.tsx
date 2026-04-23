@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Modal, StyleSheet } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { GlassTextButton } from '../components/login/glassTextButton';
+import { lightModeSemanticTokens, mainThemeColorsDark } from '../theme';
 
 interface Props {
   visible: boolean;
@@ -23,14 +24,25 @@ export const SessionExpiredModal = ({
           style={modalStyles.glassContainer}
         >
           <Text
-            style={[modalStyles.title, { color: isDarkMode ? '#FFF' : '#333' }]}
+            style={[
+              modalStyles.title,
+              {
+                color: isDarkMode
+                  ? mainThemeColorsDark.textTitle
+                  : lightModeSemanticTokens.textPrimary,
+              },
+            ]}
           >
             Sesión Caducada
           </Text>
           <Text
             style={[
               modalStyles.message,
-              { color: isDarkMode ? '#BBB' : '#444' },
+              {
+                color: isDarkMode
+                  ? mainThemeColorsDark.grayLabelText
+                  : lightModeSemanticTokens.textSecondary,
+              },
             ]}
           >
             Tu sesión ha expirado por seguridad. Por favor, vuelve a iniciar
@@ -39,7 +51,7 @@ export const SessionExpiredModal = ({
 
           <GlassTextButton
             text="Entendido"
-            textColor="#fff"
+            textColor={lightModeSemanticTokens.onPrimary}
             onPress={onConfirm}
             color={
               isDarkMode ? 'rgba(202, 142, 14, 0.4)' : 'rgba(191, 132, 4, 0.6)'
@@ -54,7 +66,7 @@ export const SessionExpiredModal = ({
 const modalStyles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: lightModeSemanticTokens.overlayDark,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -63,7 +75,7 @@ const modalStyles = StyleSheet.create({
     padding: 30,
     borderRadius: 30,
     borderWidth: 0.8,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: lightModeSemanticTokens.borderGlass,
     alignItems: 'center',
     overflow: 'hidden',
   },

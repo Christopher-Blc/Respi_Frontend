@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import styles from '../../../../style/reservations.styles';
 import { GlassTextButton } from '../../../../components/login/glassTextButton';
+import { lightModeSemanticTokens } from '../../../../theme';
 
 export default function PistaTypeIndex() {
   return (
@@ -12,14 +13,14 @@ export default function PistaTypeIndex() {
         text="Nueva reserva"
         onPress={() => router.push('/reservas/createBooking')}
         style={[styles.pillButtonPrimary]}
-        color="rgba(191, 132, 4, 0.51)"
+        color={lightModeSemanticTokens.primarySoft}
       />
 
       <GlassTextButton
         text="Ver tipo pistas"
         onPress={() => router.push('/reservas/pistaTypes')}
         style={styles.pillButtonPrimary}
-        color="rgba(191, 132, 4, 0.51)"
+        color={lightModeSemanticTokens.primarySoft}
       />
     </View>
   );

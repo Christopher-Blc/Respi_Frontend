@@ -18,6 +18,7 @@ import { Reserva } from '../../../types/types';
 import styles from '../../../style/reservations.styles';
 import { GlassTextButton } from '../../../components/login/glassTextButton';
 import { reservasActivasFilter } from '../../../filtrosApi';
+import { lightModeSemanticTokens } from '../../../theme';
 
 //pantalla home del cliente
 
@@ -87,7 +88,10 @@ export default function HomeScreen() {
           imageStyle={{ borderRadius: 12 }}
         >
           <LinearGradient
-            colors={['rgba(0,0,0,0.6)', 'rgba(0,0,0,0.8)']}
+            colors={[
+              lightModeSemanticTokens.reservationsCardOverlayStart,
+              lightModeSemanticTokens.reservationsCardOverlayEnd,
+            ]}
             style={styles.cardOverlay}
           >
             <View style={styles.cardHeaderRow}>
@@ -100,15 +104,27 @@ export default function HomeScreen() {
             <View style={styles.cardBottom}>
               <View>
                 <Text style={styles.cardMeta}>
-                  <Ionicons name="calendar-outline" size={14} color="#fff" />{' '}
+                  <Ionicons
+                    name="calendar-outline"
+                    size={14}
+                    color={lightModeSemanticTokens.onPrimary}
+                  />{' '}
                   {cleanDate}
                 </Text>
                 <Text style={styles.cardMeta}>
-                  <Ionicons name="time-outline" size={14} color="#fff" />{' '}
+                  <Ionicons
+                    name="time-outline"
+                    size={14}
+                    color={lightModeSemanticTokens.onPrimary}
+                  />{' '}
                   {cleanTime}
                 </Text>
               </View>
-              <Ionicons name="chevron-forward-outline" size={22} color="#fff" />
+              <Ionicons
+                name="chevron-forward-outline"
+                size={22}
+                color={lightModeSemanticTokens.onPrimary}
+              />
             </View>
           </LinearGradient>
         </ImageBackground>
@@ -121,7 +137,7 @@ export default function HomeScreen() {
       {loading ? (
         <ActivityIndicator
           size="large"
-          color="#CA8E0E"
+          color={lightModeSemanticTokens.primary}
           style={{ marginTop: 50 }}
         />
       ) : (
@@ -148,24 +164,24 @@ export default function HomeScreen() {
                     { marginRight: dynamicSeparatorWidth },
                   ]}
                   // Naranja "Golden Hour": más vivo pero con transparencia para que no sea un bloque
-                  color="rgba(202, 142, 14, 0.15)"
+                  color={lightModeSemanticTokens.primarySoft}
                   // Borde blanco cristalino: vital para que el naranja no se "coma" el botón
-                  borderColor="rgba(255, 255, 255, 1)"
+                  borderColor={lightModeSemanticTokens.surface}
                   borderWidth={1.5}
                   height={buttonHeight}
-                  textColor="#CA8E0E" // Un dorado/naranja oscuro para que sea legible
+                  textColor={lightModeSemanticTokens.primary}
                 />
 
                 <GlassTextButton
                   text="Unirse a partido"
                   onPress={() => alert('Próximamente')}
                   // Fondo neutro cristalino para que el otro naranja resalte
-                  color="rgba(255, 255, 255, 0.6)"
+                  color={lightModeSemanticTokens.surfaceGlass}
                   style={styles.pillButtonPrimary}
                   // Borde naranja fino
-                  borderColor="rgba(202, 142, 14, 0.3)"
+                  borderColor={lightModeSemanticTokens.borderAccentSoft}
                   borderWidth={1.5}
-                  textColor="#CA8E0E"
+                  textColor={lightModeSemanticTokens.primary}
                   height={buttonHeight}
                 />
               </View>

@@ -1,4 +1,5 @@
 import { StyleSheet, Dimensions, Platform } from 'react-native';
+import { lightModeSemanticTokens } from '../theme';
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -16,14 +17,14 @@ export const styles = StyleSheet.create({
         fontWeight: '800',
         marginTop: 20,
         marginBottom: 10,
-        color: '#1A2F4B', // Azul marino premium para los títulos
+        color: '#1A2F4B',
     },
     sectionTitle: {
         fontSize: 22,
         fontWeight: '700',
         marginTop: 25,
         marginBottom: 15,
-        color: '#333',
+        color: lightModeSemanticTokens.textPrimary,
     },
 
     // --- ACTION TILES ---
@@ -49,7 +50,7 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 12,
     },
     actionTileText: {
-        color: '#fff',
+        color: lightModeSemanticTokens.onPrimary,
         fontSize: 14,
         fontWeight: '700',
         textAlign: 'center',
@@ -59,7 +60,7 @@ export const styles = StyleSheet.create({
         overflow: 'hidden',
     }, 
     pillButtonText: {
-        color: '#FFFFFF',
+        color: lightModeSemanticTokens.onPrimary,
         fontSize: 15,
         fontWeight: '700',
     },
@@ -68,13 +69,13 @@ export const styles = StyleSheet.create({
         //height: 52,
         borderRadius: 26,
         borderWidth: 2,
-        borderColor: '#CA8E0E',
+        borderColor: lightModeSemanticTokens.primary,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'transparent',
     },
     pillButtonTextOutline: {
-        color: '#CA8E0E',
+        color: lightModeSemanticTokens.primary,
         fontSize: 15,
         fontWeight: '700',
     },
@@ -83,7 +84,7 @@ export const styles = StyleSheet.create({
     card: {
         width: '100%',
         borderRadius: 16,
-        backgroundColor: '#fff',
+        backgroundColor: lightModeSemanticTokens.surface,
         overflow: 'hidden', 
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 6 },
@@ -99,7 +100,7 @@ export const styles = StyleSheet.create({
         flex: 1, 
         justifyContent: 'space-between', 
         padding: 16,
-        backgroundColor: 'rgba(0,0,0,0.2)' // Oscurece un poco la imagen para leer mejor
+        backgroundColor: 'rgba(0,0,0,0.2)'
     },
     cardHeaderRow: {
         flexDirection: 'row',
@@ -107,13 +108,13 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
     },
     statusBadge: {
-        backgroundColor: '#CA8E0E', // Dorado sólido o semi-transparente
+        backgroundColor: lightModeSemanticTokens.primary,
         paddingHorizontal: 12,
         paddingVertical: 5,
         borderRadius: 20, // Badge más redondeado
     },
     statusText: {
-        color: '#fff',
+        color: lightModeSemanticTokens.onPrimary,
         fontSize: 10,
         fontWeight: '800',
         textTransform: 'uppercase',
@@ -122,7 +123,7 @@ export const styles = StyleSheet.create({
         flex: 1,
         fontWeight: '800', 
         fontSize: 19, 
-        color: '#fff',
+        color: lightModeSemanticTokens.onPrimary,
         marginRight: 10,
         textShadowColor: 'rgba(0, 0, 0, 0.7)',
         textShadowOffset: { width: 0, height: 1 },
@@ -134,7 +135,7 @@ export const styles = StyleSheet.create({
         alignItems: 'flex-end' 
     },
     cardMeta: { 
-        color: '#fff', 
+        color: lightModeSemanticTokens.onPrimary,
         fontSize: 13, 
         fontWeight: '600',
         marginBottom: 2,
@@ -154,7 +155,7 @@ export const styles = StyleSheet.create({
         position: 'static',
         bottom: 20, 
         right: 15,
-        backgroundColor: 'rgba(173, 25, 25, 0.38)', // Azul muy tenue
+        backgroundColor: 'rgba(173, 25, 25, 0.38)',
         borderRadius: 25,
         width: 150,
 

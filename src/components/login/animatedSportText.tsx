@@ -1,13 +1,14 @@
-import React, { useEffect, useState, useRef } from "react";
-import { Animated, Text, StyleSheet, Platform } from "react-native";
+import React, { useEffect, useState, useRef } from 'react';
+import { Animated, Text, StyleSheet, Platform } from 'react-native';
+import { lightModeSemanticTokens, mainThemeColorsDark } from '../../theme';
 
 const sportSentences = [
-  "Train like a pro, play like a champion.",
-  "Your only limit is you.",
-  "Focus. Discipline. Results.",
-  "Success starts with self-belief.",
-  "The harder the battle, the sweeter the victory.",
-  "Don't stop when you're tired, stop when you're done."
+  'Train like a pro, play like a champion.',
+  'Your only limit is you.',
+  'Focus. Discipline. Results.',
+  'Success starts with self-belief.',
+  'The harder the battle, the sweeter the victory.',
+  "Don't stop when you're tired, stop when you're done.",
 ];
 
 const AnimatedSportText = ({ isDarkMode }: { isDarkMode: boolean }) => {
@@ -20,11 +21,11 @@ const AnimatedSportText = ({ isDarkMode }: { isDarkMode: boolean }) => {
       Animated.timing(fadeAnim, {
         toValue: 0,
         duration: 600,
-        useNativeDriver: Platform.OS !== 'web', 
+        useNativeDriver: Platform.OS !== 'web',
       }).start(() => {
         // Cambio de frase sin las comillas
         setIndex((prevIndex) => (prevIndex + 1) % sportSentences.length);
-        
+
         // Fade In (Aparece)
         Animated.timing(fadeAnim, {
           toValue: 1,
@@ -39,10 +40,16 @@ const AnimatedSportText = ({ isDarkMode }: { isDarkMode: boolean }) => {
 
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
-      <Text style={[
-        styles.text, 
-        { color: isDarkMode ? '#CA8E0E' : '#BF8404' }
-      ]}>
+      <Text
+        style={[
+          styles.text,
+          {
+            color: isDarkMode
+              ? mainThemeColorsDark.primaryButton
+              : lightModeSemanticTokens.primary,
+          },
+        ]}
+      >
         {sportSentences[index]}
       </Text>
     </Animated.View>
@@ -52,7 +59,7 @@ const AnimatedSportText = ({ isDarkMode }: { isDarkMode: boolean }) => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: '8%', 
+    top: '8%',
     left: 0,
     right: 0,
     alignItems: 'center',
