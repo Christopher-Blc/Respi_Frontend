@@ -54,10 +54,12 @@ export default function PistaTypeIndex() {
         styles.container,
         {
           paddingTop: headerHeight + 10,
-          paddingBottom: Platform.OS === 'web' ? 88 : 120,
         },
       ]}
-      contentContainerStyle={styles.scrollContent}
+      contentContainerStyle={[
+        styles.scrollContent,
+        { paddingBottom: Platform.OS === 'web' ? 96 : 140 },
+      ]}
     >
       <Tabs.Screen options={{ title: 'Nueva reserva' }} />
 

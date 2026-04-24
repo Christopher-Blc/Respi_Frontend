@@ -31,6 +31,15 @@ export const createProfileStyles = (theme: AppTheme) =>
       borderRadius: 55,
       borderWidth: 3,
       borderColor: theme.avatarBorder,
+      backgroundColor: theme.avatarBackground,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    avatarInitials: {
+      fontSize: 40,
+      fontWeight: '800',
+      letterSpacing: 1,
+      color: theme.avatarText,
     },
     editBadge: {
       position: 'absolute',

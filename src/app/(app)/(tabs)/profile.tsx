@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
   ActivityIndicator,
   Platform,
 } from 'react-native';
@@ -28,7 +27,7 @@ import { useHeaderHeight } from '@react-navigation/elements';
 
 export default function ProfileClientes() {
   const { signOut } = useAuth();
-  const { isDarkMode, theme, setDarkMode } = useAppTheme();
+  const { isDarkMode, theme, setDarkMode, setDarkModePreview } = useAppTheme();
   const styles = React.useMemo(() => createProfileStyles(theme), [theme]);
   const [loading, setLoading] = useState(true);
   const insets = useSafeAreaInsets();
@@ -38,8 +37,25 @@ export default function ProfileClientes() {
   const [modalMembresiaVisible, setModalMembresiaVisible] = useState(false);
   const [modalIdiomaVisible, setModalIdiomaVisible] = useState(false);
   const [modalDarkmodeVisible, setModalDarkmodeVisible] = useState(false);
+  const [initialDarkModeValue, setInitialDarkModeValue] = useState(isDarkMode);
   const [modalEditUserNameVisible, setModalEditUserNameVisible] =
     useState(false);
+
+  const avatarInitials = React.useMemo(() => {
+    const first = user?.name?.trim()?.[0] || '';
+    const last = user?.surname?.trim()?.[0] || '';
+
+    if (first || last) {
+      return `${first}${last}`.toUpperCase();
+    }
+
+    const usernameParts =
+      user?.username?.trim().split(/\s+/).filter(Boolean) || [];
+    const usernameFirst = usernameParts[0]?.[0] || user?.username?.[0] || 'U';
+    const usernameLast = usernameParts[1]?.[0] || '';
+
+    return `${usernameFirst}${usernameLast}`.toUpperCase();
+  }, [user?.name, user?.surname, user?.username]);
 
   const handleLogout = async () => {
     try {
@@ -89,6 +105,16 @@ export default function ProfileClientes() {
     }
   };
 
+  const handleOpenDarkModeModal = () => {
+    setInitialDarkModeValue(isDarkMode);
+    setModalDarkmodeVisible(true);
+  };
+
+  const handleCloseDarkModeModal = () => {
+    setDarkModePreview(initialDarkModeValue);
+    setModalDarkmodeVisible(false);
+  };
+
   return loading ? (
     <View
       style={[
@@ -115,17 +141,16 @@ export default function ProfileClientes() {
           styles.scrollContent,
           {
             paddingTop: headerHeight + 10,
-            paddingBottom: insets.bottom + (Platform.OS === 'web' ? 88 : 120),
+            paddingBottom: insets.bottom + (Platform.OS === 'web' ? 100 : 120),
           },
         ]}
       >
         {/* SECCIÓN AVATAR */}
         <View style={styles.header}>
           <View style={styles.avatarWrapper}>
-            <Image
-              source={{ uri: 'https://avatar.iran.liara.run/public/31' }}
-              style={styles.avatar}
-            />
+            <View style={styles.avatar}>
+              <Text style={styles.avatarInitials}>{avatarInitials}</Text>
+            </View>
             <TouchableOpacity style={styles.editBadge}>
               <Ionicons name="camera" size={16} color={theme.onPrimary} />
             </TouchableOpacity>
@@ -180,7 +205,7 @@ export default function ProfileClientes() {
               title="Modo Oscuro"
               value={isDarkMode ? 'Activado' : 'Desactivado'}
               isLast
-              onPress={() => setModalDarkmodeVisible(true)}
+              onPress={handleOpenDarkModeModal}
             />
           </View>
         </View>
@@ -250,8 +275,9 @@ export default function ProfileClientes() {
       <DarkModeModal
         visible={modalDarkmodeVisible}
         isDarkMode={isDarkMode}
+        onPreview={setDarkModePreview}
         onSave={handleSaveDarkMode}
-        onClose={() => setModalDarkmodeVisible(false)}
+        onClose={handleCloseDarkModeModal}
       />
 
       <IdiomaModal

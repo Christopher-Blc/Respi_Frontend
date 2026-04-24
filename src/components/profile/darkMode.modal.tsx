@@ -1,11 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Modal, Switch, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  Modal,
+  Switch,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 import { Platform } from 'react-native';
 import { useAppTheme } from '../../context/ThemeContext';
+import createModalDarkModeStyles from '../../styles/modalDarkMode.styles';
+
+const lightModeExample = require('../../../assets/exampleLightMode.jpeg');
+const darkModeExample = require('../../../assets/exampleDarkMode.jpeg');
 
 interface Props {
   visible: boolean;
   isDarkMode: boolean;
+  onPreview: (nextValue: boolean) => void;
   onSave: (nextValue: boolean) => void;
   onClose: () => void;
 }
@@ -13,18 +25,34 @@ interface Props {
 export default function DarkModeModal({
   visible,
   isDarkMode,
+  onPreview,
   onSave,
   onClose,
 }: Props) {
   const { theme } = useAppTheme();
+  const isWeb = Platform.OS === 'web';
+  const styles = React.useMemo(
+    () => createModalDarkModeStyles(theme, isWeb),
+    [theme, isWeb],
+  );
   const [localValue, setLocalValue] = useState(isDarkMode);
+  const isLightSelected = !localValue;
+  const isDarkSelected = localValue;
+  const switchTrackOff = theme.borderAccentSoft;
+  const switchTrackOn = theme.primary;
+  const switchThumbOn = theme.onPrimary;
+  const switchThumbOff = theme.surfaceMuted;
+
+  const handlePreviewChange = (nextValue: boolean) => {
+    setLocalValue(nextValue);
+    onPreview(nextValue);
+  };
 
   useEffect(() => {
     if (visible) {
       setLocalValue(isDarkMode);
     }
   }, [visible, isDarkMode]);
-  const isWeb = Platform.OS === 'web';
 
   return (
     <Modal
@@ -33,113 +61,76 @@ export default function DarkModeModal({
       animationType="slide"
       presentationStyle="pageSheet"
     >
-      {/*Row con los textbuttons arriba*/}
-      <View
-        style={{
-          flexDirection: 'row',
-          paddingTop: 30,
-          justifyContent: 'space-between',
-          backgroundColor: theme.backgroundCard,
-        }}
-      >
-        <View style={{ paddingLeft: 30 }}>
+      <View style={styles.headerContainer}>
+        <View style={styles.headerRow}>
           <TouchableOpacity onPress={onClose}>
-            <Text
-              style={{
-                fontSize: 20,
-                //fontFamily: 'Open-Sans',
-                fontWeight: '500',
-                color: theme.textTitle,
-              }}
-            >
-              Cancelar
-            </Text>
+            <Text style={styles.headerText}>Cancelar</Text>
           </TouchableOpacity>
-        </View>
 
-        <View style={{ paddingRight: 30 }}>
-          <TouchableOpacity>
-            <Text
-              onPress={() => onSave(localValue)}
-              style={{
-                fontSize: 20,
-                fontFamily: isWeb ? 'system' : 'Segoe UI',
-                fontWeight: '500',
-                color: theme.textTitle,
-              }}
-            >
+          <TouchableOpacity onPress={() => onSave(localValue)}>
+            <Text style={[styles.headerText, styles.saveText]}>
               Guardar
             </Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      <View
-        style={{
-          justifyContent: 'center',
-          alignItems: 'center',
-          flex: 1,
-          backgroundColor: theme.backgroundCard,
-        }}
-      >
-        <View
-          style={{
-            width: '88%',
-            maxWidth: 420,
-            paddingHorizontal: 24,
-            paddingVertical: 20,
-            backgroundColor: theme.backgroundCard,
-            borderRadius: 20,
-            borderColor: theme.borderSoft,
-            borderWidth: 1,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 18,
-              marginBottom: 10,
-              fontWeight: '700',
-              color: theme.textTitle,
-            }}
+      <View style={styles.previewSection}>
+        <View style={styles.previewRow}>
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => handlePreviewChange(false)}
+            style={[
+              styles.previewCard,
+              isLightSelected ? styles.previewCardSelected : null,
+            ]}
           >
-            Modo oscuro
-          </Text>
+            <Image
+              source={lightModeExample}
+              style={styles.previewImage}
+              resizeMode="contain"
+            />
+            <Text style={styles.previewLabel}>Claro</Text>
+          </TouchableOpacity>
 
-          <Text
-            style={{
-              fontSize: 14,
-              marginBottom: 18,
-              color: theme.textBody,
-            }}
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => handlePreviewChange(true)}
+            style={[
+              styles.previewCard,
+              isDarkSelected ? styles.previewCardSelected : null,
+            ]}
           >
+            <Image
+              source={darkModeExample}
+              style={styles.previewImage}
+              resizeMode="contain"
+            />
+            <Text style={styles.previewLabel}>Oscuro</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.settingsSection}>
+        <View style={styles.settingsCard}>
+          <Text style={styles.title}>Modo oscuro</Text>
+
+          <Text style={styles.description}>
             Activa o desactiva el modo oscuro para la pantalla de perfil.
           </Text>
 
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: 22,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 15,
-                fontWeight: '600',
-                color: theme.textTitle,
-              }}
-            >
+          <View style={styles.toggleRow}>
+            <Text style={styles.toggleLabel}>
               {localValue ? 'Activado' : 'Desactivado'}
             </Text>
             <Switch
               value={localValue}
-              onValueChange={setLocalValue}
-              ios_backgroundColor={theme.primary}
-              thumbColor={localValue ? theme.primary : theme.textSubtle}
+              onValueChange={handlePreviewChange}
+              ios_backgroundColor={switchTrackOff}
+              thumbColor={localValue ? switchThumbOn : switchThumbOff}
               trackColor={{
-                false: theme.iconPrimary,
-                true: theme.primarySoft,
+                false: switchTrackOff,
+                true: switchTrackOn,
               }}
             />
           </View>

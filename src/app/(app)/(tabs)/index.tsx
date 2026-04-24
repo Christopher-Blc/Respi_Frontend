@@ -91,7 +91,11 @@ export default function HomeScreen() {
         <ImageBackground
           source={img}
           style={styles.cardBg}
-          imageStyle={{ borderRadius: 12 }}
+          imageStyle={{
+            borderRadius: 16,
+            borderColor: '#fff',
+            borderWidth: 0.5,
+          }}
         >
           <LinearGradient
             colors={[
