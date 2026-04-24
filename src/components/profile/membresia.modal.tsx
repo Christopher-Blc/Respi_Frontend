@@ -206,8 +206,8 @@ export default function MembresiaModal({ visible, onClose }: Props) {
           left: 0,
           right: 0,
           height: 45,
-          borderBottomLeftRadius: 12,
-          borderBottomRightRadius: 12,
+          borderBottomLeftRadius: 2,
+          borderBottomRightRadius: 2,
         },
         topRow: {
           flexDirection: 'row',
