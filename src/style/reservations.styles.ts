@@ -58,6 +58,7 @@ const createReservationsStyles = (theme: AppTheme) =>
     pillButtonPrimary: {
       flex: 1,
       overflow: 'hidden',
+
     },
     pillButtonText: {
       color: theme.onPrimary,

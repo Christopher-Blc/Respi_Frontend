@@ -14,7 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient'; // Único import nuevo
 import { useAuth } from '../../../context/AuthContext';
 import { GlassTextButton } from '../../../components/login/glassTextButton';
 import api from '../../../services/api';
-import { User } from '../../../types/types';
+import { Membresia, User } from '../../../types/types';
 import createProfileStyles from '../../../style/profile.styles';
 import MenuOption from '../../../components/profile/menuOptions';
 import MembresiaModal from '../../../components/profile/membresia.modal';
@@ -50,6 +50,16 @@ export default function ProfileClientes() {
     useState(isSystemTheme);
   const [modalEditUserNameVisible, setModalEditUserNameVisible] =
     useState(false);
+  const [currentMembership, setCurrentMembership] = useState<Membresia | null>(
+    null,
+  );
+
+  const userMembershipLabel =
+    user?.membresia_id == null
+      ? 'Sin membresia'
+      : currentMembership
+        ? `${currentMembership.tipo} · Rango ${currentMembership.rango}`
+        : `ID ${user.membresia_id}`;
 
   const avatarInitials = React.useMemo(() => {
     const first = user?.name?.trim()?.[0] || '';
@@ -100,10 +110,42 @@ export default function ProfileClientes() {
     }
   };
 
+  const fetchMembershipById = async (
+    membresiaId: number | null | undefined,
+  ) => {
+    if (membresiaId == null) {
+      setCurrentMembership(null);
+      return;
+    }
+
+    try {
+      const response = await api.get('/membresia');
+      const payload = response.data;
+      const parsed: Membresia[] = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload?.data)
+          ? payload.data
+          : [];
+
+      const found = parsed.find(
+        (membership) => membership.membresia_id === membresiaId,
+      );
+
+      setCurrentMembership(found || null);
+    } catch (error) {
+      console.error('Error cargando membresia del usuario', error);
+      setCurrentMembership(null);
+    }
+  };
+
   useEffect(() => {
     fetchUserProfile();
     fetchTotalReservas();
   }, []);
+
+  useEffect(() => {
+    fetchMembershipById(user?.membresia_id);
+  }, [user?.membresia_id]);
 
   const handleSaveDarkMode = async (
     nextDarkModeValue: boolean,
@@ -242,7 +284,7 @@ export default function ProfileClientes() {
             <MenuOption
               icon="diamond-outline"
               title="Membresía"
-              value={undefined}
+              value={userMembershipLabel}
               isLast={true}
               onPress={() => setModalMembresiaVisible(true)}
             />
