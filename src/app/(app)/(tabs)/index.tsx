@@ -1,70 +1,44 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import {
+  ActivityIndicator,
+  ImageBackground,
+  Platform,
+  RefreshControl,
+  ScrollView,
   View,
   Text,
   TouchableOpacity,
-  ScrollView,
-  ImageBackground,
-  ActivityIndicator,
   useWindowDimensions,
-  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MODELOS } from '../../../data/modelos';
-import api from '../../../services/api';
 import { Reserva } from '../../../types/types';
 import createReservationsStyles from '../../../style/reservations.styles';
-import { GlassTextButton } from '../../../components/login/glassTextButton';
-import { reservasActivasFilter } from '../../../filtrosApi';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
+import { useHome } from '../../../hooks/useHome';
+import { createHomeStyles } from '../../../style/home.styles';
 
 //pantalla home del cliente
 
 export default function HomeScreen() {
   const router = useRouter();
   const { theme } = useAppTheme();
-  const styles = React.useMemo(() => createReservationsStyles(theme), [theme]);
+  const styles = useMemo(() => createReservationsStyles(theme), [theme]);
+  const localStyles = useMemo(() => createHomeStyles(theme), [theme]);
   const { width } = useWindowDimensions();
   const headerHeight = useHeaderHeight();
   const isWideScreen = width > 768;
-  //const buttonHeight = width > 768 ? 60 : width > 480 ? 80 : 120;
-
-  const isWeb = Platform.OS === 'web';
-  const dynamicHeight = isWeb ? (width / 2) * 0.4 : 100;
-  // Ponemos un límite para que en pantallas 4K no sean gigantescos
-  const buttonHeight = Math.min(dynamicHeight, 200);
-  const dynamicSeparatorWidth = isWeb ? (width / 2) * 0.05 : 10;
-
-  const [reservations, setReservations] = useState<Reserva[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchReservas = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get('/reserva/mis-reservas');
-      console.log(
-        'Reservas obtenidas:',
-        'status:',
-        response.status,
-        response.data,
-      );
-
-      // Filtrado por estado confirmada
-      const reservasActivas = reservasActivasFilter(response);
-      setReservations(reservasActivas);
-    } catch (error) {
-      console.error('Error al traer mis reservas:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchReservas();
-  }, []);
+  const {
+    reservations,
+    loading,
+    refreshing,
+    onRefresh,
+    nextReservationDate,
+    uniqueSportsCount,
+  } = useHome();
 
   const getImageForReservation = (title: string) => {
     const found = MODELOS.find((m) =>
@@ -76,7 +50,10 @@ export default function HomeScreen() {
   const renderReservation = (item: Reserva) => {
     const title = item.pista?.nombre || 'Reserva sin nombre';
     const img = getImageForReservation(title);
-    const cleanDate = item.fecha_reserva.split('T')[0];
+    const cleanDate = new Date(item.fecha_reserva).toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'short',
+    });
     const cleanTime =
       item.hora_inicio.split(':').slice(0, 2).join(':') +
       ' - ' +
@@ -85,35 +62,31 @@ export default function HomeScreen() {
     return (
       <TouchableOpacity
         key={item.reserva_id}
-        style={styles.card}
+        style={localStyles.card}
         onPress={() => router.push(`/(app)/reservas/${item.reserva_id}`)}
       >
         <ImageBackground
           source={img}
-          style={styles.cardBg}
-          imageStyle={{
-            borderRadius: 16,
-            borderColor: theme.textBody,
-            borderWidth: 0.5,
-          }}
+          style={localStyles.cardBg}
+          imageStyle={localStyles.cardImage}
         >
           <LinearGradient
             colors={[
               theme.reservationsCardOverlayStart,
               theme.reservationsCardOverlayEnd,
             ]}
-            style={styles.cardOverlay}
+            style={localStyles.cardOverlay}
           >
-            <View style={styles.cardHeaderRow}>
-              <Text style={styles.cardTitle}>{title}</Text>
-              <View style={styles.statusBadge}>
-                <Text style={styles.statusText}>{item.estado}</Text>
+            <View style={localStyles.cardHeaderRow}>
+              <Text style={localStyles.cardTitle}>{title}</Text>
+              <View style={localStyles.statusBadge}>
+                <Text style={localStyles.statusText}>{item.estado}</Text>
               </View>
             </View>
 
-            <View style={styles.cardBottom}>
+            <View style={localStyles.cardBottom}>
               <View>
-                <Text style={styles.cardMeta}>
+                <Text style={localStyles.cardMeta}>
                   <Ionicons
                     name="calendar-outline"
                     size={14}
@@ -121,7 +94,7 @@ export default function HomeScreen() {
                   />{' '}
                   {cleanDate}
                 </Text>
-                <Text style={styles.cardMeta}>
+                <Text style={localStyles.cardMeta}>
                   <Ionicons
                     name="time-outline"
                     size={14}
@@ -132,7 +105,7 @@ export default function HomeScreen() {
               </View>
               <Ionicons
                 name="chevron-forward-outline"
-                size={22}
+                size={20}
                 color={theme.onPrimary}
               />
             </View>
@@ -143,76 +116,103 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={[styles.container]}>
+    <View style={[styles.container, localStyles.page]}>
       {loading ? (
         <ActivityIndicator
           size="large"
           color={theme.primary}
-          style={{ marginTop: 50 }}
+          style={{ marginTop: headerHeight + 24 }}
         />
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primary} />
+          }
           contentContainerStyle={{
-            paddingTop: headerHeight + 10,
-            paddingBottom: Platform.OS === 'web' ? 88 : 120,
+            paddingTop: headerHeight + 14,
+            paddingBottom: Platform.OS === 'web' ? 48 : 60,
           }}
         >
-          <Text style={styles.header}>Bienvenido a ResPi</Text>
-
-          <View style={styles.premiumActionRow}>
-            <GlassTextButton
-              text="Nueva reserva"
-              onPress={() => router.push('/reservas')}
-              style={[
-                styles.pillButtonPrimary,
-                { marginRight: dynamicSeparatorWidth },
-              ]}
-              color={theme.primarySoft}
-              borderColor={theme.surface}
-              borderWidth={1.5}
-              height={buttonHeight}
-              textColor={theme.primary}
-            />
-
-            <GlassTextButton
-              text="Unirse a partido"
-              onPress={() => alert('Próximamente')}
-              color={theme.surfaceGlass}
-              style={styles.pillButtonPrimary}
-              borderColor={theme.borderAccentSoft}
-              borderWidth={1.5}
-              textColor={theme.primary}
-              height={buttonHeight}
-            />
+          <View style={localStyles.heroCard}>
+            <View style={localStyles.heroTopRow}>
+              <Text style={localStyles.heroEyebrow}>ResPi Club</Text>
+              <View style={localStyles.livePill}>
+                <View style={localStyles.liveDot} />
+                <Text style={localStyles.liveText}>En línea</Text>
+              </View>
+            </View>
+            <Text style={localStyles.heroTitle}>Gestiona tus reservas con un toque</Text>
+            <Text style={localStyles.heroSubtitle}>
+              Agenda tu próxima pista, revisa disponibilidad y mantén tu actividad al día.
+            </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Próximas reservas</Text>
+          <View style={localStyles.statsRow}>
+            <View style={localStyles.statCard}>
+              <Text style={localStyles.statValue}>{reservations.length}</Text>
+              <Text style={localStyles.statLabel}>Reservas activas</Text>
+            </View>
+            <View style={localStyles.statCard}>
+              <Text style={localStyles.statValue}>{nextReservationDate}</Text>
+              <Text style={localStyles.statLabel}>Próxima reserva</Text>
+            </View>
+            <View style={localStyles.statCard}>
+              <Text style={localStyles.statValue}>{uniqueSportsCount || '-'}</Text>
+              <Text style={localStyles.statLabel}>Deportes en uso</Text>
+            </View>
+          </View>
+
+          <View style={localStyles.actionsRow}>
+            <TouchableOpacity
+              style={[localStyles.actionCard, localStyles.actionPrimary]}
+              onPress={() => router.push('/reservas')}
+            >
+              <Ionicons name="calendar" size={18} color={theme.onPrimary} />
+              <Text style={localStyles.actionPrimaryText}>Nueva reserva</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[localStyles.actionCard, localStyles.actionSecondary]}
+              onPress={() => router.push('/pistas')}
+            >
+              <Ionicons name="location" size={18} color={theme.primary} />
+              <Text style={localStyles.actionSecondaryText}>Ver pistas</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={localStyles.sectionHeader}>
+            <Text style={localStyles.sectionTitle}>Próximas reservas</Text>
+            <TouchableOpacity onPress={onRefresh}>
+              <Text style={localStyles.sectionLink}>Actualizar</Text>
+            </TouchableOpacity>
+          </View>
 
           {reservations.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No tienes reservas próximas</Text>
+            <View style={localStyles.emptyCard}>
+              <Ionicons name="calendar-clear-outline" size={24} color={theme.textMuted} />
+              <Text style={localStyles.emptyTitle}>Sin reservas próximas</Text>
+              <Text style={localStyles.emptySubtitle}>Haz tu primera reserva para empezar.</Text>
+              <TouchableOpacity
+                style={localStyles.emptyCta}
+                onPress={() => router.push('/reservas')}
+              >
+                <Text style={localStyles.emptyCtaText}>Reservar ahora</Text>
+              </TouchableOpacity>
             </View>
           ) : (
-            <View style={styles.gridContainer}>
+            <View style={localStyles.gridContainer}>
               {reservations.map((item) => (
                 <View
                   key={item.reserva_id}
-                  style={[
-                    styles.cardWrapper,
-                    {
-                      flexBasis: isWideScreen ? 320 : '100%',
-                      flexGrow: 1,
-                    },
-                  ]}
+                  style={{
+                    flexBasis: isWideScreen ? 320 : '100%',
+                    flexGrow: 1,
+                  }}
                 >
                   {renderReservation(item)}
                 </View>
               ))}
-
-              {isWideScreen && <View style={styles.dummyCard} />}
-              {isWideScreen && <View style={styles.dummyCard} />}
-              {isWideScreen && <View style={styles.dummyCard} />}
             </View>
           )}
         </ScrollView>
