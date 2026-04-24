@@ -6,6 +6,7 @@ export default function bookingLayout() {
   return (
     <Stack
       screenOptions={{
+        headerShown: false,
         headerStyle: { backgroundColor: theme.headerBackground },
 
         headerBackButtonMenuEnabled: false,

@@ -3,7 +3,7 @@ import {
   View,
   Text,
   TouchableOpacity,
-  FlatList,
+  ScrollView,
   ImageBackground,
   ActivityIndicator,
   useWindowDimensions,
@@ -19,6 +19,7 @@ import createReservationsStyles from '../../../style/reservations.styles';
 import { GlassTextButton } from '../../../components/login/glassTextButton';
 import { reservasActivasFilter } from '../../../filtrosApi';
 import { useAppTheme } from '../../../context/ThemeContext';
+import { useHeaderHeight } from '@react-navigation/elements';
 
 //pantalla home del cliente
 
@@ -27,6 +28,8 @@ export default function HomeScreen() {
   const { theme } = useAppTheme();
   const styles = React.useMemo(() => createReservationsStyles(theme), [theme]);
   const { width } = useWindowDimensions();
+  const headerHeight = useHeaderHeight();
+  const isWideScreen = width > 768;
   //const buttonHeight = width > 768 ? 60 : width > 480 ? 80 : 120;
 
   const isWeb = Platform.OS === 'web';
@@ -70,7 +73,7 @@ export default function HomeScreen() {
     return found ? found.img : MODELOS[0].img;
   };
 
-  const renderReservation = ({ item }: { item: Reserva }) => {
+  const renderReservation = (item: Reserva) => {
     const title = item.pista?.nombre || 'Reserva sin nombre';
     const img = getImageForReservation(title);
     const cleanDate = item.fecha_reserva.split('T')[0];
@@ -81,6 +84,7 @@ export default function HomeScreen() {
 
     return (
       <TouchableOpacity
+        key={item.reserva_id}
         style={styles.card}
         onPress={() => router.push(`/(app)/reservas/${item.reserva_id}`)}
       >
@@ -89,13 +93,13 @@ export default function HomeScreen() {
           style={styles.cardBg}
           imageStyle={{ borderRadius: 12 }}
         >
-            <LinearGradient
-              colors={[
-                theme.reservationsCardOverlayStart,
-                theme.reservationsCardOverlayEnd,
-              ]}
-              style={styles.cardOverlay}
-            >
+          <LinearGradient
+            colors={[
+              theme.reservationsCardOverlayStart,
+              theme.reservationsCardOverlayEnd,
+            ]}
+            style={styles.cardOverlay}
+          >
             <View style={styles.cardHeaderRow}>
               <Text style={styles.cardTitle}>{title}</Text>
               <View style={styles.statusBadge}>
@@ -135,7 +139,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container]}>
       {loading ? (
         <ActivityIndicator
           size="large"
@@ -143,55 +147,71 @@ export default function HomeScreen() {
           style={{ marginTop: 50 }}
         />
       ) : (
-        <FlatList
-          data={reservations}
-          keyExtractor={(i) => i.reserva_id.toString()}
-          renderItem={renderReservation}
-          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-          ListEmptyComponent={
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingTop: headerHeight + 10,
+            paddingBottom: Platform.OS === 'web' ? 88 : 120,
+          }}
+        >
+          <Text style={styles.header}>Bienvenido a ResPi</Text>
+
+          <View style={styles.premiumActionRow}>
+            <GlassTextButton
+              text="Nueva reserva"
+              onPress={() => router.push('/reservas/createBooking')}
+              style={[
+                styles.pillButtonPrimary,
+                { marginRight: dynamicSeparatorWidth },
+              ]}
+              color={theme.primarySoft}
+              borderColor={theme.surface}
+              borderWidth={1.5}
+              height={buttonHeight}
+              textColor={theme.primary}
+            />
+
+            <GlassTextButton
+              text="Unirse a partido"
+              onPress={() => alert('Próximamente')}
+              color={theme.surfaceGlass}
+              style={styles.pillButtonPrimary}
+              borderColor={theme.borderAccentSoft}
+              borderWidth={1.5}
+              textColor={theme.primary}
+              height={buttonHeight}
+            />
+          </View>
+
+          <Text style={styles.sectionTitle}>Próximas reservas</Text>
+
+          {reservations.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>No tienes reservas próximas</Text>
             </View>
-          }
-          ListHeaderComponent={
-            <>
-              <Text style={styles.header}>Bienvenido a ResPi</Text>
-
-              <View style={styles.premiumActionRow}>
-                <GlassTextButton
-                  text="Nueva reserva"
-                  onPress={() => router.push('/reservas/createBooking')}
+          ) : (
+            <View style={styles.gridContainer}>
+              {reservations.map((item) => (
+                <View
+                  key={item.reserva_id}
                   style={[
-                    styles.pillButtonPrimary,
-                    { marginRight: dynamicSeparatorWidth },
+                    styles.cardWrapper,
+                    {
+                      flexBasis: isWideScreen ? 320 : '100%',
+                      flexGrow: 1,
+                    },
                   ]}
-                  // Naranja "Golden Hour": más vivo pero con transparencia para que no sea un bloque
-                  color={theme.primarySoft}
-                  // Borde blanco cristalino: vital para que el naranja no se "coma" el botón
-                  borderColor={theme.surface}
-                  borderWidth={1.5}
-                  height={buttonHeight}
-                  textColor={theme.primary}
-                />
+                >
+                  {renderReservation(item)}
+                </View>
+              ))}
 
-                <GlassTextButton
-                  text="Unirse a partido"
-                  onPress={() => alert('Próximamente')}
-                  // Fondo neutro cristalino para que el otro naranja resalte
-                  color={theme.surfaceGlass}
-                  style={styles.pillButtonPrimary}
-                  // Borde naranja fino
-                  borderColor={theme.borderAccentSoft}
-                  borderWidth={1.5}
-                  textColor={theme.primary}
-                  height={buttonHeight}
-                />
-              </View>
-
-              <Text style={styles.sectionTitle}>Próximas reservas</Text>
-            </>
-          }
-        />
+              {isWideScreen && <View style={styles.dummyCard} />}
+              {isWideScreen && <View style={styles.dummyCard} />}
+              {isWideScreen && <View style={styles.dummyCard} />}
+            </View>
+          )}
+        </ScrollView>
       )}
     </View>
   );

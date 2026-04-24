@@ -89,9 +89,25 @@ const createReservationsStyles = (theme: AppTheme) =>
       shadowRadius: 12,
       elevation: 8,
     },
+    cardWrapper: {
+      borderRadius: 16,
+      overflow: 'hidden',
+    },
     cardBg: {
       width: '100%',
       height: 160,
+    },
+    gridContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 12,
+      width: '100%',
+    },
+    dummyCard: {
+      flexBasis: 320,
+      flexGrow: 1,
+      height: 0,
+      marginHorizontal: 0,
     },
     cardOverlay: {
       flex: 1,

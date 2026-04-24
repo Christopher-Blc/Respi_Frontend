@@ -129,13 +129,14 @@ const Login: React.FC = () => {
           placeholder="Enter password"
           value={password}
           onChangeText={setPassword}
+          isDarkMode={isDarkMode}
         />
 
         <GlassTextButton
           text="Login"
           textColor={theme.onPrimary}
           onPress={handleSubmit}
-          color={theme.primarySoft}
+          color={theme.primaryButton}
         />
 
         <View style={{ height: 28 }} />
