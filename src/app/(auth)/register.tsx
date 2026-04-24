@@ -301,6 +301,7 @@ const Register: React.FC = () => {
             placeholder="Enter password"
             value={password}
             onChangeText={setPassword}
+            isDarkMode={isDarkMode}
           />
 
           <Text
@@ -400,7 +401,8 @@ const Register: React.FC = () => {
             text="Register"
             textColor={theme.onPrimary}
             onPress={handleSubmit}
-            color={theme.primarySoft}
+            color={theme.primaryButton}
+            //isDarkMode={isDarkMode}
           />
 
           <View style={{ height: 16 }} />

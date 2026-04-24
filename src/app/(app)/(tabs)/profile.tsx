@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,6 +24,7 @@ import IdiomaModal from '../../../components/profile/idioma.modal';
 import { reservasActivasFilter } from '../../../filtrosApi';
 import EditUserNameModal from '../../../components/profile/editUserName.modal';
 import { useAppTheme } from '../../../context/ThemeContext';
+import { useHeaderHeight } from '@react-navigation/elements';
 
 export default function ProfileClientes() {
   const { signOut } = useAuth();
@@ -30,6 +32,7 @@ export default function ProfileClientes() {
   const styles = React.useMemo(() => createProfileStyles(theme), [theme]);
   const [loading, setLoading] = useState(true);
   const insets = useSafeAreaInsets();
+  const headerHeight = useHeaderHeight();
   const [user, setUser] = useState<User>();
   const [totalReservas, setTotalReservas] = useState<number>(0);
   const [modalMembresiaVisible, setModalMembresiaVisible] = useState(false);
@@ -110,7 +113,10 @@ export default function ProfileClientes() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingTop: insets.top, paddingBottom: insets.bottom + 40 },
+          {
+            paddingTop: headerHeight + 10,
+            paddingBottom: insets.bottom + (Platform.OS === 'web' ? 88 : 120),
+          },
         ]}
       >
         {/* SECCIÓN AVATAR */}
@@ -121,11 +127,7 @@ export default function ProfileClientes() {
               style={styles.avatar}
             />
             <TouchableOpacity style={styles.editBadge}>
-              <Ionicons
-                name="camera"
-                size={16}
-                color={theme.onPrimary}
-              />
+              <Ionicons name="camera" size={16} color={theme.onPrimary} />
             </TouchableOpacity>
           </View>
           <Text style={styles.userName}>
@@ -135,7 +137,6 @@ export default function ProfileClientes() {
             {user?.email || 'cliente@ejemplo.com'}
           </Text>
 
-          {/*card dnd se ve total reservas ( no se ha probado pero en teoria el dato viene del back) */}
           <View style={styles.reservasCountCard}>
             <Text style={[styles.reservasNumber, { color: theme.textTitle }]}>
               {totalReservas || 0}
@@ -193,7 +194,7 @@ export default function ProfileClientes() {
               icon="diamond-outline"
               title="Membresía"
               value={undefined}
-              isLast={undefined}
+              isLast={true}
               onPress={() => setModalMembresiaVisible(true)}
             />
           </View>

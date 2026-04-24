@@ -1,12 +1,10 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform, StatusBar } from 'react-native';
+import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import Octicons from '@expo/vector-icons/Octicons';
+import { BlurView } from 'expo-blur';
 import { useAppTheme } from '../../../context/ThemeContext';
 
-const unstable_settings = {
-  initialRouteName: '(tabs)',
-};
 export default function tabLayout() {
   const { isDarkMode, theme } = useAppTheme();
 
@@ -19,32 +17,55 @@ export default function tabLayout() {
 
       <Tabs
         screenOptions={{
-          // headerRight: () => null, //meter algun boton aqui?
-          tabBarLabelPosition: 'below-icon',
-          animation: 'fade',
+          headerTitleContainerStyle: {
+            paddingBottom: 10,
+          },
+          headerBackgroundContainerStyle: {
+            backgroundColor: theme.primaryHeader,
+            borderBottomColor: theme.primarySoft,
+            borderBottomWidth: 1,
+          },
           headerShown: true,
           headerTitleAlign: 'center',
-          headerBackButtonDisplayMode: 'default',
-          // headerStyle: {
-          //   height: 70,
-          // },
+          headerTintColor: theme.headerText,
+
+          headerTransparent: true,
+          headerBackground: () => (
+            <BlurView
+              intensity={80} // Más intensidad para el efecto "cristal"
+              tint={isDarkMode ? 'dark' : 'light'}
+              style={StyleSheet.absoluteFill}
+              experimentalBlurMethod="none"
+            />
+          ),
+
+          tabBarActiveTintColor: theme.tabActive,
+          tabBarInactiveTintColor: theme.tabInactive,
+          tabBarLabelPosition: 'below-icon',
+          tabBarStyle: {
+            position: 'absolute', // Permite que el contenido pase por detrás
+            height: Platform.OS === 'web' ? 72 : 90,
+            paddingTop: 6,
+            paddingBottom: Platform.OS === 'web' ? 10 : 6,
+            backgroundColor: theme.primaryHeader, // Fondo transparente para ver el blur
+            //borderTopWidth: 0, // Quitamos el borde sólido
+            elevation: 0, // Quitamos sombra en Android
+            borderColor: theme.primarySoft,
+            borderWidth: 1,
+          },
+
+          tabBarBackground: () => (
+            <BlurView
+              intensity={80}
+              tint={isDarkMode ? 'dark' : 'light'}
+              style={StyleSheet.absoluteFill}
+            />
+          ),
 
           tabBarLabelStyle: {
             marginBottom: Platform.OS === 'web' ? 2 : 0,
           },
-          tabBarActiveTintColor: theme.tabActive,
-          tabBarInactiveTintColor: theme.tabInactive,
-          tabBarStyle: {
-            height: Platform.OS === 'web' ? 72 : 90,
-            paddingTop: 6,
-            paddingBottom: Platform.OS === 'web' ? 10 : 6,
-            backgroundColor: theme.tabBackground,
-            borderTopColor: theme.borderDefault,
-          },
-          headerStyle: {
-            backgroundColor: theme.headerBackground,
-          },
-          headerTintColor: theme.headerText,
+          animation: 'fade',
         }}
       >
         <Tabs.Screen
@@ -68,7 +89,6 @@ export default function tabLayout() {
         <Tabs.Screen
           name="reservas"
           options={{
-            headerShown: false,
             title: 'Reservas',
             tabBarIcon: ({ color, size }) => (
               <Octicons name="calendar" size={size} color={color} />
@@ -89,18 +109,6 @@ export default function tabLayout() {
             ),
           }}
         />
-        {/* <Tabs.Screen
-          name="booking/createBooking"
-          options={{
-            href: null,
-          }}
-        />
-        <Tabs.Screen
-          name="booking/index"
-          options={{
-            href: null,
-          }}
-        /> */}
       </Tabs>
     </React.Fragment>
   );
