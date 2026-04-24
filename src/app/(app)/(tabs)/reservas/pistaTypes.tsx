@@ -110,7 +110,10 @@ export default function PistaTypeIndex() {
                 resizeMode="cover"
               >
                 <LinearGradient
-                  colors={['transparent', 'rgba(0,0,0,0.7)']}
+                  colors={[
+                    theme.reservationsCardOverlayStart,
+                    theme.reservationsCardOverlayEnd,
+                  ]}
                   style={styles.modelGradient}
                 >
                   <View style={styles.modelTopRow}>
@@ -171,7 +174,7 @@ const createStyles = (theme: AppTheme) =>
       width: '100%',
       ...Platform.select({
         ios: {
-          shadowColor: '#000',
+          shadowColor: theme.overlayDark,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.1,
           shadowRadius: 4,
@@ -185,7 +188,7 @@ const createStyles = (theme: AppTheme) =>
       fontSize: 22,
       fontWeight: '900',
     },
-    headerSubtitle: { color: 'rgba(255,255,255,0.9)', fontSize: 14 },
+    headerSubtitle: { color: theme.onPrimary, fontSize: 14 },
 
     gridContainer: {
       flexDirection: 'row',
@@ -198,12 +201,12 @@ const createStyles = (theme: AppTheme) =>
       height: 220, // Un poco más alto para que luzca en web
       borderRadius: 18,
       overflow: 'hidden',
-      backgroundColor: '#1e293b',
+      backgroundColor: theme.cardBackground,
       borderWidth: 1,
       borderColor: theme.borderSoft,
       ...Platform.select({
         ios: {
-          shadowColor: '#000',
+          shadowColor: theme.overlayDark,
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.2,
           shadowRadius: 5,
@@ -221,7 +224,11 @@ const createStyles = (theme: AppTheme) =>
     },
 
     modelBg: { flex: 1 },
-    modelImageStyle: { borderRadius: 18 },
+    modelImageStyle: {
+      borderRadius: 16,
+      borderColor: '#fff',
+      borderWidth: 0.5,
+    },
     modelGradient: {
       flex: 1,
       justifyContent: 'space-between',
@@ -248,7 +255,7 @@ const createStyles = (theme: AppTheme) =>
       fontWeight: '900',
       fontSize: 24,
       color: theme.onPrimary,
-      textShadowColor: 'rgba(0, 0, 0, 0.6)',
+      textShadowColor: theme.overlayDark,
       textShadowOffset: { width: 1, height: 1 },
       textShadowRadius: 4,
     },

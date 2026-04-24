@@ -94,10 +94,16 @@ const createModalDarkModeStyles = (theme: AppTheme, isWeb: boolean) => {
       marginBottom: 18,
       color: theme.textBody,
     },
+    toggleGroup: {
+      gap: 14,
+    },
     toggleRow: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
+    },
+    disabledPreview: {
+      opacity: 0.45,
     },
     toggleLabel: {
       fontSize: 15,

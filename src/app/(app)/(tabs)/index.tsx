@@ -93,7 +93,7 @@ export default function HomeScreen() {
           style={styles.cardBg}
           imageStyle={{
             borderRadius: 16,
-            borderColor: '#fff',
+            borderColor: theme.textBody,
             borderWidth: 0.5,
           }}
         >
