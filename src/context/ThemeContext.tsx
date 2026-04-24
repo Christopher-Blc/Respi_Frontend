@@ -15,6 +15,7 @@ type ThemeContextValue = {
   isDarkMode: boolean;
   theme: AppTheme;
   setDarkMode: (enabled: boolean) => void;
+  setDarkModePreview: (enabled: boolean) => void;
   toggleTheme: () => void;
   isThemeReady: boolean;
 };
@@ -23,6 +24,7 @@ const ThemeContext = createContext<ThemeContextValue>({
   isDarkMode: false,
   theme: lightTheme,
   setDarkMode: () => {},
+  setDarkModePreview: () => {},
   toggleTheme: () => {},
   isThemeReady: false,
 });
@@ -64,6 +66,10 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     [persistTheme],
   );
 
+  const setDarkModePreview = useCallback((enabled: boolean) => {
+    setIsDarkMode(enabled);
+  }, []);
+
   const toggleTheme = useCallback(() => {
     setIsDarkMode((current) => {
       const next = !current;
@@ -79,10 +85,18 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       isDarkMode,
       theme,
       setDarkMode,
+      setDarkModePreview,
       toggleTheme,
       isThemeReady,
     }),
-    [isDarkMode, theme, setDarkMode, toggleTheme, isThemeReady],
+    [
+      isDarkMode,
+      theme,
+      setDarkMode,
+      setDarkModePreview,
+      toggleTheme,
+      isThemeReady,
+    ],
   );
 
   return (

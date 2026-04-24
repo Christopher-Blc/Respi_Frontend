@@ -32,7 +32,7 @@ export default function tabLayout() {
           headerTransparent: true,
           headerBackground: () => (
             <BlurView
-              intensity={80} // Más intensidad para el efecto "cristal"
+              intensity={50} // Más intensidad para el efecto "cristal"
               tint={isDarkMode ? 'dark' : 'light'}
               style={StyleSheet.absoluteFill}
               experimentalBlurMethod="none"
@@ -47,8 +47,7 @@ export default function tabLayout() {
             height: Platform.OS === 'web' ? 72 : 90,
             paddingTop: 6,
             paddingBottom: Platform.OS === 'web' ? 10 : 6,
-            backgroundColor: theme.primaryHeader, // Fondo transparente para ver el blur
-            //borderTopWidth: 0, // Quitamos el borde sólido
+            backgroundColor: theme.primaryHeader,
             elevation: 0, // Quitamos sombra en Android
             borderColor: theme.primarySoft,
             borderWidth: 1,
