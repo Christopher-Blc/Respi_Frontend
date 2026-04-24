@@ -69,6 +69,15 @@ export interface TipoPista {
   imagen: string; 
 }
 
+export interface Membresia {
+  membresia_id: number;
+  rango: string;
+  tipo: string;
+  descuento: number;
+  reservas_requeridas: number;
+  beneficios: string;
+}
+
 export interface JWTPayload {
   sub: number;
   email: string;
