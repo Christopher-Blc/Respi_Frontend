@@ -50,7 +50,7 @@ export default function tabLayout() {
             backgroundColor: theme.primaryHeader,
             elevation: 0, // Quitamos sombra en Android
             borderColor: theme.primarySoft,
-            borderWidth: 1,
+            borderTopWidth: 1,
           },
 
           tabBarBackground: () => (
