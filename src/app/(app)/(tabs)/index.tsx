@@ -163,7 +163,7 @@ export default function HomeScreen() {
           <View style={styles.premiumActionRow}>
             <GlassTextButton
               text="Nueva reserva"
-              onPress={() => router.push('/reservas/createBooking')}
+              onPress={() => router.push('/reservas')}
               style={[
                 styles.pillButtonPrimary,
                 { marginRight: dynamicSeparatorWidth },

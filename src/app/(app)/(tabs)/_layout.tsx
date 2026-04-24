@@ -43,7 +43,7 @@ export default function tabLayout() {
           tabBarInactiveTintColor: theme.tabInactive,
           tabBarLabelPosition: 'below-icon',
           tabBarStyle: {
-            position: 'absolute', // Permite que el contenido pase por detrás
+            position: 'relative',
             height: Platform.OS === 'web' ? 72 : 90,
             paddingTop: 6,
             paddingBottom: Platform.OS === 'web' ? 10 : 6,

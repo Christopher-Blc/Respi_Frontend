@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Platform } from 'react-native';
 import { useAppTheme } from '../../context/ThemeContext';
-import createModalDarkModeStyles from '../../styles/modalDarkMode.styles';
+import createModalDarkModeStyles from '../../style/modalDarkMode.styles';
 
 const lightModeExample = require('../../../assets/exampleLightMode.jpeg');
 const darkModeExample = require('../../../assets/exampleDarkMode.jpeg');
