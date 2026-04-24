@@ -17,15 +17,19 @@ const darkModeExample = require('../../../assets/exampleDarkMode.jpeg');
 interface Props {
   visible: boolean;
   isDarkMode: boolean;
+  isSystemTheme: boolean;
   onPreview: (nextValue: boolean) => void;
-  onSave: (nextValue: boolean) => void;
+  onSystemPreview: (enabled: boolean) => void;
+  onSave: (nextDarkModeValue: boolean, nextSystemThemeValue: boolean) => void;
   onClose: () => void;
 }
 
 export default function DarkModeModal({
   visible,
   isDarkMode,
+  isSystemTheme,
   onPreview,
+  onSystemPreview,
   onSave,
   onClose,
 }: Props) {
@@ -36,6 +40,7 @@ export default function DarkModeModal({
     [theme, isWeb],
   );
   const [localValue, setLocalValue] = useState(isDarkMode);
+  const [localSystemValue, setLocalSystemValue] = useState(isSystemTheme);
   const isLightSelected = !localValue;
   const isDarkSelected = localValue;
   const switchTrackOff = theme.borderAccentSoft;
@@ -48,11 +53,17 @@ export default function DarkModeModal({
     onPreview(nextValue);
   };
 
+  const handleSystemChange = (enabled: boolean) => {
+    setLocalSystemValue(enabled);
+    onSystemPreview(enabled);
+  };
+
   useEffect(() => {
     if (visible) {
       setLocalValue(isDarkMode);
+      setLocalSystemValue(isSystemTheme);
     }
-  }, [visible, isDarkMode]);
+  }, [visible, isDarkMode, isSystemTheme]);
 
   return (
     <Modal
@@ -67,10 +78,10 @@ export default function DarkModeModal({
             <Text style={styles.headerText}>Cancelar</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => onSave(localValue)}>
-            <Text style={[styles.headerText, styles.saveText]}>
-              Guardar
-            </Text>
+          <TouchableOpacity
+            onPress={() => onSave(localValue, localSystemValue)}
+          >
+            <Text style={[styles.headerText, styles.saveText]}>Guardar</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -80,9 +91,11 @@ export default function DarkModeModal({
           <TouchableOpacity
             activeOpacity={0.9}
             onPress={() => handlePreviewChange(false)}
+            disabled={localSystemValue}
             style={[
               styles.previewCard,
               isLightSelected ? styles.previewCardSelected : null,
+              localSystemValue ? styles.disabledPreview : null,
             ]}
           >
             <Image
@@ -96,9 +109,11 @@ export default function DarkModeModal({
           <TouchableOpacity
             activeOpacity={0.9}
             onPress={() => handlePreviewChange(true)}
+            disabled={localSystemValue}
             style={[
               styles.previewCard,
               isDarkSelected ? styles.previewCardSelected : null,
+              localSystemValue ? styles.disabledPreview : null,
             ]}
           >
             <Image
@@ -119,20 +134,37 @@ export default function DarkModeModal({
             Activa o desactiva el modo oscuro para la pantalla de perfil.
           </Text>
 
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleLabel}>
-              {localValue ? 'Activado' : 'Desactivado'}
-            </Text>
-            <Switch
-              value={localValue}
-              onValueChange={handlePreviewChange}
-              ios_backgroundColor={switchTrackOff}
-              thumbColor={localValue ? switchThumbOn : switchThumbOff}
-              trackColor={{
-                false: switchTrackOff,
-                true: switchTrackOn,
-              }}
-            />
+          <View style={styles.toggleGroup}>
+            <View style={styles.toggleRow}>
+              <Text style={styles.toggleLabel}>Sistema</Text>
+              <Switch
+                value={localSystemValue}
+                onValueChange={handleSystemChange}
+                ios_backgroundColor={switchTrackOff}
+                thumbColor={localSystemValue ? switchThumbOn : switchThumbOff}
+                trackColor={{
+                  false: switchTrackOff,
+                  true: switchTrackOn,
+                }}
+              />
+            </View>
+
+            <View style={styles.toggleRow}>
+              <Text style={styles.toggleLabel}>
+                {localValue ? 'Activado' : 'Desactivado'}
+              </Text>
+              <Switch
+                value={localValue}
+                onValueChange={handlePreviewChange}
+                disabled={localSystemValue}
+                ios_backgroundColor={switchTrackOff}
+                thumbColor={localValue ? switchThumbOn : switchThumbOff}
+                trackColor={{
+                  false: switchTrackOff,
+                  true: switchTrackOn,
+                }}
+              />
+            </View>
           </View>
         </View>
       </View>

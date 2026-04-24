@@ -27,7 +27,15 @@ import { useHeaderHeight } from '@react-navigation/elements';
 
 export default function ProfileClientes() {
   const { signOut } = useAuth();
-  const { isDarkMode, theme, setDarkMode, setDarkModePreview } = useAppTheme();
+  const {
+    isDarkMode,
+    isSystemTheme,
+    theme,
+    setDarkMode,
+    setDarkModePreview,
+    setSystemTheme,
+    setSystemThemePreview,
+  } = useAppTheme();
   const styles = React.useMemo(() => createProfileStyles(theme), [theme]);
   const [loading, setLoading] = useState(true);
   const insets = useSafeAreaInsets();
@@ -38,6 +46,8 @@ export default function ProfileClientes() {
   const [modalIdiomaVisible, setModalIdiomaVisible] = useState(false);
   const [modalDarkmodeVisible, setModalDarkmodeVisible] = useState(false);
   const [initialDarkModeValue, setInitialDarkModeValue] = useState(isDarkMode);
+  const [initialSystemThemeValue, setInitialSystemThemeValue] =
+    useState(isSystemTheme);
   const [modalEditUserNameVisible, setModalEditUserNameVisible] =
     useState(false);
 
@@ -95,9 +105,17 @@ export default function ProfileClientes() {
     fetchTotalReservas();
   }, []);
 
-  const handleSaveDarkMode = async (nextValue: boolean) => {
+  const handleSaveDarkMode = async (
+    nextDarkModeValue: boolean,
+    nextSystemThemeValue: boolean,
+  ) => {
     try {
-      setDarkMode(nextValue);
+      if (nextSystemThemeValue) {
+        setSystemTheme(true);
+      } else {
+        setSystemTheme(false);
+        setDarkMode(nextDarkModeValue);
+      }
     } catch (error) {
       console.error('Error guardando preferencia de modo oscuro', error);
     } finally {
@@ -107,11 +125,17 @@ export default function ProfileClientes() {
 
   const handleOpenDarkModeModal = () => {
     setInitialDarkModeValue(isDarkMode);
+    setInitialSystemThemeValue(isSystemTheme);
     setModalDarkmodeVisible(true);
   };
 
   const handleCloseDarkModeModal = () => {
-    setDarkModePreview(initialDarkModeValue);
+    if (initialSystemThemeValue) {
+      setSystemThemePreview(true);
+    } else {
+      setSystemThemePreview(false);
+      setDarkModePreview(initialDarkModeValue);
+    }
     setModalDarkmodeVisible(false);
   };
 
@@ -275,7 +299,9 @@ export default function ProfileClientes() {
       <DarkModeModal
         visible={modalDarkmodeVisible}
         isDarkMode={isDarkMode}
+        isSystemTheme={isSystemTheme}
         onPreview={setDarkModePreview}
+        onSystemPreview={setSystemThemePreview}
         onSave={handleSaveDarkMode}
         onClose={handleCloseDarkModeModal}
       />
