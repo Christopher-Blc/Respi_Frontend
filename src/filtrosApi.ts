@@ -4,3 +4,7 @@ import { Reserva } from "./types/types";
 export const reservasActivasFilter = (response: any) => response.data.filter(
         (reserva: Reserva) => reserva.estado.toLowerCase() === 'confirmada',
       );
+
+      export const reservasFinalizedFilter = (response: any) => response.data.filter(
+        (reserva: Reserva) => reserva.estado.toLowerCase() === 'finalizada',
+      );
