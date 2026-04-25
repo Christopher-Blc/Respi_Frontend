@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import api from '../services/api';
-import { reservasActivasFilter } from '../filtrosApi';
+import { reservasActivasFilter, reservasFinalizedFilter } from '../filtrosApi';
 import { Reserva } from '../types/types';
 
 export function useHome() {
@@ -8,7 +8,7 @@ export function useHome() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchReservas = useCallback(async (silent = false) => {
+  const fetchActiveReservas = useCallback(async (silent = false) => {
     try {
       if (!silent) setLoading(true);
       const response = await api.get('/reserva/mis-reservas');
@@ -21,15 +21,28 @@ export function useHome() {
     }
   }, []);
 
+  const fetchFinalizedReservas = useCallback(async (silent = false) => {
+    try {
+      if (!silent) setLoading(true);
+      const response = await api.get('/reserva/mis-reservas');
+      const reservasFinalizadas = reservasFinalizedFilter(response);
+      setReservations(reservasFinalizadas);
+    } catch (error) {
+      console.error('Error al traer mis reservas:', error);
+    } finally {
+      if (!silent) setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    fetchReservas();
-  }, [fetchReservas]);
+    fetchActiveReservas();
+  }, [fetchActiveReservas]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchReservas(true);
+    await fetchActiveReservas(true);
     setRefreshing(false);
-  }, [fetchReservas]);
+  }, [fetchActiveReservas]);
 
   const nextReservationDate = useMemo(() => {
     if (!reservations.length) return 'Sin reservas';

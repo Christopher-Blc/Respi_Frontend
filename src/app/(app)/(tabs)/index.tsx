@@ -127,11 +127,15 @@ export default function HomeScreen() {
         <ScrollView
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primary} />
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={theme.primary}
+            />
           }
           contentContainerStyle={{
             paddingTop: headerHeight + 14,
-            paddingBottom: Platform.OS === 'web' ? 48 : 60,
+            paddingBottom: 110,
           }}
         >
           <View style={localStyles.heroCard}>
@@ -142,9 +146,12 @@ export default function HomeScreen() {
                 <Text style={localStyles.liveText}>En línea</Text>
               </View>
             </View>
-            <Text style={localStyles.heroTitle}>Gestiona tus reservas con un toque</Text>
+            <Text style={localStyles.heroTitle}>
+              Gestiona tus reservas con un toque
+            </Text>
             <Text style={localStyles.heroSubtitle}>
-              Agenda tu próxima pista, revisa disponibilidad y mantén tu actividad al día.
+              Agenda tu próxima pista, revisa disponibilidad y mantén tu
+              actividad al día.
             </Text>
           </View>
 
@@ -158,7 +165,9 @@ export default function HomeScreen() {
               <Text style={localStyles.statLabel}>Próxima reserva</Text>
             </View>
             <View style={localStyles.statCard}>
-              <Text style={localStyles.statValue}>{uniqueSportsCount || '-'}</Text>
+              <Text style={localStyles.statValue}>
+                {uniqueSportsCount || '-'}
+              </Text>
               <Text style={localStyles.statLabel}>Deportes en uso</Text>
             </View>
           </View>
@@ -190,9 +199,15 @@ export default function HomeScreen() {
 
           {reservations.length === 0 ? (
             <View style={localStyles.emptyCard}>
-              <Ionicons name="calendar-clear-outline" size={24} color={theme.textMuted} />
+              <Ionicons
+                name="calendar-clear-outline"
+                size={24}
+                color={theme.textMuted}
+              />
               <Text style={localStyles.emptyTitle}>Sin reservas próximas</Text>
-              <Text style={localStyles.emptySubtitle}>Haz tu primera reserva para empezar.</Text>
+              <Text style={localStyles.emptySubtitle}>
+                Haz tu primera reserva para empezar.
+              </Text>
               <TouchableOpacity
                 style={localStyles.emptyCta}
                 onPress={() => router.push('/reservas')}

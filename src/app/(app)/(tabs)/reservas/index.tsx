@@ -1,361 +1,197 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   ActivityIndicator,
   ImageBackground,
   Platform,
+  RefreshControl,
   ScrollView,
-  StyleSheet,
+  View,
   Text,
   TouchableOpacity,
   useWindowDimensions,
-  View,
 } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MODELOS, Modelo } from '../../../../data/modelos';
-import { reservasService } from '../../../../services/reservasService';
+import { MODELOS } from '../../../../data/modelos';
+import { Reserva } from '../../../../types/types';
 import createReservationsStyles from '../../../../style/reservations.styles';
 import { useAppTheme } from '../../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
-import { API_PUBLIC_URL } from '../../../../constants';
-import { AppTheme } from '../../../../theme';
+import { useHome } from '../../../../hooks/useHome';
+import { createHomeStyles } from '../../../../style/home.styles';
 
-const formatPrice = (price: number) =>
-  new Intl.NumberFormat('es-ES', {
-    style: 'currency',
-    currency: 'EUR',
-    maximumFractionDigits: 0,
-  }).format(price);
+//pantalla home del cliente
 
-const resolveImageSource = (img: Modelo['img']) => {
-  if (typeof img === 'number') return img;
-  if (typeof img === 'string') {
-    return img.startsWith('http')
-      ? { uri: img }
-      : { uri: `${API_PUBLIC_URL}/${img.replace(/^\//, '')}` };
-  }
-
-  return img;
-};
-
-export default function PistaTypeIndex() {
+export default function HomeScreen() {
   const router = useRouter();
   const { theme } = useAppTheme();
-  const styles = React.useMemo(() => createReservationsStyles(theme), [theme]);
-  const localStyles = useMemo(() => createLocalStyles(theme), [theme]);
-  const headerHeight = useHeaderHeight();
+  const styles = useMemo(() => createReservationsStyles(theme), [theme]);
+  const localStyles = useMemo(() => createHomeStyles(theme), [theme]);
   const { width } = useWindowDimensions();
+  const headerHeight = useHeaderHeight();
   const isWideScreen = width > 768;
-  const [modelos, setModelos] = useState<Modelo[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { reservations, loading, refreshing, onRefresh } = useHome();
 
-  useEffect(() => {
-    let mounted = true;
+  const getImageForReservation = (title: string) => {
+    const found = MODELOS.find((m) =>
+      title.toLowerCase().includes(m.title.toLowerCase()),
+    );
+    return found ? found.img : MODELOS[0].img;
+  };
 
-    (async () => {
-      try {
-        const remote = await reservasService.getModelos();
-        if (mounted) {
-          setModelos(remote.length ? remote : MODELOS);
-        }
-      } catch (error) {
-        if (mounted) {
-          setModelos(MODELOS);
-        }
-        console.error('Error al cargar deportes', error);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
+  const renderReservation = (item: Reserva) => {
+    const title = item.pista?.nombre || 'Reserva sin nombre';
+    const img = getImageForReservation(title);
+    const cleanDate = new Date(item.fecha_reserva).toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'short',
+    });
+    const cleanTime =
+      item.hora_inicio.split(':').slice(0, 2).join(':') +
+      ' - ' +
+      item.hora_fin.split(':').slice(0, 2).join(':');
 
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const stats = useMemo(
-    () => [
-      { label: 'Deportes', value: String(modelos.length || MODELOS.length) },
-      { label: 'Reserva online', value: '24/7' },
-      { label: 'Confirmación', value: 'Instantánea' },
-    ],
-    [modelos.length],
-  );
-
-  const renderModel = (item: Modelo) => (
-    <TouchableOpacity
-      key={item.id}
-      style={[
-        localStyles.catalogCard,
-        { flexBasis: isWideScreen ? (width - 72) / 2 : '100%', flexGrow: 1 },
-      ]}
-      activeOpacity={0.9}
-      onPress={() => router.push(`/reservas/createBooking?modelId=${item.id}`)}
-    >
-      <ImageBackground
-        source={resolveImageSource(item.img)}
-        style={localStyles.catalogCardBg}
-        imageStyle={{ borderRadius: 18 }}
+    return (
+      <TouchableOpacity
+        key={item.reserva_id}
+        style={localStyles.card}
+        onPress={() => router.push(`/(app)/reservas/${item.reserva_id}`)}
       >
-        <LinearGradient
-          colors={[
-            theme.reservationsCardOverlayStart,
-            theme.reservationsCardOverlayEnd,
-          ]}
-          style={localStyles.catalogCardOverlay}
+        <ImageBackground
+          source={img}
+          style={localStyles.cardBg}
+          imageStyle={localStyles.cardImage}
         >
-          <View style={localStyles.catalogHeaderRow}>
-            <View style={localStyles.statusBadge}>
-              <Text style={localStyles.statusText}>Disponible</Text>
+          <LinearGradient
+            colors={[
+              theme.reservationsCardOverlayStart,
+              theme.reservationsCardOverlayEnd,
+            ]}
+            style={localStyles.cardOverlay}
+          >
+            <View style={localStyles.cardHeaderRow}>
+              <Text style={localStyles.cardTitle}>{title}</Text>
+              <View style={localStyles.statusBadge}>
+                <Text style={localStyles.statusText}>{item.estado}</Text>
+              </View>
             </View>
-          </View>
 
-          <View style={localStyles.catalogBottom}>
-            <View>
-              <Text style={localStyles.catalogTitle}>{item.title}</Text>
-              <Text style={localStyles.catalogMeta}>
-                Reserva online y confirma en segundos
-              </Text>
+            <View style={localStyles.cardBottom}>
+              <View>
+                <Text style={localStyles.cardMeta}>
+                  <Ionicons
+                    name="calendar-outline"
+                    size={14}
+                    color={theme.onPrimary}
+                  />{' '}
+                  {cleanDate}
+                </Text>
+                <Text style={localStyles.cardMeta}>
+                  <Ionicons
+                    name="time-outline"
+                    size={14}
+                    color={theme.onPrimary}
+                  />{' '}
+                  {cleanTime}
+                </Text>
+              </View>
+              <Ionicons
+                name="chevron-forward-outline"
+                size={20}
+                color={theme.onPrimary}
+              />
             </View>
-            <View style={localStyles.pricePill}>
-              <Text style={localStyles.pricePillText}>{formatPrice(item.price)}/h</Text>
-            </View>
-          </View>
-
-          <View style={localStyles.catalogFooter}>
-            <Text style={localStyles.catalogCta}>Elegir deporte</Text>
-            <Ionicons name="chevron-forward" size={18} color={theme.onPrimary} />
-          </View>
-        </LinearGradient>
-      </ImageBackground>
-    </TouchableOpacity>
-  );
+          </LinearGradient>
+        </ImageBackground>
+      </TouchableOpacity>
+    );
+  };
 
   return (
-    <View style={[styles.container, localStyles.pageContainer]}>
-      <Stack.Screen options={{ title: 'Reservas' }} />
+    <View style={[styles.container, localStyles.page]}>
       {loading ? (
         <ActivityIndicator
           size="large"
           color={theme.primary}
-          style={{ marginTop: headerHeight + 16 }}
+          style={{ marginTop: headerHeight + 24 }}
         />
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={theme.primary}
+            />
+          }
           contentContainerStyle={{
-            paddingTop: headerHeight + 18,
-            paddingBottom: Platform.OS === 'web' ? 96 : 140,
+            paddingTop: headerHeight + 14,
+            paddingBottom: 120,
           }}
         >
-          <View style={localStyles.heroCard}>
-            <View style={localStyles.heroTag}>
-              <Text style={localStyles.heroTagText}>Reservas</Text>
-            </View>
-            <Text style={localStyles.heroTitle}>Elige tu deporte y reserva en minutos</Text>
-            <Text style={localStyles.heroSubtitle}>
-              Catálogo actualizado de pistas para una experiencia rápida, clara y profesional.
-            </Text>
+          {/*eso seran filtros para buscar o reservas activas o finalizadas hechas por este usuario*/}
+          <View style={localStyles.actionsRow}>
+            <TouchableOpacity
+              style={[localStyles.actionCard, localStyles.actionPrimary]}
+              onPress={() => null}
+            >
+              <Ionicons name="time" size={18} color={theme.onPrimary} />
+              <Text style={localStyles.actionPrimaryText}>Activas</Text>
+            </TouchableOpacity>
 
-            <View style={localStyles.statsRow}>
-              {stats.map((item) => (
-                <View key={item.label} style={localStyles.statCard}>
-                  <Text style={localStyles.statValue}>{item.value}</Text>
-                  <Text style={localStyles.statLabel}>{item.label}</Text>
-                </View>
-              ))}
-            </View>
+            <TouchableOpacity
+              style={[localStyles.actionCard, localStyles.actionSecondary]}
+              onPress={() => null}
+            >
+              <Ionicons name="checkmark" size={18} color={theme.primary} />
+              <Text style={localStyles.actionSecondaryText}>Finalizadas</Text>
+            </TouchableOpacity>
           </View>
 
           <View style={localStyles.sectionHeader}>
-            <Text style={localStyles.sectionTitle}>Deportes disponibles</Text>
-            <Text style={localStyles.sectionSubtitle}>Selecciona uno para empezar tu reserva</Text>
+            <Text style={localStyles.sectionTitle}>Próximas reservas</Text>
+            <TouchableOpacity onPress={onRefresh}>
+              <Text style={localStyles.sectionLink}>Actualizar</Text>
+            </TouchableOpacity>
           </View>
 
-          <View style={localStyles.gridContainer}>
-            {(modelos.length ? modelos : MODELOS).map(renderModel)}
-            {isWideScreen && <View style={localStyles.dummyCard} />}
-          </View>
+          {reservations.length === 0 ? (
+            <View style={localStyles.emptyCard}>
+              <Ionicons
+                name="calendar-clear-outline"
+                size={24}
+                color={theme.textMuted}
+              />
+              <Text style={localStyles.emptyTitle}>Sin reservas próximas</Text>
+              <Text style={localStyles.emptySubtitle}>
+                Haz tu primera reserva para empezar.
+              </Text>
+              <TouchableOpacity
+                style={localStyles.emptyCta}
+                onPress={() => router.push('/reservas')}
+              >
+                <Text style={localStyles.emptyCtaText}>Reservar ahora</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={localStyles.gridContainer}>
+              {reservations.map((item) => (
+                <View
+                  key={item.reserva_id}
+                  style={{
+                    flexBasis: isWideScreen ? 320 : '100%',
+                    flexGrow: 1,
+                  }}
+                >
+                  {renderReservation(item)}
+                </View>
+              ))}
+            </View>
+          )}
         </ScrollView>
       )}
     </View>
   );
 }
-
-const createLocalStyles = (theme: AppTheme) =>
-  StyleSheet.create({
-    pageContainer: {
-      backgroundColor: theme.background,
-    },
-    heroCard: {
-      borderRadius: 24,
-      padding: 20,
-      marginTop: 8,
-      marginBottom: 20,
-      backgroundColor: theme.primarySoft,
-      borderWidth: 1,
-      borderColor: theme.borderAccentSoft,
-    },
-    heroTag: {
-      alignSelf: 'flex-start',
-      backgroundColor: theme.primarySoft,
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 999,
-      marginBottom: 12,
-      borderWidth: 1,
-      borderColor: theme.borderAccentSoft,
-    },
-    heroTagText: {
-      color: theme.primary,
-      fontWeight: '800',
-      fontSize: 12,
-      letterSpacing: 0.6,
-      textTransform: 'uppercase',
-    },
-    heroTitle: {
-      fontSize: 28,
-      lineHeight: 34,
-      fontWeight: '900',
-      color: theme.textTitle,
-    },
-    heroSubtitle: {
-      marginTop: 10,
-      fontSize: 15,
-      lineHeight: 22,
-      color: theme.textSubtitle,
-    },
-    statsRow: {
-      marginTop: 18,
-      flexDirection: 'row',
-      gap: 12,
-      flexWrap: 'wrap',
-    },
-    statCard: {
-      flexGrow: 1,
-      minWidth: 96,
-      borderRadius: 18,
-      paddingVertical: 14,
-      paddingHorizontal: 14,
-      backgroundColor: theme.surfaceGlass,
-      borderWidth: 1,
-      borderColor: theme.borderSoft,
-    },
-    statValue: {
-      color: theme.textTitle,
-      fontSize: 18,
-      fontWeight: '900',
-    },
-    statLabel: {
-      marginTop: 4,
-      color: theme.textSubtitle,
-      fontSize: 12,
-      fontWeight: '600',
-    },
-    sectionHeader: {
-      marginBottom: 14,
-    },
-    sectionTitle: {
-      fontSize: 22,
-      fontWeight: '900',
-      color: theme.textTitle,
-    },
-    sectionSubtitle: {
-      marginTop: 4,
-      color: theme.textSubtitle,
-      fontSize: 13,
-      fontWeight: '500',
-    },
-    gridContainer: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: 16,
-    },
-    dummyCard: {
-      flexBasis: 320,
-      flexGrow: 1,
-      height: 0,
-    },
-    catalogCard: {
-      minHeight: 220,
-      borderRadius: 18,
-      overflow: 'hidden',
-      backgroundColor: theme.cardBackground,
-      borderWidth: 1,
-      borderColor: theme.borderAccentSoft,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.15,
-      shadowRadius: 14,
-      elevation: 5,
-    },
-    catalogCardBg: {
-      flex: 1,
-    },
-    catalogCardOverlay: {
-      flex: 1,
-      justifyContent: 'space-between',
-      padding: 18,
-    },
-    catalogHeaderRow: {
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
-    },
-    statusBadge: {
-      backgroundColor: 'rgba(255,255,255,0.2)',
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 999,
-    },
-    statusText: {
-      color: '#FFFFFF',
-      fontSize: 11,
-      fontWeight: '800',
-      letterSpacing: 0.5,
-      textTransform: 'uppercase',
-    },
-    catalogBottom: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'flex-end',
-    },
-    catalogTitle: {
-      color: '#FFFFFF',
-      fontSize: 24,
-      fontWeight: '900',
-      textShadowColor: 'rgba(0,0,0,0.45)',
-      textShadowOffset: { width: 0, height: 1 },
-      textShadowRadius: 8,
-    },
-    catalogMeta: {
-      marginTop: 6,
-      color: 'rgba(255,255,255,0.84)',
-      fontSize: 13,
-      fontWeight: '500',
-      maxWidth: 190,
-    },
-    pricePill: {
-      backgroundColor: 'rgba(255,255,255,0.92)',
-      borderRadius: 999,
-      paddingHorizontal: 12,
-      paddingVertical: 7,
-    },
-    pricePillText: {
-      color: theme.primary,
-      fontSize: 12,
-      fontWeight: '900',
-    },
-    catalogFooter: {
-      marginTop: 12,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    catalogCta: {
-      color: '#FFFFFF',
-      fontSize: 13,
-      fontWeight: '800',
-      letterSpacing: 0.2,
-    },
-  });
