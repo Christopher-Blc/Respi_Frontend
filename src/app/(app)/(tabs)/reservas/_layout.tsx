@@ -6,12 +6,19 @@ export default function bookingLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: false,
+        headerShown: true,
         headerStyle: { backgroundColor: theme.headerBackground },
-
+        headerTintColor: theme.textTitle,
         headerBackButtonMenuEnabled: false,
-        headerLeft: () => null, // Elimina el botón de retroceso en la primera pantalla
       }}
-    ></Stack>
+    >
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="createBooking" options={{ title: 'Nueva reserva' }} />
+      <Stack.Screen
+        name="confirmacion"
+        options={{ title: 'Confirmar reserva' }}
+      />
+      <Stack.Screen name="pistaTypes" options={{ title: 'Tipos de pista' }} />
+    </Stack>
   );
 }

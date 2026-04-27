@@ -2,11 +2,20 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import Octicons from '@expo/vector-icons/Octicons';
+import { Ionicons } from '@expo/vector-icons';
+import { TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
+import { useRouter, useSegments } from 'expo-router';
 import { useAppTheme } from '../../../context/ThemeContext';
 
 export default function tabLayout() {
   const { isDarkMode, theme } = useAppTheme();
+  const router = useRouter();
+  const segments = useSegments();
+
+  const reservasSegmentIndex = segments.lastIndexOf('reservas');
+  const isReservasNestedScreen =
+    reservasSegmentIndex !== -1 && segments.length > reservasSegmentIndex + 1;
 
   return (
     <React.Fragment>
@@ -89,6 +98,28 @@ export default function tabLayout() {
           name="reservas"
           options={{
             title: 'Reservas',
+            headerLeft: () => {
+              if (!isReservasNestedScreen) {
+                return null;
+              }
+
+              return (
+                <TouchableOpacity
+                  onPress={() => {
+                    if (router.canGoBack()) {
+                      router.back();
+                      return;
+                    }
+
+                    router.replace('/(app)/(tabs)/reservas');
+                  }}
+                  style={{ marginLeft: 8, padding: 4 }}
+                  hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                >
+                  <Ionicons name="arrow-back" size={22} color={theme.primary} />
+                </TouchableOpacity>
+              );
+            },
             tabBarIcon: ({ color, size }) => (
               <Octicons name="calendar" size={size} color={color} />
             ),
