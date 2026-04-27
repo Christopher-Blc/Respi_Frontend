@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { useHeaderHeight } from '@react-navigation/elements';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import createReservationsStyles from '../../../../style/reservations.styles';
 import { useAppTheme } from '../../../../context/ThemeContext';
 import {
@@ -88,6 +88,10 @@ const getImageForPista = (pista: PistaDisponibilidad) => {
 export default function ReservasTab() {
   const { theme, isDarkMode } = useAppTheme();
   const router = useRouter();
+  const params = useLocalSearchParams<{
+    modelId?: string | string[];
+    modelTitle?: string | string[];
+  }>();
   const styles = useMemo(() => createReservationsStyles(theme), [theme]);
   const reservasTabStyles = useMemo(
     () => createReservasTabStyles(theme),
@@ -106,9 +110,54 @@ export default function ReservasTab() {
   const [showNoSlotsModal, setShowNoSlotsModal] = useState(false);
   const [noSlotsTitle, setNoSlotsTitle] = useState('');
 
+  const normalizeParam = (value?: string | string[]) =>
+    Array.isArray(value) ? value[0] : value;
+  const selectedModelId = normalizeParam(params.modelId);
+  const selectedModelTitle = normalizeParam(params.modelTitle);
+  const normalizeText = (value: string) =>
+    value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+
   const formattedDate = formatDateForAPI(selectedDate);
   const { pistas, loading } = useReservasDisponibles(formattedDate);
   const availableDays = useMemo(() => getNext7Days(), []);
+
+  const filteredPistas = useMemo(() => {
+    if (!selectedModelId && !selectedModelTitle) return pistas;
+
+    const targetTitle = selectedModelTitle ? normalizeText(selectedModelTitle) : '';
+
+    return pistas.filter((pista) => {
+      const item = pista as any;
+      const candidateTypeIds = [
+        item?.tipo_pista_id,
+        item?.tipoPistaId,
+        item?.tipo_pista?.tipo_pista_id,
+        item?.tipo_pista?.id,
+      ]
+        .filter((id) => id !== undefined && id !== null)
+        .map((id) => String(id));
+
+      const idMatch =
+        !!selectedModelId && candidateTypeIds.includes(String(selectedModelId));
+
+      if (idMatch) return true;
+      if (!targetTitle) return false;
+
+      const tipoNombre = String(
+        item?.tipo_pista?.nombre || item?.tipo_pista?.title || '',
+      );
+      const pistaNombre = String(item?.nombre || '');
+
+      return (
+        normalizeText(tipoNombre).includes(targetTitle) ||
+        normalizeText(pistaNombre).includes(targetTitle)
+      );
+    });
+  }, [pistas, selectedModelId, selectedModelTitle]);
 
   const handleSelectDate = (date: Date) => {
     setSelectedDate(date);
@@ -322,7 +371,7 @@ export default function ReservasTab() {
         <View style={reservasTabStyles.loadingContainer}>
           <ActivityIndicator size="large" color={theme.primary} />
         </View>
-      ) : pistas.length === 0 ? (
+      ) : filteredPistas.length === 0 ? (
         <View style={reservasTabStyles.emptyContainer}>
           <Ionicons
             name="calendar-clear-outline"
@@ -330,10 +379,10 @@ export default function ReservasTab() {
             color={theme.textMuted}
           />
           <Text style={reservasTabStyles.emptyTitle}>
-            No hay pistas disponibles
+            No hay pistas disponibles para este deporte
           </Text>
           <Text style={reservasTabStyles.emptySubtitle}>
-            Selecciona otra fecha para continuar
+            Selecciona otra fecha o cambia de deporte para continuar
           </Text>
         </View>
       ) : (
@@ -345,8 +394,27 @@ export default function ReservasTab() {
             paddingHorizontal: 12,
           }}
         >
+          {!!selectedModelTitle && (
+            <View
+              style={{
+                marginBottom: 12,
+                borderRadius: 10,
+                paddingVertical: 8,
+                paddingHorizontal: 10,
+                backgroundColor: theme.primarySoft,
+                borderWidth: 1,
+                borderColor: theme.borderAccentSoft,
+              }}
+            >
+              <Text
+                style={{ color: theme.textTitle, fontWeight: '700', fontSize: 13 }}
+              >
+                Mostrando pistas de {selectedModelTitle}
+              </Text>
+            </View>
+          )}
           <View style={reservasTabStyles.gridContainer}>
-            {pistas.map(renderPistaCard)}
+            {filteredPistas.map(renderPistaCard)}
           </View>
         </ScrollView>
       )}
