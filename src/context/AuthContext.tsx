@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { SessionExpiredModal } from '../components/sessionExpired.modal';
+import { SessionExpiredModal } from '../components/alert.modal';
 import {
   getToken,
   logout,

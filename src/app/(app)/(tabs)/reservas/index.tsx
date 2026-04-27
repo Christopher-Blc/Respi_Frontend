@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   FlatList,
   ImageBackground,
-  Modal,
   Platform,
   ScrollView,
   StyleSheet,
@@ -26,9 +25,10 @@ import {
 import { API_PUBLIC_URL } from '../../../../constants';
 import DateModal from '../../../../components/reservas/date.modal';
 import DisponibilidadBarra, {
+  BloqueDisponibilidad,
   crearBloquesDisponibilidad,
-  crearResumenHuecosLibres,
 } from '../../../../components/reservas/DisponibilidadBarra';
+import { SessionExpiredModal } from '../../../../components/alert.modal';
 import createReservasTabStyles from '../../../../style/reservasTab.styles';
 
 const getNext7Days = () => {
@@ -54,6 +54,23 @@ const formatDateDisplay = (date: Date) =>
     day: '2-digit',
     month: 'short',
   });
+
+const formatCompactHour = (hhmm: string) => {
+  const [hRaw = '0', mRaw = '0'] = String(hhmm || '').split(':');
+  const h = String(Number(hRaw));
+  const m = Number(mRaw);
+  return m === 0 ? h : `${h}:${String(m).padStart(2, '0')}`;
+};
+
+const buildFreeRanges = (bloques: BloqueDisponibilidad[]) =>
+  bloques
+    .filter(
+      (bloque) => bloque.tipo === 'libre' && bloque.finMin > bloque.inicioMin,
+    )
+    .map(
+      (bloque) =>
+        `${formatCompactHour(bloque.inicio)} - ${formatCompactHour(bloque.fin)}`,
+    );
 
 const getImageForPista = (pista: PistaDisponibilidad) => {
   if (pista.tipo_pista?.imagen) {
@@ -85,7 +102,9 @@ export default function ReservasTab() {
 
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [infoTitle, setInfoTitle] = useState('');
-  const [infoText, setInfoText] = useState('');
+  const [infoRanges, setInfoRanges] = useState<string[]>([]);
+  const [showNoSlotsModal, setShowNoSlotsModal] = useState(false);
+  const [noSlotsTitle, setNoSlotsTitle] = useState('');
 
   const formattedDate = formatDateForAPI(selectedDate);
   const { pistas, loading } = useReservasDisponibles(formattedDate);
@@ -103,11 +122,27 @@ export default function ReservasTab() {
       pista.reservas_actuales || [],
     );
     setInfoTitle(pista.nombre);
-    setInfoText(crearResumenHuecosLibres(bloques));
+    setInfoRanges(buildFreeRanges(bloques));
     setShowInfoModal(true);
   };
 
   const openCreateBooking = (pista: PistaDisponibilidad) => {
+    const bloques = crearBloquesDisponibilidad(
+      pista.hora_apertura,
+      pista.hora_cierre,
+      pista.reservas_actuales || [],
+    );
+    const hasFreeSlot = bloques.some(
+      (bloque) =>
+        bloque.tipo === 'libre' && bloque.finMin - bloque.inicioMin >= 30,
+    );
+
+    if (!hasFreeSlot) {
+      setNoSlotsTitle(pista.nombre);
+      setShowNoSlotsModal(true);
+      return;
+    }
+
     router.push({
       pathname: '/(app)/(tabs)/reservas/createBooking',
       params: {
@@ -245,25 +280,41 @@ export default function ReservasTab() {
         onClose={() => setShowDateModal(false)}
       />
 
-      <Modal
+      <SessionExpiredModal
         visible={showInfoModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowInfoModal(false)}
-      >
-        <View style={reservasTabStyles.infoModalBackdrop}>
-          <View style={reservasTabStyles.infoModalCard}>
-            <Text style={reservasTabStyles.infoModalTitle}>{infoTitle}</Text>
-            <Text style={reservasTabStyles.infoModalBody}>{infoText}</Text>
-            <TouchableOpacity
-              style={reservasTabStyles.infoModalCloseBtn}
-              onPress={() => setShowInfoModal(false)}
-            >
-              <Text style={reservasTabStyles.infoModalCloseText}>Cerrar</Text>
-            </TouchableOpacity>
+        onConfirm={() => setShowInfoModal(false)}
+        title={infoTitle || 'Huecos libres'}
+        confirmText="Cerrar"
+        content={
+          <View>
+            <Text style={reservasTabStyles.infoListTitle}>Huecos libres</Text>
+            {infoRanges.length === 0 ? (
+              <Text style={reservasTabStyles.infoListEmpty}>
+                No hay disponibilidad en este dia.
+              </Text>
+            ) : (
+              <View style={reservasTabStyles.infoListWrap}>
+                {infoRanges.map((range, index) => (
+                  <View
+                    key={range + String(index)}
+                    style={reservasTabStyles.infoRangeChip}
+                  >
+                    <Text style={reservasTabStyles.infoRangeText}>{range}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
           </View>
-        </View>
-      </Modal>
+        }
+      />
+
+      <SessionExpiredModal
+        visible={showNoSlotsModal}
+        onConfirm={() => setShowNoSlotsModal(false)}
+        title={noSlotsTitle || 'Sin huecos disponibles'}
+        message="No quedan huecos libres de 30 minutos o mas para esta pista."
+        confirmText="Entendido"
+      />
 
       {renderDateSelector()}
 
