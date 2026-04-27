@@ -16,6 +16,7 @@ export type PistaBackend = {
   id?: number | string;
   nombre?: string;
   descripcion?: string;
+  imagen?: string;
   capacidad?: number;
   precio_hora?: string | number;
   cubierta?: boolean;
@@ -27,6 +28,7 @@ export type PistaBackend = {
     tipo_pista_id?: number | string;
     id?: number | string;
     nombre?: string;
+    imagen?: string;
   };
   reservas_actuales?: Array<{ inicio: string; fin: string }>;
 };
@@ -47,6 +49,23 @@ export const resolveImageSource = (img: Modelo['img']) => {
   }
 
   return img;
+};
+
+export const resolvePistaImageSource = (
+  pista: PistaBackend,
+  fallbackModel?: Modelo | null,
+) => {
+  const candidate =
+    pista?.tipo_pista?.imagen || pista?.imagen || fallbackModel?.img;
+
+  if (typeof candidate === 'number') return candidate;
+  if (typeof candidate === 'string') {
+    return candidate.startsWith('http')
+      ? { uri: candidate }
+      : { uri: `${API_PUBLIC_URL}/${candidate.replace(/^\//, '')}` };
+  }
+
+  return fallbackModel?.img || MODELOS[0].img;
 };
 
 export const formatDateDisplay = (date: Date) =>

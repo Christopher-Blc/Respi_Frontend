@@ -43,16 +43,47 @@ export default function HomeScreen() {
     uniqueSportsCount,
   } = useHome();
 
-  const getImageForReservation = (title: string) => {
-    const found = MODELOS.find((m) =>
-      title.toLowerCase().includes(m.title.toLowerCase()),
+  const normalize = (value: string) =>
+    String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+
+  const getImageForReservation = (reservation: Reserva) => {
+    const pista = reservation.pista as any;
+
+    const typeId =
+      String(
+        pista?.tipo_pista_id ??
+          pista?.tipoPistaId ??
+          pista?.tipo_pista?.tipo_pista_id ??
+          pista?.tipo_pista?.id ??
+          '',
+      ) || null;
+
+    if (typeId) {
+      const byId = MODELOS.find((m) => String(m.id) === typeId);
+      if (byId) return byId.img;
+    }
+
+    const typeName = normalize(
+      pista?.tipo_pista?.nombre || pista?.tipo || pista?.deporte || '',
     );
-    return found ? found.img : MODELOS[0].img;
+    if (typeName) {
+      const byTypeName = MODELOS.find((m) =>
+        typeName.includes(normalize(m.title)),
+      );
+      if (byTypeName) return byTypeName.img;
+    }
+
+    const title = normalize(pista?.nombre || '');
+    const byTitle = MODELOS.find((m) => title.includes(normalize(m.title)));
+    return byTitle ? byTitle.img : MODELOS[0].img;
   };
 
   const renderReservation = (item: Reserva) => {
     const title = item.pista?.nombre || 'Reserva sin nombre';
-    const img = getImageForReservation(title);
+    const img = getImageForReservation(item);
     const cleanDate = new Date(item.fecha_reserva).toLocaleDateString('es-ES', {
       day: '2-digit',
       month: 'short',
