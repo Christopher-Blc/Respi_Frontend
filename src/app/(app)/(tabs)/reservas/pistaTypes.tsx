@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   ImageBackground,
   ActivityIndicator,
@@ -13,40 +12,20 @@ import {
 import { Tabs, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import api from '../../../../services/api';
-import { TipoPista } from '../../../../types/types';
 import { API_PUBLIC_URL } from '../../../../constants';
 import { useAppTheme } from '../../../../context/ThemeContext';
-import { AppTheme } from '../../../../theme';
 import { useHeaderHeight } from '@react-navigation/elements';
+import { usePistaTypes } from '../../../../hooks/usePistaTypes';
+import createPistaTypesStyles from '../../../../style/pistaTypes.styles';
 
 export default function PistaTypeIndex() {
   const router = useRouter();
   const { theme } = useAppTheme();
-  const styles = React.useMemo(() => createStyles(theme), [theme]);
-  const [modelos, setModelos] = useState<TipoPista[]>([]);
-  const [loading, setLoading] = useState(true);
+  const styles = React.useMemo(() => createPistaTypesStyles(theme), [theme]);
   const headerHeight = useHeaderHeight();
-
-  // 1. Detectar el ancho de la pantalla
   const { width } = useWindowDimensions();
-  const isWeb = width > 768;
-
-  const fetchTipos = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get('/tipo_pista');
-      setModelos(response.data);
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTipos();
-  }, []);
+  const isWideScreen = width > 768;
+  const { modelos, loading, getCardDescription } = usePistaTypes();
 
   return (
     <ScrollView
@@ -63,44 +42,64 @@ export default function PistaTypeIndex() {
     >
       <Tabs.Screen options={{ title: 'Nueva reserva' }} />
 
-      {/* Header Naranja que ocupa todo el ancho */}
       <View style={styles.headerCard}>
-        <View style={styles.headerOverlay}>
-          <Text style={styles.headerTitle}>
-            <Ionicons
-              name="information-circle-outline"
-              size={24}
-              color={theme.onPrimary}
-            />
-            {'  '}Reserva tu pista
-          </Text>
+        <LinearGradient
+          colors={[
+            theme.reservationsCardOverlayStart,
+            theme.reservationsCardOverlayEnd,
+          ]}
+          style={styles.headerGradient}
+        >
+          <View style={styles.headerTopRow}>
+            <View style={styles.headerIconBadge}>
+              <Ionicons
+                name="information-circle-outline"
+                size={20}
+                color={theme.onPrimary}
+              />
+            </View>
+            <Text style={styles.headerKicker}>NUEVA RESERVA</Text>
+          </View>
+
+          <Text style={styles.headerTitle}>Reserva tu pista ideal</Text>
           <Text style={styles.headerSubtitle}>
-            Selecciona el deporte para continuar
+            Selecciona un deporte y consulta disponibilidad al instante.
           </Text>
-        </View>
+
+          <View style={styles.headerMetaRow}>
+            <View style={styles.headerMetaChip}>
+              <Ionicons
+                name="tennisball-outline"
+                size={14}
+                color={theme.onPrimary}
+              />
+              <Text style={styles.headerMetaText}>{modelos.length} deportes</Text>
+            </View>
+            <View style={styles.headerMetaChip}>
+              <Ionicons name="flash-outline" size={14} color={theme.onPrimary} />
+              <Text style={styles.headerMetaText}>Reserva en segundos</Text>
+            </View>
+          </View>
+        </LinearGradient>
       </View>
 
-      {/* GRID ELÁSTICO: Se estira para llenar la pantalla */}
       <View style={styles.gridContainer}>
         {modelos.map((item) => {
           const imgSource = item.imagen
             ? { uri: `${API_PUBLIC_URL}/${item.imagen}` }
             : require('../../../../../assets/RespiLogo.png');
+          const description = getCardDescription(item);
 
           return (
             <TouchableOpacity
               key={item.tipo_pista_id}
-              // flexBasis: 300 en web significa "mide al menos 300px"
-              // flexGrow: 1 hace que se estiren para rellenar el hueco blanco
               style={[
                 styles.modelCard,
-                { flexBasis: isWeb ? 320 : '100%', flexGrow: 1 },
+                { flexBasis: isWideScreen ? 320 : '100%', flexGrow: 1 },
               ]}
               activeOpacity={0.8}
               onPress={() =>
-                router.push(
-                  `/(app)/booking/details?modelId=${item.tipo_pista_id}`,
-                )
+                router.push(`/(app)/booking/details?modelId=${item.tipo_pista_id}`)
               }
             >
               <ImageBackground
@@ -117,18 +116,58 @@ export default function PistaTypeIndex() {
                   style={styles.modelGradient}
                 >
                   <View style={styles.modelTopRow}>
+                    <View style={styles.availableBadge}>
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={14}
+                        color={theme.success}
+                      />
+                      <Text style={styles.availableBadgeText}>Disponible</Text>
+                    </View>
                     <View style={styles.priceTag}>
-                      <Text style={styles.priceTagText}>desde €/h</Text>
+                      <Text style={styles.priceTagText}>desde EUR/h</Text>
                     </View>
                   </View>
 
-                  <View style={styles.modelBottom}>
-                    <Text style={styles.modelTitle}>{item.nombre}</Text>
-                    <Ionicons
-                      name="chevron-forward-circle"
-                      size={26}
-                      color={theme.onPrimary}
-                    />
+                  <View style={styles.modelBottomPanel}>
+                    <View style={styles.modelBottom}>
+                      <View style={styles.modelInfoWrap}>
+                        <Text style={styles.modelTitle}>{item.nombre}</Text>
+                        <Text style={styles.modelDescription} numberOfLines={3}>
+                          {description}
+                        </Text>
+                      </View>
+
+                      <View style={styles.modelMetaRow}>
+                        <View style={styles.modelMetaChip}>
+                          <Ionicons
+                            name="calendar-outline"
+                            size={13}
+                            color={theme.onPrimary}
+                          />
+                          <Text style={styles.modelMetaText}>
+                            Disponibilidad diaria
+                          </Text>
+                        </View>
+                        <View style={styles.modelMetaChip}>
+                          <Ionicons
+                            name="flash-outline"
+                            size={13}
+                            color={theme.onPrimary}
+                          />
+                          <Text style={styles.modelMetaText}>Reserva inmediata</Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.modelCtaPill}>
+                        <Text style={styles.modelCtaText}>Ver pistas</Text>
+                        <Ionicons
+                          name="chevron-forward"
+                          size={16}
+                          color={theme.onPrimary}
+                        />
+                      </View>
+                    </View>
                   </View>
                 </LinearGradient>
               </ImageBackground>
@@ -136,131 +175,27 @@ export default function PistaTypeIndex() {
           );
         })}
 
-        {/* TRUCO PARA WEB: 
-            Añadimos varios Views invisibles para que si la última fila tiene 
-            menos elementos, no se estiren de forma desproporcionada. 
-        */}
-        {isWeb && <View style={styles.dummyCard} />}
-        {isWeb && <View style={styles.dummyCard} />}
-        {isWeb && <View style={styles.dummyCard} />}
+        {isWideScreen && <View style={styles.dummyCard} />}
+        {isWideScreen && <View style={styles.dummyCard} />}
+        {isWideScreen && <View style={styles.dummyCard} />}
       </View>
+
+      {!loading && modelos.length === 0 && (
+        <View style={styles.emptyStateCard}>
+          <Ionicons name="layers-outline" size={30} color={theme.textMuted} />
+          <Text style={styles.emptyStateTitle}>No hay deportes disponibles</Text>
+          <Text style={styles.emptyStateText}>
+            Vuelve a intentarlo en unos segundos.
+          </Text>
+        </View>
+      )}
 
       {loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={theme.primary} />
+          <Text style={styles.loadingText}>Cargando deportes...</Text>
         </View>
       )}
     </ScrollView>
   );
 }
-
-const createStyles = (theme: AppTheme) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.background,
-    },
-    scrollContent: {
-      paddingHorizontal: 16,
-      paddingBottom: 40,
-    },
-    headerCard: {
-      marginTop: 16,
-      height: 80,
-      borderRadius: 14,
-      backgroundColor: theme.primary,
-      justifyContent: 'center',
-      marginBottom: 20,
-      width: '100%',
-      ...Platform.select({
-        ios: {
-          shadowColor: theme.overlayDark,
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 4,
-        },
-        android: { elevation: 3 },
-      }),
-    },
-    headerOverlay: { paddingHorizontal: 20 },
-    headerTitle: {
-      color: theme.onPrimary,
-      fontSize: 22,
-      fontWeight: '900',
-    },
-    headerSubtitle: { color: theme.onPrimary, fontSize: 14 },
-
-    gridContainer: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: 16,
-      width: '100%',
-    },
-
-    modelCard: {
-      height: 220, // Un poco más alto para que luzca en web
-      borderRadius: 18,
-      overflow: 'hidden',
-      backgroundColor: theme.cardBackground,
-      borderWidth: 1,
-      borderColor: theme.borderSoft,
-      ...Platform.select({
-        ios: {
-          shadowColor: theme.overlayDark,
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.2,
-          shadowRadius: 5,
-        },
-        android: { elevation: 5 },
-      }),
-    },
-
-    // Estilo para las tarjetas invisibles que rellenan el hueco
-    dummyCard: {
-      flexBasis: 320,
-      flexGrow: 1,
-      height: 0, // No ocupan espacio vertical
-      marginHorizontal: 0,
-    },
-
-    modelBg: { flex: 1 },
-    modelImageStyle: {
-      borderRadius: 16,
-      borderColor: '#fff',
-      borderWidth: 0.5,
-    },
-    modelGradient: {
-      flex: 1,
-      justifyContent: 'space-between',
-      padding: 18,
-    },
-    modelTopRow: { flexDirection: 'row', justifyContent: 'flex-end' },
-    priceTag: {
-      backgroundColor: theme.surface,
-      paddingHorizontal: 12,
-      paddingVertical: 5,
-      borderRadius: 20,
-    },
-    priceTagText: {
-      color: theme.primary,
-      fontWeight: '800',
-      fontSize: 12,
-    },
-    modelBottom: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    modelTitle: {
-      fontWeight: '900',
-      fontSize: 24,
-      color: theme.onPrimary,
-      textShadowColor: theme.overlayDark,
-      textShadowOffset: { width: 1, height: 1 },
-      textShadowRadius: 4,
-    },
-    loadingContainer: {
-      marginTop: 40,
-      alignItems: 'center',
-    },
-  });
