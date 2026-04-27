@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   ImageBackground,
@@ -20,6 +20,7 @@ import { useAppTheme } from '../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useHome } from '../../../hooks/useHome';
 import { createHomeStyles } from '../../../style/home.styles';
+import DateModal from '../../../components/reservas/date.modal';
 
 //pantalla home del cliente
 
@@ -28,6 +29,8 @@ export default function HomeScreen() {
   const { theme } = useAppTheme();
   const styles = useMemo(() => createReservationsStyles(theme), [theme]);
   const localStyles = useMemo(() => createHomeStyles(theme), [theme]);
+  const [dateModalVisible, setDateModalVisible] = useState(false);
+
   const { width } = useWindowDimensions();
   const headerHeight = useHeaderHeight();
   const isWideScreen = width > 768;
@@ -175,7 +178,7 @@ export default function HomeScreen() {
           <View style={localStyles.actionsRow}>
             <TouchableOpacity
               style={[localStyles.actionCard, localStyles.actionPrimary]}
-              onPress={() => router.push('/reservas')}
+              onPress={() => null}
             >
               <Ionicons name="calendar" size={18} color={theme.onPrimary} />
               <Text style={localStyles.actionPrimaryText}>Nueva reserva</Text>
@@ -232,6 +235,14 @@ export default function HomeScreen() {
           )}
         </ScrollView>
       )}
+
+      <DateModal
+        visible={dateModalVisible}
+        onClose={() => setDateModalVisible(false)}
+        onSave={function (selectedDate: Date): void {
+          throw new Error('Function not implemented.');
+        }}
+      />
     </View>
   );
 }

@@ -1,354 +1,266 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  ImageBackground,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  useWindowDimensions,
   View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ImageBackground,
+  ActivityIndicator,
+  useWindowDimensions,
+  ScrollView,
+  Platform,
 } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MODELOS, Modelo } from '../../../../data/modelos';
-import { reservasService } from '../../../../services/reservasService';
-import createReservationsStyles from '../../../../style/reservations.styles';
-import { useAppTheme } from '../../../../context/ThemeContext';
-import { useHeaderHeight } from '@react-navigation/elements';
+import api from '../../../../services/api';
+import { TipoPista } from '../../../../types/types';
 import { API_PUBLIC_URL } from '../../../../constants';
+import { useAppTheme } from '../../../../context/ThemeContext';
 import { AppTheme } from '../../../../theme';
-
-const formatPrice = (price: number) =>
-  new Intl.NumberFormat('es-ES', {
-    style: 'currency',
-    currency: 'EUR',
-    maximumFractionDigits: 0,
-  }).format(price);
-
-const resolveImageSource = (img: Modelo['img']) => {
-  if (typeof img === 'number') return img;
-  if (typeof img === 'string') {
-    return img.startsWith('http')
-      ? { uri: img }
-      : { uri: `${API_PUBLIC_URL}/${img.replace(/^\//, '')}` };
-  }
-
-  return img;
-};
+import { useHeaderHeight } from '@react-navigation/elements';
 
 export default function PistaTypeIndex() {
   const router = useRouter();
   const { theme } = useAppTheme();
-  const styles = React.useMemo(() => createReservationsStyles(theme), [theme]);
-  const localStyles = useMemo(() => createLocalStyles(theme), [theme]);
-  const headerHeight = useHeaderHeight();
-  const { width } = useWindowDimensions();
-  const isWideScreen = width > 768;
-  const [modelos, setModelos] = useState<Modelo[]>([]);
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
+  const [modelos, setModelos] = useState<TipoPista[]>([]);
   const [loading, setLoading] = useState(true);
+  const headerHeight = useHeaderHeight();
+
+  // 1. Detectar el ancho de la pantalla
+  const { width } = useWindowDimensions();
+  const isWeb = width > 768;
+
+  const fetchTipos = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/tipo_pista');
+      setModelos(response.data);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    let mounted = true;
-
-    (async () => {
-      try {
-        const remote = await reservasService.getModelos();
-        if (mounted) {
-          setModelos(remote.length ? remote : MODELOS);
-        }
-      } catch (error) {
-        if (mounted) {
-          setModelos(MODELOS);
-        }
-        console.error('Error al cargar deportes', error);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-
-    return () => {
-      mounted = false;
-    };
+    fetchTipos();
   }, []);
 
-  const renderModel = (item: Modelo) => (
-    <TouchableOpacity
-      key={item.id}
+  return (
+    <ScrollView
       style={[
-        localStyles.catalogCard,
-        { flexBasis: isWideScreen ? (width - 72) / 2 : '100%', flexGrow: 1 },
+        styles.container,
+        {
+          paddingTop: headerHeight + 10,
+        },
       ]}
-      activeOpacity={0.9}
-      onPress={() => router.push(`/reservas/createBooking?modelId=${item.id}`)}
+      contentContainerStyle={[
+        styles.scrollContent,
+        { paddingBottom: Platform.OS === 'web' ? 96 : 140 },
+      ]}
     >
-      <ImageBackground
-        source={resolveImageSource(item.img)}
-        style={localStyles.catalogCardBg}
-        imageStyle={{ borderRadius: 18 }}
-      >
-        <LinearGradient
-          colors={[
-            theme.reservationsCardOverlayStart,
-            theme.reservationsCardOverlayEnd,
-          ]}
-          style={localStyles.catalogCardOverlay}
-        >
-          <View style={localStyles.catalogHeaderRow}>
-            <View style={localStyles.statusBadge}>
-              <Text style={localStyles.statusText}>Disponible</Text>
-            </View>
-          </View>
+      <Tabs.Screen options={{ title: 'Nueva reserva' }} />
 
-          <View style={localStyles.catalogBottom}>
-            <View>
-              <Text style={localStyles.catalogTitle}>{item.title}</Text>
-              <Text style={localStyles.catalogMeta}>
-                Reserva online y confirma en segundos
-              </Text>
-            </View>
-            <View style={localStyles.pricePill}>
-              <Text style={localStyles.pricePillText}>
-                {formatPrice(item.price)}/h
-              </Text>
-            </View>
-          </View>
-
-          <View style={localStyles.catalogFooter}>
-            <Text style={localStyles.catalogCta}>Elegir deporte</Text>
+      {/* Header Naranja que ocupa todo el ancho */}
+      <View style={styles.headerCard}>
+        <View style={styles.headerOverlay}>
+          <Text style={styles.headerTitle}>
             <Ionicons
-              name="chevron-forward"
-              size={18}
+              name="information-circle-outline"
+              size={24}
               color={theme.onPrimary}
             />
-          </View>
-        </LinearGradient>
-      </ImageBackground>
-    </TouchableOpacity>
-  );
+            {'  '}Reserva tu pista
+          </Text>
+          <Text style={styles.headerSubtitle}>
+            Selecciona el deporte para continuar
+          </Text>
+        </View>
+      </View>
 
-  return (
-    <View style={[styles.container, localStyles.pageContainer]}>
-      <Stack.Screen options={{ title: 'Reservas' }} />
-      {loading ? (
-        <ActivityIndicator
-          size="large"
-          color={theme.primary}
-          style={{ marginTop: headerHeight + 16 }}
-        />
-      ) : (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingTop: headerHeight + 18,
-            paddingBottom: Platform.OS === 'web' ? 96 : 140,
-          }}
-        >
-          <View style={localStyles.heroCard}>
-            <View style={localStyles.heroTag}>
-              <Text style={localStyles.heroTagText}>Reservas</Text>
-            </View>
-            <Text style={localStyles.heroTitle}>
-              Elige tu deporte y reserva en minutos
-            </Text>
-            <Text style={localStyles.heroSubtitle}>
-              Catálogo actualizado de pistas para una experiencia rápida, clara
-              y profesional.
-            </Text>
-          </View>
+      {/* GRID ELÁSTICO: Se estira para llenar la pantalla */}
+      <View style={styles.gridContainer}>
+        {modelos.map((item) => {
+          const imgSource = item.imagen
+            ? { uri: `${API_PUBLIC_URL}/${item.imagen}` }
+            : require('../../../../../assets/RespiLogo.png');
 
-          <View style={localStyles.sectionHeader}>
-            <Text style={localStyles.sectionTitle}>Deportes disponibles</Text>
-            <Text style={localStyles.sectionSubtitle}>
-              Selecciona uno para empezar tu reserva
-            </Text>
-          </View>
+          return (
+            <TouchableOpacity
+              key={item.tipo_pista_id}
+              // flexBasis: 300 en web significa "mide al menos 300px"
+              // flexGrow: 1 hace que se estiren para rellenar el hueco blanco
+              style={[
+                styles.modelCard,
+                { flexBasis: isWeb ? 320 : '100%', flexGrow: 1 },
+              ]}
+              activeOpacity={0.8}
+              onPress={() =>
+                router.push(
+                  `/(app)/booking/details?modelId=${item.tipo_pista_id}`,
+                )
+              }
+            >
+              <ImageBackground
+                source={imgSource}
+                style={styles.modelBg}
+                imageStyle={styles.modelImageStyle}
+                resizeMode="cover"
+              >
+                <LinearGradient
+                  colors={[
+                    theme.reservationsCardOverlayStart,
+                    theme.reservationsCardOverlayEnd,
+                  ]}
+                  style={styles.modelGradient}
+                >
+                  <View style={styles.modelTopRow}>
+                    <View style={styles.priceTag}>
+                      <Text style={styles.priceTagText}>desde €/h</Text>
+                    </View>
+                  </View>
 
-          <View style={localStyles.gridContainer}>
-            {(modelos.length ? modelos : MODELOS).map(renderModel)}
-            {isWideScreen && <View style={localStyles.dummyCard} />}
-          </View>
-        </ScrollView>
+                  <View style={styles.modelBottom}>
+                    <Text style={styles.modelTitle}>{item.nombre}</Text>
+                    <Ionicons
+                      name="chevron-forward-circle"
+                      size={26}
+                      color={theme.onPrimary}
+                    />
+                  </View>
+                </LinearGradient>
+              </ImageBackground>
+            </TouchableOpacity>
+          );
+        })}
+
+        {/* TRUCO PARA WEB: 
+            Añadimos varios Views invisibles para que si la última fila tiene 
+            menos elementos, no se estiren de forma desproporcionada. 
+        */}
+        {isWeb && <View style={styles.dummyCard} />}
+        {isWeb && <View style={styles.dummyCard} />}
+        {isWeb && <View style={styles.dummyCard} />}
+      </View>
+
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={theme.primary} />
+        </View>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
-const createLocalStyles = (theme: AppTheme) =>
+const createStyles = (theme: AppTheme) =>
   StyleSheet.create({
-    pageContainer: {
+    container: {
+      flex: 1,
       backgroundColor: theme.background,
     },
-    heroCard: {
-      borderRadius: 24,
-      padding: 20,
-      marginTop: 8,
+    scrollContent: {
+      paddingHorizontal: 16,
+      paddingBottom: 40,
+    },
+    headerCard: {
+      marginTop: 16,
+      height: 80,
+      borderRadius: 14,
+      backgroundColor: theme.primary,
+      justifyContent: 'center',
       marginBottom: 20,
-      backgroundColor: theme.primarySoft,
-      borderWidth: 1,
-      borderColor: theme.borderAccentSoft,
+      width: '100%',
+      ...Platform.select({
+        ios: {
+          shadowColor: theme.overlayDark,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+        },
+        android: { elevation: 3 },
+      }),
     },
-    heroTag: {
-      alignSelf: 'flex-start',
-      backgroundColor: theme.primarySoft,
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 999,
-      marginBottom: 12,
-      borderWidth: 1,
-      borderColor: theme.borderAccentSoft,
-    },
-    heroTagText: {
-      color: theme.primary,
-      fontWeight: '800',
-      fontSize: 12,
-      letterSpacing: 0.6,
-      textTransform: 'uppercase',
-    },
-    heroTitle: {
-      fontSize: 28,
-      lineHeight: 34,
-      fontWeight: '900',
-      color: theme.textTitle,
-    },
-    heroSubtitle: {
-      marginTop: 10,
-      fontSize: 15,
-      lineHeight: 22,
-      color: theme.textSubtitle,
-    },
-    statsRow: {
-      marginTop: 18,
-      flexDirection: 'row',
-      gap: 12,
-      flexWrap: 'wrap',
-    },
-    statCard: {
-      flexGrow: 1,
-      minWidth: 96,
-      borderRadius: 18,
-      paddingVertical: 14,
-      paddingHorizontal: 14,
-      backgroundColor: theme.surfaceGlass,
-      borderWidth: 1,
-      borderColor: theme.borderSoft,
-    },
-    statValue: {
-      color: theme.textTitle,
-      fontSize: 18,
-      fontWeight: '900',
-    },
-    statLabel: {
-      marginTop: 4,
-      color: theme.textSubtitle,
-      fontSize: 12,
-      fontWeight: '600',
-    },
-    sectionHeader: {
-      marginBottom: 14,
-    },
-    sectionTitle: {
+    headerOverlay: { paddingHorizontal: 20 },
+    headerTitle: {
+      color: theme.onPrimary,
       fontSize: 22,
       fontWeight: '900',
-      color: theme.textTitle,
     },
-    sectionSubtitle: {
-      marginTop: 4,
-      color: theme.textSubtitle,
-      fontSize: 13,
-      fontWeight: '500',
-    },
+    headerSubtitle: { color: theme.onPrimary, fontSize: 14 },
+
     gridContainer: {
       flexDirection: 'row',
       flexWrap: 'wrap',
       gap: 16,
+      width: '100%',
     },
-    dummyCard: {
-      flexBasis: 320,
-      flexGrow: 1,
-      height: 0,
-    },
-    catalogCard: {
-      minHeight: 220,
+
+    modelCard: {
+      height: 220, // Un poco más alto para que luzca en web
       borderRadius: 18,
       overflow: 'hidden',
       backgroundColor: theme.cardBackground,
       borderWidth: 1,
-      borderColor: theme.borderAccentSoft,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.15,
-      shadowRadius: 14,
-      elevation: 5,
+      borderColor: theme.borderSoft,
+      ...Platform.select({
+        ios: {
+          shadowColor: theme.overlayDark,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.2,
+          shadowRadius: 5,
+        },
+        android: { elevation: 5 },
+      }),
     },
-    catalogCardBg: {
-      flex: 1,
+
+    // Estilo para las tarjetas invisibles que rellenan el hueco
+    dummyCard: {
+      flexBasis: 320,
+      flexGrow: 1,
+      height: 0, // No ocupan espacio vertical
+      marginHorizontal: 0,
     },
-    catalogCardOverlay: {
+
+    modelBg: { flex: 1 },
+    modelImageStyle: {
+      borderRadius: 16,
+      borderColor: '#fff',
+      borderWidth: 0.5,
+    },
+    modelGradient: {
       flex: 1,
       justifyContent: 'space-between',
       padding: 18,
     },
-    catalogHeaderRow: {
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
-    },
-    statusBadge: {
-      backgroundColor: 'rgba(255,255,255,0.2)',
+    modelTopRow: { flexDirection: 'row', justifyContent: 'flex-end' },
+    priceTag: {
+      backgroundColor: theme.surface,
       paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 999,
+      paddingVertical: 5,
+      borderRadius: 20,
     },
-    statusText: {
-      color: '#FFFFFF',
-      fontSize: 11,
-      fontWeight: '800',
-      letterSpacing: 0.5,
-      textTransform: 'uppercase',
-    },
-    catalogBottom: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'flex-end',
-    },
-    catalogTitle: {
-      color: '#FFFFFF',
-      fontSize: 24,
-      fontWeight: '900',
-      textShadowColor: 'rgba(0,0,0,0.45)',
-      textShadowOffset: { width: 0, height: 1 },
-      textShadowRadius: 8,
-    },
-    catalogMeta: {
-      marginTop: 6,
-      color: 'rgba(255,255,255,0.84)',
-      fontSize: 13,
-      fontWeight: '500',
-      maxWidth: 190,
-    },
-    pricePill: {
-      backgroundColor: 'rgba(255,255,255,0.92)',
-      borderRadius: 999,
-      paddingHorizontal: 12,
-      paddingVertical: 7,
-    },
-    pricePillText: {
+    priceTagText: {
       color: theme.primary,
+      fontWeight: '800',
       fontSize: 12,
-      fontWeight: '900',
     },
-    catalogFooter: {
-      marginTop: 12,
+    modelBottom: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
     },
-    catalogCta: {
-      color: '#FFFFFF',
-      fontSize: 13,
-      fontWeight: '800',
-      letterSpacing: 0.2,
+    modelTitle: {
+      fontWeight: '900',
+      fontSize: 24,
+      color: theme.onPrimary,
+      textShadowColor: theme.overlayDark,
+      textShadowOffset: { width: 1, height: 1 },
+      textShadowRadius: 4,
+    },
+    loadingContainer: {
+      marginTop: 40,
+      alignItems: 'center',
     },
   });

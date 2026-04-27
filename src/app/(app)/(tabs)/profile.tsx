@@ -17,13 +17,14 @@ import api from '../../../services/api';
 import { Membresia, User } from '../../../types/types';
 import createProfileStyles from '../../../style/profile.styles';
 import MenuOption from '../../../components/profile/menuOptions';
-import MembresiaModal from '../../../components/profile/membresia.modal';
 import DarkModeModal from '../../../components/profile/darkMode.modal';
 import IdiomaModal from '../../../components/profile/idioma.modal';
 import { reservasActivasFilter } from '../../../filtrosApi';
 import EditUserNameModal from '../../../components/profile/editUserName.modal';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
+import MembresiaModal from '../../../components/profile/membresia.modal';
+import { router } from 'expo-router';
 
 export default function ProfileClientes() {
   const { signOut } = useAuth();
@@ -317,6 +318,17 @@ export default function ProfileClientes() {
           <GlassTextButton
             text="Cerrar Sesión"
             onPress={handleLogout}
+            color={theme.logoutGlass}
+            borderColor={theme.logoutBorder}
+            borderWidth={1}
+            style={styles.logoutButtonCustom}
+          />
+        </View>
+
+        <View style={styles.logoutContainer}>
+          <GlassTextButton
+            text="test Tipos"
+            onPress={() => router.push('(tabs)/reservas/createBooking')}
             color={theme.logoutGlass}
             borderColor={theme.logoutBorder}
             borderWidth={1}

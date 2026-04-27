@@ -1,195 +1,302 @@
-import React, { useMemo } from 'react';
+﻿import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  FlatList,
   ImageBackground,
+  Modal,
   Platform,
-  RefreshControl,
   ScrollView,
-  View,
+  StyleSheet,
   Text,
   TouchableOpacity,
+  View,
   useWindowDimensions,
 } from 'react-native';
-import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MODELOS } from '../../../../data/modelos';
-import { Reserva } from '../../../../types/types';
+import { BlurView } from 'expo-blur';
+import { useHeaderHeight } from '@react-navigation/elements';
+import { useRouter } from 'expo-router';
 import createReservationsStyles from '../../../../style/reservations.styles';
 import { useAppTheme } from '../../../../context/ThemeContext';
-import { useHeaderHeight } from '@react-navigation/elements';
-import { useHome } from '../../../../hooks/useHome';
-import { createHomeStyles } from '../../../../style/home.styles';
+import {
+  PistaDisponibilidad,
+  useReservasDisponibles,
+} from '../../../../hooks/useReservasDisponibles';
+import { API_PUBLIC_URL } from '../../../../constants';
+import DateModal from '../../../../components/reservas/date.modal';
+import DisponibilidadBarra, {
+  crearBloquesDisponibilidad,
+  crearResumenHuecosLibres,
+} from '../../../../components/reservas/DisponibilidadBarra';
+import createReservasTabStyles from '../../../../style/reservasTab.styles';
 
-//pantalla home del cliente
+const getNext7Days = () => {
+  const days: Date[] = [];
+  for (let i = 0; i < 7; i++) {
+    const date = new Date();
+    date.setDate(date.getDate() + i);
+    days.push(date);
+  }
+  return days;
+};
 
-export default function HomeScreen() {
+const formatDateForAPI = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return year + '-' + month + '-' + day;
+};
+
+const formatDateDisplay = (date: Date) =>
+  date.toLocaleDateString('es-ES', {
+    weekday: 'short',
+    day: '2-digit',
+    month: 'short',
+  });
+
+const getImageForPista = (pista: PistaDisponibilidad) => {
+  if (pista.tipo_pista?.imagen) {
+    const path = pista.tipo_pista.imagen;
+    return {
+      uri: path.startsWith('http')
+        ? path
+        : API_PUBLIC_URL + '/' + String(path).replace(/^\//, ''),
+    };
+  }
+
+  return require('../../../../../assets/RespiLogo.png');
+};
+
+export default function ReservasTab() {
+  const { theme, isDarkMode } = useAppTheme();
   const router = useRouter();
-  const { theme } = useAppTheme();
   const styles = useMemo(() => createReservationsStyles(theme), [theme]);
-  const localStyles = useMemo(() => createHomeStyles(theme), [theme]);
-  const { width } = useWindowDimensions();
+  const reservasTabStyles = useMemo(
+    () => createReservasTabStyles(theme),
+    [theme],
+  );
   const headerHeight = useHeaderHeight();
+  const { width } = useWindowDimensions();
   const isWideScreen = width > 768;
-  const { reservations, loading, refreshing, onRefresh } = useHome();
 
-  const getImageForReservation = (title: string) => {
-    const found = MODELOS.find((m) =>
-      title.toLowerCase().includes(m.title.toLowerCase()),
-    );
-    return found ? found.img : MODELOS[0].img;
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showDateModal, setShowDateModal] = useState(false);
+
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [infoTitle, setInfoTitle] = useState('');
+  const [infoText, setInfoText] = useState('');
+
+  const formattedDate = formatDateForAPI(selectedDate);
+  const { pistas, loading } = useReservasDisponibles(formattedDate);
+  const availableDays = useMemo(() => getNext7Days(), []);
+
+  const handleSelectDate = (date: Date) => {
+    setSelectedDate(date);
+    setShowDateModal(false);
   };
 
-  const renderReservation = (item: Reserva) => {
-    const title = item.pista?.nombre || 'Reserva sin nombre';
-    const img = getImageForReservation(title);
-    const cleanDate = new Date(item.fecha_reserva).toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: 'short',
+  const openInfo = (pista: PistaDisponibilidad) => {
+    const bloques = crearBloquesDisponibilidad(
+      pista.hora_apertura,
+      pista.hora_cierre,
+      pista.reservas_actuales || [],
+    );
+    setInfoTitle(pista.nombre);
+    setInfoText(crearResumenHuecosLibres(bloques));
+    setShowInfoModal(true);
+  };
+
+  const openCreateBooking = (pista: PistaDisponibilidad) => {
+    router.push({
+      pathname: '/(app)/(tabs)/reservas/createBooking',
+      params: {
+        pistaId: String(pista.pista_id),
+        pistaNombre: pista.nombre,
+        fecha: formattedDate,
+        horaApertura: pista.hora_apertura,
+        horaCierre: pista.hora_cierre,
+        precioHora: String(pista.precio_hora ?? ''),
+        reservasActuales: JSON.stringify(pista.reservas_actuales || []),
+      },
     });
-    const cleanTime =
-      item.hora_inicio.split(':').slice(0, 2).join(':') +
-      ' - ' +
-      item.hora_fin.split(':').slice(0, 2).join(':');
-
-    return (
-      <TouchableOpacity
-        key={item.reserva_id}
-        style={localStyles.card}
-        onPress={() => router.push(`/(app)/reservas/${item.reserva_id}`)}
-      >
-        <ImageBackground
-          source={img}
-          style={localStyles.cardBg}
-          imageStyle={localStyles.cardImage}
-        >
-          <LinearGradient
-            colors={[
-              theme.reservationsCardOverlayStart,
-              theme.reservationsCardOverlayEnd,
-            ]}
-            style={localStyles.cardOverlay}
-          >
-            <View style={localStyles.cardHeaderRow}>
-              <Text style={localStyles.cardTitle}>{title}</Text>
-              <View style={localStyles.statusBadge}>
-                <Text style={localStyles.statusText}>{item.estado}</Text>
-              </View>
-            </View>
-
-            <View style={localStyles.cardBottom}>
-              <View>
-                <Text style={localStyles.cardMeta}>
-                  <Ionicons
-                    name="calendar-outline"
-                    size={14}
-                    color={theme.onPrimary}
-                  />{' '}
-                  {cleanDate}
-                </Text>
-                <Text style={localStyles.cardMeta}>
-                  <Ionicons
-                    name="time-outline"
-                    size={14}
-                    color={theme.onPrimary}
-                  />{' '}
-                  {cleanTime}
-                </Text>
-              </View>
-              <Ionicons
-                name="chevron-forward-outline"
-                size={20}
-                color={theme.onPrimary}
-              />
-            </View>
-          </LinearGradient>
-        </ImageBackground>
-      </TouchableOpacity>
-    );
   };
+
+  const renderDateSelector = () => (
+    <>
+      <BlurView
+        intensity={50}
+        tint={isDarkMode ? 'dark' : 'light'}
+        style={[
+          StyleSheet.absoluteFill,
+          { paddingTop: headerHeight + 10, height: headerHeight + 74 },
+        ]}
+      />
+      <View
+        style={[
+          reservasTabStyles.dateSelector,
+          { paddingTop: headerHeight + 10 },
+        ]}
+      >
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={availableDays}
+          keyExtractor={(item) => item.toISOString()}
+          contentContainerStyle={reservasTabStyles.dateScrollContent}
+          renderItem={({ item }) => {
+            const isSelected =
+              item.toDateString() === selectedDate.toDateString();
+            return (
+              <TouchableOpacity
+                style={[
+                  reservasTabStyles.dateButton,
+                  isSelected && reservasTabStyles.dateButtonSelected,
+                ]}
+                onPress={() => setSelectedDate(item)}
+              >
+                <Text
+                  style={[
+                    reservasTabStyles.dateButtonText,
+                    isSelected && reservasTabStyles.dateButtonTextSelected,
+                  ]}
+                >
+                  {formatDateDisplay(item)}
+                </Text>
+              </TouchableOpacity>
+            );
+          }}
+        />
+
+        <TouchableOpacity
+          style={reservasTabStyles.calendarButton}
+          onPress={() => setShowDateModal(true)}
+        >
+          <Ionicons name="calendar" size={20} color={theme.primary} />
+        </TouchableOpacity>
+      </View>
+    </>
+  );
+
+  const renderPistaCard = (pista: PistaDisponibilidad) => (
+    <TouchableOpacity
+      activeOpacity={0.9}
+      onPress={() => openCreateBooking(pista)}
+      key={pista.pista_id}
+      style={[
+        reservasTabStyles.pistaCard,
+        { flexBasis: isWideScreen ? '48%' : '100%', flexGrow: 1 },
+      ]}
+    >
+      <ImageBackground
+        source={getImageForPista(pista)}
+        style={reservasTabStyles.pistaImageBg}
+        imageStyle={{ borderRadius: 14 }}
+      >
+        <LinearGradient
+          colors={[
+            theme.reservationsCardOverlayStart,
+            theme.reservationsCardOverlayEnd,
+          ]}
+          style={reservasTabStyles.pistaOverlay}
+        >
+          <View style={reservasTabStyles.pistaHeader}>
+            <Text style={reservasTabStyles.pistaName}>{pista.nombre}</Text>
+            <View style={reservasTabStyles.priceBadge}>
+              <Text style={reservasTabStyles.priceText}>
+                EUR {pista.precio_hora ?? '-'} /h
+              </Text>
+            </View>
+          </View>
+
+          <View style={reservasTabStyles.timelineContainer}>
+            <View style={reservasTabStyles.timelineTitleRow}>
+              <Text style={reservasTabStyles.horariosLabel}>
+                Disponibilidad del dia
+              </Text>
+              <TouchableOpacity
+                style={reservasTabStyles.infoButton}
+                onPress={() => openInfo(pista)}
+              >
+                <Ionicons
+                  name="information-circle-outline"
+                  size={18}
+                  color={theme.onPrimary}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <DisponibilidadBarra
+              horaApertura={pista.hora_apertura}
+              horaCierre={pista.hora_cierre}
+              reservasActuales={pista.reservas_actuales || []}
+            />
+          </View>
+        </LinearGradient>
+      </ImageBackground>
+    </TouchableOpacity>
+  );
 
   return (
-    <View style={[styles.container, localStyles.page]}>
+    <View style={styles.container}>
+      <DateModal
+        visible={showDateModal}
+        onSave={handleSelectDate}
+        onClose={() => setShowDateModal(false)}
+      />
+
+      <Modal
+        visible={showInfoModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowInfoModal(false)}
+      >
+        <View style={reservasTabStyles.infoModalBackdrop}>
+          <View style={reservasTabStyles.infoModalCard}>
+            <Text style={reservasTabStyles.infoModalTitle}>{infoTitle}</Text>
+            <Text style={reservasTabStyles.infoModalBody}>{infoText}</Text>
+            <TouchableOpacity
+              style={reservasTabStyles.infoModalCloseBtn}
+              onPress={() => setShowInfoModal(false)}
+            >
+              <Text style={reservasTabStyles.infoModalCloseText}>Cerrar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {renderDateSelector()}
+
       {loading ? (
-        <ActivityIndicator
-          size="large"
-          color={theme.primary}
-          style={{ marginTop: headerHeight + 24 }}
-        />
+        <View style={reservasTabStyles.loadingContainer}>
+          <ActivityIndicator size="large" color={theme.primary} />
+        </View>
+      ) : pistas.length === 0 ? (
+        <View style={reservasTabStyles.emptyContainer}>
+          <Ionicons
+            name="calendar-clear-outline"
+            size={48}
+            color={theme.textMuted}
+          />
+          <Text style={reservasTabStyles.emptyTitle}>
+            No hay pistas disponibles
+          </Text>
+          <Text style={reservasTabStyles.emptySubtitle}>
+            Selecciona otra fecha para continuar
+          </Text>
+        </View>
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={theme.primary}
-            />
-          }
           contentContainerStyle={{
-            paddingTop: headerHeight + 14,
-            paddingBottom: 120,
+            paddingTop: 14,
+            paddingBottom: Platform.OS === 'web' ? 96 : 140,
+            paddingHorizontal: 12,
           }}
         >
-          {/*eso seran filtros para buscar o reservas activas o finalizadas hechas por este usuario*/}
-          <View style={localStyles.actionsRow}>
-            <TouchableOpacity
-              style={[localStyles.actionCard, localStyles.actionPrimary]}
-              onPress={() => null}
-            >
-              <Ionicons name="time" size={18} color={theme.onPrimary} />
-              <Text style={localStyles.actionPrimaryText}>Activas</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[localStyles.actionCard, localStyles.actionSecondary]}
-              onPress={() => null}
-            >
-              <Ionicons name="checkmark" size={18} color={theme.primary} />
-              <Text style={localStyles.actionSecondaryText}>Finalizadas</Text>
-            </TouchableOpacity>
+          <View style={reservasTabStyles.gridContainer}>
+            {pistas.map(renderPistaCard)}
           </View>
-
-          <View style={localStyles.sectionHeader}>
-            <Text style={localStyles.sectionTitle}>Próximas reservas</Text>
-            <TouchableOpacity onPress={onRefresh}>
-              <Text style={localStyles.sectionLink}>Actualizar</Text>
-            </TouchableOpacity>
-          </View>
-
-          {reservations.length === 0 ? (
-            <View style={localStyles.emptyCard}>
-              <Ionicons
-                name="calendar-clear-outline"
-                size={24}
-                color={theme.textMuted}
-              />
-              <Text style={localStyles.emptyTitle}>Sin reservas próximas</Text>
-              <Text style={localStyles.emptySubtitle}>
-                Haz tu primera reserva para empezar.
-              </Text>
-              <TouchableOpacity
-                style={localStyles.emptyCta}
-                onPress={() => router.push('/reservas')}
-              >
-                <Text style={localStyles.emptyCtaText}>Reservar ahora</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View style={localStyles.gridContainer}>
-              {reservations.map((item) => (
-                <View
-                  key={item.reserva_id}
-                  style={{
-                    flexBasis: isWideScreen ? 320 : '100%',
-                    flexGrow: 1,
-                  }}
-                >
-                  {renderReservation(item)}
-                </View>
-              ))}
-            </View>
-          )}
         </ScrollView>
       )}
     </View>
