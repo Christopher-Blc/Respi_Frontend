@@ -39,7 +39,7 @@ const resolveImageSource = (img: Modelo['img']) => {
   return img;
 };
 
-export default function PistaTypeIndex() {
+export default function PistasTab() {
   const router = useRouter();
   const { theme } = useAppTheme();
   const styles = React.useMemo(() => createReservationsStyles(theme), [theme]);
@@ -131,7 +131,6 @@ export default function PistaTypeIndex() {
 
   return (
     <View style={[styles.container, localStyles.pageContainer]}>
-      <Stack.Screen options={{ title: 'Reservas' }} />
       {loading ? (
         <ActivityIndicator
           size="large"
@@ -150,12 +149,10 @@ export default function PistaTypeIndex() {
             <View style={localStyles.heroTag}>
               <Text style={localStyles.heroTagText}>Reservas</Text>
             </View>
-            <Text style={localStyles.heroTitle}>
-              Elige tu deporte y reserva en minutos
-            </Text>
+            <Text style={localStyles.heroTitle}>Consulta disponibilidad</Text>
             <Text style={localStyles.heroSubtitle}>
-              Catálogo actualizado de pistas para una experiencia rápida, clara
-              y profesional.
+              Aqui podrás encontrar todas las pistas , ver su disponibilidad y
+              reservar desde aqui mismo.
             </Text>
           </View>
 

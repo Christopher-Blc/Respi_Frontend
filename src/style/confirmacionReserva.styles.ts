@@ -1,0 +1,165 @@
+import { StyleSheet } from 'react-native';
+import { AppTheme } from '../theme';
+
+const createConfirmacionReservaStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.backgroundMain,
+    },
+    centerContainer: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    headerCard: {
+      marginHorizontal: 16,
+      marginBottom: 20,
+      paddingHorizontal: 16,
+      paddingVertical: 20,
+      backgroundColor: theme.primarySoft,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: theme.borderAccentSoft,
+    },
+    headerTag: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      alignSelf: 'flex-start',
+      marginBottom: 12,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      backgroundColor: theme.background,
+      borderRadius: 8,
+      gap: 6,
+    },
+    headerTagText: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: theme.primary,
+      textTransform: 'uppercase',
+    },
+    headerTitle: {
+      fontSize: 24,
+      fontWeight: '900',
+      color: theme.textTitle,
+    },
+    infoCard: {
+      marginHorizontal: 16,
+      marginBottom: 16,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      backgroundColor: theme.backgroundCard,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: theme.borderMain,
+    },
+    infoRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      paddingVertical: 8,
+    },
+    infoContent: {
+      flex: 1,
+    },
+    infoLabel: {
+      fontSize: 12,
+      color: theme.grayLabelText,
+      fontWeight: '600',
+      textTransform: 'uppercase',
+    },
+    infoValue: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: theme.textTitle,
+      marginTop: 2,
+    },
+    divider: {
+      height: 1,
+      backgroundColor: theme.borderMain,
+      opacity: 0.5,
+    },
+    featuresCard: {
+      marginHorizontal: 16,
+      marginBottom: 16,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      backgroundColor: theme.backgroundCard,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: theme.borderMain,
+    },
+    sectionTitle: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: theme.textTitle,
+      marginBottom: 12,
+    },
+    featuresList: {
+      gap: 10,
+    },
+    featureItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+    featureItemText: {
+      fontSize: 13,
+      color: theme.textBody,
+    },
+    notesCard: {
+      marginHorizontal: 16,
+      marginBottom: 20,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      backgroundColor: theme.backgroundCard,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: theme.borderMain,
+    },
+    notesInput: {
+      borderWidth: 1,
+      borderColor: theme.borderMain,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      color: theme.textPrimary,
+      backgroundColor: theme.backgroundMain,
+      fontSize: 13,
+    },
+    actionContainer: {
+      marginHorizontal: 16,
+      marginBottom: 16,
+      flexDirection: 'row',
+      gap: 12,
+    },
+    button: {
+      flex: 1,
+      paddingVertical: 14,
+      borderRadius: 10,
+      justifyContent: 'center',
+      alignItems: 'center',
+      flexDirection: 'row',
+      gap: 8,
+    },
+    cancelButton: {
+      backgroundColor: theme.backgroundCard,
+      borderWidth: 1,
+      borderColor: theme.borderMain,
+    },
+    cancelButtonText: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: theme.textTitle,
+    },
+    confirmButton: {
+      backgroundColor: theme.primary,
+    },
+    confirmButtonText: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: theme.onPrimary,
+    },
+  });
+
+export default createConfirmacionReservaStyles;

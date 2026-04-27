@@ -1,368 +1,401 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  ImageBackground,
-  KeyboardAvoidingView,
   Modal,
-  Platform,
-  SafeAreaView,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Snackbar } from 'react-native-paper';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useHeaderHeight } from '@react-navigation/elements';
-import { WebView } from 'react-native-webview';
 import { useAppTheme } from '../../../../context/ThemeContext';
-import { createCreateBookingStyles } from '../../../../style/createBooking.styles';
-import {
-  COURT_3D_URL,
-  DURATION_CHIPS,
-  formatDate,
-  formatDuration,
-  formatTime,
-  useCreateBooking,
-} from '../../../../hooks/useCreateBooking';
+import { createCreateBookingStyles } from '../../../../style/create-booking.styles';
+import api from '../../../../services/api';
+
+type ReservaActual = {
+  inicio: string;
+  fin: string;
+};
+
+const DURATION_OPTIONS = [30, 60, 90, 120];
+
+const normalizeParam = (value?: string | string[]) =>
+  Array.isArray(value) ? value[0] || '' : value || '';
+
+const getTimeOnly = (value: string) => {
+  const [hours = '00', minutes = '00'] = value.split(':');
+  return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+};
+
+const toMinutes = (value: string) => {
+  const [hours = '0', minutes = '0'] = getTimeOnly(value).split(':');
+  return Number(hours) * 60 + Number(minutes);
+};
+
+const toHHmm = (minutes: number) => {
+  const hours = Math.floor(minutes / 60)
+    .toString()
+    .padStart(2, '0');
+  const mins = (minutes % 60).toString().padStart(2, '0');
+  return `${hours}:${mins}`;
+};
+
+const formatDateLabel = (date: string) => {
+  if (!date) return '-';
+  const parsed = new Date(`${date}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) return date;
+  return parsed.toLocaleDateString('es-ES', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  });
+};
+
+const parseReservas = (value: string): ReservaActual[] => {
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed)
+      ? parsed.filter((item) => item?.inicio && item?.fin)
+      : [];
+  } catch {
+    return [];
+  }
+};
 
 export default function CreateBooking() {
   const router = useRouter();
+  const params = useLocalSearchParams<{
+    pistaId?: string | string[];
+    pistaNombre?: string | string[];
+    fecha?: string | string[];
+    horaApertura?: string | string[];
+    horaCierre?: string | string[];
+    precioHora?: string | string[];
+    reservasActuales?: string | string[];
+  }>();
+
+  const pistaId = normalizeParam(params.pistaId);
+  const pistaNombre = normalizeParam(params.pistaNombre) || 'Pista';
+  const fechaReserva = normalizeParam(params.fecha);
+  const horaApertura = normalizeParam(params.horaApertura) || '09:00';
+  const horaCierre = normalizeParam(params.horaCierre) || '23:00';
+  const precioHora = Number(normalizeParam(params.precioHora) || 0);
+  const reservasActuales = parseReservas(
+    normalizeParam(params.reservasActuales),
+  );
+
   const { theme } = useAppTheme();
   const headerHeight = useHeaderHeight();
   const styles = useMemo(() => createCreateBookingStyles(theme), [theme]);
-  const money = useMemo(
+
+  const [duration, setDuration] = useState(60);
+  const [horaInicioMin, setHoraInicioMin] = useState<number | null>(null);
+  const [showStartDropdown, setShowStartDropdown] = useState(false);
+  const [nota, setNota] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+
+  const openingMinutes = useMemo(() => toMinutes(horaApertura), [horaApertura]);
+  const closingMinutes = useMemo(() => toMinutes(horaCierre), [horaCierre]);
+
+  const reservedRanges = useMemo(
     () =>
-      new Intl.NumberFormat('es-ES', {
-        style: 'currency',
-        currency: 'EUR',
-        maximumFractionDigits: 2,
-      }),
-    [],
+      reservasActuales
+        .map((reserva) => ({
+          start: toMinutes(reserva.inicio),
+          end: toMinutes(reserva.fin),
+        }))
+        .filter((range) => range.end > range.start),
+    [reservasActuales],
   );
 
-  const {
-    model,
-    loadingModel,
-    email,
-    nombre,
-    notes,
-    precioHora,
-    fechaInicio,
-    fechaFin,
-    durationMinutes,
-    showPicker,
-    showHoursExpanded,
-    loading,
-    snackbarVisible,
-    snackbarMessage,
-    showCourtModal,
-    isLoadingCourts,
-    courts,
-    selectedCourt,
-    sessionEmail,
-    imageSource,
-    total,
-    setNombre,
-    setNotes,
-    setShowPicker,
-    setShowHoursExpanded,
-    setSnackbarVisible,
-    setShowCourtModal,
-    setSelectedCourt,
-    onChangeDate,
-    adjustDuration,
-    handleSubmit,
-  } = useCreateBooking();
+  // Duraciones posibles dado el inicio seleccionado, el cierre y sin colisiones.
+  const availableDurations = useMemo(() => {
+    return DURATION_OPTIONS.filter((minutes) => {
+      if (horaInicioMin == null) return true;
+      const end = horaInicioMin + minutes;
+      if (end > closingMinutes) return false;
+      return !reservedRanges.some(
+        (range) => horaInicioMin < range.end && end > range.start,
+      );
+    });
+  }, [horaInicioMin, closingMinutes, reservedRanges]);
 
-  if (loadingModel || !model) {
-    return (
-      <View style={[styles.loadingRoot, { backgroundColor: theme.background }]}>
-        <ActivityIndicator color={theme.primary} />
-      </View>
-    );
-  }
+  // Si la duración actual ya no cabe tras cambiar la hora inicio, bajamos a la máxima válida.
+  useEffect(() => {
+    if (availableDurations.length === 0) return;
+    if (!availableDurations.includes(duration)) {
+      setDuration(availableDurations[availableDurations.length - 1]);
+    }
+  }, [availableDurations, duration]);
+
+  const availableStarts = useMemo(() => {
+    const slots: number[] = [];
+
+    for (
+      let start = openingMinutes;
+      start + duration <= closingMinutes;
+      start += 30
+    ) {
+      const end = start + duration;
+      const hasOverlap = reservedRanges.some(
+        (range) => start < range.end && end > range.start,
+      );
+
+      if (!hasOverlap) slots.push(start);
+    }
+
+    return slots;
+  }, [openingMinutes, closingMinutes, duration, reservedRanges]);
+
+  useEffect(() => {
+    if (availableStarts.length === 0) {
+      setHoraInicioMin(null);
+      return;
+    }
+
+    if (horaInicioMin == null || !availableStarts.includes(horaInicioMin)) {
+      setHoraInicioMin(availableStarts[0]);
+    }
+  }, [availableStarts, horaInicioMin]);
+
+  const horaInicio = horaInicioMin != null ? toHHmm(horaInicioMin) : '--:--';
+  const horaFin =
+    horaInicioMin != null ? toHHmm(horaInicioMin + duration) : '--:--';
+
+  const total = useMemo(() => {
+    if (!precioHora) return 0;
+    return (precioHora * duration) / 60;
+  }, [precioHora, duration]);
+
+  const showError = (message: string) => {
+    setSnackbarMessage(message);
+    setSnackbarVisible(true);
+  };
+
+  const handleSubmit = async () => {
+    if (!pistaId || !fechaReserva) {
+      showError('Faltan datos de pista o fecha para reservar');
+      return;
+    }
+
+    if (horaInicioMin == null) {
+      showError('No hay huecos disponibles para esa duracion');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      const payload = {
+        pista_id: Number(pistaId),
+        fecha_reserva: fechaReserva,
+        hora_inicio: horaInicio,
+        hora_fin: horaFin,
+        estado: 'PENDIENTE',
+        nota: nota.trim(),
+      };
+
+      await api.post('/reserva', payload);
+
+      setSnackbarMessage('Reserva creada correctamente');
+      setSnackbarVisible(true);
+      setTimeout(() => router.replace('/(app)/(tabs)/reservas'), 700);
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message || 'No se pudo crear la reserva';
+      showError(message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1 }}
-    >
+    <View style={styles.screen}>
+      <Stack.Screen options={{ title: 'Nueva reserva' }} />
       <ScrollView
-        contentContainerStyle={[styles.scrollContent, { paddingTop: headerHeight + 16 }]}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: headerHeight + 16 },
+        ]}
+        showsVerticalScrollIndicator={false}
       >
-        <Stack.Screen options={{ title: 'Confirmar reserva' }} />
-
-        <View style={styles.heroCard}>
-          <ImageBackground
-            source={imageSource}
-            style={styles.heroImage}
-            imageStyle={styles.heroImageRadius}
-          >
-            <LinearGradient
-              colors={['transparent', 'rgba(0,0,0,0.78)']}
-              style={styles.heroOverlay}
-            >
-              <View style={styles.heroTopRow}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                  <Ionicons name="chevron-back" size={22} color={theme.onPrimary} />
-                </TouchableOpacity>
-                <View style={styles.heroChip}>
-                  <Text style={styles.heroChipText}>Selección lista</Text>
-                </View>
-              </View>
-
-              <View>
-                <Text style={styles.heroTitle}>{model.title}</Text>
-                <Text style={styles.heroSubtitle}>{money.format(model.price)}/h</Text>
-              </View>
-            </LinearGradient>
-          </ImageBackground>
-        </View>
-
         <View style={styles.formCard}>
           <View style={styles.badgeRow}>
-            <Ionicons name="shield-checkmark" size={16} color={theme.primary} />
-            <Text style={styles.badgeText}>Reserva guiada y segura</Text>
+            <Ionicons name="calendar" size={16} color={theme.primary} />
+            <Text style={styles.badgeText}>Reserva rapida</Text>
           </View>
 
-          <Text style={styles.label}>Email de tu sesión</Text>
-          <View style={styles.infoRow}>
-            <Ionicons name="mail-outline" size={18} color={theme.textMuted} />
-            <Text style={styles.infoValueText}>{email || sessionEmail || 'Sin email de sesión'}</Text>
+          <Text style={styles.label}>Pista</Text>
+          <View style={styles.readonlyField}>
+            <Text style={styles.readonlyValue}>{pistaNombre}</Text>
           </View>
 
-          <Text style={styles.label}>Nombre (opcional)</Text>
-          <TextInput
-            style={styles.input}
-            value={nombre}
-            onChangeText={setNombre}
-            placeholder="Nombre completo"
-            placeholderTextColor={theme.textPlaceholder}
-          />
-
-          <Text style={styles.label}>Notas (opcional)</Text>
-          <TextInput
-            style={[styles.input, styles.multilineInput]}
-            value={notes}
-            onChangeText={setNotes}
-            placeholder="Nivel, material, observaciones..."
-            placeholderTextColor={theme.textPlaceholder}
-            multiline
-            numberOfLines={4}
-            textAlignVertical="top"
-          />
-
-          <Text style={styles.label}>Precio/hora</Text>
-          <View style={styles.infoRow}>
-            <Ionicons name="cash-outline" size={18} color={theme.textMuted} />
-            <Text style={styles.infoValueText}>{money.format(Number(precioHora || model.price))}/h</Text>
+          <Text style={styles.label}>Fecha</Text>
+          <View style={styles.readonlyField}>
+            <Text style={styles.readonlyValue}>
+              {formatDateLabel(fechaReserva)}
+            </Text>
           </View>
 
-          <Text style={styles.label}>Pista a jugar</Text>
-          <TouchableOpacity style={styles.selectorButton} onPress={() => setShowCourtModal(true)}>
-            <View style={styles.selectorContent}>
-              <Ionicons name="location-outline" size={18} color={theme.textMuted} />
-              <Text style={styles.selectorCourtText}>{selectedCourt?.name || 'Seleccionar pista'}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
-          </TouchableOpacity>
-          <Text style={styles.selectorHintText}>Vista 3D + selección de pista</Text>
-
-          <Text style={styles.label}>Día y hora de inicio</Text>
-          <View style={styles.dateRow}>
-            <TouchableOpacity
-              style={[styles.dateBtn, styles.dateBtnLarge]}
-              onPress={() => setShowPicker('date')}
-            >
-              <Ionicons name="calendar-outline" size={18} color={theme.textMuted} />
-              <Text style={styles.dateBtnText}>{formatDate(fechaInicio)}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.dateBtn, styles.dateBtnLarge]}
-              onPress={() => setShowPicker('time')}
-            >
-              <Ionicons name="time-outline" size={18} color={theme.textMuted} />
-              <Text style={styles.dateBtnText}>{formatTime(fechaInicio)}</Text>
-            </TouchableOpacity>
-          </View>
-
-          {showPicker && (
-            <DateTimePicker
-              value={fechaInicio}
-              mode={showPicker}
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              onChange={onChangeDate}
-            />
-          )}
-
-          <View style={styles.durationHeader}>
-            <Text style={styles.label}>Duración</Text>
-            <TouchableOpacity onPress={() => setShowHoursExpanded((current) => !current)}>
-              <Text style={styles.linkText}>{showHoursExpanded ? 'Ocultar' : 'Editar'}</Text>
-            </TouchableOpacity>
-          </View>
-
-          {!showHoursExpanded ? (
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryText}>{formatDuration(durationMinutes)}</Text>
-              <Text style={styles.summaryText}>
-                Fin: <Text style={styles.summaryStrong}>{formatTime(fechaFin)}</Text>
+          <Text style={styles.label}>Hora de inicio</Text>
+          {availableStarts.length === 0 ? (
+            <View style={styles.emptySlotsCard}>
+              <Text style={styles.emptySlotsTitle}>Sin huecos libres</Text>
+              <Text style={styles.emptySlotsText}>
+                Cambia la fecha en la pantalla anterior o prueba otra pista.
               </Text>
             </View>
           ) : (
-            <View>
-              <View style={styles.chipsRow}>
-                {DURATION_CHIPS.map((minutes) => (
-                  <TouchableOpacity
-                    key={minutes}
-                    activeOpacity={0.85}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Duración ${formatDuration(minutes)}`}
-                    onPress={() => adjustDuration(minutes)}
-                    style={[
-                      styles.chip,
-                      durationMinutes === minutes ? styles.chipSelected : undefined,
-                    ]}
-                  >
-                    <Text
-                      style={durationMinutes === minutes ? styles.chipTextSelected : styles.chipText}
-                    >
-                      {formatDuration(minutes)}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+            <>
+              <TouchableOpacity
+                style={styles.selectButton}
+                onPress={() => setShowStartDropdown(true)}
+              >
+                <Text style={styles.selectButtonText}>{horaInicio}</Text>
+                <Ionicons
+                  name="chevron-down"
+                  size={18}
+                  color={theme.textMuted}
+                />
+              </TouchableOpacity>
 
-              <View style={styles.stepperRow}>
+              <Modal
+                visible={showStartDropdown}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setShowStartDropdown(false)}
+              >
                 <TouchableOpacity
-                  onPress={() => adjustDuration(durationMinutes - 15)}
-                  style={styles.stepperBtn}
+                  style={styles.dropdownBackdrop}
+                  activeOpacity={1}
+                  onPress={() => setShowStartDropdown(false)}
                 >
-                  <Text style={styles.stepperText}>-</Text>
+                  <View style={styles.dropdownCard}>
+                    <Text style={styles.dropdownTitle}>
+                      Selecciona hora inicio
+                    </Text>
+                    <ScrollView
+                      style={styles.dropdownList}
+                      showsVerticalScrollIndicator={false}
+                    >
+                      {availableStarts.map((slot) => {
+                        const selected = horaInicioMin === slot;
+                        return (
+                          <TouchableOpacity
+                            key={slot}
+                            style={[
+                              styles.dropdownOption,
+                              selected && styles.dropdownOptionSelected,
+                            ]}
+                            onPress={() => {
+                              setHoraInicioMin(slot);
+                              setShowStartDropdown(false);
+                            }}
+                          >
+                            <Text
+                              style={
+                                selected
+                                  ? styles.dropdownOptionTextSelected
+                                  : styles.dropdownOptionText
+                              }
+                            >
+                              {toHHmm(slot)}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </ScrollView>
+                  </View>
                 </TouchableOpacity>
-                <View style={styles.stepperCenter}>
-                  <Text style={styles.stepperValue}>{formatDuration(durationMinutes)}</Text>
-                </View>
-                <TouchableOpacity
-                  onPress={() => adjustDuration(durationMinutes + 15)}
-                  style={styles.stepperBtn}
-                >
-                  <Text style={styles.stepperText}>+</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+              </Modal>
+            </>
           )}
 
+          <Text style={styles.label}>Duracion</Text>
+          <View style={styles.chipsRow}>
+            {DURATION_OPTIONS.map((minutes) => {
+              const selected = duration === minutes;
+              const disabled = !availableDurations.includes(minutes);
+              return (
+                <TouchableOpacity
+                  key={minutes}
+                  style={[
+                    styles.chip,
+                    selected && styles.chipSelected,
+                    disabled && styles.chipDisabled,
+                  ]}
+                  onPress={() => !disabled && setDuration(minutes)}
+                  disabled={disabled}
+                >
+                  <Text
+                    style={
+                      disabled
+                        ? styles.chipTextDisabled
+                        : selected
+                          ? styles.chipTextSelected
+                          : styles.chipText
+                    }
+                  >
+                    {minutes / 60}h{minutes % 60 ? ` ${minutes % 60}m` : ''}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          <Text style={styles.label}>Hora fin</Text>
+          <View style={styles.readonlyField}>
+            <Text style={styles.readonlyValue}>{horaFin}</Text>
+          </View>
+
+          <Text style={styles.label}>Nota (opcional)</Text>
+          <TextInput
+            style={styles.noteInput}
+            placeholder="Prefiero la pista cerca de la entrada"
+            placeholderTextColor={theme.textPlaceholder}
+            value={nota}
+            onChangeText={setNota}
+            multiline
+            numberOfLines={3}
+            textAlignVertical="top"
+          />
+
           <View style={styles.totalCard}>
-            <View>
-              <Text style={styles.totalLabel}>Total estimado</Text>
-              <Text style={styles.totalValue}>{money.format(total)}</Text>
-            </View>
-            <View style={styles.totalMeta}>
-              <Text style={styles.totalMetaText}>{formatDuration(durationMinutes)}</Text>
-              <Text style={styles.totalMetaText}>{formatDate(fechaInicio)} · {formatTime(fechaInicio)}</Text>
-            </View>
+            <Text style={styles.totalLabel}>Total estimado</Text>
+            <Text style={styles.totalValue}>{total.toFixed(2)} EUR</Text>
+            <Text style={styles.totalMeta}>
+              {horaInicio} - {horaFin}
+            </Text>
           </View>
 
           <TouchableOpacity
-            style={[styles.submit, loading && { opacity: 0.7 }]}
+            style={[styles.submit, submitting && styles.submitDisabled]}
             onPress={handleSubmit}
-            disabled={loading}
+            disabled={submitting || availableStarts.length === 0}
           >
-            <Text style={styles.submitText}>{loading ? 'Creando...' : 'Confirmar reserva'}</Text>
+            {submitting ? (
+              <ActivityIndicator size="small" color={theme.onPrimary} />
+            ) : (
+              <Text style={styles.submitText}>Confirmar reserva</Text>
+            )}
           </TouchableOpacity>
         </View>
-
-        {loading && (
-          <View style={styles.loadingOverlay} pointerEvents="none">
-            <ActivityIndicator size="large" color={theme.onPrimary} />
-          </View>
-        )}
-
-        <Snackbar
-          visible={snackbarVisible}
-          onDismiss={() => setSnackbarVisible(false)}
-          duration={3000}
-          action={{ label: 'OK', onPress: () => setSnackbarVisible(false) }}
-        >
-          {snackbarMessage}
-        </Snackbar>
-
-        <Modal
-          visible={showCourtModal}
-          animationType="slide"
-          onRequestClose={() => setShowCourtModal(false)}
-        >
-          <SafeAreaView style={styles.modalSafeArea}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Seleccionar pista</Text>
-              <TouchableOpacity onPress={() => setShowCourtModal(false)}>
-                <Ionicons name="close-circle" size={30} color={theme.textPrimary} />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.webviewWrapper}>
-              <WebView source={{ uri: COURT_3D_URL }} style={styles.webview} />
-            </View>
-
-            <Text style={styles.modalHint}>Explora en 3D y selecciona una pista abajo</Text>
-
-            <View style={styles.courtListContainer}>
-              <Text style={styles.courtListTitle}>Pistas disponibles</Text>
-              {isLoadingCourts ? (
-                <ActivityIndicator color={theme.primary} style={{ marginTop: 12 }} />
-              ) : courts.length === 0 ? (
-                <View style={styles.emptyCourtsState}>
-                  <Text style={styles.emptyCourtsTitle}>No se encontraron pistas</Text>
-                  <Text style={styles.emptyCourtsText}>Revisa conexión o endpoints de pistas</Text>
-                </View>
-              ) : (
-                <ScrollView showsVerticalScrollIndicator={false}>
-                  {courts.map((court) => {
-                    const isSelected = selectedCourt?.id === court.id;
-                    return (
-                      <TouchableOpacity
-                        key={court.id}
-                        onPress={() => {
-                          setSelectedCourt(court);
-                          setShowCourtModal(false);
-                        }}
-                        style={[styles.courtRow, isSelected && styles.courtRowSelected]}
-                      >
-                        <View>
-                          <Text style={[styles.courtRowText, isSelected && styles.courtRowTextSelected]}>
-                            {court.name}
-                          </Text>
-                          {(court.openingHour || court.closingHour || court.status) && (
-                            <Text style={styles.courtMetaText}>
-                              {[
-                                court.status,
-                                court.openingHour && court.closingHour
-                                  ? `${court.openingHour} - ${court.closingHour}`
-                                  : null,
-                              ]
-                                .filter(Boolean)
-                                .join(' · ')}
-                            </Text>
-                          )}
-                        </View>
-                        {isSelected && (
-                          <Ionicons name="checkmark-circle" size={20} color={theme.primary} />
-                        )}
-                      </TouchableOpacity>
-                    );
-                  })}
-                </ScrollView>
-              )}
-            </View>
-          </SafeAreaView>
-        </Modal>
       </ScrollView>
-    </KeyboardAvoidingView>
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={3000}
+        action={{ label: 'OK', onPress: () => setSnackbarVisible(false) }}
+      >
+        {snackbarMessage}
+      </Snackbar>
+    </View>
   );
 }
