@@ -164,6 +164,36 @@ const createReservasTabStyles = (theme: AppTheme) =>
       fontSize: 13,
       fontWeight: '700',
     },
+    infoListTitle: {
+      color: theme.textTitle,
+      fontSize: 15,
+      fontWeight: '800',
+      marginBottom: 10,
+      textAlign: 'center',
+    },
+    infoListEmpty: {
+      color: theme.textBody,
+      fontSize: 14,
+      textAlign: 'center',
+      lineHeight: 20,
+    },
+    infoListWrap: {
+      gap: 8,
+    },
+    infoRangeChip: {
+      borderWidth: 1,
+      borderColor: theme.borderSoft,
+      borderRadius: 10,
+      backgroundColor: theme.primarySoft,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      alignItems: 'center',
+    },
+    infoRangeText: {
+      color: theme.textTitle,
+      fontSize: 15,
+      fontWeight: '700',
+    },
     emptyTitle: {
       fontSize: 18,
       fontWeight: '700',
