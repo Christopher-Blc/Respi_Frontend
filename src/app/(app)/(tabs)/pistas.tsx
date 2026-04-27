@@ -21,6 +21,7 @@ import {
   formatDateDisplay,
   formatPrice,
   PistaBackend,
+  resolvePistaImageSource,
   resolveImageSource,
   usePistasTab,
 } from '../../../hooks/usePistasTab';
@@ -107,6 +108,7 @@ export default function PistasTab() {
   const renderSportCourtCard = (pista: PistaBackend) => {
     const pistaId = String(pista.pista_id ?? pista.id ?? '');
     const reservasHoy = pista.reservas_actuales?.length || 0;
+    const pistaImage = resolvePistaImageSource(pista, selectedModel);
 
     return (
       <View
@@ -116,37 +118,47 @@ export default function PistasTab() {
           { flexBasis: isWideScreen ? (width - 72) / 2 : '100%', flexGrow: 1 },
         ]}
       >
-        <View style={localStyles.sportCardHeader}>
-          <Text style={localStyles.sportCardTitle}>{pista.nombre || 'Pista'}</Text>
-          <Text style={localStyles.sportCardPrice}>
-            {pista.precio_hora ? `EUR ${pista.precio_hora}/h` : 'Precio N/D'}
-          </Text>
-        </View>
+        <ImageBackground
+          source={pistaImage}
+          style={localStyles.sportCardImage}
+          imageStyle={localStyles.sportCardImageStyle}
+        >
+          <View style={localStyles.sportCardOverlay}>
+            <View style={localStyles.sportCardHeader}>
+              <Text style={localStyles.sportCardTitle}>{pista.nombre || 'Pista'}</Text>
+              <Text style={localStyles.sportCardPrice}>
+                {pista.precio_hora ? `EUR ${pista.precio_hora}/h` : 'Precio N/D'}
+              </Text>
+            </View>
 
-        {!!pista.descripcion && (
-          <Text style={localStyles.sportCardDescription}>{pista.descripcion}</Text>
-        )}
+            {!!pista.descripcion && (
+              <Text style={localStyles.sportCardDescription}>{pista.descripcion}</Text>
+            )}
 
-        <View style={localStyles.sportChipsWrap}>
-          <View style={localStyles.sportChip}>
-            <Text style={localStyles.sportChipText}>
-              Capacidad: {pista.capacidad ?? 'N/D'}
-            </Text>
+            <View style={localStyles.sportChipsWrap}>
+              <View style={localStyles.sportChip}>
+                <Text style={localStyles.sportChipText}>
+                  Capacidad: {pista.capacidad ?? 'N/D'}
+                </Text>
+              </View>
+              <View style={localStyles.sportChip}>
+                <Text style={localStyles.sportChipText}>
+                  Cubierta: {pista.cubierta ? 'Si' : 'No'}
+                </Text>
+              </View>
+              <View style={localStyles.sportChip}>
+                <Text style={localStyles.sportChipText}>
+                  Iluminacion: {pista.iluminacion ? 'Si' : 'No'}
+                </Text>
+              </View>
+              <View style={localStyles.sportChip}>
+                <Text style={localStyles.sportChipText}>
+                  Reservas hoy: {reservasHoy}
+                </Text>
+              </View>
+            </View>
           </View>
-          <View style={localStyles.sportChip}>
-            <Text style={localStyles.sportChipText}>
-              Cubierta: {pista.cubierta ? 'Si' : 'No'}
-            </Text>
-          </View>
-          <View style={localStyles.sportChip}>
-            <Text style={localStyles.sportChipText}>
-              Iluminacion: {pista.iluminacion ? 'Si' : 'No'}
-            </Text>
-          </View>
-          <View style={localStyles.sportChip}>
-            <Text style={localStyles.sportChipText}>Reservas hoy: {reservasHoy}</Text>
-          </View>
-        </View>
+        </ImageBackground>
 
         {!!pistaId && (
           <TouchableOpacity
