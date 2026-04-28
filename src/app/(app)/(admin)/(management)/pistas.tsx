@@ -16,8 +16,14 @@ import { useAdminPistas } from '../../../../hooks/useAdminPistas';
 import { pistasStyles as styles } from '../../../../style/admin/pistas.styles';
 import { PistaFormModal } from '../../../../components/admin/pista/PistaFormModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
+import { Tabs } from 'expo-router';
 
 export default function AdminPistas() {
+  <Tabs.Screen
+    name="(management)/pistas"
+    options={{ title: 'Gestión de pistas' }}
+  />;
+
   const { theme } = useAppTheme();
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
