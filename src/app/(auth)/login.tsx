@@ -129,7 +129,6 @@ const Login: React.FC = () => {
           placeholder="Enter password"
           value={password}
           onChangeText={setPassword}
-          isDarkMode={isDarkMode}
         />
 
         <GlassTextButton

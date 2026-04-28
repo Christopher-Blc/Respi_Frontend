@@ -301,7 +301,6 @@ const Register: React.FC = () => {
             placeholder="Enter password"
             value={password}
             onChangeText={setPassword}
-            isDarkMode={isDarkMode}
           />
 
           <Text
