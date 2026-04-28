@@ -16,22 +16,34 @@ export interface User {
   refresh_token_hash: string;
 }
 
-// 2. Tipo para la Pista (Relacionada)
-export interface Pista {
-  pista_id: number;
-  instalacion_id: number;
-  tipo_pista_id: number;
-  nombre: string;
-  capacidad: number;
-  precio_hora: string; // Viene como string del backend
-  cubierta: boolean;
-  iluminacion: boolean;
-  descripcion: string;
-  estado: 'DISPONIBLE' | 'OCUPADA' | 'MANTENIMIENTO';
-  hora_apertura: string;
-  hora_cierre: string;
-  dia_semana: string;
-}
+
+
+//objeto que devuelve el backend de la pista con relaciones
+export type Pista = {
+  pista_id: number | string,
+  instalacion_id: number | string,
+  tipo_pista_id: number | string,
+  nombre: string,
+  capacidad: number,
+  precio_hora: string,
+  cubierta: boolean,
+  iluminacion: boolean,
+  descripcion: string,
+  estado: string,
+  hora_apertura: string,
+  hora_cierre: string,
+  dia_semana: 'LUNES' | 'MARTES' | 'MIERCOLES' | 'JUEVES' | 'VIERNES' | 'SABADO' | 'DOMINGO',
+  instalacion: {
+    instalacion_id: number,
+    nombre: string,
+    direccion: string,
+    telefono: string,
+    email: string,
+    descripcion: string,
+    fecha_creacion: string,
+    estado: string
+  }, 
+};
 
 // 3. Tipo para el Pago
 export interface Pago {
@@ -77,6 +89,31 @@ export interface Membresia {
   reservas_requeridas: number;
   beneficios: string;
 }
+
+//objeto que devuelve el endpoint /pista/disponibilidad
+export type PistaDisponibilidad = {
+
+  pista_id: number | string,
+  instalacion_id: number | string,
+  tipo_pista_id: number | string,
+  nombre: string,
+  capacidad: number,
+  precio_hora: number,
+  cubierta: boolean,
+  iluminacion: boolean,
+  descripcion: string,
+  estado: 'DISPONIBLE',
+  hora_apertura: string,
+  hora_cierre: string,
+  dia_semana: 'LUNES' | 'MARTES' | 'MIERCOLES' | 'JUEVES' | 'VIERNES' | 'SABADO' | 'DOMINGO',
+  tipo_pista: {
+    tipo_pista_id: number | string,
+    nombre: string,
+    imagen: string
+  },
+  reservas_actuales: Array<{ inicio: string; fin: string }>
+  
+};
 
 export interface JWTPayload {
   sub: number;

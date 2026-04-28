@@ -3,35 +3,10 @@ import { MODELOS, Modelo } from '../data/modelos';
 import { API_PUBLIC_URL } from '../constants';
 import { reservasService } from '../services/reservasService';
 import api from '../services/api';
+import { PistaDisponibilidad, TipoPista } from '../types/types';
+ 
+ 
 
-export type TipoPistaBackend = {
-  tipo_pista_id?: number | string;
-  id?: number | string;
-  nombre?: string;
-  descripcion?: string;
-};
-
-export type PistaBackend = {
-  pista_id?: number | string;
-  id?: number | string;
-  nombre?: string;
-  descripcion?: string;
-  imagen?: string;
-  capacidad?: number;
-  precio_hora?: string | number;
-  cubierta?: boolean;
-  iluminacion?: boolean;
-  estado?: string;
-  tipo_pista_id?: number | string;
-  tipoPistaId?: number | string;
-  tipo_pista?: {
-    tipo_pista_id?: number | string;
-    id?: number | string;
-    nombre?: string;
-    imagen?: string;
-  };
-  reservas_actuales?: Array<{ inicio: string; fin: string }>;
-};
 
 export const formatPrice = (price: number) =>
   new Intl.NumberFormat('es-ES', {
@@ -52,11 +27,11 @@ export const resolveImageSource = (img: Modelo['img']) => {
 };
 
 export const resolvePistaImageSource = (
-  pista: PistaBackend,
+  pista: PistaDisponibilidad,
   fallbackModel?: Modelo | null,
 ) => {
   const candidate =
-    pista?.tipo_pista?.imagen || pista?.imagen || fallbackModel?.img;
+    pista?.tipo_pista?.imagen || fallbackModel?.img;
 
   if (typeof candidate === 'number') return candidate;
   if (typeof candidate === 'string') {
@@ -99,15 +74,8 @@ const normalizeText = (value: string) =>
     .toLowerCase()
     .trim();
 
-const getTypeIdCandidates = (item: PistaBackend): string[] =>
-  [
-    item?.tipo_pista_id,
-    item?.tipoPistaId,
-    item?.tipo_pista?.tipo_pista_id,
-    item?.tipo_pista?.id,
-  ]
-    .filter((id) => id !== undefined && id !== null)
-    .map((id) => String(id));
+const getTypeIdCandidates = (item: PistaDisponibilidad): string =>
+  String(item?.tipo_pista_id ?? '');
 
 export function usePistasTab() {
   const [modelos, setModelos] = useState<Modelo[]>([]);
@@ -116,8 +84,8 @@ export function usePistasTab() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [loadingSportInfo, setLoadingSportInfo] = useState(false);
   const [sportError, setSportError] = useState<string | null>(null);
-  const [sportType, setSportType] = useState<TipoPistaBackend | null>(null);
-  const [sportPistas, setSportPistas] = useState<PistaBackend[]>([]);
+  const [sportType, setSportType] = useState<TipoPista | null>(null);
+  const [sportPistas, setSportPistas] = useState<PistaDisponibilidad[]>([]);
 
   const availableDays = useMemo(() => getNext7Days(), []);
   const formattedDate = formatDateForAPI(selectedDate);
@@ -171,23 +139,23 @@ export function usePistasTab() {
 
         const tiposPayload =
           tiposRes.status === 'fulfilled' && Array.isArray(tiposRes.value?.data)
-            ? (tiposRes.value.data as TipoPistaBackend[])
+            ? (tiposRes.value.data as TipoPista[])
             : [];
 
         const disponibilidadPayload =
           disponibilidadRes.status === 'fulfilled' &&
           Array.isArray(disponibilidadRes.value?.data)
-            ? (disponibilidadRes.value.data as PistaBackend[])
+            ? (disponibilidadRes.value.data as PistaDisponibilidad[])
             : [];
 
         const pistasPayload =
           pistasRes.status === 'fulfilled' &&
           Array.isArray(pistasRes.value?.data)
-            ? (pistasRes.value.data as PistaBackend[])
+            ? (pistasRes.value.data as PistaDisponibilidad[])
             : [];
 
         const selectedType = tiposPayload.find((tipo) => {
-          const typeId = String(tipo.tipo_pista_id ?? tipo.id ?? '');
+          const typeId = String(tipo.tipo_pista_id ?? '');
           const typeName = normalizeText(tipo.nombre || '');
           return (
             typeId === String(selectedModel.id) ||
@@ -195,9 +163,9 @@ export function usePistasTab() {
           );
         });
 
-        const fullMap = new Map<string, PistaBackend>();
+        const fullMap = new Map<string, PistaDisponibilidad>();
         for (const pista of pistasPayload) {
-          const id = String(pista.pista_id ?? pista.id ?? '');
+          const id = String(pista.pista_id ?? '');
           if (id) fullMap.set(id, pista);
         }
 
@@ -213,7 +181,7 @@ export function usePistasTab() {
         });
 
         const merged = filtered.map((pista) => {
-          const id = String(pista.pista_id ?? pista.id ?? '');
+          const id = String(pista.pista_id ?? '');
           const full = fullMap.get(id);
           return {
             ...full,
@@ -224,7 +192,7 @@ export function usePistasTab() {
             iluminacion: pista.iluminacion ?? full?.iluminacion,
             estado: pista.estado || full?.estado,
             precio_hora: pista.precio_hora ?? full?.precio_hora,
-          } as PistaBackend;
+          } as PistaDisponibilidad;
         });
 
         if (!mounted) return;
