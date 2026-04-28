@@ -7,18 +7,22 @@ import { useAppTheme } from '../context/ThemeContext';
 interface Props {
   visible: boolean;
   onConfirm: () => void;
+  onCancel?: () => void;
   title?: string;
   message?: string;
   confirmText?: string;
+  cancelText?: string;
   content?: ReactNode;
 }
 
 export const SessionExpiredModal = ({
   visible,
   onConfirm,
+  onCancel,
   title = 'Sesion Caducada',
   message = 'Tu sesion ha expirado por seguridad. Por favor, vuelve a iniciar sesion.',
   confirmText = 'Entendido',
+  cancelText = 'Cancelar',
   content,
 }: Props) => {
   const { isDarkMode, theme } = useAppTheme();
@@ -62,14 +66,26 @@ export const SessionExpiredModal = ({
             </Text>
           )}
 
-          <GlassTextButton
-            text={confirmText}
-            textColor={buttonTextColor}
-            onPress={onConfirm}
-            color={buttonColor}
-            borderColor={borderColor}
-            borderWidth={1}
-          />
+          <View style={styles.buttonsContainer}>
+            <GlassTextButton
+              text={confirmText}
+              textColor={buttonTextColor}
+              onPress={onConfirm}
+              color={buttonColor}
+              borderColor={borderColor}
+              borderWidth={1}
+            />
+            {onCancel && (
+              <GlassTextButton
+                text={cancelText}
+                textColor={buttonColor}
+                onPress={onCancel}
+                color={'transparent'}
+                borderColor={borderColor}
+                borderWidth={1}
+              />
+            )}
+          </View>
         </BlurView>
       </View>
     </Modal>
@@ -105,5 +121,10 @@ const styles = StyleSheet.create({
   contentContainer: {
     width: '100%',
     marginBottom: 20,
+  },
+  buttonsContainer: {
+    width: '100%',
+    gap: 12,
+    marginTop: 8,
   },
 });

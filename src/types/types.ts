@@ -20,7 +20,7 @@ export interface User {
 
 //objeto que devuelve el backend de la pista con relaciones
 export type Pista = {
-  pista_id: number | string,
+  pista_id: number ,
   instalacion_id: number | string,
   tipo_pista_id: number | string,
   nombre: string,
