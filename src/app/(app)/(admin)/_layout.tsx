@@ -2,7 +2,6 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform, StatusBar, StyleSheet } from 'react-native';
 import Octicons from '@expo/vector-icons/Octicons';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { useAppTheme } from '../../../context/ThemeContext'; // Ajusta la ruta según tu estructura
 
@@ -97,6 +96,14 @@ export default function AdminTabLayout() {
             tabBarIcon: ({ color, size }) => (
               <Octicons name="person" size={size} color={color} />
             ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="(management)"
+          options={{
+            title: 'Gestión',
+            href: null,
           }}
         />
       </Tabs>
