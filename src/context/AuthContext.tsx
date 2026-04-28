@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from 'react';
 import { SessionExpiredModal } from '../components/alert.modal';
 import {
   getToken,
@@ -30,6 +36,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [role, setRole] = useState<'SUPER_ADMIN' | 'CLIENTE' | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showExpiredModal, setShowExpiredModal] = useState(false);
+  const suppressForcedLogoutModalRef = useRef(false);
 
   const decodeAndSetRole = (token: string) => {
     try {
@@ -45,6 +52,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     onForceLogout(() => {
+      if (suppressForcedLogoutModalRef.current) {
+        return;
+      }
       setShowExpiredModal(true);
     });
     const loadToken = async () => {
@@ -84,6 +94,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         isLoading,
         // Cambiamos signIn para recibir ambos
         signIn: async (accessToken, refreshToken) => {
+          suppressForcedLogoutModalRef.current = false;
           setUserToken(accessToken);
           decodeAndSetRole(accessToken);
           await saveToken(accessToken);
@@ -92,10 +103,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
         },
         signOut: async () => {
+          suppressForcedLogoutModalRef.current = true;
+          setShowExpiredModal(false);
           setUserToken(null);
           setRole(null);
           await logout(false); // Esto ya borra ambos tokens según tu authStorage
           router.replace('/(auth)/login');
+
+          // Evita que un 401 rezagado de peticiones en vuelo dispare el modal tras logout manual.
+          setTimeout(() => {
+            suppressForcedLogoutModalRef.current = false;
+          }, 2000);
         },
       }}
     >
