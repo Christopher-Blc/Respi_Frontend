@@ -1,65 +1,105 @@
-import { Stack } from 'expo-router';
-import { TouchableOpacity, Text, View } from 'react-native';
-import { useAuth } from '../../../context/AuthContext';
-import { Ionicons } from '@expo/vector-icons'; // Viene con Expo
-import { useAppTheme } from '../../../context/ThemeContext';
+import { Tabs } from 'expo-router';
+import React from 'react';
+import { Platform, StatusBar, StyleSheet } from 'react-native';
+import Octicons from '@expo/vector-icons/Octicons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import { useAppTheme } from '../../../context/ThemeContext'; // Ajusta la ruta según tu estructura
 
-export default function AdminLayout() {
-  const { signOut } = useAuth();
-  const { theme } = useAppTheme();
+export default function AdminTabLayout() {
+  const { isDarkMode, theme } = useAppTheme();
 
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: theme.backgroundMain,
-        },
-        headerTintColor: theme.primaryButton,
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-        headerRight: () => (
-          <TouchableOpacity
-            onPress={signOut}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginRight: 10,
-            }}
-          >
-            <Text
-              style={{
-                color: theme.errorText,
-                marginRight: 5,
-                fontWeight: '600',
-              }}
-            >
-              Salir
-            </Text>
-            <Ionicons
-              name="log-out-outline"
-              size={20}
-              color={theme.errorText}
-            />
-          </TouchableOpacity>
-        ),
-      }}
-    >
-      {/* La pantalla principal del admin */}
-      <Stack.Screen
-        name="index"
-        options={{
-          title: 'PANEL DE CONTROL',
-        }}
+    <React.Fragment>
+      <StatusBar
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        animated
       />
 
-      {/* Si añades más pantallas dentro de (admin), aparecerán aquí con el mismo estilo */}
-      <Stack.Screen
-        name="usuarios"
-        options={{
-          title: 'Gestión de Usuarios',
+      <Tabs
+        screenOptions={{
+          headerTitleContainerStyle: {
+            paddingBottom: 10,
+          },
+          headerBackgroundContainerStyle: {
+            backgroundColor: theme.primaryHeader,
+            borderBottomColor: theme.primarySoft,
+            borderBottomWidth: 1,
+          },
+          headerShown: true,
+          headerTitleAlign: 'center',
+          headerTintColor: theme.headerText,
+          headerTransparent: true,
+          headerBackground: () => (
+            <BlurView
+              intensity={50}
+              tint={isDarkMode ? 'dark' : 'light'}
+              style={StyleSheet.absoluteFill}
+              experimentalBlurMethod="none"
+            />
+          ),
+
+          tabBarActiveTintColor: theme.tabActive,
+          tabBarInactiveTintColor: theme.tabInactive,
+          tabBarLabelPosition: 'below-icon',
+          tabBarStyle: {
+            position: 'absolute',
+            height: Platform.OS === 'web' ? 72 : 90,
+            paddingTop: 6,
+            paddingBottom: Platform.OS === 'web' ? 10 : 6,
+            backgroundColor: theme.primaryHeader,
+            elevation: 0,
+            borderColor: theme.primarySoft,
+            borderTopWidth: 1,
+          },
+
+          tabBarBackground: () => (
+            <BlurView
+              intensity={80}
+              tint={isDarkMode ? 'dark' : 'light'}
+              style={StyleSheet.absoluteFill}
+            />
+          ),
+
+          tabBarLabelStyle: {
+            marginBottom: Platform.OS === 'web' ? 2 : 0,
+          },
+          animation: 'fade',
         }}
-      />
-    </Stack>
+      >
+        {/* TAB 1: GESTIÓN GENERAL */}
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: 'Gestión',
+            tabBarIcon: ({ color, size }) => (
+              <Octicons name="tools" size={size} color={color} />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="info"
+          options={{
+            title: 'Información',
+            tabBarLabel: 'Info',
+            tabBarIcon: ({ color, size }) => (
+              <Octicons name="graph" size={size} color={color} />
+            ),
+          }}
+        />
+
+        {/* TAB 3: PERFIL ADMIN */}
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: 'Perfil',
+            tabBarIcon: ({ color, size }) => (
+              <Octicons name="person" size={size} color={color} />
+            ),
+          }}
+        />
+      </Tabs>
+    </React.Fragment>
   );
 }
