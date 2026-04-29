@@ -13,11 +13,12 @@ import { useAppTheme } from '../../../context/ThemeContext';
 import { pistasStyles as styles } from '../../../style/admin/pistas.styles';
 import { SessionExpiredModal } from '../../alert.modal';
 import {
+  Pista,
+  TipoPista,
   PistaFormData,
   WeeklyScheduleItem,
-  WEEK_DAYS,
-} from '../../../hooks/useAdminPistas';
-import { Pista, TipoPista } from '../../../types/types';
+} from '../../../types/types';
+import { WEEK_DAYS } from '../../../hooks/pistaUtils';
 
 type Props = {
   visible: boolean;

@@ -218,7 +218,7 @@ export default function CreateBooking() {
 
   return (
     <View style={styles.screen}>
-      <Stack.Screen options={{ title: 'Nueva reserva' }} />
+      <Stack.Screen options={{ headerShown: false }} />
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
