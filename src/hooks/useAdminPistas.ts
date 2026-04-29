@@ -69,6 +69,62 @@ const isValidPrice = (value: string) => {
   return normalized.length > 0 && Number.isFinite(amount) && amount > 0;
 };
 
+const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+const toDateInputValue = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const parseDateInput = (value: string): Date | null => {
+  const match = DATE_PATTERN.exec(value.trim());
+  if (!match) return null;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(year, month - 1, day);
+
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return date;
+};
+
+const eachDateInclusive = (startDate: Date, endDate: Date): string[] => {
+  const dates: string[] = [];
+  const current = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+  const end = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+
+  while (current <= end) {
+    dates.push(toDateInputValue(current));
+    current.setDate(current.getDate() + 1);
+  }
+
+  return dates;
+};
+
+const countUniqueReservas = (results: any[]): number => {
+  const ids = new Set<number>();
+
+  results.forEach((response) => {
+    const rows = Array.isArray(response?.data) ? response.data : [];
+    rows.forEach((reserva: any) => {
+      const id = Number(reserva?.reserva_id);
+      if (Number.isFinite(id)) ids.add(id);
+    });
+  });
+
+  return ids.size;
+};
+
 export function useAdminPistas() {
   const { width } = useWindowDimensions();
   const weeklyCardWidth = width >= 1400 ? '32%' : width >= 980 ? '49%' : '100%';
@@ -90,7 +146,33 @@ export function useAdminPistas() {
     reservasCount: number;
     loadingCount: boolean;
     accion: 'eliminar' | 'mantenimiento';
-  }>({ visible: false, nombre: '', ids: [], reservasCount: 0, loadingCount: false, accion: 'eliminar' });
+    mantenimientoDesde: string;
+    mantenimientoHasta: string;
+  }>({
+    visible: false,
+    nombre: '',
+    ids: [],
+    reservasCount: 0,
+    loadingCount: false,
+    accion: 'eliminar',
+    mantenimientoDesde: '',
+    mantenimientoHasta: '',
+  });
+  const [maintenanceDateModal, setMaintenanceDateModal] = useState<{
+    visible: boolean;
+    nombre: string;
+    ids: number[];
+    desde: string;
+    hasta: string;
+    error: string;
+  }>({
+    visible: false,
+    nombre: '',
+    ids: [],
+    desde: '',
+    hasta: '',
+    error: '',
+  });
   const [errorModal, setErrorModal] = useState<{ visible: boolean; title: string; message: string }>({
     visible: false,
     title: '',
@@ -98,6 +180,11 @@ export function useAdminPistas() {
   });
   const [samePriceMode, setSamePriceMode] = useState(false);
   const [globalPrice, setGlobalPrice] = useState('');
+  const [filterTipoPistaId, setFilterTipoPistaId] = useState<number | null>(null);
+  const [filterPrecioMax, setFilterPrecioMax] = useState('');
+  const [filterEstado, setFilterEstado] = useState<
+    'DISPONIBLE' | 'MANTENIMIENTO' | 'INACTIVA' | null
+  >(null);
 
   const fetchPistas = async () => {
     try {
@@ -275,12 +362,45 @@ export function useAdminPistas() {
     }
   };
 
-  const fetchReservasCount = async (ids: number[]): Promise<number> => {
+  const fetchReservasCount = async (
+    ids: number[],
+    maintenanceDesde?: string,
+    maintenanceHasta?: string,
+  ): Promise<number> => {
+    if (maintenanceDesde && maintenanceHasta) {
+      try {
+        const rangeResults = await Promise.all(
+          ids.map((id) =>
+            api.get('/reserva', {
+              params: {
+                pista_id: id,
+                fecha_inicio: maintenanceDesde,
+                fecha_fin: maintenanceHasta,
+              },
+            }),
+          ),
+        );
+        return countUniqueReservas(rangeResults);
+      } catch {
+        const from = parseDateInput(maintenanceDesde);
+        const to = parseDateInput(maintenanceHasta);
+        if (!from || !to) return 0;
+
+        const days = eachDateInclusive(from, to);
+        const results = await Promise.all(
+          ids.flatMap((id) =>
+            days.map((fecha) =>
+              api.get('/reserva', { params: { fecha, pista_id: id } }),
+            ),
+          ),
+        );
+        return countUniqueReservas(results);
+      }
+    }
+
     const today = new Date().toISOString().slice(0, 10);
     const results = await Promise.all(
-      ids.map((id) =>
-        api.get('/reserva', { params: { fecha: today, pista_id: id } }),
-      ),
+      ids.map((id) => api.get('/reserva', { params: { fecha: today, pista_id: id } })),
     );
     return results.reduce(
       (sum, r) => sum + (Array.isArray(r.data) ? r.data.length : 0),
@@ -288,34 +408,140 @@ export function useAdminPistas() {
     );
   };
 
-  const openConfirmModal = async (
-    item: Pista,
-    accion: 'eliminar' | 'mantenimiento',
-  ) => {
-    const nombre = item.nombre;
-    const ids = pistas
-      .filter(
-        (p) => p.nombre?.trim().toLowerCase() === nombre?.trim().toLowerCase(),
-      )
-      .map((p) => p.pista_id);
-    setDeleteModal({ visible: true, nombre, ids, reservasCount: 0, loadingCount: true, accion });
+  const openConfirmModal = async ({
+    nombre,
+    ids,
+    accion,
+    mantenimientoDesde = '',
+    mantenimientoHasta = '',
+  }: {
+    nombre: string;
+    ids: number[];
+    accion: 'eliminar' | 'mantenimiento';
+    mantenimientoDesde?: string;
+    mantenimientoHasta?: string;
+  }) => {
+    setDeleteModal({
+      visible: true,
+      nombre,
+      ids,
+      reservasCount: 0,
+      loadingCount: true,
+      accion,
+      mantenimientoDesde,
+      mantenimientoHasta,
+    });
     try {
-      const count = await fetchReservasCount(ids);
+      const count = await fetchReservasCount(ids, mantenimientoDesde, mantenimientoHasta);
       setDeleteModal((prev) => ({ ...prev, reservasCount: count, loadingCount: false }));
     } catch {
       setDeleteModal((prev) => ({ ...prev, loadingCount: false }));
     }
   };
 
-  const handleDelete = (item: Pista) => openConfirmModal(item, 'eliminar');
+  const handleDelete = (item: Pista) => {
+    const nombre = item.nombre;
+    const ids = pistas
+      .filter(
+        (p) => p.nombre?.trim().toLowerCase() === nombre?.trim().toLowerCase(),
+      )
+      .map((p) => p.pista_id);
+    openConfirmModal({ nombre, ids, accion: 'eliminar' });
+  };
 
-  const handleMantenimiento = (item: Pista) => openConfirmModal(item, 'mantenimiento');
+  const handleMantenimiento = (item: Pista) => {
+    const nombre = item.nombre;
+    const ids = pistas
+      .filter(
+        (p) => p.nombre?.trim().toLowerCase() === nombre?.trim().toLowerCase(),
+      )
+      .map((p) => p.pista_id);
+    const today = new Date();
+    const nextWeek = new Date(today);
+    nextWeek.setDate(today.getDate() + 7);
+
+    setMaintenanceDateModal({
+      visible: true,
+      nombre,
+      ids,
+      desde: toDateInputValue(today),
+      hasta: toDateInputValue(nextWeek),
+      error: '',
+    });
+  };
+
+  const updateMaintenanceRange = (field: 'desde' | 'hasta', value: string) => {
+    setMaintenanceDateModal((prev) => ({
+      ...prev,
+      [field]: value,
+      error: '',
+    }));
+  };
+
+  const cancelMaintenanceDates = () =>
+    setMaintenanceDateModal({
+      visible: false,
+      nombre: '',
+      ids: [],
+      desde: '',
+      hasta: '',
+      error: '',
+    });
+
+  const confirmMaintenanceDates = async () => {
+    const from = parseDateInput(maintenanceDateModal.desde);
+    const to = parseDateInput(maintenanceDateModal.hasta);
+
+    if (!from || !to) {
+      setMaintenanceDateModal((prev) => ({
+        ...prev,
+        error: 'Formato invalido. Usa AAAA-MM-DD.',
+      }));
+      return;
+    }
+
+    if (from > to) {
+      setMaintenanceDateModal((prev) => ({
+        ...prev,
+        error: 'La fecha de inicio no puede ser mayor que la de fin.',
+      }));
+      return;
+    }
+
+    const payload = {
+      nombre: maintenanceDateModal.nombre,
+      ids: maintenanceDateModal.ids,
+      accion: 'mantenimiento' as const,
+      mantenimientoDesde: maintenanceDateModal.desde,
+      mantenimientoHasta: maintenanceDateModal.hasta,
+    };
+
+    cancelMaintenanceDates();
+    await openConfirmModal(payload);
+  };
 
   const confirmDelete = async () => {
     try {
       if (deleteModal.accion === 'eliminar') {
         await Promise.all(
-          deleteModal.ids.map((id) => api.delete(`/pista/${id}`)),
+          deleteModal.ids.map((id) => {
+            const pista = pistas.find((p) => p.pista_id === id);
+            if (!pista) return Promise.resolve();
+            return api.put(`/pista/${id}`, {
+              nombre: pista.nombre,
+              descripcion: pista.descripcion,
+              capacidad: pista.capacidad,
+              precio_hora: parseFloat(pista.precio_hora),
+              cubierta: pista.cubierta,
+              iluminacion: pista.iluminacion,
+              instalacion_id: pista.instalacion_id,
+              tipo_pista_id: pista.tipo_pista_id,
+              dia_semana: pista.dia_semana,
+              hora_apertura: pista.hora_apertura.substring(0, 5),
+              hora_cierre: pista.hora_cierre.substring(0, 5),
+              estado: 'INACTIVA',
+            });
+          }),
         );
       } else {
         await Promise.all(
@@ -335,6 +561,8 @@ export function useAdminPistas() {
               hora_apertura: pista.hora_apertura.substring(0, 5),
               hora_cierre: pista.hora_cierre.substring(0, 5),
               estado: 'MANTENIMIENTO',
+              mantenimiento_desde: deleteModal.mantenimientoDesde,
+              mantenimiento_hasta: deleteModal.mantenimientoHasta,
             });
           }),
         );
@@ -348,12 +576,30 @@ export function useAdminPistas() {
           : 'No se pudo poner en mantenimiento',
       );
     } finally {
-      setDeleteModal({ visible: false, nombre: '', ids: [], reservasCount: 0, loadingCount: false, accion: 'eliminar' });
+      setDeleteModal({
+        visible: false,
+        nombre: '',
+        ids: [],
+        reservasCount: 0,
+        loadingCount: false,
+        accion: 'eliminar',
+        mantenimientoDesde: '',
+        mantenimientoHasta: '',
+      });
     }
   };
 
   const cancelDelete = () =>
-    setDeleteModal({ visible: false, nombre: '', ids: [], reservasCount: 0, loadingCount: false, accion: 'eliminar' });
+    setDeleteModal({
+      visible: false,
+      nombre: '',
+      ids: [],
+      reservasCount: 0,
+      loadingCount: false,
+      accion: 'eliminar',
+      mantenimientoDesde: '',
+      mantenimientoHasta: '',
+    });
 
   const openModal = (pista: Pista | null = null) => {
     setPistaAEditar(pista);
@@ -426,12 +672,27 @@ export function useAdminPistas() {
       seen.add(key);
       return true;
     });
-    return uniquePistas.filter(
-      (p) =>
-        p.nombre?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.instalacion?.nombre?.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
-  }, [pistas, searchQuery]);
+    const query = searchQuery.trim().toLowerCase();
+    const precioMax = filterPrecioMax.trim().replace(',', '.');
+    const maxPrice = precioMax.length > 0 ? parseFloat(precioMax) : null;
+    return uniquePistas.filter((p) => {
+      const matchesSearch =
+        !query ||
+        (p.nombre || '').toLowerCase().includes(query) ||
+        (p.instalacion?.nombre || '').toLowerCase().includes(query);
+      const matchesTipo =
+        filterTipoPistaId === null ||
+        Number(p.tipo_pista_id) === filterTipoPistaId;
+      const matchesPrecio =
+        maxPrice === null ||
+        isNaN(maxPrice) ||
+        parseFloat(p.precio_hora) <= maxPrice;
+      const matchesEstado =
+        filterEstado === null || p.estado === filterEstado;
+      const isNotInactiva = p.estado !== 'INACTIVA';
+      return matchesSearch && matchesTipo && matchesPrecio && matchesEstado && isNotInactiva;
+    });
+  }, [pistas, searchQuery, filterTipoPistaId, filterPrecioMax, filterEstado]);
 
   return {
     pistas,
@@ -452,6 +713,10 @@ export function useAdminPistas() {
     handleSave,
     handleDelete,
     handleMantenimiento,
+    maintenanceDateModal,
+    updateMaintenanceRange,
+    confirmMaintenanceDates,
+    cancelMaintenanceDates,
     confirmDelete,
     cancelDelete,
     updateWeeklySchedule,
@@ -461,5 +726,11 @@ export function useAdminPistas() {
     globalPrice,
     setGlobalPrice,
     toggleSamePrice,
+    filterTipoPistaId,
+    setFilterTipoPistaId,
+    filterPrecioMax,
+    setFilterPrecioMax,
+    filterEstado,
+    setFilterEstado,
   };
 }

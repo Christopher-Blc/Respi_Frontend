@@ -34,7 +34,7 @@ export const pistasStyles = StyleSheet.create({
   },
   cardTitle: { fontSize: 18, fontWeight: 'bold' },
   cardSubtitle: { fontSize: 13, opacity: 0.6 },
-  statusBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
+  statusBadge: { paddingHorizontal: 10, paddingVertical: 10, borderRadius: 8, alignSelf: 'flex-start' },
   cardDetails: { flexDirection: 'row', gap: 15, marginBottom: 15 },
   actionsRow: {
     flexDirection: 'row',

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,9 @@ import { useAdminPistas } from '../../../../hooks/useAdminPistas';
 import { pistasStyles as styles } from '../../../../style/admin/pistas.styles';
 import { PistaFormModal } from '../../../../components/admin/pista/PistaFormModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
+import { PistasFiltersModal } from '../../../../components/admin/pista/PistasFiltersModal';
+import { MaintenanceDateModal } from '../../../../components/admin/pista/MaintenanceDateModal';
+import { PistaCard } from '../../../../components/admin/pista/PistaCard';
 import { Tabs } from 'expo-router';
 
 export default function AdminPistas() {
@@ -46,6 +49,10 @@ export default function AdminPistas() {
     handleSave,
     handleDelete,
     handleMantenimiento,
+    maintenanceDateModal,
+    updateMaintenanceRange,
+    confirmMaintenanceDates,
+    cancelMaintenanceDates,
     confirmDelete,
     cancelDelete,
     updateWeeklySchedule,
@@ -55,99 +62,27 @@ export default function AdminPistas() {
     globalPrice,
     setGlobalPrice,
     toggleSamePrice,
+    filterTipoPistaId,
+    setFilterTipoPistaId,
+    filterPrecioMax,
+    setFilterPrecioMax,
+    filterEstado,
+    setFilterEstado,
   } = useAdminPistas();
 
-  const renderPistaCard = ({ item }: { item: Pista }) => (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: theme.backgroundCard,
-          borderColor: theme.primarySoft,
-        },
-      ]}
-    >
-      <View style={styles.cardHeader}>
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.cardTitle, { color: theme.textTitle }]}>
-            {item.nombre}
-          </Text>
-          <Text style={[styles.cardSubtitle, { color: theme.textBody }]}>
-            {item.instalacion?.nombre || 'Instalación N/D'}
-          </Text>
-        </View>
-        <View
-          style={[
-            styles.statusBadge,
-            {
-              backgroundColor:
-                item.estado === 'DISPONIBLE' ? '#4CAF5020' : '#F4433620',
-            },
-          ]}
-        >
-          <Text
-            style={{
-              color: item.estado === 'DISPONIBLE' ? '#4CAF50' : '#F44336',
-              fontSize: 10,
-              fontWeight: 'bold',
-            }}
-          >
-            {item.estado}
-          </Text>
-        </View>
-      </View>
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
-      <View style={styles.cardDetails}>
-        <DetailItem
-          icon="people-outline"
-          text={`Cap: ${item.capacidad}`}
-          theme={theme}
-        />
-        <DetailItem
-          icon="cash-outline"
-          text={`${item.precio_hora}€/h`}
-          theme={theme}
-        />
-        <DetailItem
-          icon={item.cubierta ? 'business-outline' : 'trail-sign-outline'}
-          text={item.cubierta ? 'Cubierta' : 'Exterior'}
-          theme={theme}
-        />
-      </View>
-
-      <View style={styles.actionsRow}>
-        <TouchableOpacity
-          style={[styles.btnAction, { backgroundColor: theme.primary + '15' }]}
-          onPress={() => openModal(item)}
-        >
-          <Ionicons name="create-outline" size={18} color={theme.primary} />
-          <Text
-            style={{ color: theme.primary, marginLeft: 4, fontWeight: '600' }}
-          >
-            Editar
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.btnAction, { backgroundColor: '#FF980015' }]}
-          onPress={() => handleMantenimiento(item)}
-        >
-          <Ionicons name="construct-outline" size={18} color="#FF9800" />
-          <Text style={{ color: '#FF9800', marginLeft: 4, fontWeight: '600' }}>
-            Mant.
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.btnAction, { backgroundColor: '#F4433615' }]}
-          onPress={() => handleDelete(item)}
-        >
-          <Ionicons name="trash-outline" size={18} color="#F44336" />
-          <Text style={{ color: '#F44336', marginLeft: 4, fontWeight: '600' }}>
-            Borrar
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+  const renderPistaCard = ({ item }: { item: Pista }) => {
+    return (
+      <PistaCard
+        item={item}
+        theme={theme}
+        onEdit={openModal}
+        onMaintenance={handleMantenimiento}
+        onDelete={handleDelete}
+      />
+    );
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.backgroundMain }]}>
@@ -163,13 +98,48 @@ export default function AdminPistas() {
         >
           <Ionicons name="search" size={20} color={theme.textBody} />
           <TextInput
-            placeholder="Buscar por nombre o club..."
+            placeholder="Buscar por nombre o instalación..."
             placeholderTextColor={theme.textBody + '80'}
             style={[styles.searchInput, { color: theme.textTitle }]}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <Ionicons name="close-circle" size={18} color={theme.textBody} />
+            </TouchableOpacity>
+          )}
         </View>
+        <TouchableOpacity
+          style={[
+            styles.addBtn,
+            {
+              backgroundColor:
+                filtersOpen ||
+                filterTipoPistaId !== null ||
+                filterPrecioMax.trim().length > 0 ||
+                filterEstado !== null
+                  ? theme.primary
+                  : theme.backgroundCard,
+              borderWidth: 1,
+              borderColor: theme.primarySoft,
+            },
+          ]}
+          onPress={() => setFiltersOpen(true)}
+        >
+          <Ionicons
+            name="options-outline"
+            size={22}
+            color={
+              filtersOpen ||
+              filterTipoPistaId !== null ||
+              filterPrecioMax.trim().length > 0 ||
+              filterEstado !== null
+                ? 'white'
+                : theme.textBody
+            }
+          />
+        </TouchableOpacity>
         <TouchableOpacity
           style={[styles.addBtn, { backgroundColor: theme.primary }]}
           onPress={() => openModal()}
@@ -215,6 +185,18 @@ export default function AdminPistas() {
         toggleSamePrice={toggleSamePrice}
       />
 
+      <PistasFiltersModal
+        visible={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        tiposPista={tiposPista}
+        filterTipoPistaId={filterTipoPistaId}
+        setFilterTipoPistaId={setFilterTipoPistaId}
+        filterEstado={filterEstado}
+        setFilterEstado={setFilterEstado}
+        filterPrecioMax={filterPrecioMax}
+        setFilterPrecioMax={setFilterPrecioMax}
+      />
+
       <SessionExpiredModal
         visible={deleteModal.visible}
         title={
@@ -225,7 +207,13 @@ export default function AdminPistas() {
         message={
           deleteModal.loadingCount
             ? 'Calculando reservas afectadas...'
-            : `¿Estás seguro? Se cancelarán ${deleteModal.reservasCount} reserva${
+            : `${
+                deleteModal.accion === 'mantenimiento' &&
+                deleteModal.mantenimientoDesde &&
+                deleteModal.mantenimientoHasta
+                  ? `Mantenimiento del ${deleteModal.mantenimientoDesde} al ${deleteModal.mantenimientoHasta}.\n\n`
+                  : ''
+              }¿Estás seguro? Se cancelarán ${deleteModal.reservasCount} reserva${
                 deleteModal.reservasCount !== 1 ? 's' : ''
               }.`
         }
@@ -238,23 +226,18 @@ export default function AdminPistas() {
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
       />
+
+      <MaintenanceDateModal
+        visible={maintenanceDateModal.visible}
+        nombre={maintenanceDateModal.nombre}
+        desde={maintenanceDateModal.desde}
+        hasta={maintenanceDateModal.hasta}
+        error={maintenanceDateModal.error}
+        onChangeDesde={(value) => updateMaintenanceRange('desde', value)}
+        onChangeHasta={(value) => updateMaintenanceRange('hasta', value)}
+        onCancel={cancelMaintenanceDates}
+        onContinue={confirmMaintenanceDates}
+      />
     </View>
   );
 }
-
-const DetailItem = ({
-  icon,
-  text,
-  theme,
-}: {
-  icon: any;
-  text: string;
-  theme: any;
-}) => (
-  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-    <Ionicons name={icon} size={14} color={theme.primary} />
-    <Text style={{ fontSize: 12, marginLeft: 4, color: theme.textBody }}>
-      {text}
-    </Text>
-  </View>
-);

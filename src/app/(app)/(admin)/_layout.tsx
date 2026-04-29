@@ -103,6 +103,7 @@ export default function AdminTabLayout() {
           name="(management)"
           options={{
             title: 'Gestión',
+            headerShown: false,
             href: null,
           }}
         />
