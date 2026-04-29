@@ -117,11 +117,7 @@ const createPistasTabStyles = (theme: AppTheme) =>
       flexDirection: 'row',
       flexWrap: 'wrap',
       gap: 16,
-    },
-    dummyCard: {
-      flexBasis: 320,
-      flexGrow: 1,
-      height: 0,
+      justifyContent: 'center',
     },
     catalogCard: {
       minHeight: 220,

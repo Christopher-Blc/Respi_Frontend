@@ -1,0 +1,86 @@
+import { StyleSheet } from 'react-native';
+
+export const tiposPistaStyles = StyleSheet.create({
+  container: { flex: 1 },
+  headerActions: {
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 15,
+  },
+  searchBar: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    height: 48,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  searchInput: { flex: 1, marginLeft: 8 },
+  addBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  listContent: { paddingHorizontal: 16 },
+  card: { borderRadius: 18, padding: 16, marginBottom: 12, borderWidth: 1 },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  cardTitle: { fontSize: 18, fontWeight: 'bold' },
+  cardSubtitle: { fontSize: 13, opacity: 0.6 },
+  pistasCountBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    gap: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)',
+    paddingTop: 12,
+  },
+  btnAction: {
+    flex: 1,
+    flexDirection: 'row',
+    height: 40,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  // Modal form
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: { fontSize: 22, fontWeight: 'bold' },
+  input: { borderWidth: 1, borderRadius: 12, padding: 12, marginBottom: 14 },
+  saveBtn: {
+    height: 50,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  saveBtnText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
+});

@@ -26,6 +26,11 @@ import {
 } from '../../../hooks/usePistasTab';
 import { PistaDisponibilidad } from '../../../types/types';
 
+const CARD_MIN_WIDTH = 230;
+const CARD_MAX_WIDTH = 450;
+const GRID_GAP = 16;
+const MAX_CONTENT_WIDTH = 1400;
+
 export default function PistasTab() {
   const router = useRouter();
   const { theme } = useAppTheme();
@@ -33,7 +38,9 @@ export default function PistasTab() {
   const localStyles = useMemo(() => createPistasTabStyles(theme), [theme]);
   const headerHeight = useHeaderHeight();
   const { width } = useWindowDimensions();
-  const isWideScreen = width > 768;
+  const horizontalPadding = width >= 1280 ? 40 : width >= 768 ? 28 : 20;
+  const contentWidth = width > MAX_CONTENT_WIDTH ? MAX_CONTENT_WIDTH : width;
+  const availableGridWidth = Math.max(contentWidth - horizontalPadding * 2, 0);
   const {
     loading,
     displayedModelos,
@@ -50,12 +57,33 @@ export default function PistasTab() {
     clearSportFilter,
   } = usePistasTab();
 
+  let baseColumnsCount = 1;
+  if (width >= 1024) baseColumnsCount = 3;
+  else if (width >= 768) baseColumnsCount = 2;
+
+  const getResponsiveCardWidth = (itemCount: number) => {
+    const columnsCount = Math.min(Math.max(itemCount, 1), baseColumnsCount);
+    const columnWidth =
+      (availableGridWidth - GRID_GAP * Math.max(columnsCount - 1, 0)) /
+      columnsCount;
+
+    return Math.min(Math.max(columnWidth, CARD_MIN_WIDTH), CARD_MAX_WIDTH);
+  };
+
+  const modelCardWidth = getResponsiveCardWidth(displayedModelos.length);
+  const sportCardWidth = getResponsiveCardWidth(sportPistas.length);
+
   const renderModel = (item: Modelo) => (
     <TouchableOpacity
       key={item.id}
       style={[
         localStyles.catalogCard,
-        { flexBasis: isWideScreen ? (width - 72) / 2 : '100%', flexGrow: 1 },
+        {
+          flexBasis: modelCardWidth,
+          minWidth: CARD_MIN_WIDTH,
+          maxWidth: CARD_MAX_WIDTH,
+          width: '100%',
+        },
       ]}
       activeOpacity={0.9}
       onPress={() => setSelectedModel(item)}
@@ -115,7 +143,12 @@ export default function PistasTab() {
         key={pistaId || pista.nombre}
         style={[
           localStyles.sportCard,
-          { flexBasis: isWideScreen ? (width - 72) / 2 : '100%', flexGrow: 1 },
+          {
+            flexBasis: sportCardWidth,
+            minWidth: CARD_MIN_WIDTH,
+            maxWidth: CARD_MAX_WIDTH,
+            width: '100%',
+          },
         ]}
       >
         <ImageBackground
@@ -203,6 +236,10 @@ export default function PistasTab() {
           contentContainerStyle={{
             paddingTop: headerHeight + 18,
             paddingBottom: Platform.OS === 'web' ? 96 : 140,
+            paddingHorizontal: horizontalPadding,
+            width: '100%',
+            maxWidth: contentWidth,
+            alignSelf: 'center',
           }}
         >
           <View style={localStyles.heroCard}>
@@ -249,7 +286,6 @@ export default function PistasTab() {
 
               <View style={localStyles.gridContainer}>
                 {displayedModelos.map(renderModel)}
-                {isWideScreen && <View style={localStyles.dummyCard} />}
               </View>
             </>
           ) : (
@@ -303,7 +339,6 @@ export default function PistasTab() {
               ) : (
                 <View style={localStyles.gridContainer}>
                   {sportPistas.map(renderSportCourtCard)}
-                  {isWideScreen && <View style={localStyles.dummyCard} />}
                 </View>
               )}
             </>
