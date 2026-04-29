@@ -156,18 +156,7 @@ export default function AdminManagementScreen() {
   );
 
   return (
-    <View
-      style={[styles.pageContainer, { backgroundColor: theme.backgroundMain }]}
-    >
-      <LinearGradient
-        colors={[
-          theme.profileGradientStart,
-          theme.profileGradientMiddle,
-          theme.profileGradientEnd,
-        ]}
-        style={StyleSheet.absoluteFill}
-      />
-
+    <View style={[styles.pageContainer, { backgroundColor: theme.background }]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{

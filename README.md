@@ -1,133 +1,124 @@
-# 🎾 ResPi — Frontend (TFG)
+# ResPi — Frontend (TFG)
 
-Este repositorio contiene el **frontend** de nuestro TFG (**ResPi**), desarrollado por **Javi, Mauro y yo**.  
-ResPi es una app móvil pensada para la **reserva de pistas** (deportivas), construida con **React Native + Expo** en **TypeScript** y organizada con **Expo Router**.
-
----
-
-## 🧠 ¿Qué es ResPi?
-
-**ResPi** es una aplicación móvil enfocada a facilitar la **gestión y reserva de pistas** desde el móvil: consultar disponibilidad, ver reservas y (más adelante) realizar reservas y gestionar usuarios de forma completa.
-
-> ⚠️ **Estado actual:** el proyecto está **en desarrollo**.  
-> De momento, el frontend incluye principalmente:
-> - 🔐 **Login**
-> - 📋 **Lista de reservas**
->
-> Mucha parte de la funcionalidad prevista todavía está pendiente.
+Frontend del proyecto de TFG **ResPi**, desarrollado por **Javi, Mauro y Christopher**.  
+App móvil (y web) para la **reserva y gestión de pistas deportivas**, construida con **React Native + Expo** en **TypeScript** y navegación basada en **Expo Router**.
 
 ---
 
-## 🚧 Coming Soon
+## ¿Qué es ResPi?
 
-Estamos trabajando en la siguiente fase del proyecto. Próximamente iremos añadiendo:
-
-- 🗓️ Crear / editar / cancelar reservas
-- 🔎 Búsqueda y filtrado por pistas / horarios
-- 👤 Perfil de usuario y ajustes
-- 🔔 Notificaciones y recordatorios
-- 🧾 Mejoras de UI/UX y pantallas finales
+ResPi conecta a usuarios con pistas deportivas: consultar disponibilidad, crear reservas, gestionar su perfil y membresía. Los administradores tienen su propio panel para gestionar pistas, reservas, usuarios, pagos y más.
 
 ---
 
-## 🧰 Tecnologías
+## Estado actual
 
-- 📱 **Expo** + **React Native**
-- 🟦 **TypeScript**
-- 🧭 **Expo Router**
-- 🗄️ **Supabase** (`@supabase/supabase-js`)
-- 🔄 **TanStack React Query** (fetching + caché)
-- 🧠 **Zustand** (estado global)
-- 🧪 **Axios** (peticiones HTTP cuando lo necesitamos)
-- 🔐 **Expo Secure Store**
-- 🔔 **Expo Notifications**
-- 🎨 UI/UX: `react-native-paper`, `expo-linear-gradient`, `expo-blur`, etc.
+El frontend está **en fase avanzada de desarrollo**. Las funcionalidades implementadas incluyen:
+
+### Autenticación
+- Login con JWT + refresh token automático
+- Registro de nuevos usuarios
+- Persistencia de sesión con Expo Secure Store
+- Redirección automática según rol (admin / cliente)
+
+### App — Clientes `(tabs)`
+- **Home** — resumen de actividad y accesos rápidos
+- **Pistas** — catálogo de pistas con filtros y disponibilidad visual
+- **Reservas** — lista de reservas propias con tarjetas de estado
+  - Flujo completo de creación: selección de tipo → pista → fecha/hora/duración → confirmación
+- **Perfil** — datos del usuario, membresía, idioma y modo oscuro
+
+### App — Admin `(admin)`
+- **Panel de gestión** — dashboard con accesos a todas las secciones
+- **Gestión de pistas** — CRUD completo: crear, editar, borrar y poner en mantenimiento, con horarios semanales y precio por hora
+- **Info / Estadísticas** — pantalla de datos del centro
+- **Perfil admin**
+
+### UI / UX global
+- Modo oscuro y claro con tema centralizado (`ThemeContext`)
+- Headers con efecto blur en tabs y stack screens
+- Modales de confirmación y alerta reutilizables (`SessionExpiredModal`)
+- Componentes de glass design (botones, inputs, logo animado)
+- Mapa integrado (`respi_poli_mapa`)
+- Safe area + header height gestionados en todas las pantallas
 
 ---
 
-## 🚀 Cómo ejecutar el proyecto
+## Tecnologías
 
-### ✅ Requisitos
+| Categoría | Librerías |
+|---|---|
+| Framework | Expo ~54, React Native 0.81, React 19 |
+| Lenguaje | TypeScript ~5.9 |
+| Navegación | Expo Router ~6 |
+| HTTP / Auth | Axios, JWT Decode, Expo Secure Store |
+| Estado | Zustand ~5 |
+| UI | expo-blur, expo-linear-gradient, react-native-paper, moti, expo-image |
+| Calendario | react-native-calendars, @react-native-community/datetimepicker |
+| Backend | API REST propia en `https://respi.es` |
+| Otras | expo-notifications, react-native-svg, react-native-webview |
+
+---
+
+## Ejecutar el proyecto
+
+### Requisitos
 - Node.js + npm
-- **Expo Go** en el móvil (o emulador Android/iOS)
+- Expo Go en el móvil, o emulador Android/iOS
 
-### 📥 Instalación
+### Instalación
 ```bash
 git clone https://github.com/Christopher-Blc/Respi_Frontend.git
 cd Respi_Frontend
 npm install
 ```
 
-### ▶️ Desarrollo
+### Desarrollo
 ```bash
 npx expo start
 ```
 
-Desde el menú:
-- 🤖 Android: `a`
-- 🍎 iOS: `i`
-- 🌐 Web: `w`
+| Tecla | Plataforma |
+|---|---|
+| `a` | Android |
+| `i` | iOS |
+| `w` | Web |
 
 ---
 
-## 🗂️ Estructura del proyecto
+## Estructura del proyecto
 
-Las pantallas y rutas están en:
-
-- `src/app`
-
-Como usamos **Expo Router**, la estructura de carpetas define la navegación. Lo tenemos separado principalmente en:
-
-### 🔑 `src/app/(login)`
-Pantallas del **flujo de autenticación**.
-
-### 🏠 `src/app/(app)`
-Pantallas de la **app principal** una vez se inicia sesión.
-
-### 📌 Archivos importantes
-- `src/app/_layout.tsx` → layout / navegación base
-- `src/app/index.tsx` → entrada principal
-- `src/app/+not-found.tsx` → fallback de rutas
-
-### 🧱 Carpetas de apoyo (según necesidad)
-- `src/components` → componentes reutilizables
-- `src/hooks` → hooks propios
-- `src/services` → acceso a datos (API, supabase, etc.)
-- `src/context` → contextos (si aplica)
-- `src/types` → tipados y modelos
-- `src/style` y/o `src/theme.ts` → estilos / tema
-- `src/data` / `src/Mocks` → mocks o datos de desarrollo
+```
+src/
+├── app/
+│   ├── (auth)/          # Login y registro
+│   └── (app)/
+│       ├── (tabs)/      # Home, Pistas, Reservas, Perfil (clientes)
+│       └── (admin)/     # Panel admin + (management)/pistas
+├── components/          # Componentes reutilizables (modales, botones, etc.)
+├── context/             # ThemeContext, AuthContext
+├── hooks/               # useReservas, useAdminPistas, useCreateBooking, etc.
+├── services/            # api.ts (Axios + interceptores JWT), authStorage, reservasService
+├── style/               # Estilos por pantalla
+├── theme.ts             # lightTheme / darkTheme
+└── types/               # Tipos globales (Pista, Reserva, etc.)
+```
 
 ---
 
-## 🧠 Datos, estado y persistencia (cómo lo planteamos)
+## Backend
 
-- 🔄 **Datos remotos** → **React Query** (caché, refetch, estados de carga/errores)
-- 🧠 **Estado global** → **Zustand** para estados compartidos
-- 🔐 **Persistencia segura** → **Secure Store** si guardamos datos sensibles
+El frontend consume una **API REST propia**, también desarrollada por el equipo como parte del TFG.  
+Está desplegada en un **VPS privado** accesible en:
 
----
+> `https://respi.es`
 
-## ⚙️ Configuración (Supabase)
-
-El frontend se conecta a **Supabase**, así que necesitamos configurar credenciales (URL y key).  
-Normalmente usamos variables tipo:
-
-- `EXPO_PUBLIC_SUPABASE_URL`
-- `EXPO_PUBLIC_SUPABASE_ANON_KEY`
-
-> 🚫 No subimos claves reales al repositorio.
+Todas las peticiones pasan por el cliente Axios (`src/services/api.ts`) con interceptores que gestionan el JWT y el refresh token automático.
 
 ---
 
-## 👥 Autores
+## Autores
 
-Proyecto realizado por **Javi**, **Mauro** y **Christopher** (yo), como parte del **TFG**.
-
----
-
-## 📌 Nota
-
-Este repositorio es el **frontend**. El resto del sistema (backend/servicios) se está integrando en paralelo según el avance del TFG.
+Proyecto realizado por **Javi**, **Mauro** y **Christopher**, como parte del **TFG**.
 
 ---

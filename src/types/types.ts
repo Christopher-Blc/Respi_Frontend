@@ -30,6 +30,8 @@ export type Pista = {
   iluminacion: boolean,
   descripcion: string,
   estado: string,
+  mantenimiento_desde?: string | null,
+  mantenimiento_hasta?: string | null,
   hora_apertura: string,
   hora_cierre: string,
   dia_semana: 'LUNES' | 'MARTES' | 'MIERCOLES' | 'JUEVES' | 'VIERNES' | 'SABADO' | 'DOMINGO',

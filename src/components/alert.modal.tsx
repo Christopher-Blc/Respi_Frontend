@@ -28,15 +28,17 @@ export const SessionExpiredModal = ({
   const { isDarkMode, theme } = useAppTheme();
 
   const overlayColor = isDarkMode ? theme.overlayDark : 'rgba(0,0,0,0.35)';
-  const cardBackground = isDarkMode
-    ? 'rgba(20, 20, 20, 0.72)'
-    : 'rgba(255, 255, 255, 0.72)';
+  const cardBackground = isDarkMode ? theme.surfaceGlass : theme.surfaceGlass;
   const borderColor = isDarkMode
-    ? theme.borderGlass
+    ? theme.borderAccentSoft
     : 'rgba(255, 255, 255, 0.35)';
-  const messageColor = isDarkMode ? theme.textBody : theme.textSecondary;
-  const buttonColor = isDarkMode ? theme.primarySoft : theme.primary;
+  const messageColor = isDarkMode ? theme.textSecondary : theme.textSecondary;
+  const confirmButtonColor = isDarkMode ? theme.primaryButton : theme.primary;
+  const secondaryButtonColor = isDarkMode
+    ? 'rgba(255, 255, 255, 0.06)'
+    : 'transparent';
   const buttonTextColor = '#FFFFFF';
+  const cancelTextColor = isDarkMode ? theme.textTitle : theme.primary;
 
   return (
     <Modal
@@ -71,16 +73,16 @@ export const SessionExpiredModal = ({
               text={confirmText}
               textColor={buttonTextColor}
               onPress={onConfirm}
-              color={buttonColor}
+              color={confirmButtonColor}
               borderColor={borderColor}
               borderWidth={1}
             />
             {onCancel && (
               <GlassTextButton
                 text={cancelText}
-                textColor={buttonColor}
+                textColor={cancelTextColor}
                 onPress={onCancel}
-                color={'transparent'}
+                color={secondaryButtonColor}
                 borderColor={borderColor}
                 borderWidth={1}
               />
