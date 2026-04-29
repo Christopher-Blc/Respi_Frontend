@@ -122,3 +122,23 @@ export interface JWTPayload {
   email: string;
   role: 'SUPER_ADMIN' | 'CLIENTE';
 }
+
+export type WeeklyScheduleItem = {
+  dia_semana: Pista['dia_semana'];
+  hora_apertura: string;
+  hora_cierre: string;
+  precio_hora: string;
+  cerrado: boolean;
+};
+
+export type PistaFormData = {
+  nombre: string;
+  descripcion: string;
+  capacidad: string;
+  cubierta: boolean;
+  iluminacion: boolean;
+  estado: string;
+  dia_semana: Pista['dia_semana'];
+  instalacion_id: string;
+  tipo_pista_id: string;
+};

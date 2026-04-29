@@ -80,31 +80,56 @@ export function PistaCard({
 
       <View style={styles.actionsRow}>
         <TouchableOpacity
-          style={[styles.btnAction, { backgroundColor: theme.primary + '15' }]}
+          style={[
+            styles.btnAction,
+            {
+              backgroundColor: theme.primary + '12',
+              borderWidth: 1,
+              borderColor: theme.primarySoft,
+            },
+          ]}
           onPress={() => onEdit(item)}
         >
-          <Ionicons name="create-outline" size={18} color={theme.primary} />
+          <Ionicons name="create-outline" size={18} color={theme.textBody} />
           <Text
-            style={{ color: theme.primary, marginLeft: 4, fontWeight: '600' }}
+            style={{ color: theme.textBody, marginLeft: 4, fontWeight: '600' }}
           >
             Editar
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.btnAction, { backgroundColor: '#FF980015' }]}
+          style={[
+            styles.btnAction,
+            {
+              backgroundColor: theme.primary + '12',
+              borderWidth: 1,
+              borderColor: theme.primarySoft,
+            },
+          ]}
           onPress={() => onMaintenance(item)}
         >
-          <Ionicons name="construct-outline" size={18} color="#FF9800" />
-          <Text style={{ color: '#FF9800', marginLeft: 4, fontWeight: '600' }}>
+          <Ionicons name="construct-outline" size={18} color={theme.textBody} />
+          <Text
+            style={{ color: theme.textBody, marginLeft: 4, fontWeight: '600' }}
+          >
             Mant.
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.btnAction, { backgroundColor: '#F4433615' }]}
+          style={[
+            styles.btnAction,
+            {
+              backgroundColor: theme.primary + '12',
+              borderWidth: 1,
+              borderColor: theme.primarySoft,
+            },
+          ]}
           onPress={() => onDelete(item)}
         >
-          <Ionicons name="trash-outline" size={18} color="#F44336" />
-          <Text style={{ color: '#F44336', marginLeft: 4, fontWeight: '600' }}>
+          <Ionicons name="trash-outline" size={18} color={theme.textBody} />
+          <Text
+            style={{ color: theme.textBody, marginLeft: 4, fontWeight: '600' }}
+          >
             Borrar
           </Text>
         </TouchableOpacity>
@@ -122,7 +147,7 @@ type DetailItemProps = {
 function DetailItem({ icon, text, theme }: DetailItemProps) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-      <Ionicons name={icon} size={14} color={theme.primary} />
+      <Ionicons name={icon} size={14} color={theme.textSubtitle} />
       <Text style={{ fontSize: 12, marginLeft: 4, color: theme.textBody }}>
         {text}
       </Text>

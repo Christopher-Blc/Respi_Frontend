@@ -98,7 +98,7 @@ export default function AdminPistas() {
         >
           <Ionicons name="search" size={20} color={theme.textBody} />
           <TextInput
-            placeholder="Buscar por nombre o instalación..."
+            placeholder="Buscar por nombre..."
             placeholderTextColor={theme.textBody + '80'}
             style={[styles.searchInput, { color: theme.textTitle }]}
             value={searchQuery}
@@ -119,32 +119,28 @@ export default function AdminPistas() {
                 filterTipoPistaId !== null ||
                 filterPrecioMax.trim().length > 0 ||
                 filterEstado !== null
-                  ? theme.primary
-                  : theme.backgroundCard,
+                  ? theme.primary + '18'
+                  : theme.inputBackground,
               borderWidth: 1,
               borderColor: theme.primarySoft,
             },
           ]}
           onPress={() => setFiltersOpen(true)}
         >
-          <Ionicons
-            name="options-outline"
-            size={22}
-            color={
-              filtersOpen ||
-              filterTipoPistaId !== null ||
-              filterPrecioMax.trim().length > 0 ||
-              filterEstado !== null
-                ? 'white'
-                : theme.textBody
-            }
-          />
+          <Ionicons name="options-outline" size={22} color={theme.textBody} />
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.addBtn, { backgroundColor: theme.primary }]}
+          style={[
+            styles.addBtn,
+            {
+              backgroundColor: theme.primary + '18',
+              borderWidth: 1,
+              borderColor: theme.primarySoft,
+            },
+          ]}
           onPress={() => openModal()}
         >
-          <Ionicons name="add" size={30} color="white" />
+          <Ionicons name="add" size={30} color={theme.textBody} />
         </TouchableOpacity>
       </View>
 
