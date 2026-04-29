@@ -68,6 +68,32 @@ export default function ManagementLayout() {
           ),
         }}
       />
+      <Stack.Screen
+        name="tipos_pista"
+        options={{
+          title: 'Tipos de Pista',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => {
+                if (router.canGoBack()) {
+                  router.back();
+                  return;
+                }
+
+                router.replace('/(admin)');
+              }}
+              hitSlop={12}
+              style={{ paddingHorizontal: 4, paddingVertical: 4 }}
+            >
+              <Octicons
+                name="chevron-left"
+                size={24}
+                color={theme.headerText}
+              />
+            </TouchableOpacity>
+          ),
+        }}
+      />
     </Stack>
   );
 }

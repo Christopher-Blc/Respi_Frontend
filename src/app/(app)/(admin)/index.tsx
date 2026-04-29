@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Platform,
   useWindowDimensions,
-  StyleSheet,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -51,6 +50,15 @@ export default function AdminManagementScreen() {
       cta: 'Gestionar pistas',
     },
     {
+      title: 'Tipos de Pista',
+      subtitle:
+        'Gestiona los tipos de pista disponibles: tenis, pádel, fútbol y más.',
+      icon: 'shape',
+      route: '/(admin)/(management)/tipos_pista',
+      color: '#00BCD4',
+      cta: 'Gestionar tipos',
+    },
+    {
       title: 'Usuarios',
       subtitle:
         'Consulta perfiles, cambia roles y gestiona el acceso de cada usuario.',
@@ -92,6 +100,14 @@ export default function AdminManagementScreen() {
       icon: 'star-circle',
       route: '/(admin)/resenyas',
       color: '#FBC02D',
+      cta: 'Moderar reseñas',
+    },
+    {
+      title: 'test',
+      subtitle: 'testtest.',
+      icon: 'star-circle',
+      route: '/(admin)/resenyas',
+      color: '#83651b',
       cta: 'Moderar reseñas',
     },
   ];
