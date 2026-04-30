@@ -9,37 +9,37 @@ interface Props {
   visible: boolean;
   onSave: (selectedDate: Date) => void;
   onClose: () => void;
+  initialDate?: Date;
+  minimumDate?: Date;
+  maximumDate?: Date;
 }
 
-export default function DateModal({ visible, onSave, onClose }: Props) {
+const createLocalDate = (year: number, month: number, day: number) => {
+  return new Date(year, month, day, 12, 0, 0, 0);
+};
+
+const getDefaultMinimumDate = () => createLocalDate(1900, 0, 1);
+
+const getDefaultMaximumDate = () => createLocalDate(2100, 11, 31);
+
+export default function DateModal({
+  visible,
+  onSave,
+  onClose,
+  initialDate,
+  minimumDate,
+  maximumDate,
+}: Props) {
   const { theme } = useAppTheme();
   const { t } = useTranslation();
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const safeMinimumDate = minimumDate ?? getDefaultMinimumDate();
+  const safeMaximumDate = maximumDate ?? getDefaultMaximumDate();
+  const safeInitialDate = initialDate ?? new Date();
+  const [selectedDate, setSelectedDate] = useState(safeInitialDate);
   const webInputRef = useRef<HTMLInputElement>(null);
 
-  const createLocalDate = (year: number, month: number, day: number) => {
-    return new Date(year, month, day, 12, 0, 0, 0);
-  };
-
-  const handleDateChange = (event: any, date?: Date) => {
-    if (date) {
-      const localDate = createLocalDate(
-        date.getFullYear(),
-        date.getMonth(),
-        date.getDate(),
-      );
-      setSelectedDate(localDate);
-    }
-  };
-
-  const handleWebDateChange = (e: any) => {
-    const val = e.target.value;
-    if (val) {
-      const [y, m, d] = val.split('-');
-      const selected = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
-      setSelectedDate(selected);
-    }
-  };
+  const normalizeToLocalDay = (date: Date) =>
+    createLocalDate(date.getFullYear(), date.getMonth(), date.getDate());
 
   const formatDateForInput = (date: Date) => {
     const year = date.getFullYear();
@@ -48,13 +48,44 @@ export default function DateModal({ visible, onSave, onClose }: Props) {
     return `${year}-${month}-${day}`;
   };
 
+  const clampDate = (date: Date) => {
+    const normalized = normalizeToLocalDay(date);
+    if (normalized < safeMinimumDate)
+      return normalizeToLocalDay(safeMinimumDate);
+    if (normalized > safeMaximumDate)
+      return normalizeToLocalDay(safeMaximumDate);
+    return normalized;
+  };
+
+  const minInputValue = formatDateForInput(safeMinimumDate);
+  const maxInputValue = formatDateForInput(safeMaximumDate);
+
+  const handleDateChange = (event: any, date?: Date) => {
+    if (date) {
+      setSelectedDate(clampDate(date));
+    }
+  };
+
+  const handleWebDateChange = (e: any) => {
+    const val = e.target.value;
+    if (val) {
+      const [y, m, d] = val.split('-');
+      const selected = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+      setSelectedDate(clampDate(selected));
+    }
+  };
+
   useEffect(() => {
+    if (visible) {
+      setSelectedDate(clampDate(safeInitialDate));
+    }
+
     if (visible && Platform.OS === 'web' && webInputRef.current) {
       setTimeout(() => {
         webInputRef.current?.showPicker?.();
       }, 100);
     }
-  }, [visible]);
+  }, [visible, safeInitialDate, safeMinimumDate, safeMaximumDate]);
 
   const handleSave = () => {
     onSave(selectedDate);
@@ -124,6 +155,8 @@ export default function DateModal({ visible, onSave, onClose }: Props) {
             <input
               ref={webInputRef}
               type="date"
+              min={minInputValue}
+              max={maxInputValue}
               style={
                 {
                   fontSize: 16,
@@ -144,8 +177,8 @@ export default function DateModal({ visible, onSave, onClose }: Props) {
               mode="date"
               display="spinner"
               onChange={handleDateChange}
-              minimumDate={createLocalDate(1900, 0, 1)}
-              maximumDate={new Date()}
+              minimumDate={safeMinimumDate}
+              maximumDate={safeMaximumDate}
               textColor={theme.textPrimary}
             />
           )}

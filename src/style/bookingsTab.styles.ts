@@ -24,29 +24,53 @@ const createReservasTabStyles = (theme: AppTheme) =>
       backgroundColor: 'transparent',
     },
     dateScrollContent: {
+      alignItems: 'center',
       paddingRight: 12,
+      gap: 10,
     },
-    dateButton: {
+    dateChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
       paddingHorizontal: 14,
       paddingVertical: 8,
-      marginRight: 10,
-      borderRadius: 8,
+      borderRadius: 999,
       borderWidth: 1,
       borderColor: 'rgba(255, 255, 255, 0.2)',
       backgroundColor: 'rgba(255, 255, 255, 0.15)',
     },
-    dateButtonSelected: {
+    dateChipSelected: {
       backgroundColor: theme.primary,
       borderColor: theme.primary,
     },
-    dateButtonText: {
+    dateChipText: {
       fontSize: 12,
       fontWeight: '600',
       color: theme.textPrimary,
       textTransform: 'capitalize',
     },
-    dateButtonTextSelected: {
+    dateChipTextSelected: {
       color: theme.onPrimary,
+    },
+    dateChipRemove: {
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'rgba(255,255,255,0.18)',
+    },
+    dateChipRemoveText: {
+      color: theme.onPrimary,
+      fontSize: 14,
+      lineHeight: 14,
+      fontWeight: '800',
+    },
+    dateSeparator: {
+      width: 1,
+      height: 30,
+      marginHorizontal: 2,
+      backgroundColor: 'rgba(255,255,255,0.28)',
     },
     calendarButton: {
       width: 40,

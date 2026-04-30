@@ -283,9 +283,10 @@ export default function HomeScreen() {
       <DateModal
         visible={dateModalVisible}
         onClose={() => setDateModalVisible(false)}
-        onSave={function (selectedDate: Date): void {
-          throw new Error('Function not implemented.');
-        }}
+        onSave={() => setDateModalVisible(false)}
+        initialDate={new Date()}
+        minimumDate={new Date(1900, 0, 1)}
+        maximumDate={new Date()}
       />
     </View>
   );

@@ -8,7 +8,7 @@ export const createCreateBookingStyles = (theme: AppTheme) =>
       backgroundColor: theme.background,
     },
     scrollContent: {
-      paddingHorizontal: 16,
+      paddingHorizontal: 12,
       paddingBottom: 100,
     },
     formCard: {
@@ -78,7 +78,7 @@ export const createCreateBookingStyles = (theme: AppTheme) =>
       backgroundColor: 'rgba(0,0,0,0.3)',
       justifyContent: 'center',
       alignItems: 'center',
-      paddingHorizontal: 20,
+      paddingHorizontal: 12,
     },
     dropdownCard: {
       width: '100%',
@@ -89,7 +89,7 @@ export const createCreateBookingStyles = (theme: AppTheme) =>
       borderColor: theme.borderSoft,
       padding: 12,
       maxHeight: 360,
-     },
+    },
     dropdownTitle: {
       color: theme.textTitle,
       fontSize: 14,
