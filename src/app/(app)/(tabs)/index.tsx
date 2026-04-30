@@ -22,6 +22,7 @@ import { useHome } from '../../../hooks/useHome';
 import { createHomeStyles } from '../../../style/home.styles';
 import DateModal from '../../../components/bookings/date.modal';
 import { useTranslation } from 'react-i18next';
+import { getDateLocale } from '../../../i18n';
 
 //pantalla home del cliente
 
@@ -36,7 +37,7 @@ export default function HomeScreen() {
   const { width } = useWindowDimensions();
   const headerHeight = useHeaderHeight();
   const isWideScreen = width > 768;
-  const locale = i18n.language === 'en' ? 'en-US' : 'es-ES';
+  const locale = getDateLocale(i18n.resolvedLanguage || i18n.language);
   const {
     reservations,
     loading,

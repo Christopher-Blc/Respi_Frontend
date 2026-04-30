@@ -17,6 +17,7 @@ import api from '../../../../services/api';
 import { useAuth } from '../../../../context/AuthContext';
 import createConfirmacionReservaStyles from '../../../../style/bookingConfirmation.styles';
 import { useTranslation } from 'react-i18next';
+import { getDateLocale } from '../../../../i18n';
 
 export default function ConfirmacionReserva() {
   const { t, i18n } = useTranslation();
@@ -36,7 +37,7 @@ export default function ConfirmacionReserva() {
   const headerHeight = useHeaderHeight();
   const { userToken } = useAuth();
   const styles = useMemo(() => createConfirmacionReservaStyles(theme), [theme]);
-  const locale = i18n.language === 'en' ? 'en-US' : 'es-ES';
+  const locale = getDateLocale(i18n.resolvedLanguage || i18n.language);
 
   const [pista, setPista] = useState<any>(null);
   const [loading, setLoading] = useState(true);

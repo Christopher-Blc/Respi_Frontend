@@ -18,6 +18,7 @@ import { useAppTheme } from '../../../context/ThemeContext';
 import api from '../../../services/api';
 import { Reserva } from '../../../types/types';
 import { useTranslation } from 'react-i18next';
+import { getDateLocale } from '../../../i18n';
 
 const extractReservas = (payload: any): Reserva[] => {
   if (Array.isArray(payload)) return payload as Reserva[];
@@ -63,7 +64,7 @@ export default function InfoAdmin() {
   const [selectedSliceIndex, setSelectedSliceIndex] = useState(0);
   const [lineChartRange, setLineChartRange] =
     useState<LineChartRange>('last30');
-  const locale = i18n.language === 'en' ? 'en-US' : 'es-ES';
+  const locale = getDateLocale(i18n.resolvedLanguage || i18n.language);
 
   const rangeOptions: { key: LineChartRange; label: string }[] = [
     { key: 'last30', label: t('adminInfoRangeLast30') },

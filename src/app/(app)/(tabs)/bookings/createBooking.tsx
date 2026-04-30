@@ -16,6 +16,7 @@ import { useAppTheme } from '../../../../context/ThemeContext';
 import { createCreateBookingStyles } from '../../../../style/create-booking.styles';
 import api from '../../../../services/api';
 import { useTranslation } from 'react-i18next';
+import { getDateLocale } from '../../../../i18n';
 
 type ReservaActual = {
   inicio: string;
@@ -95,7 +96,7 @@ export default function CreateBooking() {
   const { theme } = useAppTheme();
   const headerHeight = useHeaderHeight();
   const styles = useMemo(() => createCreateBookingStyles(theme), [theme]);
-  const locale = i18n.language === 'en' ? 'en-US' : 'es-ES';
+  const locale = getDateLocale(i18n.resolvedLanguage || i18n.language);
 
   const [duration, setDuration] = useState(60);
   const [horaInicioMin, setHoraInicioMin] = useState<number | null>(null);

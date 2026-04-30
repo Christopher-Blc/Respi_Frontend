@@ -26,6 +26,7 @@ import { ThemePalette } from '../../theme';
 // Importamos el hook que hemos creado
 import { useProfile } from '../../hooks/useProfile';
 import { useTranslation } from 'react-i18next';
+import { getAppLanguage } from '../../i18n';
 
 export default function ProfileView() {
   const { t, i18n } = useTranslation();
@@ -87,6 +88,19 @@ export default function ProfileView() {
     : isDarkMode
       ? t('profileThemeDark')
       : t('profileThemeLight');
+
+  const currentLanguageLabelByCode = {
+    es: t('languageSpanish'),
+    en: t('languageEnglish'),
+    de: t('languageGerman'),
+    fr: t('languageFrench'),
+    ro: t('languageRomanian'),
+    ca: t('languageCatalan'),
+  };
+
+  const currentLanguage = getAppLanguage(
+    i18n.resolvedLanguage || i18n.language,
+  );
 
   //handlers que se usan en los botones
   const handleLogout = async () => {
@@ -223,11 +237,7 @@ export default function ProfileView() {
             <MenuOption
               icon="language-outline"
               title={t('profileLanguage')}
-              value={
-                i18n.language === 'en'
-                  ? t('languageEnglish')
-                  : t('languageSpanish')
-              }
+              value={currentLanguageLabelByCode[currentLanguage]}
               isLast={undefined}
               onPress={() => setModalIdiomaVisible(true)}
             />
