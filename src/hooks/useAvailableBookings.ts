@@ -15,12 +15,18 @@ export type PistaDisponibilidad = {
   nombre: string;
   hora_apertura: string;
   hora_cierre: string;
+  estado?: string;
   tipo_pista?: TipoPistaDisponibilidad;
   reservas_actuales: ReservaActual[];
   precio_hora?: string | number;
   cubierta?: boolean;
   iluminacion?: boolean;
 };
+
+const isDisponible = (value?: string) =>
+  String(value || '')
+    .trim()
+    .toUpperCase() === 'DISPONIBLE';
 
 export function useAvailableBookings(fecha: string) {
   const [pistas, setPistas] = useState<PistaDisponibilidad[]>([]);
@@ -37,7 +43,13 @@ export function useAvailableBookings(fecha: string) {
       console.log('Disponibilidad de pistas:', payload);
       console.log('Fecha solicitada:', fecha);
 
-      setPistas(Array.isArray(payload) ? payload : []);
+      const disponibles = Array.isArray(payload)
+        ? payload.filter((pista: PistaDisponibilidad) =>
+            isDisponible((pista as any)?.estado),
+          )
+        : [];
+
+      setPistas(disponibles);
     } catch (err) {
       console.error('Error al cargar disponibilidad de pistas:', err);
       setError('No se pudo cargar la disponibilidad');

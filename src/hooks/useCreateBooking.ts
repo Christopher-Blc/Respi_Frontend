@@ -24,6 +24,11 @@ export type CourtOption = {
   status?: string;
 };
 
+const isDisponible = (value?: string) =>
+  String(value || '')
+    .trim()
+    .toUpperCase() === 'DISPONIBLE';
+
 const normalizeCourtsFromPayload = (payload: any): CourtOption[] => {
   const raw = Array.isArray(payload)
     ? payload
@@ -37,13 +42,15 @@ const normalizeCourtsFromPayload = (payload: any): CourtOption[] => {
             ? payload.pistas
             : [];
 
-  return raw.map((item: any, idx: number) => ({
-    id: String(item.id ?? item.pista_id ?? item._id ?? idx + 1),
-    name: item.nombre || item.name || `Pista ${idx + 1}`,
-    openingHour: item.hora_apertura || item.openingHour,
-    closingHour: item.hora_cierre || item.closingHour,
-    status: item.estado || item.status,
-  }));
+  return raw
+    .map((item: any, idx: number) => ({
+      id: String(item.id ?? item.pista_id ?? item._id ?? idx + 1),
+      name: item.nombre || item.name || `Pista ${idx + 1}`,
+      openingHour: item.hora_apertura || item.openingHour,
+      closingHour: item.hora_cierre || item.closingHour,
+      status: item.estado || item.status,
+    }))
+    .filter((court) => isDisponible(court.status));
 };
 
 const dedupeCourts = (list: CourtOption[]) => {

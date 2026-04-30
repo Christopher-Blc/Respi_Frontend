@@ -42,7 +42,7 @@ export default function PistasTab() {
   const headerHeight = useHeaderHeight();
   const { width } = useWindowDimensions();
   const locale = getDateLocale(i18n.resolvedLanguage || i18n.language);
-  const horizontalPadding = width >= 1280 ? 40 : width >= 768 ? 28 : 20;
+  const horizontalPadding = width >= 1280 ? 40 : width >= 768 ? 28 : 8;
   const contentWidth = width > MAX_CONTENT_WIDTH ? MAX_CONTENT_WIDTH : width;
   const availableGridWidth = Math.max(contentWidth - horizontalPadding * 2, 0);
   const {

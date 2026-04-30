@@ -6,7 +6,7 @@ const createReservationsStyles = (theme: AppTheme) =>
     container: {
       flex: 1,
       backgroundColor: theme.background,
-      paddingHorizontal: 20,
+      paddingHorizontal: 12,
     },
     innerContainer: {
       flex: 1,
@@ -58,7 +58,6 @@ const createReservationsStyles = (theme: AppTheme) =>
     pillButtonPrimary: {
       flex: 1,
       overflow: 'hidden',
-
     },
     pillButtonText: {
       color: theme.onPrimary,

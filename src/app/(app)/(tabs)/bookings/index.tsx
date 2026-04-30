@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useState } from 'react';
+﻿import React, { useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -42,6 +42,32 @@ const getNext7Days = () => {
   }
   return days;
 };
+
+const sameDay = (left: Date, right: Date) =>
+  left.getFullYear() === right.getFullYear() &&
+  left.getMonth() === right.getMonth() &&
+  left.getDate() === right.getDate();
+
+const addDays = (date: Date, days: number) => {
+  const next = new Date(date);
+  next.setDate(next.getDate() + days);
+  return next;
+};
+
+const addMonths = (date: Date, months: number) => {
+  const next = new Date(date);
+  next.setMonth(next.getMonth() + months);
+  return next;
+};
+
+const addHours = (date: Date, hours: number) => {
+  const next = new Date(date);
+  next.setHours(next.getHours() + hours);
+  return next;
+};
+
+const normalizeDay = (date: Date) =>
+  new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0, 0);
 
 const formatDateForAPI = (date: Date) => {
   const year = date.getFullYear();
@@ -104,6 +130,8 @@ export default function ReservasTab() {
   const { width } = useWindowDimensions();
   const isWideScreen = width > 768;
   const locale = getDateLocale(i18n.resolvedLanguage || i18n.language);
+  const dateScrollRef = useRef<ScrollView>(null);
+  const dateScrollOffsetRef = useRef(0);
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showDateModal, setShowDateModal] = useState(false);
@@ -128,6 +156,31 @@ export default function ReservasTab() {
   const formattedDate = formatDateForAPI(selectedDate);
   const { pistas, loading } = useAvailableBookings(formattedDate);
   const availableDays = useMemo(() => getNext7Days(), []);
+  const minimumDate = useMemo(
+    () => normalizeDay(addHours(new Date(), 2)),
+    [showDateModal],
+  );
+  const maximumDate = useMemo(
+    () => normalizeDay(addMonths(new Date(), 3)),
+    [showDateModal],
+  );
+
+  const selectedDateChips = useMemo(() => {
+    const remaining = availableDays.filter((day) => !sameDay(day, selectedDate));
+    return [selectedDate, ...remaining];
+  }, [availableDays, selectedDate]);
+
+  const handleDateStripWheel = (event: any) => {
+    if (Platform.OS !== 'web') return;
+
+    const delta = Number(event?.deltaY ?? event?.nativeEvent?.deltaY ?? 0);
+    if (!delta) return;
+
+    event?.preventDefault?.();
+    const nextOffset = Math.max(0, dateScrollOffsetRef.current + delta);
+    dateScrollRef.current?.scrollTo({ x: nextOffset, animated: false });
+    dateScrollOffsetRef.current = nextOffset;
+  };
 
   const filteredPistas = useMemo(() => {
     if (!selectedModelId && !selectedModelTitle) return pistas;
@@ -166,7 +219,7 @@ export default function ReservasTab() {
   }, [pistas, selectedModelId, selectedModelTitle]);
 
   const handleSelectDate = (date: Date) => {
-    setSelectedDate(date);
+    setSelectedDate(normalizeDay(date));
     setShowDateModal(false);
   };
 
@@ -228,35 +281,71 @@ export default function ReservasTab() {
           { paddingTop: headerHeight + 10 },
         ]}
       >
-        <FlatList
+        <ScrollView
+          ref={dateScrollRef}
           horizontal
           showsHorizontalScrollIndicator={false}
-          data={availableDays}
-          keyExtractor={(item) => item.toISOString()}
           contentContainerStyle={reservasTabStyles.dateScrollContent}
-          renderItem={({ item }) => {
-            const isSelected =
-              item.toDateString() === selectedDate.toDateString();
+          onScroll={(event) => {
+            dateScrollOffsetRef.current =
+              event.nativeEvent.contentOffset.x || 0;
+          }}
+          scrollEventThrottle={16}
+          {...(Platform.OS === 'web'
+            ? ({ onWheel: handleDateStripWheel } as any)
+            : {})}
+        >
+          <TouchableOpacity
+            style={[
+              reservasTabStyles.dateChip,
+              reservasTabStyles.dateChipSelected,
+            ]}
+            onPress={() => setSelectedDate(selectedDateChips[0])}
+            activeOpacity={0.9}
+          >
+            <Text
+              style={[
+                reservasTabStyles.dateChipText,
+                reservasTabStyles.dateChipTextSelected,
+              ]}
+            >
+              {formatDateDisplay(selectedDateChips[0], locale)}
+            </Text>
+            <TouchableOpacity
+              onPress={() => setSelectedDate(availableDays[0])}
+              style={reservasTabStyles.dateChipRemove}
+              hitSlop={8}
+            >
+              <Text style={reservasTabStyles.dateChipRemoveText}>×</Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
+
+          <View style={reservasTabStyles.dateSeparator} />
+
+          {selectedDateChips.slice(1).map((item) => {
+            const isSelected = sameDay(item, selectedDate);
             return (
               <TouchableOpacity
+                key={item.toISOString()}
                 style={[
-                  reservasTabStyles.dateButton,
-                  isSelected && reservasTabStyles.dateButtonSelected,
+                  reservasTabStyles.dateChip,
+                  isSelected && reservasTabStyles.dateChipSelected,
                 ]}
                 onPress={() => setSelectedDate(item)}
+                activeOpacity={0.9}
               >
                 <Text
                   style={[
-                    reservasTabStyles.dateButtonText,
-                    isSelected && reservasTabStyles.dateButtonTextSelected,
+                    reservasTabStyles.dateChipText,
+                    isSelected && reservasTabStyles.dateChipTextSelected,
                   ]}
                 >
                   {formatDateDisplay(item, locale)}
                 </Text>
               </TouchableOpacity>
             );
-          }}
-        />
+          })}
+        </ScrollView>
 
         <TouchableOpacity
           style={reservasTabStyles.calendarButton}
@@ -335,6 +424,9 @@ export default function ReservasTab() {
         visible={showDateModal}
         onSave={handleSelectDate}
         onClose={() => setShowDateModal(false)}
+        initialDate={selectedDate}
+        minimumDate={minimumDate}
+        maximumDate={maximumDate}
       />
 
       <SessionExpiredModal
@@ -401,7 +493,7 @@ export default function ReservasTab() {
           contentContainerStyle={{
             paddingTop: 14,
             paddingBottom: Platform.OS === 'web' ? 96 : 140,
-            paddingHorizontal: 12,
+            paddingHorizontal: 8,
           }}
         >
           {!!selectedModelTitle && (
