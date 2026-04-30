@@ -164,27 +164,82 @@ export default function AdminTiposPista() {
               },
             ]}
           >
-            <Text style={[styles.colName, { color: theme.textTitle, fontWeight: '700' }]}>Nombre</Text>
-            <Text style={[styles.colImage, { color: theme.textTitle, fontWeight: '700' }]}>Imagen</Text>
-            <Text style={[styles.colCount, { color: theme.textTitle, fontWeight: '700' }]}>Pistas</Text>
-            <Text style={[styles.colActions, { color: theme.textTitle, fontWeight: '700' }]}>Acciones</Text>
+            <Text
+              style={[
+                styles.colName,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Nombre
+            </Text>
+            <Text
+              style={[
+                styles.colImage,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Imagen
+            </Text>
+            <Text
+              style={[
+                styles.colCount,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Pistas
+            </Text>
+            <Text
+              style={[
+                styles.colActions,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Acciones
+            </Text>
           </View>
           <FlatList
             data={filteredTiposPista}
             keyExtractor={(item) => item.tipo_pista_id.toString()}
             contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
             renderItem={({ item }) => (
-              <View style={[styles.tableRow, { borderBottomColor: theme.primarySoft }]}>
-                <Text style={[styles.colName, { color: theme.textTitle, fontWeight: '600' }]}>{item.nombre}</Text>
-                <Text style={[styles.colImage, { color: theme.textBody }]} numberOfLines={1}>{item.imagen || '-'}</Text>
-                <Text style={[styles.colCount, { color: theme.textBody }]}>{item.pistas?.length ?? 0}</Text>
+              <View
+                style={[
+                  styles.tableRow,
+                  { borderBottomColor: theme.primarySoft },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.colName,
+                    { color: theme.textTitle, fontWeight: '600' },
+                  ]}
+                >
+                  {item.nombre}
+                </Text>
+                <Text
+                  style={[styles.colImage, { color: theme.textBody }]}
+                  numberOfLines={1}
+                >
+                  {item.imagen || '-'}
+                </Text>
+                <Text style={[styles.colCount, { color: theme.textBody }]}>
+                  {item.pistas?.length ?? 0}
+                </Text>
                 <View style={styles.colActions}>
                   <View style={{ flexDirection: 'row', gap: 10 }}>
                     <TouchableOpacity onPress={() => openEditModal(item)}>
-                      <Ionicons name="create-outline" size={18} color={theme.textBody} />
+                      <Ionicons
+                        name="create-outline"
+                        size={18}
+                        color={theme.textBody}
+                      />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleDelete(item)}>
-                      <Ionicons name="trash-outline" size={18} color={theme.textBody} />
+                      <Ionicons
+                        name="trash-outline"
+                        size={18}
+                        color={theme.textBody}
+                      />
                     </TouchableOpacity>
                   </View>
                 </View>
