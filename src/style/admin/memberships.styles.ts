@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-export const tiposPistaStyles = StyleSheet.create({
+export const membershipsStyles = StyleSheet.create({
   container: { flex: 1 },
   headerActions: {
     paddingHorizontal: 16,
@@ -44,8 +44,8 @@ export const tiposPistaStyles = StyleSheet.create({
     marginBottom: 10,
   },
   cardTitle: { fontSize: 18, fontWeight: 'bold' },
-  cardSubtitle: { fontSize: 13, opacity: 0.6 },
-  pistasCountBadge: {
+  cardSubtitle: { fontSize: 13, opacity: 0.75 },
+  badge: {
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 8,
@@ -66,7 +66,6 @@ export const tiposPistaStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  // Modal form
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',
@@ -93,6 +92,10 @@ export const tiposPistaStyles = StyleSheet.create({
     marginTop: 10,
   },
   saveBtnText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
+  multilineInput: {
+    minHeight: 90,
+    textAlignVertical: 'top',
+  },
   tableWrap: {
     borderRadius: 16,
     borderWidth: 1,
@@ -112,8 +115,9 @@ export const tiposPistaStyles = StyleSheet.create({
     borderBottomWidth: 1,
     alignItems: 'center',
   },
-  colName: { flex: 1.2 },
-  colImage: { flex: 1.2 },
-  colCount: { flex: 0.8 },
+  colType: { flex: 1.2 },
+  colRange: { flex: 0.8 },
+  colDiscount: { flex: 0.8 },
+  colBookings: { flex: 1 },
   colActions: { flex: 0.8, alignItems: 'flex-end' },
 });

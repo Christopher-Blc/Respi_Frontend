@@ -1,56 +1,59 @@
-﻿import React from 'react';
+import React from 'react';
 import {
-  View,
+  ActivityIndicator,
+  FlatList,
   Text,
   TextInput,
-  FlatList,
-  ActivityIndicator,
   TouchableOpacity,
   useWindowDimensions,
+  View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useAppTheme } from '../../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { TipoPista } from '../../../../types/types';
-import { useAdminCourtTypes } from '../../../../hooks/useAdminCourtTypes';
-import { tiposPistaStyles as styles } from '../../../../style/admin/courtTypes.styles';
-import { TipoCourtCard } from '../../../../components/admin/courtTypes/CourtTypeCard';
-import { TipoCourtFormModal } from '../../../../components/admin/courtTypes/CourtTypeFormModal';
-import { SessionExpiredModal } from '../../../../components/alert.modal';
-import { useTranslation } from 'react-i18next';
+import { useAppTheme } from '../../../context/ThemeContext';
+import { User } from '../../../types/types';
+import { usersAdminStyles as styles } from '../../../style/admin/users.styles';
+import { UserCard } from '../../../components/admin/users/UserCard';
+import { UserFormModal } from '../../../components/admin/users/UserFormModal';
+import { SessionExpiredModal } from '../../../components/alert.modal';
+import { useAdminUsers } from '../../../hooks/useAdminUsers';
 
-export default function AdminTiposPista() {
+type AdminUser = User & {
+  membresia?: { tipo?: string; rango?: string } | null;
+};
+
+export default function AdminUsuarios() {
   const { theme } = useAppTheme();
-  const { t } = useTranslation();
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const cardsColumns = width >= 1280 ? 3 : width >= 780 ? 2 : 1;
-  const [viewMode, setViewMode] = React.useState<'cards' | 'list'>('cards');
-
   const {
-    filteredTiposPista,
+    filteredUsers,
+    memberships,
     loading,
     searchQuery,
     setSearchQuery,
+    viewMode,
+    setViewMode,
     modalVisible,
     setModalVisible,
-    nombre,
-    setNombre,
-    tipoPistaAEditar,
-    openModal,
+    userToEdit,
+    formData,
+    setFormData,
+    openCreateModal,
     openEditModal,
     handleSave,
-    handleDelete,
-    confirmDelete,
-    cancelDelete,
-    deleteModal,
+    handleToggleActive,
+    confirmModal,
+    confirmAction,
+    cancelConfirm,
     errorModal,
     setErrorModal,
-  } = useAdminCourtTypes();
+  } = useAdminUsers();
 
-  const renderCard = ({ item }: { item: TipoPista }) => {
+  const renderCard = ({ item }: { item: AdminUser }) => {
     const cardWidthStyle =
       cardsColumns === 1
         ? { width: '100%' as const }
@@ -58,11 +61,11 @@ export default function AdminTiposPista() {
 
     return (
       <View style={[styles.cardColumn, cardWidthStyle]}>
-        <TipoCourtCard
+        <UserCard
           item={item}
           theme={theme}
           onEdit={openEditModal}
-          onDelete={handleDelete}
+          onToggleActive={handleToggleActive}
         />
       </View>
     );
@@ -82,7 +85,7 @@ export default function AdminTiposPista() {
         >
           <Ionicons name="search" size={20} color={theme.textBody} />
           <TextInput
-            placeholder={t('adminSearchByName')}
+            placeholder="Buscar usuario..."
             placeholderTextColor={theme.textBody + '80'}
             style={[styles.searchInput, { color: theme.textTitle }]}
             value={searchQuery}
@@ -94,6 +97,7 @@ export default function AdminTiposPista() {
             </TouchableOpacity>
           )}
         </View>
+
         <TouchableOpacity
           style={[
             styles.squareBtn,
@@ -111,16 +115,17 @@ export default function AdminTiposPista() {
             color={theme.textBody}
           />
         </TouchableOpacity>
+
         <TouchableOpacity
           style={[
-            styles.addBtn,
+            styles.squareBtn,
             {
               backgroundColor: theme.primary + '18',
               borderWidth: 1,
               borderColor: theme.primarySoft,
             },
           ]}
-          onPress={openModal}
+          onPress={openCreateModal}
         >
           <Ionicons name="add" size={30} color={theme.textBody} />
         </TouchableOpacity>
@@ -134,11 +139,11 @@ export default function AdminTiposPista() {
         />
       ) : viewMode === 'cards' ? (
         <FlatList
-          key={`court-types-cards-${cardsColumns}`}
-          data={filteredTiposPista}
+          key={`users-cards-${cardsColumns}`}
+          data={filteredUsers}
           renderItem={renderCard}
           numColumns={cardsColumns}
-          keyExtractor={(item) => item.tipo_pista_id.toString()}
+          keyExtractor={(item) => item.usuario_id.toString()}
           columnWrapperStyle={cardsColumns > 1 ? styles.gridRow : undefined}
           contentContainerStyle={[
             styles.gridContent,
@@ -164,27 +169,102 @@ export default function AdminTiposPista() {
               },
             ]}
           >
-            <Text style={[styles.colName, { color: theme.textTitle, fontWeight: '700' }]}>Nombre</Text>
-            <Text style={[styles.colImage, { color: theme.textTitle, fontWeight: '700' }]}>Imagen</Text>
-            <Text style={[styles.colCount, { color: theme.textTitle, fontWeight: '700' }]}>Pistas</Text>
-            <Text style={[styles.colActions, { color: theme.textTitle, fontWeight: '700' }]}>Acciones</Text>
+            <Text
+              style={[
+                styles.colName,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Usuario
+            </Text>
+            <Text
+              style={[
+                styles.colRole,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Rol
+            </Text>
+            <Text
+              style={[
+                styles.colMembership,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Membresia
+            </Text>
+            <Text
+              style={[
+                styles.colStatus,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Estado
+            </Text>
+            <Text
+              style={[
+                styles.colActions,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Acciones
+            </Text>
           </View>
           <FlatList
-            data={filteredTiposPista}
-            keyExtractor={(item) => item.tipo_pista_id.toString()}
+            data={filteredUsers}
+            keyExtractor={(item) => item.usuario_id.toString()}
             contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
             renderItem={({ item }) => (
-              <View style={[styles.tableRow, { borderBottomColor: theme.primarySoft }]}>
-                <Text style={[styles.colName, { color: theme.textTitle, fontWeight: '600' }]}>{item.nombre}</Text>
-                <Text style={[styles.colImage, { color: theme.textBody }]} numberOfLines={1}>{item.imagen || '-'}</Text>
-                <Text style={[styles.colCount, { color: theme.textBody }]}>{item.pistas?.length ?? 0}</Text>
+              <View
+                style={[
+                  styles.tableRow,
+                  { borderBottomColor: theme.primarySoft },
+                ]}
+              >
+                <View style={styles.colName}>
+                  <Text style={{ color: theme.textTitle, fontWeight: '600' }}>
+                    {item.username}
+                  </Text>
+                  <Text style={{ color: theme.textBody, fontSize: 12 }}>
+                    {item.email}
+                  </Text>
+                </View>
+                <Text style={[styles.colRole, { color: theme.textBody }]}>
+                  {item.role}
+                </Text>
+                <Text style={[styles.colMembership, { color: theme.textBody }]}>
+                  {item.membresia?.tipo || 'Sin membresia'}
+                </Text>
+                <Text
+                  style={[
+                    styles.colStatus,
+                    {
+                      color: item.isActive ? '#4CAF50' : '#F44336',
+                      fontWeight: '700',
+                    },
+                  ]}
+                >
+                  {item.isActive ? 'Activa' : 'Inactiva'}
+                </Text>
                 <View style={styles.colActions}>
                   <View style={{ flexDirection: 'row', gap: 10 }}>
                     <TouchableOpacity onPress={() => openEditModal(item)}>
-                      <Ionicons name="create-outline" size={18} color={theme.textBody} />
+                      <Ionicons
+                        name="create-outline"
+                        size={18}
+                        color={theme.textBody}
+                      />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleDelete(item)}>
-                      <Ionicons name="trash-outline" size={18} color={theme.textBody} />
+                    <TouchableOpacity onPress={() => handleToggleActive(item)}>
+                      <Ionicons
+                        name={
+                          item.isActive
+                            ? 'pause-circle-outline'
+                            : 'checkmark-circle-outline'
+                        }
+                        size={18}
+                        color={theme.textBody}
+                      />
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -194,38 +274,31 @@ export default function AdminTiposPista() {
         </View>
       )}
 
-      <TipoCourtFormModal
+      <UserFormModal
         visible={modalVisible}
-        isEditing={Boolean(tipoPistaAEditar)}
-        nombre={nombre}
-        setNombre={setNombre}
+        isEditing={Boolean(userToEdit)}
+        formData={formData}
+        setFormData={setFormData}
+        memberships={memberships}
         onClose={() => setModalVisible(false)}
         onSave={handleSave}
       />
 
-      {/* Delete confirm / warning modal */}
       <SessionExpiredModal
-        visible={deleteModal.visible}
-        title={
-          deleteModal.canDelete
-            ? t('adminDeleteCourtTitle', { name: deleteModal.item?.nombre })
-            : t('adminCannotDeleteTitle')
-        }
-        message={deleteModal.message}
-        confirmText={
-          deleteModal.canDelete ? t('adminDelete') : t('commonUnderstood')
-        }
-        cancelText={t('commonCancel')}
-        onConfirm={deleteModal.canDelete ? confirmDelete : cancelDelete}
-        onCancel={deleteModal.canDelete ? cancelDelete : undefined}
+        visible={confirmModal.visible}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText="Confirmar"
+        cancelText="Cancelar"
+        onConfirm={confirmAction}
+        onCancel={cancelConfirm}
       />
 
-      {/* Error modal */}
       <SessionExpiredModal
         visible={errorModal.visible}
         title={errorModal.title}
         message={errorModal.message}
-        confirmText={t('commonUnderstood')}
+        confirmText="Entendido"
         onConfirm={() =>
           setErrorModal({ visible: false, title: '', message: '' })
         }

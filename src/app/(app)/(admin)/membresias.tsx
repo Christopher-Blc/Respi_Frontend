@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -9,20 +9,18 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useAppTheme } from '../../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { TipoPista } from '../../../../types/types';
-import { useAdminCourtTypes } from '../../../../hooks/useAdminCourtTypes';
-import { tiposPistaStyles as styles } from '../../../../style/admin/courtTypes.styles';
-import { TipoCourtCard } from '../../../../components/admin/courtTypes/CourtTypeCard';
-import { TipoCourtFormModal } from '../../../../components/admin/courtTypes/CourtTypeFormModal';
-import { SessionExpiredModal } from '../../../../components/alert.modal';
-import { useTranslation } from 'react-i18next';
+import { useAppTheme } from '../../../context/ThemeContext';
+import { membershipsStyles as styles } from '../../../style/admin/memberships.styles';
+import { useAdminMemberships } from '../../../hooks/useAdminMemberships';
+import { MembershipCard } from '../../../components/admin/memberships/MembershipCard';
+import { MembershipFormModal } from '../../../components/admin/memberships/MembershipFormModal';
+import { SessionExpiredModal } from '../../../components/alert.modal';
+import { Membresia } from '../../../types/types';
 
-export default function AdminTiposPista() {
+export default function AdminMembresias() {
   const { theme } = useAppTheme();
-  const { t } = useTranslation();
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -30,16 +28,16 @@ export default function AdminTiposPista() {
   const [viewMode, setViewMode] = React.useState<'cards' | 'list'>('cards');
 
   const {
-    filteredTiposPista,
+    filteredMemberships,
     loading,
     searchQuery,
     setSearchQuery,
     modalVisible,
     setModalVisible,
-    nombre,
-    setNombre,
-    tipoPistaAEditar,
-    openModal,
+    membershipToEdit,
+    formData,
+    setFormData,
+    openCreateModal,
     openEditModal,
     handleSave,
     handleDelete,
@@ -48,9 +46,9 @@ export default function AdminTiposPista() {
     deleteModal,
     errorModal,
     setErrorModal,
-  } = useAdminCourtTypes();
+  } = useAdminMemberships();
 
-  const renderCard = ({ item }: { item: TipoPista }) => {
+  const renderCard = ({ item }: { item: Membresia }) => {
     const cardWidthStyle =
       cardsColumns === 1
         ? { width: '100%' as const }
@@ -58,7 +56,7 @@ export default function AdminTiposPista() {
 
     return (
       <View style={[styles.cardColumn, cardWidthStyle]}>
-        <TipoCourtCard
+        <MembershipCard
           item={item}
           theme={theme}
           onEdit={openEditModal}
@@ -82,7 +80,7 @@ export default function AdminTiposPista() {
         >
           <Ionicons name="search" size={20} color={theme.textBody} />
           <TextInput
-            placeholder={t('adminSearchByName')}
+            placeholder="Buscar membresia..."
             placeholderTextColor={theme.textBody + '80'}
             style={[styles.searchInput, { color: theme.textTitle }]}
             value={searchQuery}
@@ -94,6 +92,7 @@ export default function AdminTiposPista() {
             </TouchableOpacity>
           )}
         </View>
+
         <TouchableOpacity
           style={[
             styles.squareBtn,
@@ -111,6 +110,7 @@ export default function AdminTiposPista() {
             color={theme.textBody}
           />
         </TouchableOpacity>
+
         <TouchableOpacity
           style={[
             styles.addBtn,
@@ -120,7 +120,7 @@ export default function AdminTiposPista() {
               borderColor: theme.primarySoft,
             },
           ]}
-          onPress={openModal}
+          onPress={openCreateModal}
         >
           <Ionicons name="add" size={30} color={theme.textBody} />
         </TouchableOpacity>
@@ -134,11 +134,11 @@ export default function AdminTiposPista() {
         />
       ) : viewMode === 'cards' ? (
         <FlatList
-          key={`court-types-cards-${cardsColumns}`}
-          data={filteredTiposPista}
+          key={`memberships-cards-${cardsColumns}`}
+          data={filteredMemberships}
           renderItem={renderCard}
           numColumns={cardsColumns}
-          keyExtractor={(item) => item.tipo_pista_id.toString()}
+          keyExtractor={(item) => item.membresia_id.toString()}
           columnWrapperStyle={cardsColumns > 1 ? styles.gridRow : undefined}
           contentContainerStyle={[
             styles.gridContent,
@@ -164,20 +164,22 @@ export default function AdminTiposPista() {
               },
             ]}
           >
-            <Text style={[styles.colName, { color: theme.textTitle, fontWeight: '700' }]}>Nombre</Text>
-            <Text style={[styles.colImage, { color: theme.textTitle, fontWeight: '700' }]}>Imagen</Text>
-            <Text style={[styles.colCount, { color: theme.textTitle, fontWeight: '700' }]}>Pistas</Text>
+            <Text style={[styles.colType, { color: theme.textTitle, fontWeight: '700' }]}>Tipo</Text>
+            <Text style={[styles.colRange, { color: theme.textTitle, fontWeight: '700' }]}>Rango</Text>
+            <Text style={[styles.colDiscount, { color: theme.textTitle, fontWeight: '700' }]}>Dto</Text>
+            <Text style={[styles.colBookings, { color: theme.textTitle, fontWeight: '700' }]}>Reservas</Text>
             <Text style={[styles.colActions, { color: theme.textTitle, fontWeight: '700' }]}>Acciones</Text>
           </View>
           <FlatList
-            data={filteredTiposPista}
-            keyExtractor={(item) => item.tipo_pista_id.toString()}
+            data={filteredMemberships}
+            keyExtractor={(item) => item.membresia_id.toString()}
             contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
             renderItem={({ item }) => (
               <View style={[styles.tableRow, { borderBottomColor: theme.primarySoft }]}>
-                <Text style={[styles.colName, { color: theme.textTitle, fontWeight: '600' }]}>{item.nombre}</Text>
-                <Text style={[styles.colImage, { color: theme.textBody }]} numberOfLines={1}>{item.imagen || '-'}</Text>
-                <Text style={[styles.colCount, { color: theme.textBody }]}>{item.pistas?.length ?? 0}</Text>
+                <Text style={[styles.colType, { color: theme.textTitle, fontWeight: '600' }]}>{item.tipo}</Text>
+                <Text style={[styles.colRange, { color: theme.textBody }]}>#{item.rango}</Text>
+                <Text style={[styles.colDiscount, { color: theme.textBody }]}>{item.descuento}%</Text>
+                <Text style={[styles.colBookings, { color: theme.textBody }]}>{item.reservas_requeridas}</Text>
                 <View style={styles.colActions}>
                   <View style={{ flexDirection: 'row', gap: 10 }}>
                     <TouchableOpacity onPress={() => openEditModal(item)}>
@@ -194,38 +196,32 @@ export default function AdminTiposPista() {
         </View>
       )}
 
-      <TipoCourtFormModal
+      <MembershipFormModal
         visible={modalVisible}
-        isEditing={Boolean(tipoPistaAEditar)}
-        nombre={nombre}
-        setNombre={setNombre}
+        isEditing={Boolean(membershipToEdit)}
+        formData={formData}
+        setFormData={setFormData}
         onClose={() => setModalVisible(false)}
         onSave={handleSave}
       />
 
-      {/* Delete confirm / warning modal */}
       <SessionExpiredModal
         visible={deleteModal.visible}
         title={
-          deleteModal.canDelete
-            ? t('adminDeleteCourtTitle', { name: deleteModal.item?.nombre })
-            : t('adminCannotDeleteTitle')
+          deleteModal.canDelete ? 'Eliminar membresia' : 'No se puede eliminar'
         }
         message={deleteModal.message}
-        confirmText={
-          deleteModal.canDelete ? t('adminDelete') : t('commonUnderstood')
-        }
-        cancelText={t('commonCancel')}
+        confirmText={deleteModal.canDelete ? 'Eliminar' : 'Entendido'}
+        cancelText="Cancelar"
         onConfirm={deleteModal.canDelete ? confirmDelete : cancelDelete}
         onCancel={deleteModal.canDelete ? cancelDelete : undefined}
       />
 
-      {/* Error modal */}
       <SessionExpiredModal
         visible={errorModal.visible}
         title={errorModal.title}
         message={errorModal.message}
-        confirmText={t('commonUnderstood')}
+        confirmText="Entendido"
         onConfirm={() =>
           setErrorModal({ visible: false, title: '', message: '' })
         }
