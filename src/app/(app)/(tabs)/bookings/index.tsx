@@ -20,16 +20,16 @@ import createReservationsStyles from '../../../../style/reservations.styles';
 import { useAppTheme } from '../../../../context/ThemeContext';
 import {
   PistaDisponibilidad,
-  useReservasDisponibles,
-} from '../../../../hooks/useReservasDisponibles';
+  useAvailableBookings,
+} from '../../../../hooks/useAvailableBookings';
 import { API_PUBLIC_URL } from '../../../../constants';
-import DateModal from '../../../../components/reservas/date.modal';
-import DisponibilidadBarra, {
+import DateModal from '../../../../components/bookings/date.modal';
+import AvailabilityBar, {
   BloqueDisponibilidad,
   crearBloquesDisponibilidad,
-} from '../../../../components/reservas/DisponibilidadBarra';
+} from '../../../../components/bookings/AvailabilityBar';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
-import createReservasTabStyles from '../../../../style/reservasTab.styles';
+import createReservasTabStyles from '../../../../style/bookingsTab.styles';
 import { useTranslation } from 'react-i18next';
 
 const getNext7Days = () => {
@@ -125,7 +125,7 @@ export default function ReservasTab() {
       .trim();
 
   const formattedDate = formatDateForAPI(selectedDate);
-  const { pistas, loading } = useReservasDisponibles(formattedDate);
+  const { pistas, loading } = useAvailableBookings(formattedDate);
   const availableDays = useMemo(() => getNext7Days(), []);
 
   const filteredPistas = useMemo(() => {
@@ -198,7 +198,7 @@ export default function ReservasTab() {
     }
 
     router.push({
-      pathname: '/(app)/(tabs)/reservas/createBooking',
+      pathname: '/(app)/(tabs)/bookings/createBooking',
       params: {
         pistaId: String(pista.pista_id),
         pistaNombre: pista.nombre,
@@ -267,7 +267,7 @@ export default function ReservasTab() {
     </>
   );
 
-  const renderPistaCard = (pista: PistaDisponibilidad) => (
+  const renderCourtCard = (pista: PistaDisponibilidad) => (
     <TouchableOpacity
       activeOpacity={0.9}
       onPress={() => openCreateBooking(pista)}
@@ -317,7 +317,7 @@ export default function ReservasTab() {
               </TouchableOpacity>
             </View>
 
-            <DisponibilidadBarra
+            <AvailabilityBar
               horaApertura={pista.hora_apertura}
               horaCierre={pista.hora_cierre}
               reservasActuales={pista.reservas_actuales || []}
@@ -429,7 +429,7 @@ export default function ReservasTab() {
             </View>
           )}
           <View style={reservasTabStyles.gridContainer}>
-            {filteredPistas.map(renderPistaCard)}
+            {filteredPistas.map(renderCourtCard)}
           </View>
         </ScrollView>
       )}

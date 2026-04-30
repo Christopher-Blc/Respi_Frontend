@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../context/ThemeContext';
-import { pistasStyles as styles } from '../../../style/admin/pistas.styles';
+import { pistasStyles as styles } from '../../../style/admin/courts.styles';
 import { SessionExpiredModal } from '../../alert.modal';
 import {
   Pista,
@@ -18,7 +18,7 @@ import {
   PistaFormData,
   WeeklyScheduleItem,
 } from '../../../types/types';
-import { WEEK_DAYS } from '../../../hooks/pistaUtils';
+import { WEEK_DAYS } from '../../../hooks/courtUtils';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
@@ -61,7 +61,7 @@ const InputLabel = ({ label, theme }: { label: string; theme: any }) => (
   </Text>
 );
 
-export function PistaFormModal({
+export function CourtFormModal({
   visible,
   pistaAEditar,
   formData,

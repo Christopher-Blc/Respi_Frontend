@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import {
   View,
   Text,
@@ -15,8 +15,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { API_PUBLIC_URL } from '../../../../constants';
 import { useAppTheme } from '../../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
-import { usePistaTypes } from '../../../../hooks/usePistaTypes';
-import createPistaTypesStyles from '../../../../style/pistaTypes.styles';
+import { useCourtTypes } from '../../../../hooks/useCourtTypes';
+import createPistaTypesStyles from '../../../../style/courtTypes.styles';
 import { useTranslation } from 'react-i18next';
 
 export default function PistaTypeIndex() {
@@ -27,7 +27,7 @@ export default function PistaTypeIndex() {
   const headerHeight = useHeaderHeight();
   const { width } = useWindowDimensions();
   const isWideScreen = width > 768;
-  const { modelos, loading, getCardDescription } = usePistaTypes();
+  const { modelos, loading, getCardDescription } = useCourtTypes();
 
   return (
     <ScrollView

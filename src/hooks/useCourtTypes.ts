@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import api from '../services/api';
 import { TipoPista } from '../types/types';
 import { useTranslation } from 'react-i18next';
 
-export function usePistaTypes() {
+export function useCourtTypes() {
   const { t } = useTranslation();
   const [modelos, setModelos] = useState<TipoPista[]>([]);
   const [loading, setLoading] = useState(true);

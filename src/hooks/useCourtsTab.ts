@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { MODELOS, Modelo } from '../data/modelos';
 import { API_PUBLIC_URL } from '../constants';
-import { reservasService } from '../services/reservasService';
+import { bookingsService } from '../services/bookingsService';
 import api from '../services/api';
 import { PistaDisponibilidad, TipoPista } from '../types/types';
 import { useTranslation } from 'react-i18next';
@@ -78,7 +78,7 @@ const normalizeText = (value: string) =>
 const getTypeIdCandidates = (item: PistaDisponibilidad): string =>
   String(item?.tipo_pista_id ?? '');
 
-export function usePistasTab() {
+export function useCourtsTab() {
   const { t } = useTranslation();
   const [modelos, setModelos] = useState<Modelo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,7 +98,7 @@ export function usePistasTab() {
 
     (async () => {
       try {
-        const remote = await reservasService.getModelos();
+        const remote = await bookingsService.getModelos();
         if (mounted) {
           setModelos(remote.length ? remote : MODELOS);
         }

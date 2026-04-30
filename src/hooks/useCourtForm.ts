@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Pista, WeeklyScheduleItem, PistaFormData } from '../types/types';
 import api from '../services/api';
 import {
@@ -8,9 +8,9 @@ import {
   isValidHour,
   hourToMinutes,
   isValidPrice,
-} from './pistaUtils';
+} from './courtUtils';
 
-export function usePistaForm(pistas: Pista[], fetchPistas: () => void) {
+export function useCourtForm(pistas: Pista[], fetchPistas: () => void) {
   const [modalVisible, setModalVisible] = useState(false);
   const [pistaAEditar, setPistaAEditar] = useState<Pista | null>(null);
   const [formData, setFormData] = useState<PistaFormData>(DEFAULT_FORM);

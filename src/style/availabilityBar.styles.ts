@@ -1,7 +1,7 @@
-import { StyleSheet } from 'react-native';
+﻿import { StyleSheet } from 'react-native';
 import { AppTheme } from '../theme';
 
-const createDisponibilidadBarraStyles = (theme: AppTheme) =>
+const createAvailabilityBarStyles = (theme: AppTheme) =>
   StyleSheet.create({
     ruleRow: {
       flexDirection: 'row',
@@ -59,4 +59,4 @@ const createDisponibilidadBarraStyles = (theme: AppTheme) =>
     },
   });
 
-export default createDisponibilidadBarraStyles;
+export default createAvailabilityBarStyles;

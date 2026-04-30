@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+﻿import React, { useMemo } from 'react';
 import {
   ActivityIndicator,
   ImageBackground,
@@ -16,14 +16,14 @@ import { Modelo } from '../../../data/modelos';
 import createReservationsStyles from '../../../style/reservations.styles';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
-import createPistasTabStyles from '../../../style/pistasTab.styles';
+import createPistasTabStyles from '../../../style/courtsTab.styles';
 import {
   formatDateDisplay,
   formatPrice,
   resolvePistaImageSource,
   resolveImageSource,
-  usePistasTab,
-} from '../../../hooks/usePistasTab';
+  useCourtsTab,
+} from '../../../hooks/useCourtsTab';
 import { PistaDisponibilidad } from '../../../types/types';
 import { useTranslation } from 'react-i18next';
 
@@ -58,7 +58,7 @@ export default function PistasTab() {
     availableDays,
     formattedDate,
     clearSportFilter,
-  } = usePistasTab();
+  } = useCourtsTab();
 
   let baseColumnsCount = 1;
   if (width >= 1024) baseColumnsCount = 3;
@@ -213,7 +213,7 @@ export default function PistasTab() {
             style={localStyles.reserveButton}
             onPress={() =>
               router.push({
-                pathname: '/(app)/(tabs)/reservas/createBooking',
+                pathname: '/(app)/(tabs)/bookings/createBooking',
                 params: {
                   pistaId,
                   pistaNombre: pista.nombre || 'Pista',

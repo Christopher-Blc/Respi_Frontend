@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -16,11 +16,11 @@ import { GlassTextButton } from '../../components/login/glassTextButton';
 import createProfileStyles from '../../style/profile.styles';
 import MenuOption from '../../components/profile/menuOptions';
 import DarkModeModal from '../../components/profile/darkMode.modal';
-import IdiomaModal from '../../components/profile/idioma.modal';
+import IdiomaModal from '../../components/profile/language.modal';
 import EditUserNameModal from '../../components/profile/editUserName.modal';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
-import MembresiaModal from '../../components/profile/membresia.modal';
+import MembresiaModal from '../../components/profile/membership.modal';
 import { router } from 'expo-router';
 // Importamos el hook que hemos creado
 import { useProfile } from '../../hooks/useProfile';

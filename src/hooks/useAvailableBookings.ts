@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+﻿import { useEffect, useState, useCallback } from 'react';
 import api from '../services/api';
 
 export type ReservaActual = {
@@ -22,7 +22,7 @@ export type PistaDisponibilidad = {
   iluminacion?: boolean;
 };
 
-export function useReservasDisponibles(fecha: string) {
+export function useAvailableBookings(fecha: string) {
   const [pistas, setPistas] = useState<PistaDisponibilidad[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

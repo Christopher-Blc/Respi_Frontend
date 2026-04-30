@@ -45,7 +45,7 @@ export default function ManagementLayout() {
       }}
     >
       <Stack.Screen
-        name="pistas"
+        name="courts"
         options={{
           title: t('adminManageCourts'),
           headerLeft: () => (
@@ -71,7 +71,7 @@ export default function ManagementLayout() {
         }}
       />
       <Stack.Screen
-        name="tipos_pista"
+        name="court-types"
         options={{
           title: t('adminCourtTypes'),
           headerLeft: () => (

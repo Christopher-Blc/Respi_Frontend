@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+﻿import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,7 @@ import { useAppTheme } from '../../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import api from '../../../../services/api';
 import { useAuth } from '../../../../context/AuthContext';
-import createConfirmacionReservaStyles from '../../../../style/confirmacionReserva.styles';
+import createConfirmacionReservaStyles from '../../../../style/bookingConfirmation.styles';
 import { useTranslation } from 'react-i18next';
 
 export default function ConfirmacionReserva() {
