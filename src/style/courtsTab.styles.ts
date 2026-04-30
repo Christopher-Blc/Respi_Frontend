@@ -117,10 +117,11 @@ const createPistasTabStyles = (theme: AppTheme) =>
       flexDirection: 'row',
       flexWrap: 'wrap',
       gap: 16,
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
+      alignItems: 'stretch',
     },
     catalogCard: {
-      minHeight: 220,
+      minHeight: 210,
       borderRadius: 18,
       overflow: 'hidden',
       backgroundColor: theme.cardBackground,
@@ -164,7 +165,7 @@ const createPistasTabStyles = (theme: AppTheme) =>
     },
     catalogTitle: {
       color: '#FFFFFF',
-      fontSize: 24,
+      fontSize: 22,
       fontWeight: '900',
       textShadowColor: 'rgba(0,0,0,0.45)',
       textShadowOffset: { width: 0, height: 1 },
@@ -207,6 +208,7 @@ const createPistasTabStyles = (theme: AppTheme) =>
       backgroundColor: theme.surface,
       gap: 8,
       overflow: 'hidden',
+      minHeight: 250,
     },
     sportCardImage: {
       minHeight: 180,
@@ -264,6 +266,8 @@ const createPistasTabStyles = (theme: AppTheme) =>
     },
     reserveButton: {
       marginTop: 6,
+      marginHorizontal: 10,
+      marginBottom: 10,
       borderRadius: 10,
       backgroundColor: theme.primary,
       paddingVertical: 10,
