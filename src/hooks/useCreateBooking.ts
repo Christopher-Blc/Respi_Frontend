@@ -50,7 +50,7 @@ const normalizeCourtsFromPayload = (payload: any): CourtOption[] => {
       closingHour: item.hora_cierre || item.closingHour,
       status: item.estado || item.status,
     }))
-    .filter((court) => isDisponible(court.status));
+    .filter((court: CourtOption) => isDisponible(court.status));
 };
 
 const dedupeCourts = (list: CourtOption[]) => {

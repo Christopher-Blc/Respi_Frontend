@@ -23,29 +23,6 @@ const EMPTY_FORM: UserFormData = {
   membresia_id: '',
 };
 
-const USER_ENDPOINTS = ['/users', '/usuario', '/usuarios'];
-
-async function requestWithFallback<T>(
-  method: 'get' | 'post' | 'put' | 'patch',
-  pathSuffix = '',
-  data?: unknown,
-) {
-  let lastError: unknown;
-
-  for (const endpoint of USER_ENDPOINTS) {
-    try {
-      if (method === 'get') return await api.get<T>(`${endpoint}${pathSuffix}`);
-      if (method === 'post') return await api.post<T>(endpoint, data);
-      if (method === 'put') return await api.put<T>(`${endpoint}${pathSuffix}`, data);
-      return await api.patch<T>(`${endpoint}${pathSuffix}`, data);
-    } catch (error) {
-      lastError = error;
-    }
-  }
-
-  throw lastError;
-}
-
 export function useAdminUsers() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [memberships, setMemberships] = useState<Membresia[]>([]);
@@ -76,7 +53,7 @@ export function useAdminUsers() {
     try {
       setLoading(true);
       const [usersRes, membershipsRes] = await Promise.all([
-        requestWithFallback<AdminUser[]>('get'),
+        api.get<AdminUser[]>('/users'),
         api.get('/membresia'),
       ]);
 
@@ -109,7 +86,7 @@ export function useAdminUsers() {
         user.email,
         user.phone,
         user.role,
-        user.membresia?.tipo || '',
+        user.membresia?.nombre || '',
       ]
         .join(' ')
         .toLowerCase();
@@ -143,13 +120,15 @@ export function useAdminUsers() {
   };
 
   const validateForm = () => {
+    if (userToEdit) return null;
+
     if (!formData.username.trim()) return 'El username es obligatorio.';
     if (!formData.name.trim()) return 'El nombre es obligatorio.';
     if (!formData.surname.trim()) return 'El apellido es obligatorio.';
     if (!formData.email.trim()) return 'El email es obligatorio.';
     if (!formData.fecha_nacimiento.trim()) return 'La fecha de nacimiento es obligatoria.';
     if (!formData.direccion.trim()) return 'La direccion es obligatoria.';
-    if (!userToEdit && !formData.password.trim()) return 'La password es obligatoria.';
+    if (!formData.password.trim()) return 'La password es obligatoria.';
     return null;
   };
 
@@ -162,24 +141,45 @@ export function useAdminUsers() {
 
     try {
       if (userToEdit) {
-        const payload = {
-          username: formData.username.trim(),
-          name: formData.name.trim(),
-          surname: formData.surname.trim(),
-          email: formData.email.trim(),
-          phone: formData.phone.trim(),
-          membresia_id: formData.membresia_id ? Number(formData.membresia_id) : null,
-          role: formData.role,
-          isActive: formData.isActive,
-          fecha_nacimiento: formData.fecha_nacimiento.trim(),
-          direccion: formData.direccion.trim(),
-        };
+        const payload: Record<string, unknown> = {};
+        const username = formData.username.trim();
+        const name = formData.name.trim();
+        const surname = formData.surname.trim();
+        const email = formData.email.trim();
+        const phone = formData.phone.trim();
+        const fechaNacimiento = formData.fecha_nacimiento.trim();
+        const direccion = formData.direccion.trim();
+        const membresiaId = formData.membresia_id
+          ? Number(formData.membresia_id)
+          : null;
+        const currentRole =
+          userToEdit.role === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 'CLIENTE';
 
-        try {
-          await requestWithFallback('patch', `/${userToEdit.usuario_id}`, payload);
-        } catch {
-          await requestWithFallback('put', `/${userToEdit.usuario_id}`, payload);
+        if (username !== (userToEdit.username || '')) payload.username = username;
+        if (name !== (userToEdit.name || '')) payload.name = name;
+        if (surname !== (userToEdit.surname || '')) payload.surname = surname;
+        if (email !== (userToEdit.email || '')) payload.email = email;
+        if (phone !== (userToEdit.phone || '')) payload.phone = phone;
+        if (fechaNacimiento !== (userToEdit.fecha_nacimiento || '')) {
+          payload.fecha_nacimiento = fechaNacimiento;
         }
+        if (direccion !== (userToEdit.direccion || '')) payload.direccion = direccion;
+        if (membresiaId !== (userToEdit.membresia_id ?? null)) {
+          payload.membresia_id = membresiaId;
+        }
+        if (formData.role !== currentRole) payload.role = formData.role;
+        if (formData.isActive !== Boolean(userToEdit.isActive)) {
+          payload.isActive = formData.isActive;
+        }
+
+        if (Object.keys(payload).length === 0) {
+          setModalVisible(false);
+          setUserToEdit(null);
+          setFormData(EMPTY_FORM);
+          return;
+        }
+
+        await api.put(`/users/${userToEdit.usuario_id}`, payload);
       } else {
         const payload = {
           username: formData.username.trim(),
@@ -195,14 +195,14 @@ export function useAdminUsers() {
           membresia_id: formData.membresia_id ? Number(formData.membresia_id) : null,
         };
 
-        await requestWithFallback('post', '', payload);
+        await api.post('/users', payload);
       }
-
       setModalVisible(false);
       setUserToEdit(null);
       setFormData(EMPTY_FORM);
       fetchUsers();
     } catch {
+      console.log('error otra vez... lamentable :', formData);
       setErrorModal({
         visible: true,
         title: 'Error',
@@ -227,24 +227,9 @@ export function useAdminUsers() {
     if (confirmModal.onConfirmType !== 'toggle-active' || !pendingUser) return;
 
     try {
-      const payload = {
-        username: pendingUser.username,
-        name: pendingUser.name,
-        surname: pendingUser.surname,
-        email: pendingUser.email,
-        phone: pendingUser.phone,
-        membresia_id: pendingUser.membresia_id,
-        role: pendingUser.role === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 'CLIENTE',
+      await api.put(`/users/${pendingUser.usuario_id}`, {
         isActive: !pendingUser.isActive,
-        fecha_nacimiento: pendingUser.fecha_nacimiento,
-        direccion: pendingUser.direccion,
-      };
-
-      try {
-        await requestWithFallback('patch', `/${pendingUser.usuario_id}`, payload);
-      } catch {
-        await requestWithFallback('put', `/${pendingUser.usuario_id}`, payload);
-      }
+      });
 
       setConfirmModal({ visible: false, title: '', message: '', onConfirmType: '' });
       setPendingUser(null);

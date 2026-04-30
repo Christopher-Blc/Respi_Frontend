@@ -233,7 +233,7 @@ export default function AdminUsuarios() {
                   {item.role}
                 </Text>
                 <Text style={[styles.colMembership, { color: theme.textBody }]}>
-                  {item.membresia?.tipo || 'Sin membresia'}
+                  {item.membresia?.nombre || 'Sin membresia'}
                 </Text>
                 <Text
                   style={[

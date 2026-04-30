@@ -222,7 +222,7 @@ export default function AdminMembresias() {
                     { color: theme.textTitle, fontWeight: '600' },
                   ]}
                 >
-                  {item.tipo}
+                  {item.nombre}
                 </Text>
                 <Text style={[styles.colRange, { color: theme.textBody }]}>
                   #{item.rango}

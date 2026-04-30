@@ -60,7 +60,7 @@ export const useProfile = () => {
   const userMembershipLabel = useMemo(() => {
     if (user?.membresia_id == null) return 'Sin membresia';
     return currentMembership 
-      ? `${currentMembership.tipo} · Rango ${currentMembership.rango}` 
+      ? `${currentMembership.nombre} · Rango ${currentMembership.rango}` 
       : `Cargando...`;
   }, [user, currentMembership]);
 

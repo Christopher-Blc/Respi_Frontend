@@ -86,8 +86,8 @@ export interface TipoPista {
 
 export interface Membresia {
   membresia_id: number;
-  rango: string;
-  tipo: string;
+  rango: number;
+  nombre: string;
   descuento: number;
   reservas_requeridas: number;
   beneficios: string;

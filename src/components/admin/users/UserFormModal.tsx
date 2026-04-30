@@ -291,7 +291,7 @@ export function UserFormModal({
                         fontWeight: selected ? '700' : '500',
                       }}
                     >
-                      {membership.tipo}
+                      {membership.nombre}
                     </Text>
                   </TouchableOpacity>
                 );
