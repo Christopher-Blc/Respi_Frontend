@@ -3,6 +3,7 @@ import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import { Platform } from 'react-native';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import { useAppTheme } from '../../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   visible: boolean;
@@ -12,6 +13,7 @@ interface Props {
 
 export default function DateModal({ visible, onSave, onClose }: Props) {
   const { theme } = useAppTheme();
+  const { t } = useTranslation();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const webInputRef = useRef<HTMLInputElement>(null);
 
@@ -106,11 +108,13 @@ export default function DateModal({ visible, onSave, onClose }: Props) {
     >
       <View style={styles.headerContainer}>
         <TouchableOpacity onPress={handleCancel}>
-          <Text style={styles.headerText}>Cancelar</Text>
+          <Text style={styles.headerText}>{t('commonCancel')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleSave}>
-          <Text style={[styles.headerText, styles.saveText]}>Guardar</Text>
+          <Text style={[styles.headerText, styles.saveText]}>
+            {t('commonSave')}
+          </Text>
         </TouchableOpacity>
       </View>
 

@@ -20,6 +20,7 @@ import { PistasFiltersModal } from '../../../../components/admin/pista/PistasFil
 import { MaintenanceDateModal } from '../../../../components/admin/pista/MaintenanceDateModal';
 import { PistaCard } from '../../../../components/admin/pista/PistaCard';
 import { Tabs } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 
 export default function AdminPistas() {
   <Tabs.Screen
@@ -28,6 +29,7 @@ export default function AdminPistas() {
   />;
 
   const { theme } = useAppTheme();
+  const { t } = useTranslation();
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
 
@@ -98,7 +100,7 @@ export default function AdminPistas() {
         >
           <Ionicons name="search" size={20} color={theme.textBody} />
           <TextInput
-            placeholder="Buscar por nombre..."
+            placeholder={t('adminSearchByName')}
             placeholderTextColor={theme.textBody + '80'}
             style={[styles.searchInput, { color: theme.textTitle }]}
             value={searchQuery}
@@ -197,28 +199,31 @@ export default function AdminPistas() {
         visible={deleteModal.visible}
         title={
           deleteModal.accion === 'eliminar'
-            ? `Eliminar "${deleteModal.nombre}"`
-            : `Mantenimiento "${deleteModal.nombre}"`
+            ? t('adminDeleteCourtTitle', { name: deleteModal.nombre })
+            : t('adminMaintenanceCourtTitle', { name: deleteModal.nombre })
         }
         message={
           deleteModal.loadingCount
-            ? 'Calculando reservas afectadas...'
+            ? t('adminDeleteModalLoading')
             : `${
                 deleteModal.accion === 'mantenimiento' &&
                 deleteModal.mantenimientoDesde &&
                 deleteModal.mantenimientoHasta
-                  ? `Mantenimiento del ${deleteModal.mantenimientoDesde} al ${deleteModal.mantenimientoHasta}.\n\n`
+                  ? t('adminDeleteModalRange', {
+                      from: deleteModal.mantenimientoDesde,
+                      to: deleteModal.mantenimientoHasta,
+                    })
                   : ''
-              }¿Estás seguro? Se cancelarán ${deleteModal.reservasCount} reserva${
-                deleteModal.reservasCount !== 1 ? 's' : ''
-              }.`
+              }${t('adminDeleteModalMessage', {
+                count: deleteModal.reservasCount,
+              })}`
         }
         confirmText={
           deleteModal.accion === 'eliminar'
-            ? 'Eliminar todo'
-            : 'Poner en mantenimiento'
+            ? t('adminDeleteAll')
+            : t('adminSetMaintenance')
         }
-        cancelText="Cancelar"
+        cancelText={t('commonCancel')}
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
       />

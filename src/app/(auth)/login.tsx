@@ -18,19 +18,21 @@ import { useAuth } from '../../context/AuthContext';
 import createLoginStyles from '../../style/login.styles';
 import RespiLogo from '../../components/login/respiLogo';
 import { useAppTheme } from '../../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
+  const { t } = useTranslation();
   const { isDarkMode, theme } = useAppTheme();
   const styles = React.useMemo(() => createLoginStyles(theme), [theme]);
 
   const { signIn } = useAuth();
   const handleSubmit = async () => {
     if (!email || !password) {
-      setError('Por favor, rellena todos los campos.');
+      setError(t('authLoginEmptyFields'));
       return;
     }
 
@@ -48,7 +50,7 @@ const Login: React.FC = () => {
         signIn(token, refreshToken);
       }
     } catch (err: any) {
-      const message = err.response?.data?.message || 'Error de conexión';
+      const message = err.response?.data?.message || t('authConnectionError');
       console.log('Login error:', err.response?.data || err.message);
       setError(Array.isArray(message) ? message[0] : message);
     }
@@ -95,7 +97,7 @@ const Login: React.FC = () => {
             },
           ]}
         >
-          Welcome back!
+          {t('authLoginTitle')}
         </Text>
 
         <Text
@@ -106,11 +108,11 @@ const Login: React.FC = () => {
             },
           ]}
         >
-          Email:
+          {t('authLoginEmail')}:
         </Text>
         <GlassTextInput
           keyboardType="email-address"
-          placeholder="Enter email"
+          placeholder={t('exampleEmail')}
           value={email}
           onChangeText={setEmail}
         />
@@ -123,16 +125,16 @@ const Login: React.FC = () => {
             },
           ]}
         >
-          Password:
+          {t('authLoginPassword')}:
         </Text>
         <GlassTextInputPassword
-          placeholder="Enter password"
+          placeholder={t('examplePassword')}
           value={password}
           onChangeText={setPassword}
         />
 
         <GlassTextButton
-          text="Login"
+          text={t('authLoginButton')}
           textColor={theme.onPrimary}
           onPress={handleSubmit}
           color={theme.primaryButton}
@@ -146,7 +148,7 @@ const Login: React.FC = () => {
             textAlign: 'center',
           }}
         >
-          Don't have an account yet?{' '}
+          {t('authLoginNoAccount')}{' '}
           <Text
             style={{
               color: theme.primary,
@@ -154,7 +156,7 @@ const Login: React.FC = () => {
             }}
             onPress={() => router.replace('register')}
           >
-            Register
+            {t('authLoginRegister')}
           </Text>
         </Text>
 

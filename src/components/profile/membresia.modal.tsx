@@ -12,6 +12,7 @@ import {
 import { useAppTheme } from '../../context/ThemeContext';
 import api from '../../services/api';
 import { Membresia } from '../../types/types';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   visible: boolean;
@@ -107,6 +108,7 @@ const getMembershipPalette = (
 
 export default function MembresiaModal({ visible, onClose }: Props) {
   const { theme, isDarkMode } = useAppTheme();
+  const { t } = useTranslation();
   const [membresias, setMembresias] = useState<Membresia[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -127,11 +129,11 @@ export default function MembresiaModal({ visible, onClose }: Props) {
       setMembresias(parsed);
     } catch (error) {
       console.error('Error al cargar membresias', error);
-      setErrorMsg('No se pudieron cargar las membresias ahora mismo.');
+      setErrorMsg(t('membershipLoadError'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (visible) {
@@ -300,18 +302,16 @@ export default function MembresiaModal({ visible, onClose }: Props) {
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose}>
-            <Text style={styles.headerAction}>Cerrar</Text>
+            <Text style={styles.headerAction}>{t('commonClose')}</Text>
           </TouchableOpacity>
         </View>
 
         <ScrollView contentContainerStyle={styles.body}>
           <View style={styles.introCard}>
-            <Text style={styles.introTitle}>Tu progreso de membresia</Text>
-            <Text style={styles.introText}>
-              Cuantas mas reservas hagas, mas nivel de membresia alcanzas y
-              mejores descuentos recibes. Cada rango desbloquea beneficios para
-              tus proximas reservas.
+            <Text style={styles.introTitle}>
+              {t('membershipProgressTitle')}
             </Text>
+            <Text style={styles.introText}>{t('membershipProgressText')}</Text>
           </View>
 
           {loading ? (
@@ -322,14 +322,12 @@ export default function MembresiaModal({ visible, onClose }: Props) {
             <View style={styles.centerState}>
               <Text style={styles.stateText}>{errorMsg}</Text>
               <TouchableOpacity style={styles.retry} onPress={fetchMembresias}>
-                <Text style={styles.retryText}>Reintentar</Text>
+                <Text style={styles.retryText}>{t('membershipRetry')}</Text>
               </TouchableOpacity>
             </View>
           ) : membresias.length === 0 ? (
             <View style={styles.centerState}>
-              <Text style={styles.stateText}>
-                No hay membresias disponibles.
-              </Text>
+              <Text style={styles.stateText}>{t('membershipEmpty')}</Text>
             </View>
           ) : (
             membresias.map((item) => {
@@ -373,22 +371,26 @@ export default function MembresiaModal({ visible, onClose }: Props) {
                       <Text
                         style={[styles.badgeText, { color: palette.badgeText }]}
                       >
-                        Rango {item.rango}
+                        {t('membershipRange', { value: item.rango })}
                       </Text>
                     </View>
                   </View>
 
                   <View style={styles.row}>
-                    <Text style={styles.label}>Descuento</Text>
+                    <Text style={styles.label}>{t('membershipDiscount')}</Text>
                     <Text style={styles.value}>{item.descuento}%</Text>
                   </View>
 
                   <View style={styles.row}>
-                    <Text style={styles.label}>Reservas requeridas</Text>
+                    <Text style={styles.label}>
+                      {t('membershipRequiredBookings')}
+                    </Text>
                     <Text style={styles.value}>{item.reservas_requeridas}</Text>
                   </View>
 
-                  <Text style={styles.benefitsLabel}>Beneficios</Text>
+                  <Text style={styles.benefitsLabel}>
+                    {t('membershipBenefits')}
+                  </Text>
                   <Text style={styles.benefits}>{item.beneficios}</Text>
                 </View>
               );

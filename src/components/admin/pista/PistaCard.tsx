@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Pista } from '../../../types/types';
 import { AppTheme } from '../../../theme';
 import { pistasStyles as styles } from '../../../style/admin/pistas.styles';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   item: Pista;
@@ -20,6 +21,7 @@ export function PistaCard({
   onMaintenance,
   onDelete,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View
       style={[
@@ -36,7 +38,7 @@ export function PistaCard({
             {item.nombre}
           </Text>
           <Text style={[styles.cardSubtitle, { color: theme.textBody }]}>
-            {item.instalacion?.nombre || 'Instalación N/D'}
+            {item.instalacion?.nombre || t('courtCardInstallationFallback')}
           </Text>
         </View>
         <View
@@ -63,7 +65,7 @@ export function PistaCard({
       <View style={styles.cardDetails}>
         <DetailItem
           icon="people-outline"
-          text={`Cap: ${item.capacidad}`}
+          text={t('courtCardCapacity', { count: item.capacidad })}
           theme={theme}
         />
         <DetailItem
@@ -73,7 +75,7 @@ export function PistaCard({
         />
         <DetailItem
           icon={item.cubierta ? 'business-outline' : 'trail-sign-outline'}
-          text={item.cubierta ? 'Cubierta' : 'Exterior'}
+          text={item.cubierta ? t('courtCardCovered') : t('courtCardOutdoor')}
           theme={theme}
         />
       </View>
@@ -94,7 +96,7 @@ export function PistaCard({
           <Text
             style={{ color: theme.textBody, marginLeft: 4, fontWeight: '600' }}
           >
-            Editar
+            {t('courtCardEdit')}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -112,7 +114,7 @@ export function PistaCard({
           <Text
             style={{ color: theme.textBody, marginLeft: 4, fontWeight: '600' }}
           >
-            Mant.
+            {t('courtCardMaintenance')}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -130,7 +132,7 @@ export function PistaCard({
           <Text
             style={{ color: theme.textBody, marginLeft: 4, fontWeight: '600' }}
           >
-            Borrar
+            {t('courtCardDelete')}
           </Text>
         </TouchableOpacity>
       </View>

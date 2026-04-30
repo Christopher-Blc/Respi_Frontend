@@ -3,6 +3,7 @@ import { Modal, StyleSheet, Text, View } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { GlassTextButton } from './login/glassTextButton';
 import { useAppTheme } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   visible: boolean;
@@ -19,13 +20,18 @@ export const SessionExpiredModal = ({
   visible,
   onConfirm,
   onCancel,
-  title = 'Sesion Caducada',
-  message = 'Tu sesion ha expirado por seguridad. Por favor, vuelve a iniciar sesion.',
-  confirmText = 'Entendido',
-  cancelText = 'Cancelar',
+  title,
+  message,
+  confirmText,
+  cancelText,
   content,
 }: Props) => {
+  const { t } = useTranslation();
   const { isDarkMode, theme } = useAppTheme();
+  const resolvedTitle = title || t('modalSessionExpiredTitle');
+  const resolvedMessage = message || t('modalSessionExpiredMessage');
+  const resolvedConfirmText = confirmText || t('commonUnderstood');
+  const resolvedCancelText = cancelText || t('commonCancel');
 
   const overlayColor = isDarkMode ? theme.overlayDark : 'rgba(0,0,0,0.35)';
   const cardBackground = isDarkMode ? theme.surfaceGlass : theme.surfaceGlass;
@@ -57,20 +63,20 @@ export const SessionExpiredModal = ({
           ]}
         >
           <Text style={[styles.title, { color: theme.textTitle }]}>
-            {title}
+            {resolvedTitle}
           </Text>
 
           {content ? (
             <View style={styles.contentContainer}>{content}</View>
           ) : (
             <Text style={[styles.message, { color: messageColor }]}>
-              {message}
+              {resolvedMessage}
             </Text>
           )}
 
           <View style={styles.buttonsContainer}>
             <GlassTextButton
-              text={confirmText}
+              text={resolvedConfirmText}
               textColor={buttonTextColor}
               onPress={onConfirm}
               color={confirmButtonColor}
@@ -79,7 +85,7 @@ export const SessionExpiredModal = ({
             />
             {onCancel && (
               <GlassTextButton
-                text={cancelText}
+                text={resolvedCancelText}
                 textColor={cancelTextColor}
                 onPress={onCancel}
                 color={secondaryButtonColor}

@@ -15,6 +15,7 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { useAppTheme } from '../../../../context/ThemeContext';
 import { createCreateBookingStyles } from '../../../../style/create-booking.styles';
 import api from '../../../../services/api';
+import { useTranslation } from 'react-i18next';
 
 type ReservaActual = {
   inicio: string;
@@ -44,11 +45,11 @@ const toHHmm = (minutes: number) => {
   return `${hours}:${mins}`;
 };
 
-const formatDateLabel = (date: string) => {
+const formatDateLabel = (date: string, locale: string) => {
   if (!date) return '-';
   const parsed = new Date(`${date}T00:00:00`);
   if (Number.isNaN(parsed.getTime())) return date;
-  return parsed.toLocaleDateString('es-ES', {
+  return parsed.toLocaleDateString(locale, {
     weekday: 'long',
     day: '2-digit',
     month: 'long',
@@ -68,6 +69,7 @@ const parseReservas = (value: string): ReservaActual[] => {
 };
 
 export default function CreateBooking() {
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const params = useLocalSearchParams<{
     pistaId?: string | string[];
@@ -80,7 +82,8 @@ export default function CreateBooking() {
   }>();
 
   const pistaId = normalizeParam(params.pistaId);
-  const pistaNombre = normalizeParam(params.pistaNombre) || 'Pista';
+  const pistaNombre =
+    normalizeParam(params.pistaNombre) || t('bookingCreateCourtFallback');
   const fechaReserva = normalizeParam(params.fecha);
   const horaApertura = normalizeParam(params.horaApertura) || '09:00';
   const horaCierre = normalizeParam(params.horaCierre) || '23:00';
@@ -92,6 +95,7 @@ export default function CreateBooking() {
   const { theme } = useAppTheme();
   const headerHeight = useHeaderHeight();
   const styles = useMemo(() => createCreateBookingStyles(theme), [theme]);
+  const locale = i18n.language === 'en' ? 'en-US' : 'es-ES';
 
   const [duration, setDuration] = useState(60);
   const [horaInicioMin, setHoraInicioMin] = useState<number | null>(null);
@@ -181,12 +185,12 @@ export default function CreateBooking() {
 
   const handleSubmit = async () => {
     if (!pistaId || !fechaReserva) {
-      showError('Faltan datos de pista o fecha para reservar');
+      showError(t('bookingCreateMissingData'));
       return;
     }
 
     if (horaInicioMin == null) {
-      showError('No hay huecos disponibles para esa duracion');
+      showError(t('bookingCreateNoSlots'));
       return;
     }
 
@@ -204,12 +208,11 @@ export default function CreateBooking() {
 
       await api.post('/reserva', payload);
 
-      setSnackbarMessage('Reserva creada correctamente');
+      setSnackbarMessage(t('bookingCreateSuccess'));
       setSnackbarVisible(true);
       setTimeout(() => router.replace('/(app)/(tabs)/reservas'), 700);
     } catch (error: any) {
-      const message =
-        error?.response?.data?.message || 'No se pudo crear la reserva';
+      const message = error?.response?.data?.message || t('bookingCreateError');
       showError(message);
     } finally {
       setSubmitting(false);
@@ -229,27 +232,31 @@ export default function CreateBooking() {
         <View style={styles.formCard}>
           <View style={styles.badgeRow}>
             <Ionicons name="calendar" size={16} color={theme.primary} />
-            <Text style={styles.badgeText}>Reserva rapida</Text>
+            <Text style={styles.badgeText}>
+              {t('bookingCreateQuickBooking')}
+            </Text>
           </View>
 
-          <Text style={styles.label}>Pista</Text>
+          <Text style={styles.label}>{t('bookingCreateCourt')}</Text>
           <View style={styles.readonlyField}>
             <Text style={styles.readonlyValue}>{pistaNombre}</Text>
           </View>
 
-          <Text style={styles.label}>Fecha</Text>
+          <Text style={styles.label}>{t('bookingCreateDate')}</Text>
           <View style={styles.readonlyField}>
             <Text style={styles.readonlyValue}>
-              {formatDateLabel(fechaReserva)}
+              {formatDateLabel(fechaReserva, locale)}
             </Text>
           </View>
 
-          <Text style={styles.label}>Hora de inicio</Text>
+          <Text style={styles.label}>{t('bookingCreateStartTime')}</Text>
           {availableStarts.length === 0 ? (
             <View style={styles.emptySlotsCard}>
-              <Text style={styles.emptySlotsTitle}>Sin huecos libres</Text>
+              <Text style={styles.emptySlotsTitle}>
+                {t('bookingCreateNoSlotsShort')}
+              </Text>
               <Text style={styles.emptySlotsText}>
-                Cambia la fecha en la pantalla anterior o prueba otra pista.
+                {t('bookingCreateNoSlotsHint')}
               </Text>
             </View>
           ) : (
@@ -279,7 +286,7 @@ export default function CreateBooking() {
                 >
                   <View style={styles.dropdownCard}>
                     <Text style={styles.dropdownTitle}>
-                      Selecciona hora inicio
+                      {t('bookingCreateSelectStartTime')}
                     </Text>
                     <ScrollView
                       style={styles.dropdownList}
@@ -318,7 +325,7 @@ export default function CreateBooking() {
             </>
           )}
 
-          <Text style={styles.label}>Duracion</Text>
+          <Text style={styles.label}>{t('bookingCreateDuration')}</Text>
           <View style={styles.chipsRow}>
             {DURATION_OPTIONS.map((minutes) => {
               const selected = duration === minutes;
@@ -350,15 +357,15 @@ export default function CreateBooking() {
             })}
           </View>
 
-          <Text style={styles.label}>Hora fin</Text>
+          <Text style={styles.label}>{t('bookingCreateEndTime')}</Text>
           <View style={styles.readonlyField}>
             <Text style={styles.readonlyValue}>{horaFin}</Text>
           </View>
 
-          <Text style={styles.label}>Nota (opcional)</Text>
+          <Text style={styles.label}>{t('bookingCreateNotes')}</Text>
           <TextInput
             style={styles.noteInput}
-            placeholder="Prefiero la pista cerca de la entrada"
+            placeholder={t('bookingCreateNotesPlaceholder')}
             placeholderTextColor={theme.textPlaceholder}
             value={nota}
             onChangeText={setNota}
@@ -368,7 +375,9 @@ export default function CreateBooking() {
           />
 
           <View style={styles.totalCard}>
-            <Text style={styles.totalLabel}>Total estimado</Text>
+            <Text style={styles.totalLabel}>
+              {t('bookingCreateEstimatedTotal')}
+            </Text>
             <Text style={styles.totalValue}>{total.toFixed(2)} EUR</Text>
             <Text style={styles.totalMeta}>
               {horaInicio} - {horaFin}
@@ -383,7 +392,7 @@ export default function CreateBooking() {
             {submitting ? (
               <ActivityIndicator size="small" color={theme.onPrimary} />
             ) : (
-              <Text style={styles.submitText}>Confirmar reserva</Text>
+              <Text style={styles.submitText}>{t('bookingCreateSubmit')}</Text>
             )}
           </TouchableOpacity>
         </View>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Alert } from 'react-native';
 import { Pista } from '../types/types';
 import api from '../services/api';
+import { useTranslation } from 'react-i18next';
 import {
   toDateInputValue,
   parseDateInput,
@@ -30,6 +31,7 @@ const EMPTY_MAINTENANCE_MODAL = {
 };
 
 export function usePistaMaintenance(pistas: Pista[], fetchPistas: () => void) {
+  const { t } = useTranslation();
   const [deleteModal, setDeleteModal] = useState(EMPTY_DELETE_MODAL);
   const [maintenanceDateModal, setMaintenanceDateModal] = useState(EMPTY_MAINTENANCE_MODAL);
 
@@ -121,11 +123,17 @@ export function usePistaMaintenance(pistas: Pista[], fetchPistas: () => void) {
     const to = parseDateInput(maintenanceDateModal.hasta);
 
     if (!from || !to) {
-      setMaintenanceDateModal((prev) => ({ ...prev, error: 'Formato invalido. Usa AAAA-MM-DD.' }));
+      setMaintenanceDateModal((prev) => ({
+        ...prev,
+        error: t('adminMaintenanceInvalidFormat'),
+      }));
       return;
     }
     if (from > to) {
-      setMaintenanceDateModal((prev) => ({ ...prev, error: 'La fecha de inicio no puede ser mayor que la de fin.' }));
+      setMaintenanceDateModal((prev) => ({
+        ...prev,
+        error: t('adminMaintenanceInvalidRange'),
+      }));
       return;
     }
 
@@ -164,8 +172,10 @@ export function usePistaMaintenance(pistas: Pista[], fetchPistas: () => void) {
       fetchPistas();
     } catch {
       Alert.alert(
-        'Error',
-        deleteModal.accion === 'eliminar' ? 'No se pudo eliminar' : 'No se pudo poner en mantenimiento',
+        t('bookingConfirmErrorTitle'),
+        deleteModal.accion === 'eliminar'
+          ? t('adminDeleteError')
+          : t('adminMaintenanceError'),
       );
     } finally {
       setDeleteModal(EMPTY_DELETE_MODAL);

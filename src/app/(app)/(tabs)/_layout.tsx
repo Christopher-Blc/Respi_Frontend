@@ -11,38 +11,45 @@ import WebSidebar, {
   SidebarSection,
 } from '../../../components/general/WebSidebar';
 import WebProfileBadge from '../../../components/general/WebProfileBadge';
-
-const WEB_SIDEBAR_SECTIONS: SidebarSection[] = [
-  {
-    label: 'App',
-    items: [
-      { label: 'Inicio', route: '/(app)/(tabs)', icon: 'home', pathMatch: '/' },
-      {
-        label: 'Pistas',
-        route: '/(app)/(tabs)/pistas',
-        icon: 'location',
-        pathMatch: 'pistas',
-      },
-      {
-        label: 'Reservas',
-        route: '/(app)/(tabs)/reservas',
-        icon: 'calendar',
-        pathMatch: 'reservas',
-      },
-      {
-        label: 'Perfil',
-        route: '/(app)/(tabs)/profile',
-        icon: 'person',
-        pathMatch: 'profile',
-      },
-    ],
-  },
-];
+import { useTranslation } from 'react-i18next';
 
 export default function tabLayout() {
   const { isDarkMode, theme } = useAppTheme();
+  const { t } = useTranslation();
   const router = useRouter();
   const segments = useSegments();
+
+  const webSidebarSections: SidebarSection[] = [
+    {
+      label: t('tabsSectionApp'),
+      items: [
+        {
+          label: t('tabsHome'),
+          route: '/(app)/(tabs)',
+          icon: 'home',
+          pathMatch: '/',
+        },
+        {
+          label: t('tabsCourts'),
+          route: '/(app)/(tabs)/pistas',
+          icon: 'location',
+          pathMatch: 'pistas',
+        },
+        {
+          label: t('tabsBookings'),
+          route: '/(app)/(tabs)/reservas',
+          icon: 'calendar',
+          pathMatch: 'reservas',
+        },
+        {
+          label: t('tabsProfile'),
+          route: '/(app)/(tabs)/profile',
+          icon: 'person',
+          pathMatch: 'profile',
+        },
+      ],
+    },
+  ];
 
   const reservasSegmentIndex = segments.lastIndexOf('reservas');
   const isReservasNestedScreen =
@@ -105,7 +112,7 @@ export default function tabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Inicio',
+          title: t('tabsHome'),
           tabBarIcon: ({ color, size }) => (
             <Octicons name="home" size={size} color={color} />
           ),
@@ -114,7 +121,7 @@ export default function tabLayout() {
       <Tabs.Screen
         name="pistas"
         options={{
-          title: 'Pistas',
+          title: t('tabsCourts'),
           tabBarIcon: ({ color, size }) => (
             <Octicons name="location" size={size} color={color} />
           ),
@@ -123,7 +130,7 @@ export default function tabLayout() {
       <Tabs.Screen
         name="reservas"
         options={{
-          title: 'Reservas',
+          title: t('tabsBookings'),
           headerLeft: () => {
             if (!isReservasNestedScreen) {
               return null;
@@ -159,7 +166,7 @@ export default function tabLayout() {
             backgroundColor: theme.primary,
             color: theme.onPrimary,
           },
-          title: 'Perfil',
+          title: t('tabsProfile'),
           tabBarIcon: ({ color, size }) => (
             <Octicons name="person" size={size} color={color} />
           ),
@@ -177,9 +184,9 @@ export default function tabLayout() {
       {isWeb ? (
         <View style={{ flex: 1, flexDirection: 'row' }}>
           <WebSidebar
-            sections={WEB_SIDEBAR_SECTIONS}
+            sections={webSidebarSections}
             appName="RESPI"
-            appSubtitle="Portal usuario"
+            appSubtitle={t('tabsUserPortal')}
           />
           <View style={{ flex: 1 }}>{tabs}</View>
         </View>

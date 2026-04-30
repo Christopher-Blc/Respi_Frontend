@@ -4,12 +4,13 @@ import { API_PUBLIC_URL } from '../constants';
 import { reservasService } from '../services/reservasService';
 import api from '../services/api';
 import { PistaDisponibilidad, TipoPista } from '../types/types';
+import { useTranslation } from 'react-i18next';
  
  
 
 
-export const formatPrice = (price: number) =>
-  new Intl.NumberFormat('es-ES', {
+export const formatPrice = (price: number, locale = 'es-ES') =>
+  new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: 'EUR',
     maximumFractionDigits: 0,
@@ -43,8 +44,8 @@ export const resolvePistaImageSource = (
   return fallbackModel?.img || MODELOS[0].img;
 };
 
-export const formatDateDisplay = (date: Date) =>
-  date.toLocaleDateString('es-ES', {
+export const formatDateDisplay = (date: Date, locale = 'es-ES') =>
+  date.toLocaleDateString(locale, {
     weekday: 'short',
     day: '2-digit',
     month: 'short',
@@ -78,6 +79,7 @@ const getTypeIdCandidates = (item: PistaDisponibilidad): string =>
   String(item?.tipo_pista_id ?? '');
 
 export function usePistasTab() {
+  const { t } = useTranslation();
   const [modelos, setModelos] = useState<Modelo[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedModel, setSelectedModel] = useState<Modelo | null>(null);
@@ -201,7 +203,7 @@ export function usePistasTab() {
       } catch (error) {
         if (!mounted) return;
         console.error('Error al cargar detalles del deporte', error);
-        setSportError('No se pudo cargar la informacion del deporte.');
+        setSportError(t('authConnectionError'));
         setSportPistas([]);
       } finally {
         if (mounted) setLoadingSportInfo(false);
@@ -213,7 +215,7 @@ export function usePistasTab() {
     return () => {
       mounted = false;
     };
-  }, [selectedModel, formattedDate]);
+  }, [formattedDate, selectedModel, t]);
 
   const clearSportFilter = () => {
     setSelectedModel(null);

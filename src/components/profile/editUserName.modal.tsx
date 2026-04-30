@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Modal, TouchableOpacity } from 'react-native';
 import { Button } from 'react-native-paper';
 import { useAppTheme } from '../../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   visible: boolean;
@@ -10,6 +11,7 @@ interface Props {
 
 export default function EditUserNameModal({ visible, onClose }: Props) {
   const { theme } = useAppTheme();
+  const { t } = useTranslation();
   const [saveActive, setSaveActive] = useState(false);
   return (
     <Modal
@@ -36,7 +38,7 @@ export default function EditUserNameModal({ visible, onClose }: Props) {
                 color: theme.textTitle,
               }}
             >
-              Cancelar
+              {t('commonCancel')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -51,7 +53,7 @@ export default function EditUserNameModal({ visible, onClose }: Props) {
                 color: saveActive ? theme.textTitle : theme.grayPlaceholder,
               }}
             >
-              Guardar
+              {t('commonSave')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -75,11 +77,13 @@ export default function EditUserNameModal({ visible, onClose }: Props) {
             borderWidth: 1,
           }}
         >
-          <Text style={{ fontSize: 18, marginBottom: 20, color: theme.textTitle }}>
-            Editar nombre de usuario
+          <Text
+            style={{ fontSize: 18, marginBottom: 20, color: theme.textTitle }}
+          >
+            {t('editUsernameTitle')}
           </Text>
           <Button mode="contained" onPress={() => setSaveActive(!saveActive)}>
-            <Text>test</Text>
+            <Text>{t('commonSave')}</Text>
           </Button>
         </View>
       </View>

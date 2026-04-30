@@ -21,12 +21,14 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { useHome } from '../../../hooks/useHome';
 import { createHomeStyles } from '../../../style/home.styles';
 import DateModal from '../../../components/reservas/date.modal';
+import { useTranslation } from 'react-i18next';
 
 //pantalla home del cliente
 
 export default function HomeScreen() {
   const router = useRouter();
   const { theme } = useAppTheme();
+  const { t, i18n } = useTranslation();
   const styles = useMemo(() => createReservationsStyles(theme), [theme]);
   const localStyles = useMemo(() => createHomeStyles(theme), [theme]);
   const [dateModalVisible, setDateModalVisible] = useState(false);
@@ -34,6 +36,7 @@ export default function HomeScreen() {
   const { width } = useWindowDimensions();
   const headerHeight = useHeaderHeight();
   const isWideScreen = width > 768;
+  const locale = i18n.language === 'en' ? 'en-US' : 'es-ES';
   const {
     reservations,
     loading,
@@ -82,9 +85,9 @@ export default function HomeScreen() {
   };
 
   const renderReservation = (item: Reserva) => {
-    const title = item.pista?.nombre || 'Reserva sin nombre';
+    const title = item.pista?.nombre || t('homeReservationFallback');
     const img = getImageForReservation(item);
-    const cleanDate = new Date(item.fecha_reserva).toLocaleDateString('es-ES', {
+    const cleanDate = new Date(item.fecha_reserva).toLocaleDateString(locale, {
       day: '2-digit',
       month: 'short',
     });
@@ -174,35 +177,36 @@ export default function HomeScreen() {
         >
           <View style={localStyles.heroCard}>
             <View style={localStyles.heroTopRow}>
-              <Text style={localStyles.heroEyebrow}>ResPi Club</Text>
+              <Text style={localStyles.heroEyebrow}>
+                {t('homeHeroEyebrow')}
+              </Text>
               <View style={localStyles.livePill}>
                 <View style={localStyles.liveDot} />
-                <Text style={localStyles.liveText}>En línea</Text>
+                <Text style={localStyles.liveText}>{t('homeOnline')}</Text>
               </View>
             </View>
-            <Text style={localStyles.heroTitle}>
-              Gestiona tus reservas con un toque
-            </Text>
+            <Text style={localStyles.heroTitle}>{t('homeHeroTitle')}</Text>
             <Text style={localStyles.heroSubtitle}>
-              Agenda tu próxima pista, revisa disponibilidad y mantén tu
-              actividad al día.
+              {t('homeHeroSubtitle')}
             </Text>
           </View>
 
           <View style={localStyles.statsRow}>
             <View style={localStyles.statCard}>
               <Text style={localStyles.statValue}>{reservations.length}</Text>
-              <Text style={localStyles.statLabel}>Reservas activas</Text>
+              <Text style={localStyles.statLabel}>
+                {t('homeActiveBookings')}
+              </Text>
             </View>
             <View style={localStyles.statCard}>
               <Text style={localStyles.statValue}>{nextReservationDate}</Text>
-              <Text style={localStyles.statLabel}>Próxima reserva</Text>
+              <Text style={localStyles.statLabel}>{t('homeNextBooking')}</Text>
             </View>
             <View style={localStyles.statCard}>
               <Text style={localStyles.statValue}>
                 {uniqueSportsCount || '-'}
               </Text>
-              <Text style={localStyles.statLabel}>Deportes en uso</Text>
+              <Text style={localStyles.statLabel}>{t('homeSportsInUse')}</Text>
             </View>
           </View>
 
@@ -212,7 +216,9 @@ export default function HomeScreen() {
               onPress={() => null}
             >
               <Ionicons name="calendar" size={18} color={theme.onPrimary} />
-              <Text style={localStyles.actionPrimaryText}>Nueva reserva</Text>
+              <Text style={localStyles.actionPrimaryText}>
+                {t('homeNewBooking')}
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -220,14 +226,18 @@ export default function HomeScreen() {
               onPress={() => router.push('/pistas')}
             >
               <Ionicons name="location" size={18} color={theme.primary} />
-              <Text style={localStyles.actionSecondaryText}>Ver pistas</Text>
+              <Text style={localStyles.actionSecondaryText}>
+                {t('homeViewCourts')}
+              </Text>
             </TouchableOpacity>
           </View>
 
           <View style={localStyles.sectionHeader}>
-            <Text style={localStyles.sectionTitle}>Próximas reservas</Text>
+            <Text style={localStyles.sectionTitle}>
+              {t('homeUpcomingBookings')}
+            </Text>
             <TouchableOpacity onPress={onRefresh}>
-              <Text style={localStyles.sectionLink}>Actualizar</Text>
+              <Text style={localStyles.sectionLink}>{t('homeRefresh')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -238,15 +248,17 @@ export default function HomeScreen() {
                 size={24}
                 color={theme.textMuted}
               />
-              <Text style={localStyles.emptyTitle}>Sin reservas próximas</Text>
+              <Text style={localStyles.emptyTitle}>
+                {t('homeNoUpcomingBookingsTitle')}
+              </Text>
               <Text style={localStyles.emptySubtitle}>
-                Haz tu primera reserva para empezar.
+                {t('homeNoUpcomingBookingsSubtitle')}
               </Text>
               <TouchableOpacity
                 style={localStyles.emptyCta}
                 onPress={() => router.push('/reservas')}
               >
-                <Text style={localStyles.emptyCtaText}>Reservar ahora</Text>
+                <Text style={localStyles.emptyCtaText}>{t('homeBookNow')}</Text>
               </TouchableOpacity>
             </View>
           ) : (

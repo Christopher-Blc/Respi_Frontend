@@ -16,8 +16,10 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import api from '../../../../services/api';
 import { useAuth } from '../../../../context/AuthContext';
 import createConfirmacionReservaStyles from '../../../../style/confirmacionReserva.styles';
+import { useTranslation } from 'react-i18next';
 
 export default function ConfirmacionReserva() {
+  const { t, i18n } = useTranslation();
   const { pistaId, fecha, hora, duracion } = useLocalSearchParams<{
     pistaId: string;
     fecha: string;
@@ -34,6 +36,7 @@ export default function ConfirmacionReserva() {
   const headerHeight = useHeaderHeight();
   const { userToken } = useAuth();
   const styles = useMemo(() => createConfirmacionReservaStyles(theme), [theme]);
+  const locale = i18n.language === 'en' ? 'en-US' : 'es-ES';
 
   const [pista, setPista] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -52,7 +55,7 @@ export default function ConfirmacionReserva() {
         const response = await api.get(`/pista/${pistaIdValue}`);
         setPista(response.data);
       } catch (error) {
-        console.error('Error al cargar pista:', error);
+        console.error('Error loading court:', error);
       } finally {
         setLoading(false);
       }
@@ -63,7 +66,10 @@ export default function ConfirmacionReserva() {
 
   const handleConfirm = async () => {
     if (!pistaIdValue || !fechaValue || !horaValue) {
-      Alert.alert('Error', 'Faltan datos para confirmar la reserva');
+      Alert.alert(
+        t('bookingConfirmErrorTitle'),
+        t('bookingConfirmMissingData'),
+      );
       return;
     }
 
@@ -89,17 +95,21 @@ export default function ConfirmacionReserva() {
       const response = await api.post('/reserva', payload);
 
       if (response.status === 201 || response.data?.reserva_id) {
-        Alert.alert('¡Éxito!', 'Reserva confirmada correctamente', [
-          {
-            text: 'OK',
-            onPress: () => router.push('/(app)/(tabs)'),
-          },
-        ]);
+        Alert.alert(
+          t('bookingConfirmSuccessTitle'),
+          t('bookingConfirmSuccessMessage'),
+          [
+            {
+              text: 'OK',
+              onPress: () => router.push('/(app)/(tabs)'),
+            },
+          ],
+        );
       }
     } catch (error: any) {
       const message =
-        error.response?.data?.message || 'Error al confirmar la reserva';
-      Alert.alert('Error', message);
+        error.response?.data?.message || t('bookingConfirmErrorMessage');
+      Alert.alert(t('bookingConfirmErrorTitle'), message);
       console.error('Error:', error);
     } finally {
       setConfirming(false);
@@ -146,9 +156,13 @@ export default function ConfirmacionReserva() {
               size={20}
               color={theme.primary}
             />
-            <Text style={styles.headerTagText}>Confirmación</Text>
+            <Text style={styles.headerTagText}>
+              {t('bookingConfirmHeaderTag')}
+            </Text>
           </View>
-          <Text style={styles.headerTitle}>Confirmar tu reserva</Text>
+          <Text style={styles.headerTitle}>
+            {t('bookingConfirmHeaderTitle')}
+          </Text>
         </View>
 
         {/* Pista Info */}
@@ -161,7 +175,7 @@ export default function ConfirmacionReserva() {
                 color={theme.primary}
               />
               <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Pista</Text>
+                <Text style={styles.infoLabel}>{t('bookingConfirmCourt')}</Text>
                 <Text style={styles.infoValue}>{pista.nombre}</Text>
               </View>
             </View>
@@ -175,10 +189,10 @@ export default function ConfirmacionReserva() {
                 color={theme.primary}
               />
               <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Fecha</Text>
+                <Text style={styles.infoLabel}>{t('bookingConfirmDate')}</Text>
                 <Text style={styles.infoValue}>
                   {new Date(`${fechaValue}T00:00:00`).toLocaleDateString(
-                    'es-ES',
+                    locale,
                     {
                       weekday: 'long',
                       day: '2-digit',
@@ -195,7 +209,7 @@ export default function ConfirmacionReserva() {
             <View style={styles.infoRow}>
               <Ionicons name="time-outline" size={20} color={theme.primary} />
               <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Hora</Text>
+                <Text style={styles.infoLabel}>{t('bookingConfirmTime')}</Text>
                 <Text style={styles.infoValue}>
                   {horaValue} - {endHourLabel} ({durationMinutes} min)
                 </Text>
@@ -207,7 +221,9 @@ export default function ConfirmacionReserva() {
             <View style={styles.infoRow}>
               <Ionicons name="cash-outline" size={20} color={theme.primary} />
               <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Precio estimado</Text>
+                <Text style={styles.infoLabel}>
+                  {t('bookingConfirmEstimatedPrice')}
+                </Text>
                 <Text style={styles.infoValue}>€{precioEstimado}</Text>
               </View>
             </View>
@@ -217,7 +233,9 @@ export default function ConfirmacionReserva() {
         {/* Características */}
         {pista && (
           <View style={styles.featuresCard}>
-            <Text style={styles.sectionTitle}>Características</Text>
+            <Text style={styles.sectionTitle}>
+              {t('bookingConfirmFeatures')}
+            </Text>
             <View style={styles.featuresList}>
               {pista.cubierta && (
                 <View style={styles.featureItem}>
@@ -226,7 +244,9 @@ export default function ConfirmacionReserva() {
                     size={16}
                     color={theme.primary}
                   />
-                  <Text style={styles.featureItemText}>Pista cubierta</Text>
+                  <Text style={styles.featureItemText}>
+                    {t('bookingConfirmCoveredCourt')}
+                  </Text>
                 </View>
               )}
               {pista.iluminacion && (
@@ -236,7 +256,9 @@ export default function ConfirmacionReserva() {
                     size={16}
                     color={theme.primary}
                   />
-                  <Text style={styles.featureItemText}>Con iluminación</Text>
+                  <Text style={styles.featureItemText}>
+                    {t('bookingConfirmLighting')}
+                  </Text>
                 </View>
               )}
               <View style={styles.featureItem}>
@@ -246,7 +268,7 @@ export default function ConfirmacionReserva() {
                   color={theme.primary}
                 />
                 <Text style={styles.featureItemText}>
-                  Capacidad: {pista.capacidad} personas
+                  {t('bookingConfirmCapacity', { count: pista.capacidad })}
                 </Text>
               </View>
             </View>
@@ -255,10 +277,10 @@ export default function ConfirmacionReserva() {
 
         {/* Notas */}
         <View style={styles.notesCard}>
-          <Text style={styles.sectionTitle}>Notas (opcional)</Text>
+          <Text style={styles.sectionTitle}>{t('bookingConfirmNotes')}</Text>
           <TextInput
             style={styles.notesInput}
-            placeholder="Añade observaciones sobre tu reserva..."
+            placeholder={t('bookingConfirmNotesPlaceholder')}
             placeholderTextColor={theme.textPlaceholder}
             value={notes}
             onChangeText={setNotes}
@@ -275,7 +297,9 @@ export default function ConfirmacionReserva() {
             onPress={handleCancel}
             disabled={confirming}
           >
-            <Text style={styles.cancelButtonText}>Cancelar</Text>
+            <Text style={styles.cancelButtonText}>
+              {t('bookingConfirmCancel')}
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -292,7 +316,9 @@ export default function ConfirmacionReserva() {
                   size={18}
                   color={theme.onPrimary}
                 />
-                <Text style={styles.confirmButtonText}>Confirmar reserva</Text>
+                <Text style={styles.confirmButtonText}>
+                  {t('bookingConfirmButton')}
+                </Text>
               </>
             )}
           </TouchableOpacity>

@@ -11,19 +11,13 @@ import {
 
 type LineChartRange = 'last30' | 'next30' | 'ytd' | 'next3m' | 'all';
 
-const RANGE_OPTIONS: { key: LineChartRange; label: string }[] = [
-  { key: 'last30', label: 'Últ. 30d' },
-  { key: 'next30', label: 'Próx. 30d' },
-  { key: 'ytd', label: 'Este año' },
-  { key: 'next3m', label: 'Próx. 3m' },
-  { key: 'all', label: 'Últ. 3m' },
-];
 import { LineChart, PieChart } from 'react-native-gifted-charts';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../../context/ThemeContext';
 import api from '../../../services/api';
 import { Reserva } from '../../../types/types';
+import { useTranslation } from 'react-i18next';
 
 const extractReservas = (payload: any): Reserva[] => {
   if (Array.isArray(payload)) return payload as Reserva[];
@@ -41,9 +35,9 @@ const formatDateToYmd = (date: Date) => {
   return `${year}-${month}-${day}`;
 };
 
-const formatShortEs = (date: Date) => {
+const formatShortDate = (date: Date, locale: string) => {
   const day = date.getDate();
-  const month = date.toLocaleDateString('es-ES', { month: 'short' });
+  const month = date.toLocaleDateString(locale, { month: 'short' });
   return `${day}\n${month}`;
 };
 
@@ -60,6 +54,7 @@ const getReservaDateKey = (fechaReserva: string) => {
 
 export default function InfoAdmin() {
   const { theme } = useAppTheme();
+  const { t, i18n } = useTranslation();
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -68,6 +63,15 @@ export default function InfoAdmin() {
   const [selectedSliceIndex, setSelectedSliceIndex] = useState(0);
   const [lineChartRange, setLineChartRange] =
     useState<LineChartRange>('last30');
+  const locale = i18n.language === 'en' ? 'en-US' : 'es-ES';
+
+  const rangeOptions: { key: LineChartRange; label: string }[] = [
+    { key: 'last30', label: t('adminInfoRangeLast30') },
+    { key: 'next30', label: t('adminInfoRangeNext30') },
+    { key: 'ytd', label: t('adminInfoRangeYtd') },
+    { key: 'next3m', label: t('adminInfoRangeNext3m') },
+    { key: 'all', label: t('adminInfoRangeAll') },
+  ];
 
   const horizontalPadding = width >= 1280 ? 40 : width >= 768 ? 28 : 20;
   const maxPaddingWidth = 1400;
@@ -140,25 +144,25 @@ export default function InfoAdmin() {
 
   const chartData = [
     {
-      label: 'Finalizadas',
+      label: t('adminInfoCompleted'),
       value: statusSummary.finalizadas,
       color: theme.success,
       gradientCenterColor: '#A87408',
     },
     {
-      label: 'Confirmadas',
+      label: t('adminInfoConfirmed'),
       value: statusSummary.confirmadas,
       color: '#E6BD6A',
       gradientCenterColor: '#C89636',
     },
     {
-      label: 'Pendientes',
+      label: t('adminInfoPending'),
       value: statusSummary.pendientes,
       color: theme.warning,
       gradientCenterColor: '#D89B2F',
     },
     {
-      label: 'Canceladas',
+      label: t('adminInfoCancelled'),
       value: statusSummary.canceladas,
       color: theme.danger,
       gradientCenterColor: '#C93535',
@@ -175,7 +179,7 @@ export default function InfoAdmin() {
   const visiblePieData = chartData.filter((item) => item.value > 0);
   const topSlice = visiblePieData.reduce(
     (best, item) => (item.value > best.value ? item : best),
-    visiblePieData[0] || { label: 'Sin datos', value: 0 },
+    visiblePieData[0] || { label: t('adminInfoNoData'), value: 0 },
   );
   const topSliceIndex = Math.max(
     0,
@@ -277,7 +281,10 @@ export default function InfoAdmin() {
         const isLast = idx === total - 1;
         return {
           value: map.get(key) || 0,
-          label: idx % labelEvery === 0 || isLast ? formatShortEs(date) : '',
+          label:
+            idx % labelEvery === 0 || isLast
+              ? formatShortDate(date, locale)
+              : '',
         };
       });
 
@@ -288,7 +295,7 @@ export default function InfoAdmin() {
       canceladas: buildDaySeries(counters.canceladas),
       count: total,
     };
-  }, [reservas, lineChartRange]);
+  }, [locale, reservas, lineChartRange]);
 
   const lineChartTotalWidth =
     lineChartDatasets.count * lineChartItemSpacing + 50;
@@ -300,11 +307,11 @@ export default function InfoAdmin() {
     lineChartDatasets.canceladas.reduce((a, i) => a + i.value, 0);
 
   const lineChartTitle = {
-    last30: 'Últimos 30 días',
-    next30: 'Próximos 30 días',
-    ytd: 'Este año',
-    next3m: 'Próximos 3 meses',
-    all: 'Últimos 3 meses',
+    last30: t('adminInfoLineTitleLast30'),
+    next30: t('adminInfoLineTitleNext30'),
+    ytd: t('adminInfoLineTitleYtd'),
+    next3m: t('adminInfoLineTitleNext3m'),
+    all: t('adminInfoLineTitleAll'),
   }[lineChartRange];
 
   const renderDot = (color: string) => (
@@ -331,14 +338,13 @@ export default function InfoAdmin() {
           ]}
         >
           <Text style={[localStyles.eyebrow, { color: theme.primary }]}>
-            Analítica admin
+            {t('adminInfoEyebrow')}
           </Text>
           <Text style={[localStyles.title, { color: theme.textTitle }]}>
-            Estado de reservas
+            {t('adminInfoTitle')}
           </Text>
           <Text style={[localStyles.subtitle, { color: theme.textSubtitle }]}>
-            Vista rápida de cuántas reservas están finalizadas, confirmadas,
-            pendientes y canceladas.
+            {t('adminInfoSubtitle')}
           </Text>
         </View>
 
@@ -357,7 +363,7 @@ export default function InfoAdmin() {
             <Text
               style={[localStyles.chartHeading, { color: theme.textTitle }]}
             >
-              Reservas por estado
+              {t('adminInfoPieTitle')}
             </Text>
 
             {loadingChart ? (
@@ -369,7 +375,7 @@ export default function InfoAdmin() {
                   { color: theme.textSubtitle },
                 ]}
               >
-                Aún no hay reservas para mostrar en el gráfico.
+                {t('adminInfoEmptyChart')}
               </Text>
             ) : (
               <>
@@ -486,7 +492,7 @@ export default function InfoAdmin() {
               contentContainerStyle={localStyles.rangePillsContent}
               style={localStyles.rangePills}
             >
-              {RANGE_OPTIONS.map((opt) => {
+              {rangeOptions.map((opt) => {
                 const active = lineChartRange === opt.key;
                 return (
                   <TouchableOpacity
@@ -527,16 +533,16 @@ export default function InfoAdmin() {
                     { color: theme.textSubtitle },
                   ]}
                 >
-                  Total en periodo: {lineChartTotal}
+                  {t('adminInfoTotalInPeriod', { count: lineChartTotal })}
                 </Text>
                 {/* Legend */}
                 <View style={localStyles.lineChartLegend}>
                   {(
                     [
-                      { label: 'Confirmadas', color: '#60A5FA' },
-                      { label: 'Finalizadas', color: theme.success },
-                      { label: 'Pendientes', color: theme.warning },
-                      { label: 'Canceladas', color: theme.danger },
+                      { label: t('adminInfoConfirmed'), color: '#60A5FA' },
+                      { label: t('adminInfoCompleted'), color: theme.success },
+                      { label: t('adminInfoPending'), color: theme.warning },
+                      { label: t('adminInfoCancelled'), color: theme.danger },
                     ] as const
                   ).map((item) => (
                     <View
@@ -623,10 +629,22 @@ export default function InfoAdmin() {
                       autoAdjustPointerLabelPosition: true,
                       pointerLabelComponent: (items: any[]) => {
                         const labels = [
-                          { label: 'Conf', color: '#60A5FA' },
-                          { label: 'Final', color: theme.success },
-                          { label: 'Pend', color: theme.warning },
-                          { label: 'Canc', color: theme.danger },
+                          {
+                            label: t('adminInfoTooltipConfirmedShort'),
+                            color: '#60A5FA',
+                          },
+                          {
+                            label: t('adminInfoTooltipCompletedShort'),
+                            color: theme.success,
+                          },
+                          {
+                            label: t('adminInfoTooltipPendingShort'),
+                            color: theme.warning,
+                          },
+                          {
+                            label: t('adminInfoTooltipCancelledShort'),
+                            color: theme.danger,
+                          },
                         ];
                         return (
                           <View

@@ -1,10 +1,11 @@
 import { Stack, useRouter, useSegments } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import { ThemeProvider, useAppTheme } from '../context/ThemeContext';
 import { PaperProvider } from 'react-native-paper';
 import { buildPaperTheme } from '../theme';
+import { setupI18n } from '../i18n';
 
 function AuthNavigation() {
   const { userToken, isLoading, role } = useAuth();
@@ -70,7 +71,40 @@ function AuthNavigation() {
 
 function AppProviders() {
   const { isDarkMode } = useAppTheme();
+  const [isI18nReady, setIsI18nReady] = useState(false);
   const paperTheme = buildPaperTheme(isDarkMode);
+
+  useEffect(() => {
+    let mounted = true;
+
+    setupI18n()
+      .catch((error) => {
+        console.error('Error initializing i18n', error);
+      })
+      .finally(() => {
+        if (mounted) {
+          setIsI18nReady(true);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  if (!isI18nReady) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <ActivityIndicator size="large" color={paperTheme.colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <PaperProvider theme={paperTheme}>

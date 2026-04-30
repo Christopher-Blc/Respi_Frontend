@@ -17,10 +17,12 @@ import { useAppTheme } from '../../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { usePistaTypes } from '../../../../hooks/usePistaTypes';
 import createPistaTypesStyles from '../../../../style/pistaTypes.styles';
+import { useTranslation } from 'react-i18next';
 
 export default function PistaTypeIndex() {
   const router = useRouter();
   const { theme } = useAppTheme();
+  const { t } = useTranslation();
   const styles = React.useMemo(() => createPistaTypesStyles(theme), [theme]);
   const headerHeight = useHeaderHeight();
   const { width } = useWindowDimensions();
@@ -40,7 +42,7 @@ export default function PistaTypeIndex() {
         { paddingBottom: Platform.OS === 'web' ? 96 : 140 },
       ]}
     >
-      <Tabs.Screen options={{ title: 'Nueva reserva' }} />
+      <Tabs.Screen options={{ title: t('pistaTypesScreenTitle') }} />
 
       <View style={styles.headerCard}>
         <LinearGradient
@@ -58,12 +60,14 @@ export default function PistaTypeIndex() {
                 color={theme.onPrimary}
               />
             </View>
-            <Text style={styles.headerKicker}>NUEVA RESERVA</Text>
+            <Text style={styles.headerKicker}>
+              {t('pistaTypesHeaderKicker')}
+            </Text>
           </View>
 
-          <Text style={styles.headerTitle}>Reserva tu pista ideal</Text>
+          <Text style={styles.headerTitle}>{t('pistaTypesHeaderTitle')}</Text>
           <Text style={styles.headerSubtitle}>
-            Selecciona un deporte y consulta disponibilidad al instante.
+            {t('pistaTypesHeaderSubtitle')}
           </Text>
 
           <View style={styles.headerMetaRow}>
@@ -73,11 +77,19 @@ export default function PistaTypeIndex() {
                 size={14}
                 color={theme.onPrimary}
               />
-              <Text style={styles.headerMetaText}>{modelos.length} deportes</Text>
+              <Text style={styles.headerMetaText}>
+                {t('pistaTypesSportsCount', { count: modelos.length })}
+              </Text>
             </View>
             <View style={styles.headerMetaChip}>
-              <Ionicons name="flash-outline" size={14} color={theme.onPrimary} />
-              <Text style={styles.headerMetaText}>Reserva en segundos</Text>
+              <Ionicons
+                name="flash-outline"
+                size={14}
+                color={theme.onPrimary}
+              />
+              <Text style={styles.headerMetaText}>
+                {t('pistaTypesBookInSeconds')}
+              </Text>
             </View>
           </View>
         </LinearGradient>
@@ -99,7 +111,9 @@ export default function PistaTypeIndex() {
               ]}
               activeOpacity={0.8}
               onPress={() =>
-                router.push(`/(app)/booking/details?modelId=${item.tipo_pista_id}`)
+                router.push(
+                  `/(app)/booking/details?modelId=${item.tipo_pista_id}`,
+                )
               }
             >
               <ImageBackground
@@ -122,10 +136,14 @@ export default function PistaTypeIndex() {
                         size={14}
                         color={theme.success}
                       />
-                      <Text style={styles.availableBadgeText}>Disponible</Text>
+                      <Text style={styles.availableBadgeText}>
+                        {t('pistaTypesAvailable')}
+                      </Text>
                     </View>
                     <View style={styles.priceTag}>
-                      <Text style={styles.priceTagText}>desde EUR/h</Text>
+                      <Text style={styles.priceTagText}>
+                        {t('pistaTypesFromPrice')}
+                      </Text>
                     </View>
                   </View>
 
@@ -146,7 +164,7 @@ export default function PistaTypeIndex() {
                             color={theme.onPrimary}
                           />
                           <Text style={styles.modelMetaText}>
-                            Disponibilidad diaria
+                            {t('pistaTypesDailyAvailability')}
                           </Text>
                         </View>
                         <View style={styles.modelMetaChip}>
@@ -155,12 +173,16 @@ export default function PistaTypeIndex() {
                             size={13}
                             color={theme.onPrimary}
                           />
-                          <Text style={styles.modelMetaText}>Reserva inmediata</Text>
+                          <Text style={styles.modelMetaText}>
+                            {t('pistaTypesInstantBooking')}
+                          </Text>
                         </View>
                       </View>
 
                       <View style={styles.modelCtaPill}>
-                        <Text style={styles.modelCtaText}>Ver pistas</Text>
+                        <Text style={styles.modelCtaText}>
+                          {t('pistaTypesViewCourts')}
+                        </Text>
                         <Ionicons
                           name="chevron-forward"
                           size={16}
@@ -183,9 +205,11 @@ export default function PistaTypeIndex() {
       {!loading && modelos.length === 0 && (
         <View style={styles.emptyStateCard}>
           <Ionicons name="layers-outline" size={30} color={theme.textMuted} />
-          <Text style={styles.emptyStateTitle}>No hay deportes disponibles</Text>
+          <Text style={styles.emptyStateTitle}>
+            {t('pistaTypesEmptyTitle')}
+          </Text>
           <Text style={styles.emptyStateText}>
-            Vuelve a intentarlo en unos segundos.
+            {t('pistaTypesEmptySubtitle')}
           </Text>
         </View>
       )}
@@ -193,7 +217,7 @@ export default function PistaTypeIndex() {
       {loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={theme.primary} />
-          <Text style={styles.loadingText}>Cargando deportes...</Text>
+          <Text style={styles.loadingText}>{t('pistaTypesLoading')}</Text>
         </View>
       )}
     </ScrollView>
