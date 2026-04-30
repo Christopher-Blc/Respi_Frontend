@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,7 +22,7 @@ type Props = {
   setFilterPrecioMax: (value: string) => void;
 };
 
-export function PistasFiltersModal({
+export function CourtsFiltersModal({
   visible,
   onClose,
   tiposPista,

@@ -42,13 +42,13 @@ export default function AdminTabLayout() {
           children: [
             {
               label: t('tabsCourts'),
-              route: '/(app)/(admin)/(management)/pistas',
-              pathMatch: '/pistas',
+              route: '/(app)/(admin)/(management)/courts',
+              pathMatch: '/courts',
             },
             {
               label: t('adminCourtTypes'),
-              route: '/(app)/(admin)/(management)/tipos_pista',
-              pathMatch: 'tipos_pista',
+              route: '/(app)/(admin)/(management)/court-types',
+              pathMatch: 'court-types',
             },
             {
               label: t('adminUsers'),

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import {
   View,
   Text,
@@ -12,10 +12,10 @@ import { useAppTheme } from '../../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TipoPista } from '../../../../types/types';
-import { useAdminTiposPista } from '../../../../hooks/useAdminTiposPista';
-import { tiposPistaStyles as styles } from '../../../../style/admin/tiposPista.styles';
-import { TipoPistaCard } from '../../../../components/admin/tipoPista/TipoPistaCard';
-import { TipoPistaFormModal } from '../../../../components/admin/tipoPista/TipoPistaFormModal';
+import { useAdminCourtTypes } from '../../../../hooks/useAdminCourtTypes';
+import { tiposPistaStyles as styles } from '../../../../style/admin/courtTypes.styles';
+import { TipoCourtCard } from '../../../../components/admin/courtTypes/CourtTypeCard';
+import { TipoCourtFormModal } from '../../../../components/admin/courtTypes/CourtTypeFormModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
 import { useTranslation } from 'react-i18next';
 
@@ -44,10 +44,10 @@ export default function AdminTiposPista() {
     deleteModal,
     errorModal,
     setErrorModal,
-  } = useAdminTiposPista();
+  } = useAdminCourtTypes();
 
   const renderCard = ({ item }: { item: TipoPista }) => (
-    <TipoPistaCard
+    <TipoCourtCard
       item={item}
       theme={theme}
       onEdit={openEditModal}
@@ -114,7 +114,7 @@ export default function AdminTiposPista() {
         />
       )}
 
-      <TipoPistaFormModal
+      <TipoCourtFormModal
         visible={modalVisible}
         isEditing={Boolean(tipoPistaAEditar)}
         nombre={nombre}

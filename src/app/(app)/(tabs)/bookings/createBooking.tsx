@@ -210,7 +210,7 @@ export default function CreateBooking() {
 
       setSnackbarMessage(t('bookingCreateSuccess'));
       setSnackbarVisible(true);
-      setTimeout(() => router.replace('/(app)/(tabs)/reservas'), 700);
+      setTimeout(() => router.replace('/(app)/(tabs)/bookings'), 700);
     } catch (error: any) {
       const message = error?.response?.data?.message || t('bookingCreateError');
       showError(message);

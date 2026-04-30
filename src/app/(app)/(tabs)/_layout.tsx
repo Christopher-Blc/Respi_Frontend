@@ -31,15 +31,15 @@ export default function tabLayout() {
         },
         {
           label: t('tabsCourts'),
-          route: '/(app)/(tabs)/pistas',
+          route: '/(app)/(tabs)/courts',
           icon: 'location',
-          pathMatch: 'pistas',
+          pathMatch: 'courts',
         },
         {
           label: t('tabsBookings'),
-          route: '/(app)/(tabs)/reservas',
+          route: '/(app)/(tabs)/bookings',
           icon: 'calendar',
-          pathMatch: 'reservas',
+          pathMatch: 'bookings',
         },
         {
           label: t('tabsProfile'),
@@ -51,9 +51,9 @@ export default function tabLayout() {
     },
   ];
 
-  const reservasSegmentIndex = segments.lastIndexOf('reservas');
+  const bookingsSegmentIndex = segments.lastIndexOf('bookings');
   const isReservasNestedScreen =
-    reservasSegmentIndex !== -1 && segments.length > reservasSegmentIndex + 1;
+    bookingsSegmentIndex !== -1 && segments.length > bookingsSegmentIndex + 1;
 
   const isWeb = Platform.OS === 'web';
 
@@ -119,7 +119,7 @@ export default function tabLayout() {
         }}
       />
       <Tabs.Screen
-        name="pistas"
+        name="courts"
         options={{
           title: t('tabsCourts'),
           tabBarIcon: ({ color, size }) => (
@@ -128,7 +128,7 @@ export default function tabLayout() {
         }}
       />
       <Tabs.Screen
-        name="reservas"
+        name="bookings"
         options={{
           title: t('tabsBookings'),
           headerLeft: () => {
@@ -144,7 +144,7 @@ export default function tabLayout() {
                     return;
                   }
 
-                  router.replace('/(app)/(tabs)/reservas');
+                  router.replace('/(app)/(tabs)/bookings');
                 }}
                 style={{ marginLeft: 8, padding: 4 }}
                 hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}

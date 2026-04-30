@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
+﻿import { useState, useEffect, useMemo } from 'react';
 import api from '../services/api';
 import { User, Membresia } from '../types/types';
-import { reservasActivasFilter } from '../filtrosApi';
+import { reservasActivasFilter } from '../filtersApi';
 
 export const useProfile = () => {
   const [user, setUser] = useState<User | null>(null);

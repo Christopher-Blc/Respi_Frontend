@@ -43,3 +43,6 @@ yarn-error.*
 
 #firebase
 GoogleService-Info.plist
+
+#personal
+myPrompt.md

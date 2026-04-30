@@ -1,9 +1,9 @@
-import React from 'react';
+﻿import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Pista } from '../../../types/types';
 import { AppTheme } from '../../../theme';
-import { pistasStyles as styles } from '../../../style/admin/pistas.styles';
+import { pistasStyles as styles } from '../../../style/admin/courts.styles';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
@@ -14,7 +14,7 @@ type Props = {
   onDelete: (item: Pista) => void;
 };
 
-export function PistaCard({
+export function CourtCard({
   item,
   theme,
   onEdit,

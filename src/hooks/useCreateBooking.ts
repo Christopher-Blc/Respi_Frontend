@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { jwtDecode } from 'jwt-decode';
 import { API_PUBLIC_URL } from '../constants';
 import { MODELOS, Modelo } from '../data/modelos';
 import { useAuth } from '../context/AuthContext';
-import { reservasService } from '../services/reservasService';
+import { bookingsService } from '../services/bookingsService';
 import { JWTPayload } from '../types/types';
 
 export const DURATION_CHIPS = [60, 90, 120, 180, 240, 360, 480];
@@ -131,7 +131,7 @@ export function useCreateBooking() {
 
     (async () => {
       try {
-        const remote = await reservasService.getModelos();
+        const remote = await bookingsService.getModelos();
         const found = remote.find(
           (item) => String(item.id) === String(modelId),
         );
@@ -371,7 +371,7 @@ export function useCreateBooking() {
       : notes;
 
     try {
-      const id = await reservasService.createReserva({
+      const id = await bookingsService.createReserva({
         usuarioId: 'local-uid',
         email: resolvedEmail,
         nombre,
@@ -385,7 +385,7 @@ export function useCreateBooking() {
 
       setSnackbarMessage(`Reserva creada - ID: ${id}`);
       setSnackbarVisible(true);
-      setTimeout(() => router.replace('/reservas'), 900);
+      setTimeout(() => router.replace('/bookings'), 900);
     } catch (error: any) {
       console.error('createReserva error', error);
       setSnackbarMessage(

@@ -20,11 +20,11 @@ export default function bookingLayout() {
         options={{ title: t('bookingLayoutCreateTitle') }}
       />
       <Stack.Screen
-        name="confirmacion"
+        name="confirmation"
         options={{ title: t('bookingLayoutConfirmTitle') }}
       />
       <Stack.Screen
-        name="pistaTypes"
+        name="courtTypes"
         options={{ title: t('bookingLayoutCourtTypesTitle') }}
       />
     </Stack>

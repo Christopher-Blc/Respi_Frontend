@@ -2,13 +2,13 @@
 import { Alert, useWindowDimensions } from 'react-native';
 import { Pista, TipoPista } from '../types/types';
 import api from '../services/api';
-import { usePistaForm } from './usePistaForm';
-import { usePistaMaintenance } from './usePistaMaintenance';
-import { usePistaFilters } from './usePistaFilters';
+import { useCourtForm } from './useCourtForm';
+import { useCourtMaintenance } from './useCourtMaintenance';
+import { useCourtFilters } from './useCourtFilters';
 
-export { WEEK_DAYS, createDefaultWeeklySchedule } from './pistaUtils';
+export { WEEK_DAYS, createDefaultWeeklySchedule } from './courtUtils';
 
-export function useAdminPistas() {
+export function useAdminCourts() {
   const { width } = useWindowDimensions();
   const weeklyCardWidth = width >= 1400 ? '32%' : width >= 980 ? '49%' : '100%';
 
@@ -37,9 +37,9 @@ export function useAdminPistas() {
     fetchPistas();
   }, []);
 
-  const form = usePistaForm(pistas, fetchPistas);
-  const maintenance = usePistaMaintenance(pistas, fetchPistas);
-  const filters = usePistaFilters(pistas, searchQuery);
+  const form = useCourtForm(pistas, fetchPistas);
+  const maintenance = useCourtMaintenance(pistas, fetchPistas);
+  const filters = useCourtFilters(pistas, searchQuery);
 
   return {
     pistas,

@@ -1,8 +1,8 @@
 ﻿import React, { useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { ReservaActual } from '../../hooks/useReservasDisponibles';
+import { ReservaActual } from '../../hooks/useAvailableBookings';
 import { useAppTheme } from '../../context/ThemeContext';
-import createDisponibilidadBarraStyles from '../../style/disponibilidadBarra.styles';
+import createAvailabilityBarStyles from '../../style/availabilityBar.styles';
 
 export type BloqueDisponibilidad = {
   tipo: 'libre' | 'ocupado';
@@ -12,7 +12,7 @@ export type BloqueDisponibilidad = {
   finMin: number;
 };
 
-type DisponibilidadBarraProps = {
+type AvailabilityBarProps = {
   horaApertura: string;
   horaCierre: string;
   reservasActuales: ReservaActual[];
@@ -153,14 +153,14 @@ export const crearResumenHuecosLibres = (bloques: BloqueDisponibilidad[]) => {
   return 'Disponible ' + texto;
 };
 
-export default function DisponibilidadBarra({
+export default function AvailabilityBar({
   horaApertura,
   horaCierre,
   reservasActuales,
   onPressBloqueLibre,
-}: DisponibilidadBarraProps) {
+}: AvailabilityBarProps) {
   const { theme } = useAppTheme();
-  const styles = useMemo(() => createDisponibilidadBarraStyles(theme), [theme]);
+  const styles = useMemo(() => createAvailabilityBarStyles(theme), [theme]);
 
   const bloques = useMemo(
     () =>

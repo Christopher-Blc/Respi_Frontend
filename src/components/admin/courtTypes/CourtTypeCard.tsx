@@ -1,9 +1,9 @@
-import React from 'react';
+﻿import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { TipoPista } from '../../../types/types';
 import { AppTheme } from '../../../theme';
-import { tiposPistaStyles as styles } from '../../../style/admin/tiposPista.styles';
+import { tiposPistaStyles as styles } from '../../../style/admin/courtTypes.styles';
 
 type Props = {
   item: TipoPista;
@@ -12,7 +12,7 @@ type Props = {
   onDelete: (item: TipoPista) => void;
 };
 
-export function TipoPistaCard({ item, theme, onEdit, onDelete }: Props) {
+export function TipoCourtCard({ item, theme, onEdit, onDelete }: Props) {
   const pistasCount = item.pistas?.length ?? 0;
 
   return (

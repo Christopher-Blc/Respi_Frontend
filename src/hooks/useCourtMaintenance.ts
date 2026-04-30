@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Alert } from 'react-native';
 import { Pista } from '../types/types';
 import api from '../services/api';
@@ -8,7 +8,7 @@ import {
   parseDateInput,
   eachDateInclusive,
   countUniqueReservas,
-} from './pistaUtils';
+} from './courtUtils';
 
 const EMPTY_DELETE_MODAL = {
   visible: false,
@@ -30,7 +30,7 @@ const EMPTY_MAINTENANCE_MODAL = {
   error: '',
 };
 
-export function usePistaMaintenance(pistas: Pista[], fetchPistas: () => void) {
+export function useCourtMaintenance(pistas: Pista[], fetchPistas: () => void) {
   const { t } = useTranslation();
   const [deleteModal, setDeleteModal] = useState(EMPTY_DELETE_MODAL);
   const [maintenanceDateModal, setMaintenanceDateModal] = useState(EMPTY_MAINTENANCE_MODAL);

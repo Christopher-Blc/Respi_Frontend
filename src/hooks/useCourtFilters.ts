@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react';
+﻿import { useState, useMemo } from 'react';
 import { Pista } from '../types/types';
 
-export function usePistaFilters(pistas: Pista[], searchQuery: string) {
+export function useCourtFilters(pistas: Pista[], searchQuery: string) {
   const [filterTipoPistaId, setFilterTipoPistaId] = useState<number | null>(null);
   const [filterPrecioMax, setFilterPrecioMax] = useState('');
   const [filterEstado, setFilterEstado] = useState<

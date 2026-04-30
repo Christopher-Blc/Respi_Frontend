@@ -1,6 +1,6 @@
-import React from 'react';
+﻿import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Reserva } from '../../hooks/useReservas';
+import { Reserva } from '../../hooks/useBookings';
 import { lightModeSemanticTokens } from '../../theme';
 import { useTranslation } from 'react-i18next';
 
@@ -10,7 +10,7 @@ type Props = {
   onEdit?: (id: string) => void;
 };
 
-export default function ReservaCard({ reserva, onCancel, onEdit }: Props) {
+export default function BookingCard({ reserva, onCancel, onEdit }: Props) {
   const { t } = useTranslation();
   return (
     <View style={styles.card}>

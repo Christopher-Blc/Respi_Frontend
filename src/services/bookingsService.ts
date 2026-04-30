@@ -1,4 +1,4 @@
-import { API_PUBLIC_URL } from '../constants';
+﻿import { API_PUBLIC_URL } from '../constants';
 import { MODELOS, Modelo } from '../data/modelos';
 import api from './api';
 
@@ -81,7 +81,7 @@ const dedupeModels = (items: Modelo[]) => {
   });
 };
 
-export const reservasService = {
+export const bookingsService = {
   async getModelos(): Promise<Modelo[]> {
     const endpoints = ['/tipo_pista', '/tipos_pista', '/pista', '/pistas'];
 

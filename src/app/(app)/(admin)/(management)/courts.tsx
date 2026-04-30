@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -12,13 +12,13 @@ import { useAppTheme } from '../../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Pista } from '../../../../types/types';
-import { useAdminPistas } from '../../../../hooks/useAdminPistas';
-import { pistasStyles as styles } from '../../../../style/admin/pistas.styles';
-import { PistaFormModal } from '../../../../components/admin/pista/PistaFormModal';
+import { useAdminCourts } from '../../../../hooks/useAdminCourts';
+import { pistasStyles as styles } from '../../../../style/admin/courts.styles';
+import { CourtFormModal } from '../../../../components/admin/courts/CourtFormModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
-import { PistasFiltersModal } from '../../../../components/admin/pista/PistasFiltersModal';
-import { MaintenanceDateModal } from '../../../../components/admin/pista/MaintenanceDateModal';
-import { PistaCard } from '../../../../components/admin/pista/PistaCard';
+import { CourtsFiltersModal } from '../../../../components/admin/courts/CourtsFiltersModal';
+import { MaintenanceDateModal } from '../../../../components/admin/courts/MaintenanceDateModal';
+import { CourtCard } from '../../../../components/admin/courts/CourtCard';
 import { Tabs } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
@@ -70,13 +70,13 @@ export default function AdminPistas() {
     setFilterPrecioMax,
     filterEstado,
     setFilterEstado,
-  } = useAdminPistas();
+  } = useAdminCourts();
 
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const renderPistaCard = ({ item }: { item: Pista }) => {
+  const renderCourtCard = ({ item }: { item: Pista }) => {
     return (
-      <PistaCard
+      <CourtCard
         item={item}
         theme={theme}
         onEdit={openModal}
@@ -155,7 +155,7 @@ export default function AdminPistas() {
       ) : (
         <FlatList
           data={filteredPistas}
-          renderItem={renderPistaCard}
+          renderItem={renderCourtCard}
           keyExtractor={(item) => item.pista_id.toString()}
           contentContainerStyle={[
             styles.listContent,
@@ -164,7 +164,7 @@ export default function AdminPistas() {
         />
       )}
 
-      <PistaFormModal
+      <CourtFormModal
         visible={modalVisible}
         pistaAEditar={pistaAEditar}
         formData={formData}
@@ -183,7 +183,7 @@ export default function AdminPistas() {
         toggleSamePrice={toggleSamePrice}
       />
 
-      <PistasFiltersModal
+      <CourtsFiltersModal
         visible={filtersOpen}
         onClose={() => setFiltersOpen(false)}
         tiposPista={tiposPista}

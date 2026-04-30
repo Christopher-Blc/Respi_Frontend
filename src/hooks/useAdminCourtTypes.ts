@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Pista, TipoPista } from '../types/types';
 import api from '../services/api';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +18,7 @@ const getUniquePistasByNombre = (pistas: Pista[] = []) => {
   return Array.from(seen.values());
 };
 
-export function useAdminTiposPista() {
+export function useAdminCourtTypes() {
   const { t } = useTranslation();
   const [tiposPista, setTiposPista] = useState<TipoPista[]>([]);
   const [loading, setLoading] = useState(true);

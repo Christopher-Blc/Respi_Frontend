@@ -1,8 +1,8 @@
-import React from 'react';
+﻿import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../context/ThemeContext';
-import { tiposPistaStyles as styles } from '../../../style/admin/tiposPista.styles';
+import { tiposPistaStyles as styles } from '../../../style/admin/courtTypes.styles';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
@@ -14,7 +14,7 @@ type Props = {
   onSave: () => void;
 };
 
-export function TipoPistaFormModal({
+export function TipoCourtFormModal({
   visible,
   isEditing = false,
   nombre,

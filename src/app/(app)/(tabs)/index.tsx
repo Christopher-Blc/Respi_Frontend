@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+﻿import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   ImageBackground,
@@ -20,7 +20,7 @@ import { useAppTheme } from '../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useHome } from '../../../hooks/useHome';
 import { createHomeStyles } from '../../../style/home.styles';
-import DateModal from '../../../components/reservas/date.modal';
+import DateModal from '../../../components/bookings/date.modal';
 import { useTranslation } from 'react-i18next';
 
 //pantalla home del cliente
@@ -100,7 +100,7 @@ export default function HomeScreen() {
       <TouchableOpacity
         key={item.reserva_id}
         style={localStyles.card}
-        onPress={() => router.push(`/(app)/reservas/${item.reserva_id}`)}
+        onPress={() => router.push(`/(app)/(tabs)/bookings/${item.reserva_id}`)}
       >
         <ImageBackground
           source={img}
@@ -223,7 +223,7 @@ export default function HomeScreen() {
 
             <TouchableOpacity
               style={[localStyles.actionCard, localStyles.actionSecondary]}
-              onPress={() => router.push('/pistas')}
+              onPress={() => router.push('/courts')}
             >
               <Ionicons name="location" size={18} color={theme.primary} />
               <Text style={localStyles.actionSecondaryText}>
@@ -256,7 +256,7 @@ export default function HomeScreen() {
               </Text>
               <TouchableOpacity
                 style={localStyles.emptyCta}
-                onPress={() => router.push('/reservas')}
+                onPress={() => router.push('/bookings')}
               >
                 <Text style={localStyles.emptyCtaText}>{t('homeBookNow')}</Text>
               </TouchableOpacity>
