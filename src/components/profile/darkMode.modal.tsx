@@ -48,7 +48,7 @@ export default function DarkModeModal({
   const themeColorLabel = t('profileThemeColor', {
     defaultValue: 'Theme color',
   });
-  const themeOrangeLabel = t('profileThemeOrange', { defaultValue: 'Orange' });
+  const themeOrangeLabel = t('profileThemeOrange', { defaultValue: 'ResPi' });
   const themeBlueLabel = t('profileThemeBlue', { defaultValue: 'Blue' });
   const themeGreenLabel = t('profileThemeGreen', { defaultValue: 'Green' });
   const themeRedLabel = t('profileThemeRed', { defaultValue: 'Red' });

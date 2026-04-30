@@ -206,7 +206,7 @@ export default function AdminPistas() {
           deleteModal.loadingCount
             ? t('adminDeleteModalLoading')
             : `${
-                deleteModal.accion === 'mantenimiento' &&
+                (deleteModal.accion as string) === 'mantenimiento' &&
                 deleteModal.mantenimientoDesde &&
                 deleteModal.mantenimientoHasta
                   ? t('adminDeleteModalRange', {

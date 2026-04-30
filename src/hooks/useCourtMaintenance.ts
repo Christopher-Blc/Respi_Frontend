@@ -16,7 +16,7 @@ const EMPTY_DELETE_MODAL = {
   ids: [] as number[],
   reservasCount: 0,
   loadingCount: false,
-  accion: 'eliminar' as const,
+  accion: 'eliminar' as 'eliminar' | 'mantenimiento',
   mantenimientoDesde: '',
   mantenimientoHasta: '',
 };
