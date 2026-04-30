@@ -192,18 +192,17 @@ export function useAdminUsers() {
           isActive: formData.isActive,
           fecha_nacimiento: formData.fecha_nacimiento.trim(),
           direccion: formData.direccion.trim(),
-          membresia_id: formData.membresia_id ? Number(formData.membresia_id) : null,
         };
 
         await api.post('/users', payload);
-      }
-      setModalVisible(false);
+       }
+       setModalVisible(false);
       setUserToEdit(null);
       setFormData(EMPTY_FORM);
       fetchUsers();
-    } catch {
-      console.log('error otra vez... lamentable :', formData);
-      setErrorModal({
+    } catch (err){
+      console.log('Error guardando usuario:', err);
+       setErrorModal({
         visible: true,
         title: 'Error',
         message: userToEdit ? 'No se pudo actualizar el usuario.' : 'No se pudo crear el usuario.',

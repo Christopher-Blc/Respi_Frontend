@@ -10,6 +10,8 @@ import WebSidebar, {
 import WebProfileBadge from '../../../components/general/WebProfileBadge';
 import { useTranslation } from 'react-i18next';
 
+const WEB_ADMIN_HEADER_HEIGHT = 73;
+
 export default function AdminTabLayout() {
   const { isDarkMode, theme } = useAppTheme();
   const { t } = useTranslation();
@@ -86,14 +88,24 @@ export default function AdminTabLayout() {
   const tabs = (
     <Tabs
       screenOptions={{
-        headerTitleContainerStyle: {
-          paddingBottom: 10,
-        },
+        headerTitleContainerStyle: isWeb
+          ? {
+              top: 0,
+              bottom: 0,
+            }
+          : {
+              paddingBottom: 10,
+            },
         headerBackgroundContainerStyle: {
           backgroundColor: theme.primaryHeader,
           borderBottomColor: theme.primarySoft,
           borderBottomWidth: 1,
         },
+        headerStyle: isWeb
+          ? {
+              height: WEB_ADMIN_HEADER_HEIGHT,
+            }
+          : undefined,
         headerShown: true,
         headerTitleAlign: isWeb ? 'left' : 'center',
         headerTintColor: theme.headerText,
@@ -193,6 +205,7 @@ export default function AdminTabLayout() {
             sections={adminSidebarSections}
             appName="RESPI"
             appSubtitle={t('adminPanelSubtitle')}
+            topAreaHeight={WEB_ADMIN_HEADER_HEIGHT}
           />
           <View style={{ flex: 1 }}>{tabs}</View>
         </View>
