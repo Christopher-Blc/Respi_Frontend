@@ -31,6 +31,7 @@ import AvailabilityBar, {
 import { SessionExpiredModal } from '../../../../components/alert.modal';
 import createReservasTabStyles from '../../../../style/bookingsTab.styles';
 import { useTranslation } from 'react-i18next';
+import { getDateLocale } from '../../../../i18n';
 
 const getNext7Days = () => {
   const days: Date[] = [];
@@ -102,7 +103,7 @@ export default function ReservasTab() {
   const headerHeight = useHeaderHeight();
   const { width } = useWindowDimensions();
   const isWideScreen = width > 768;
-  const locale = i18n.language === 'en' ? 'en-US' : 'es-ES';
+  const locale = getDateLocale(i18n.resolvedLanguage || i18n.language);
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showDateModal, setShowDateModal] = useState(false);

@@ -1,4 +1,4 @@
-﻿import React, { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   ActivityIndicator,
   ImageBackground,
@@ -214,7 +214,7 @@ export default function PistasTab() {
             style={localStyles.reserveButton}
             onPress={() =>
               router.push({
-                pathname: '/(app)/(tabs)/bookings/createBooking',
+                pathname: '/(app)/(tabs)/reservas/createBooking',
                 params: {
                   pistaId,
                   pistaNombre: pista.nombre || 'Pista',

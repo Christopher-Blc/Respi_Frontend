@@ -3,7 +3,7 @@ import { View, Text, Modal, TouchableOpacity } from 'react-native';
 import { Button } from 'react-native-paper';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
-import { setAppLanguage } from '../../i18n';
+import { getAppLanguage, LANGUAGE_OPTIONS, setAppLanguage } from '../../i18n';
 
 interface Props {
   visible: boolean;
@@ -13,7 +13,9 @@ interface Props {
 export default function IdiomaModal({ visible, onClose }: Props) {
   const { theme } = useAppTheme();
   const { t, i18n } = useTranslation();
-  const currentLanguage = i18n.language === 'en' ? 'en' : 'es';
+  const currentLanguage = getAppLanguage(
+    i18n.resolvedLanguage || i18n.language,
+  );
 
   return (
     <Modal
@@ -54,45 +56,31 @@ export default function IdiomaModal({ visible, onClose }: Props) {
             {t('languageDescription')}
           </Text>
 
-          <TouchableOpacity
-            onPress={() => setAppLanguage('es')}
-            style={{
-              borderWidth: 1,
-              borderColor:
-                currentLanguage === 'es' ? theme.primary : theme.borderMain,
-              backgroundColor:
-                currentLanguage === 'es'
-                  ? theme.primary + '20'
-                  : theme.backgroundCard,
-              borderRadius: 12,
-              padding: 12,
-              marginBottom: 10,
-            }}
-          >
-            <Text style={{ color: theme.textTitle, fontWeight: '700' }}>
-              {t('languageSpanish')}
-            </Text>
-          </TouchableOpacity>
+          {LANGUAGE_OPTIONS.map((language, index) => {
+            const isSelected = currentLanguage === language.code;
+            const isLastOption = index === LANGUAGE_OPTIONS.length - 1;
 
-          <TouchableOpacity
-            onPress={() => setAppLanguage('en')}
-            style={{
-              borderWidth: 1,
-              borderColor:
-                currentLanguage === 'en' ? theme.primary : theme.borderMain,
-              backgroundColor:
-                currentLanguage === 'en'
-                  ? theme.primary + '20'
-                  : theme.backgroundCard,
-              borderRadius: 12,
-              padding: 12,
-              marginBottom: 16,
-            }}
-          >
-            <Text style={{ color: theme.textTitle, fontWeight: '700' }}>
-              {t('languageEnglish')}
-            </Text>
-          </TouchableOpacity>
+            return (
+              <TouchableOpacity
+                key={language.code}
+                onPress={() => setAppLanguage(language.code)}
+                style={{
+                  borderWidth: 1,
+                  borderColor: isSelected ? theme.primary : theme.borderMain,
+                  backgroundColor: isSelected
+                    ? theme.primary + '20'
+                    : theme.backgroundCard,
+                  borderRadius: 12,
+                  padding: 12,
+                  marginBottom: isLastOption ? 16 : 10,
+                }}
+              >
+                <Text style={{ color: theme.textTitle, fontWeight: '700' }}>
+                  {t(language.labelKey)}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
 
           <Button
             mode="contained"
