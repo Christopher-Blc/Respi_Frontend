@@ -212,35 +212,109 @@ export default function AdminPistas() {
               },
             ]}
           >
-            <Text style={[styles.colName, { color: theme.textTitle, fontWeight: '700' }]}>Pista</Text>
-            <Text style={[styles.colType, { color: theme.textTitle, fontWeight: '700' }]}>Tipo</Text>
-            <Text style={[styles.colPrice, { color: theme.textTitle, fontWeight: '700' }]}>Precio</Text>
-            <Text style={[styles.colStatus, { color: theme.textTitle, fontWeight: '700' }]}>Estado</Text>
-            <Text style={[styles.colActions, { color: theme.textTitle, fontWeight: '700' }]}>Acciones</Text>
+            <Text
+              style={[
+                styles.colName,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Pista
+            </Text>
+            <Text
+              style={[
+                styles.colType,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Tipo
+            </Text>
+            <Text
+              style={[
+                styles.colPrice,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Precio
+            </Text>
+            <Text
+              style={[
+                styles.colStatus,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Estado
+            </Text>
+            <Text
+              style={[
+                styles.colActions,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Acciones
+            </Text>
           </View>
           <FlatList
             data={filteredPistas}
             keyExtractor={(item) => item.pista_id.toString()}
             contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
             renderItem={({ item }) => (
-              <View style={[styles.tableRow, { borderBottomColor: theme.primarySoft }]}>
+              <View
+                style={[
+                  styles.tableRow,
+                  { borderBottomColor: theme.primarySoft },
+                ]}
+              >
                 <View style={styles.colName}>
-                  <Text style={{ color: theme.textTitle, fontWeight: '600' }}>{item.nombre}</Text>
-                  <Text style={{ color: theme.textBody, fontSize: 12 }}>{item.instalacion?.nombre || '-'}</Text>
+                  <Text style={{ color: theme.textTitle, fontWeight: '600' }}>
+                    {item.nombre}
+                  </Text>
+                  <Text style={{ color: theme.textBody, fontSize: 12 }}>
+                    {item.instalacion?.nombre || '-'}
+                  </Text>
                 </View>
-                <Text style={[styles.colType, { color: theme.textBody }]}>{tiposPista.find((tipo) => String(tipo.tipo_pista_id) === String(item.tipo_pista_id))?.nombre || '-'}</Text>
-                <Text style={[styles.colPrice, { color: theme.textBody }]}>{item.precio_hora}€/h</Text>
-                <Text style={[styles.colStatus, { color: item.estado === 'DISPONIBLE' ? '#4CAF50' : '#F44336', fontWeight: '700' }]}>{item.estado}</Text>
+                <Text style={[styles.colType, { color: theme.textBody }]}>
+                  {tiposPista.find(
+                    (tipo) =>
+                      String(tipo.tipo_pista_id) === String(item.tipo_pista_id),
+                  )?.nombre || '-'}
+                </Text>
+                <Text style={[styles.colPrice, { color: theme.textBody }]}>
+                  {item.precio_hora}€/h
+                </Text>
+                <Text
+                  style={[
+                    styles.colStatus,
+                    {
+                      color:
+                        item.estado === 'DISPONIBLE' ? '#4CAF50' : '#F44336',
+                      fontWeight: '700',
+                    },
+                  ]}
+                >
+                  {item.estado}
+                </Text>
                 <View style={styles.colActions}>
                   <View style={{ flexDirection: 'row', gap: 10 }}>
                     <TouchableOpacity onPress={() => openModal(item)}>
-                      <Ionicons name="create-outline" size={18} color={theme.textBody} />
+                      <Ionicons
+                        name="create-outline"
+                        size={18}
+                        color={theme.textBody}
+                      />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleMantenimiento(item)}>
-                      <Ionicons name="construct-outline" size={18} color={theme.textBody} />
+                      <Ionicons
+                        name="construct-outline"
+                        size={18}
+                        color={theme.textBody}
+                      />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleDelete(item)}>
-                      <Ionicons name="trash-outline" size={18} color={theme.textBody} />
+                      <Ionicons
+                        name="trash-outline"
+                        size={18}
+                        color={theme.textBody}
+                      />
                     </TouchableOpacity>
                   </View>
                 </View>

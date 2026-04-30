@@ -164,29 +164,90 @@ export default function AdminMembresias() {
               },
             ]}
           >
-            <Text style={[styles.colType, { color: theme.textTitle, fontWeight: '700' }]}>Tipo</Text>
-            <Text style={[styles.colRange, { color: theme.textTitle, fontWeight: '700' }]}>Rango</Text>
-            <Text style={[styles.colDiscount, { color: theme.textTitle, fontWeight: '700' }]}>Dto</Text>
-            <Text style={[styles.colBookings, { color: theme.textTitle, fontWeight: '700' }]}>Reservas</Text>
-            <Text style={[styles.colActions, { color: theme.textTitle, fontWeight: '700' }]}>Acciones</Text>
+            <Text
+              style={[
+                styles.colType,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Tipo
+            </Text>
+            <Text
+              style={[
+                styles.colRange,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Rango
+            </Text>
+            <Text
+              style={[
+                styles.colDiscount,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Dto
+            </Text>
+            <Text
+              style={[
+                styles.colBookings,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Reservas
+            </Text>
+            <Text
+              style={[
+                styles.colActions,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Acciones
+            </Text>
           </View>
           <FlatList
             data={filteredMemberships}
             keyExtractor={(item) => item.membresia_id.toString()}
             contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
             renderItem={({ item }) => (
-              <View style={[styles.tableRow, { borderBottomColor: theme.primarySoft }]}>
-                <Text style={[styles.colType, { color: theme.textTitle, fontWeight: '600' }]}>{item.tipo}</Text>
-                <Text style={[styles.colRange, { color: theme.textBody }]}>#{item.rango}</Text>
-                <Text style={[styles.colDiscount, { color: theme.textBody }]}>{item.descuento}%</Text>
-                <Text style={[styles.colBookings, { color: theme.textBody }]}>{item.reservas_requeridas}</Text>
+              <View
+                style={[
+                  styles.tableRow,
+                  { borderBottomColor: theme.primarySoft },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.colType,
+                    { color: theme.textTitle, fontWeight: '600' },
+                  ]}
+                >
+                  {item.tipo}
+                </Text>
+                <Text style={[styles.colRange, { color: theme.textBody }]}>
+                  #{item.rango}
+                </Text>
+                <Text style={[styles.colDiscount, { color: theme.textBody }]}>
+                  {item.descuento}%
+                </Text>
+                <Text style={[styles.colBookings, { color: theme.textBody }]}>
+                  {item.reservas_requeridas}
+                </Text>
                 <View style={styles.colActions}>
                   <View style={{ flexDirection: 'row', gap: 10 }}>
                     <TouchableOpacity onPress={() => openEditModal(item)}>
-                      <Ionicons name="create-outline" size={18} color={theme.textBody} />
+                      <Ionicons
+                        name="create-outline"
+                        size={18}
+                        color={theme.textBody}
+                      />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleDelete(item)}>
-                      <Ionicons name="trash-outline" size={18} color={theme.textBody} />
+                      <Ionicons
+                        name="trash-outline"
+                        size={18}
+                        color={theme.textBody}
+                      />
                     </TouchableOpacity>
                   </View>
                 </View>
