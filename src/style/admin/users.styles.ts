@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-export const tiposPistaStyles = StyleSheet.create({
+export const usersAdminStyles = StyleSheet.create({
   container: { flex: 1 },
   headerActions: {
     paddingHorizontal: 16,
@@ -18,13 +18,6 @@ export const tiposPistaStyles = StyleSheet.create({
     borderWidth: 1,
   },
   searchInput: { flex: 1, marginLeft: 8 },
-  addBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   squareBtn: {
     width: 48,
     height: 48,
@@ -40,16 +33,17 @@ export const tiposPistaStyles = StyleSheet.create({
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 10,
   },
   cardTitle: { fontSize: 18, fontWeight: 'bold' },
-  cardSubtitle: { fontSize: 13, opacity: 0.6 },
-  pistasCountBadge: {
+  cardSubtitle: { fontSize: 13, opacity: 0.75 },
+  rowWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 },
+  pill: {
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 8,
-    alignSelf: 'flex-start',
+    borderRadius: 999,
+    borderWidth: 1,
   },
   actionsRow: {
     flexDirection: 'row',
@@ -66,7 +60,6 @@ export const tiposPistaStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  // Modal form
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',
@@ -76,6 +69,7 @@ export const tiposPistaStyles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
+    maxHeight: '92%',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -91,8 +85,16 @@ export const tiposPistaStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 10,
+    marginBottom: 12,
   },
   saveBtnText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
+  segmentedRow: { flexDirection: 'row', gap: 8, marginBottom: 14, flexWrap: 'wrap' },
+  segment: {
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
   tableWrap: {
     borderRadius: 16,
     borderWidth: 1,
@@ -112,8 +114,9 @@ export const tiposPistaStyles = StyleSheet.create({
     borderBottomWidth: 1,
     alignItems: 'center',
   },
-  colName: { flex: 1.2 },
-  colImage: { flex: 1.2 },
-  colCount: { flex: 0.8 },
-  colActions: { flex: 0.8, alignItems: 'flex-end' },
+  colName: { flex: 1.5 },
+  colRole: { flex: 1 },
+  colMembership: { flex: 1.1 },
+  colStatus: { flex: 0.9 },
+  colActions: { flex: 1.1, alignItems: 'flex-end' },
 });

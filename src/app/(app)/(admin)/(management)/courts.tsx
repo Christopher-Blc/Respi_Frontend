@@ -6,6 +6,7 @@ import {
   FlatList,
   ActivityIndicator,
   TouchableOpacity,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../../context/ThemeContext';
@@ -32,6 +33,8 @@ export default function AdminPistas() {
   const { t } = useTranslation();
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const cardsColumns = width >= 1280 ? 3 : width >= 780 ? 2 : 1;
 
   const {
     loading,
@@ -73,16 +76,24 @@ export default function AdminPistas() {
   } = useAdminCourts();
 
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
 
   const renderCourtCard = ({ item }: { item: Pista }) => {
+    const cardWidthStyle =
+      cardsColumns === 1
+        ? { width: '100%' as const }
+        : { maxWidth: cardsColumns === 2 ? 560 : 440 };
+
     return (
-      <CourtCard
-        item={item}
-        theme={theme}
-        onEdit={openModal}
-        onMaintenance={handleMantenimiento}
-        onDelete={handleDelete}
-      />
+      <View style={[styles.cardColumn, cardWidthStyle]}>
+        <CourtCard
+          item={item}
+          theme={theme}
+          onEdit={openModal}
+          onMaintenance={handleMantenimiento}
+          onDelete={handleDelete}
+        />
+      </View>
     );
   };
 
@@ -133,6 +144,23 @@ export default function AdminPistas() {
         </TouchableOpacity>
         <TouchableOpacity
           style={[
+            styles.squareBtn,
+            {
+              backgroundColor: theme.primary + '18',
+              borderWidth: 1,
+              borderColor: theme.primarySoft,
+            },
+          ]}
+          onPress={() => setViewMode(viewMode === 'cards' ? 'list' : 'cards')}
+        >
+          <Ionicons
+            name={viewMode === 'cards' ? 'list-outline' : 'grid-outline'}
+            size={22}
+            color={theme.textBody}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
             styles.addBtn,
             {
               backgroundColor: theme.primary + '18',
@@ -152,16 +180,74 @@ export default function AdminPistas() {
           color={theme.primary}
           style={{ marginTop: 50 }}
         />
-      ) : (
+      ) : viewMode === 'cards' ? (
         <FlatList
+          key={`courts-cards-${cardsColumns}`}
           data={filteredPistas}
           renderItem={renderCourtCard}
+          numColumns={cardsColumns}
           keyExtractor={(item) => item.pista_id.toString()}
+          columnWrapperStyle={cardsColumns > 1 ? styles.gridRow : undefined}
           contentContainerStyle={[
-            styles.listContent,
+            styles.gridContent,
             { paddingBottom: insets.bottom + 100 },
           ]}
         />
+      ) : (
+        <View
+          style={[
+            styles.tableWrap,
+            {
+              borderColor: theme.primarySoft,
+              backgroundColor: theme.backgroundCard,
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.tableHeader,
+              {
+                borderBottomColor: theme.primarySoft,
+                backgroundColor: theme.primary + '10',
+              },
+            ]}
+          >
+            <Text style={[styles.colName, { color: theme.textTitle, fontWeight: '700' }]}>Pista</Text>
+            <Text style={[styles.colType, { color: theme.textTitle, fontWeight: '700' }]}>Tipo</Text>
+            <Text style={[styles.colPrice, { color: theme.textTitle, fontWeight: '700' }]}>Precio</Text>
+            <Text style={[styles.colStatus, { color: theme.textTitle, fontWeight: '700' }]}>Estado</Text>
+            <Text style={[styles.colActions, { color: theme.textTitle, fontWeight: '700' }]}>Acciones</Text>
+          </View>
+          <FlatList
+            data={filteredPistas}
+            keyExtractor={(item) => item.pista_id.toString()}
+            contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+            renderItem={({ item }) => (
+              <View style={[styles.tableRow, { borderBottomColor: theme.primarySoft }]}>
+                <View style={styles.colName}>
+                  <Text style={{ color: theme.textTitle, fontWeight: '600' }}>{item.nombre}</Text>
+                  <Text style={{ color: theme.textBody, fontSize: 12 }}>{item.instalacion?.nombre || '-'}</Text>
+                </View>
+                <Text style={[styles.colType, { color: theme.textBody }]}>{tiposPista.find((tipo) => String(tipo.tipo_pista_id) === String(item.tipo_pista_id))?.nombre || '-'}</Text>
+                <Text style={[styles.colPrice, { color: theme.textBody }]}>{item.precio_hora}€/h</Text>
+                <Text style={[styles.colStatus, { color: item.estado === 'DISPONIBLE' ? '#4CAF50' : '#F44336', fontWeight: '700' }]}>{item.estado}</Text>
+                <View style={styles.colActions}>
+                  <View style={{ flexDirection: 'row', gap: 10 }}>
+                    <TouchableOpacity onPress={() => openModal(item)}>
+                      <Ionicons name="create-outline" size={18} color={theme.textBody} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleMantenimiento(item)}>
+                      <Ionicons name="construct-outline" size={18} color={theme.textBody} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleDelete(item)}>
+                      <Ionicons name="trash-outline" size={18} color={theme.textBody} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            )}
+          />
+        </View>
       )}
 
       <CourtFormModal
