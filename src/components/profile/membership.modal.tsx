@@ -331,7 +331,7 @@ export default function MembresiaModal({ visible, onClose }: Props) {
             </View>
           ) : (
             membresias.map((item) => {
-              const palette = getMembershipPalette(item.tipo, isDarkMode);
+              const palette = getMembershipPalette(item.nombre, isDarkMode);
 
               return (
                 <View
@@ -358,7 +358,7 @@ export default function MembresiaModal({ visible, onClose }: Props) {
                   />
 
                   <View style={styles.topRow}>
-                    <Text style={styles.tipo}>{item.tipo}</Text>
+                    <Text style={styles.tipo}>{item.nombre}</Text>
                     <View
                       style={[
                         styles.badge,

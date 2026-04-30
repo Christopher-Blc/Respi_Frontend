@@ -4,7 +4,7 @@ import api from '../services/api';
 
 type MembershipFormData = {
   rango: string;
-  tipo: string;
+  nombre: string;
   descuento: string;
   reservas_requeridas: string;
   beneficios: string;
@@ -25,7 +25,7 @@ type BasicUser = {
 
 const EMPTY_FORM: MembershipFormData = {
   rango: '',
-  tipo: '',
+  nombre: '',
   descuento: '',
   reservas_requeridas: '',
   beneficios: '',
@@ -81,7 +81,7 @@ export function useAdminMemberships() {
     if (!q) return memberships;
 
     return memberships.filter((m) => {
-      const text = `${m.tipo} ${m.beneficios} ${m.rango}`.toLowerCase();
+      const text = `${m.nombre} ${m.beneficios} ${m.rango}`.toLowerCase();
       return text.includes(q);
     });
   }, [memberships, searchQuery]);
@@ -96,7 +96,7 @@ export function useAdminMemberships() {
     setMembershipToEdit(item);
     setFormData({
       rango: String(item.rango),
-      tipo: item.tipo,
+      nombre: item.nombre,
       descuento: String(item.descuento),
       reservas_requeridas: String(item.reservas_requeridas),
       beneficios: item.beneficios,
@@ -109,7 +109,7 @@ export function useAdminMemberships() {
     const descuento = Number(formData.descuento);
     const reservas = Number(formData.reservas_requeridas);
 
-    if (!formData.tipo.trim()) return 'El nombre del tipo es obligatorio.';
+    if (!formData.nombre.trim()) return 'El nombre del tipo es obligatorio.';
     if (!Number.isFinite(rango) || rango <= 0)
       return 'El rango debe ser un numero mayor a 0.';
     if (!Number.isFinite(descuento) || descuento < 0 || descuento >= 100)
@@ -133,8 +133,8 @@ export function useAdminMemberships() {
     }
 
     const payload = {
-      rango: String(Number(formData.rango)),
-      tipo: formData.tipo.trim(),
+      rango: Number(formData.rango),
+      nombre: formData.nombre.trim(),
       descuento: Number(formData.descuento),
       reservas_requeridas: Number(formData.reservas_requeridas),
       beneficios: formData.beneficios.trim(),
@@ -150,12 +150,14 @@ export function useAdminMemberships() {
       } else {
         await api.post('/membresia', payload);
       }
+      console.log('Membresia guardada:', payload);
 
       setModalVisible(false);
       setMembershipToEdit(null);
       setFormData(EMPTY_FORM);
       fetchMemberships();
     } catch {
+      console.log('Error.... Lamentable  :', payload);
       setErrorModal({
         visible: true,
         title: 'Error',
@@ -195,7 +197,7 @@ export function useAdminMemberships() {
           visible: true,
           item,
           canDelete: false,
-          message: `No puedes eliminar \"${item.tipo}\" porque hay ${usersUsingMembership.length} usuario(s) usando esta membresia.`,
+          message: `No puedes eliminar \"${item.nombre}\" porque hay ${usersUsingMembership.length} usuario(s) usando esta membresia.`,
         });
         return;
       }
@@ -204,7 +206,7 @@ export function useAdminMemberships() {
         visible: true,
         item,
         canDelete: true,
-        message: `Seguro que quieres eliminar la membresia \"${item.tipo}\"?`,
+        message: `Seguro que quieres eliminar la membresia \"${item.nombre}\"?`,
       });
     } catch {
       setErrorModal({

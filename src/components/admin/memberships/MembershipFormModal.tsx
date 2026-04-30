@@ -13,7 +13,7 @@ import { membershipsStyles as styles } from '../../../style/admin/memberships.st
 
 type MembershipFormData = {
   rango: string;
-  tipo: string;
+  nombre: string;
   descuento: string;
   reservas_requeridas: string;
   beneficios: string;
@@ -81,14 +81,14 @@ export function MembershipFormModal({
               onChangeText={(v) => setFormData({ ...formData, rango: v })}
             />
 
-            <InputLabel label="Tipo" theme={theme} />
+            <InputLabel label="Nombre" theme={theme} />
             <TextInput
               style={[
                 styles.input,
                 { color: theme.textTitle, borderColor: theme.primarySoft },
               ]}
-              value={formData.tipo}
-              onChangeText={(v) => setFormData({ ...formData, tipo: v })}
+              value={formData.nombre}
+              onChangeText={(v) => setFormData({ ...formData, nombre: v })}
             />
 
             <InputLabel label="Descuento (%)" theme={theme} />

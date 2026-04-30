@@ -26,7 +26,7 @@ export function MembershipCard({ item, theme, onEdit, onDelete }: Props) {
       <View style={styles.cardHeader}>
         <View style={{ flex: 1 }}>
           <Text style={[styles.cardTitle, { color: theme.textTitle }]}>
-            {item.tipo}
+            {item.nombre}
           </Text>
           <Text style={[styles.cardSubtitle, { color: theme.textBody }]}>
             Rango {item.rango} · {item.descuento}% dto ·{' '}

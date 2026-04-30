@@ -6,7 +6,7 @@ import { AppTheme } from '../../../theme';
 import { usersAdminStyles as styles } from '../../../style/admin/users.styles';
 
 type AdminUser = User & {
-  membresia?: { tipo?: string; rango?: string } | null;
+  membresia?: { nombre?: string; rango?: number } | null;
 };
 
 type Props = {
@@ -17,8 +17,8 @@ type Props = {
 };
 
 export function UserCard({ item, theme, onEdit, onToggleActive }: Props) {
-  const membershipLabel = item.membresia?.tipo
-    ? `${item.membresia.tipo} · Rango ${item.membresia?.rango || '-'}`
+  const membershipLabel = item.membresia?.nombre
+    ? `${item.membresia.nombre} · Rango ${item.membresia?.rango || '-'}`
     : 'Sin membresia';
 
   return (
