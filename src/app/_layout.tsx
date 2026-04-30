@@ -70,9 +70,9 @@ function AuthNavigation() {
 }
 
 function AppProviders() {
-  const { isDarkMode } = useAppTheme();
+  const { isDarkMode, themePalette } = useAppTheme();
   const [isI18nReady, setIsI18nReady] = useState(false);
-  const paperTheme = buildPaperTheme(isDarkMode);
+  const paperTheme = buildPaperTheme(isDarkMode, themePalette);
 
   useEffect(() => {
     let mounted = true;

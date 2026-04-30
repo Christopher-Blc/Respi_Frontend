@@ -97,6 +97,49 @@ const createModalDarkModeStyles = (theme: AppTheme, isWeb: boolean) => {
     toggleGroup: {
       gap: 14,
     },
+    paletteSection: {
+      marginTop: 20,
+      gap: 10,
+    },
+    paletteTitle: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: theme.textTitle,
+    },
+    paletteRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 10,
+    },
+    paletteChip: {
+      minWidth: '48%',
+      flexGrow: 1,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: theme.borderSoft,
+      paddingVertical: 8,
+      paddingHorizontal: 10,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      backgroundColor: theme.backgroundCard,
+    },
+    paletteChipSelected: {
+      borderColor: theme.primary,
+      borderWidth: 2,
+      backgroundColor: theme.primarySoft,
+    },
+    paletteDot: {
+      width: 10,
+      height: 10,
+      borderRadius: 999,
+    },
+    paletteChipLabel: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: theme.textTitle,
+    },
     toggleRow: {
       flexDirection: 'row',
       alignItems: 'center',
