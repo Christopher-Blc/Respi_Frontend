@@ -22,6 +22,7 @@ import { useAppTheme } from '../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import MembresiaModal from '../../components/profile/membership.modal';
 import { router } from 'expo-router';
+import { ThemePalette } from '../../theme';
 // Importamos el hook que hemos creado
 import { useProfile } from '../../hooks/useProfile';
 import { useTranslation } from 'react-i18next';
@@ -32,10 +33,12 @@ export default function ProfileView() {
   const {
     isDarkMode,
     isSystemTheme,
+    themePalette,
     theme,
-    setDarkMode,
     setDarkModePreview,
-    setSystemTheme,
+    setThemePalettePreview,
+    setThemePreferences,
+    setThemePreferencesPreview,
     setSystemThemePreview,
   } = useAppTheme();
 
@@ -59,6 +62,31 @@ export default function ProfileView() {
   const [initialDarkModeValue, setInitialDarkModeValue] = useState(isDarkMode);
   const [initialSystemThemeValue, setInitialSystemThemeValue] =
     useState(isSystemTheme);
+  const [initialThemePaletteValue, setInitialThemePaletteValue] =
+    useState(themePalette);
+
+  const themeBlueLabel = t('profileThemeBlue', { defaultValue: 'Blue' });
+  const themeGreenLabel = t('profileThemeGreen', { defaultValue: 'Green' });
+  const themeOrangeLabel = t('profileThemeOrange', { defaultValue: 'Orange' });
+  const themeRedLabel = t('profileThemeRed', { defaultValue: 'Red' });
+  const themeCyanLabel = t('profileThemeCyan', { defaultValue: 'Cyan' });
+
+  const themePaletteLabel =
+    themePalette === 'blue'
+      ? themeBlueLabel
+      : themePalette === 'green'
+        ? themeGreenLabel
+        : themePalette === 'red'
+          ? themeRedLabel
+          : themePalette === 'cyan'
+            ? themeCyanLabel
+            : themeOrangeLabel;
+
+  const themeModeLabel = isSystemTheme
+    ? t('profileSystem')
+    : isDarkMode
+      ? t('profileThemeDark')
+      : t('profileThemeLight');
 
   //handlers que se usan en los botones
   const handleLogout = async () => {
@@ -72,6 +100,7 @@ export default function ProfileView() {
   const handleOpenDarkModeModal = () => {
     setInitialDarkModeValue(isDarkMode);
     setInitialSystemThemeValue(isSystemTheme);
+    setInitialThemePaletteValue(themePalette);
     setModalDarkmodeVisible(true);
   };
 
@@ -82,20 +111,28 @@ export default function ProfileView() {
       setSystemThemePreview(false);
       setDarkModePreview(initialDarkModeValue);
     }
+
+    const restoredMode = initialSystemThemeValue
+      ? 'system'
+      : initialDarkModeValue
+        ? 'dark'
+        : 'light';
+    setThemePreferencesPreview(restoredMode, initialThemePaletteValue);
     setModalDarkmodeVisible(false);
   };
 
   const handleSaveDarkMode = async (
     nextDarkModeValue: boolean,
     nextSystemThemeValue: boolean,
+    nextThemePalette: ThemePalette,
   ) => {
     try {
-      if (nextSystemThemeValue) {
-        setSystemTheme(true);
-      } else {
-        setSystemTheme(false);
-        setDarkMode(nextDarkModeValue);
-      }
+      const nextMode = nextSystemThemeValue
+        ? 'system'
+        : nextDarkModeValue
+          ? 'dark'
+          : 'light';
+      setThemePreferences(nextMode, nextThemePalette);
     } catch (error) {
       console.error('Error guardando preferencia de modo oscuro', error);
     } finally {
@@ -197,7 +234,7 @@ export default function ProfileView() {
             <MenuOption
               icon="moon-outline"
               title={t('profileDarkMode')}
-              value={isDarkMode ? t('profileEnabled') : t('profileDisabled')}
+              value={`${themeModeLabel} / ${themePaletteLabel}`}
               isLast
               onPress={handleOpenDarkModeModal}
             />
@@ -271,8 +308,10 @@ export default function ProfileView() {
         visible={modalDarkmodeVisible}
         isDarkMode={isDarkMode}
         isSystemTheme={isSystemTheme}
+        themePalette={themePalette}
         onPreview={setDarkModePreview}
         onSystemPreview={setSystemThemePreview}
+        onThemePalettePreview={setThemePalettePreview}
         onSave={handleSaveDarkMode}
         onClose={handleCloseDarkModeModal}
       />

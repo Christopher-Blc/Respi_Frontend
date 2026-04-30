@@ -1,5 +1,14 @@
 import { MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
 
+export type ThemePalette = 'orange' | 'blue' | 'green' | 'red' | 'cyan';
+export const THEME_PALETTES: readonly ThemePalette[] = [
+  'orange',
+  'blue',
+  'green',
+  'red',
+  'cyan',
+];
+
 export type AppTheme = {
   primary: string;
   onPrimary: string;
@@ -247,8 +256,174 @@ export const darkTheme: AppTheme = {
   buttonGradientAlt: ['#CA8E0E', '#2B2B2B'],
 };
 
-export const buildPaperTheme = (isDarkMode: boolean) => {
-  const current = isDarkMode ? darkTheme : lightTheme;
+type PaletteTokens = {
+  primary: string;
+  primarySoft: string;
+  borderAccentSoft: string;
+  iconPrimary: string;
+  avatarBorder: string;
+  profileGradientMiddleLight: string;
+  profileGradientMiddleDark: string;
+  success: string;
+  successSoftLight: string;
+  successSoftDark: string;
+  primaryButtonLight: string;
+  primaryButtonDark: string;
+  borderMainLight: string;
+  borderMainDark: string;
+  avatarTextLight: string;
+  avatarTextDark: string;
+  buttonGradientAltLight: readonly [string, string];
+  buttonGradientAltDark: readonly [string, string];
+};
+
+const paletteTokens: Record<ThemePalette, PaletteTokens> = {
+  orange: {
+    primary: '#CA8E0E',
+    primarySoft: 'rgba(202, 142, 14, 0.16)',
+    borderAccentSoft: 'rgba(202, 142, 14, 0.38)',
+    iconPrimary: '#CA8E0E',
+    avatarBorder: '#CA8E0E',
+    profileGradientMiddleLight: '#F3D69B',
+    profileGradientMiddleDark: '#171717',
+    success: '#CA8E0E',
+    successSoftLight: 'rgba(202, 142, 14, 0.18)',
+    successSoftDark: 'rgba(202, 142, 14, 0.2)',
+    primaryButtonLight: 'rgba(191, 132, 4, 0.51)',
+    primaryButtonDark: 'rgba(202, 142, 14, 0.45)',
+    borderMainLight: '#D8C39A',
+    borderMainDark: '#2A2A2A',
+    avatarTextLight: '#8A5E00',
+    avatarTextDark: '#CA8E0E',
+    buttonGradientAltLight: ['#F5CA7E', '#F2D59A'],
+    buttonGradientAltDark: ['#CA8E0E', '#2B2B2B'],
+  },
+  blue: {
+    primary: '#2563EB',
+    primarySoft: 'rgba(37, 99, 235, 0.16)',
+    borderAccentSoft: 'rgba(37, 99, 235, 0.35)',
+    iconPrimary: '#2563EB',
+    avatarBorder: '#3B82F6',
+    profileGradientMiddleLight: '#C6DAFF',
+    profileGradientMiddleDark: '#101E33',
+    success: '#2563EB',
+    successSoftLight: 'rgba(37, 99, 235, 0.16)',
+    successSoftDark: 'rgba(37, 99, 235, 0.24)',
+    primaryButtonLight: 'rgba(37, 99, 235, 0.42)',
+    primaryButtonDark: 'rgba(37, 99, 235, 0.45)',
+    borderMainLight: '#B7C9EE',
+    borderMainDark: '#26364F',
+    avatarTextLight: '#1E3A8A',
+    avatarTextDark: '#60A5FA',
+    buttonGradientAltLight: ['#BFDBFE', '#DBEAFE'],
+    buttonGradientAltDark: ['#1D4ED8', '#1E293B'],
+  },
+  green: {
+    primary: '#2E7D32',
+    primarySoft: 'rgba(46, 125, 50, 0.18)',
+    borderAccentSoft: 'rgba(46, 125, 50, 0.36)',
+    iconPrimary: '#2E7D32',
+    avatarBorder: '#43A047',
+    profileGradientMiddleLight: '#CAEACB',
+    profileGradientMiddleDark: '#102514',
+    success: '#2E7D32',
+    successSoftLight: 'rgba(46, 125, 50, 0.16)',
+    successSoftDark: 'rgba(67, 160, 71, 0.25)',
+    primaryButtonLight: 'rgba(46, 125, 50, 0.43)',
+    primaryButtonDark: 'rgba(67, 160, 71, 0.45)',
+    borderMainLight: '#B7D7BA',
+    borderMainDark: '#234128',
+    avatarTextLight: '#1B5E20',
+    avatarTextDark: '#81C784',
+    buttonGradientAltLight: ['#C8E6C9', '#E8F5E9'],
+    buttonGradientAltDark: ['#2E7D32', '#1B2A1E'],
+  },
+  red: {
+    primary: '#C62828',
+    primarySoft: 'rgba(198, 40, 40, 0.16)',
+    borderAccentSoft: 'rgba(198, 40, 40, 0.35)',
+    iconPrimary: '#C62828',
+    avatarBorder: '#E53935',
+    profileGradientMiddleLight: '#FFD0D0',
+    profileGradientMiddleDark: '#2A1010',
+    success: '#C62828',
+    successSoftLight: 'rgba(198, 40, 40, 0.16)',
+    successSoftDark: 'rgba(229, 57, 53, 0.24)',
+    primaryButtonLight: 'rgba(198, 40, 40, 0.43)',
+    primaryButtonDark: 'rgba(229, 57, 53, 0.45)',
+    borderMainLight: '#E6B6B6',
+    borderMainDark: '#4A2424',
+    avatarTextLight: '#8E1B1B',
+    avatarTextDark: '#EF9A9A',
+    buttonGradientAltLight: ['#FECACA', '#FEE2E2'],
+    buttonGradientAltDark: ['#B91C1C', '#2B1212'],
+  },
+  cyan: {
+    primary: '#00838F',
+    primarySoft: 'rgba(0, 131, 143, 0.16)',
+    borderAccentSoft: 'rgba(0, 131, 143, 0.35)',
+    iconPrimary: '#00838F',
+    avatarBorder: '#00ACC1',
+    profileGradientMiddleLight: '#CDEFF3',
+    profileGradientMiddleDark: '#0E2227',
+    success: '#00838F',
+    successSoftLight: 'rgba(0, 131, 143, 0.16)',
+    successSoftDark: 'rgba(0, 172, 193, 0.24)',
+    primaryButtonLight: 'rgba(0, 131, 143, 0.43)',
+    primaryButtonDark: 'rgba(0, 172, 193, 0.45)',
+    borderMainLight: '#B6DADE',
+    borderMainDark: '#234149',
+    avatarTextLight: '#00626D',
+    avatarTextDark: '#80DEEA',
+    buttonGradientAltLight: ['#CFFAFE', '#ECFEFF'],
+    buttonGradientAltDark: ['#0E7490', '#112329'],
+  },
+};
+
+export const getThemeVariant = (
+  isDarkMode: boolean,
+  palette: ThemePalette = 'orange',
+): AppTheme => {
+  const baseTheme = isDarkMode ? darkTheme : lightTheme;
+  const tokens = paletteTokens[palette];
+
+  return {
+    ...baseTheme,
+    primary: tokens.primary,
+    primarySoft: tokens.primarySoft,
+    borderAccentSoft: tokens.borderAccentSoft,
+    inputFocus: tokens.primary,
+    iconPrimary: tokens.iconPrimary,
+    avatarBorder: tokens.avatarBorder,
+    profileGradientMiddle: isDarkMode
+      ? tokens.profileGradientMiddleDark
+      : tokens.profileGradientMiddleLight,
+    success: tokens.success,
+    successSoft: isDarkMode ? tokens.successSoftDark : tokens.successSoftLight,
+    info: tokens.primary,
+    infoSoft: isDarkMode ? tokens.successSoftDark : tokens.successSoftLight,
+    primaryButton: isDarkMode
+      ? tokens.primaryButtonDark
+      : tokens.primaryButtonLight,
+    secondaryLink: tokens.primary,
+    borderMain: isDarkMode ? tokens.borderMainDark : tokens.borderMainLight,
+    iconMain: tokens.iconPrimary,
+    textValue: tokens.primary,
+    inputBorder: tokens.primary,
+    avatarText: isDarkMode ? tokens.avatarTextDark : tokens.avatarTextLight,
+    cardBorderAccent: tokens.primary,
+    tabActive: tokens.primary,
+    buttonGradientAlt: isDarkMode
+      ? tokens.buttonGradientAltDark
+      : tokens.buttonGradientAltLight,
+  };
+};
+
+export const buildPaperTheme = (
+  isDarkMode: boolean,
+  palette: ThemePalette = 'orange',
+) => {
+  const current = getThemeVariant(isDarkMode, palette);
   const base = isDarkMode ? MD3DarkTheme : MD3LightTheme;
 
   return {
