@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { User } from '../../../types/types';
+import { Membresia, User } from '../../../types/types';
 import { AppTheme } from '../../../theme';
 import { usersAdminStyles as styles } from '../../../style/admin/users.styles';
 
 type AdminUser = User & {
-  membresia?: { nombre?: string; rango?: number } | null;
+  membresia?: Membresia | null;
 };
 
 type Props = {
@@ -36,8 +36,13 @@ export function UserCard({ item, theme, onEdit, onToggleActive }: Props) {
           <Text style={[styles.cardTitle, { color: theme.textTitle }]}>
             {item.username}
           </Text>
-          <Text style={[styles.cardSubtitle, { color: theme.textBody }]}>
-            {item.name} {item.surname} · {item.email}
+          <Text
+            style={[
+              styles.cardSubtitle,
+              { color: theme.textBody, fontSize: 12 },
+            ]}
+          >
+            {item.email}
           </Text>
         </View>
         <View

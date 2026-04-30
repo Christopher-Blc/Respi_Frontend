@@ -33,12 +33,14 @@ type Props = {
   sections: SidebarSection[];
   appName?: string;
   appSubtitle?: string;
+  topAreaHeight?: number;
 };
 
 export default function WebSidebar({
   sections,
   appName = 'RESPI',
   appSubtitle = 'Workspace',
+  topAreaHeight,
 }: Props): React.JSX.Element {
   const { theme } = useAppTheme();
   const router = useRouter();
@@ -106,7 +108,9 @@ export default function WebSidebar({
       ]}
     >
       {/* Logo */}
-      <View style={s.logoArea}>
+      <View
+        style={[s.logoArea, topAreaHeight ? { height: topAreaHeight } : null]}
+      >
         <View
           style={[
             s.logoCircle,

@@ -142,15 +142,10 @@ export function useAdminMemberships() {
 
     try {
       if (membershipToEdit) {
-        try {
-          await api.patch(`/membresia/${membershipToEdit.membresia_id}`, payload);
-        } catch {
-          await api.put(`/membresia/${membershipToEdit.membresia_id}`, payload);
-        }
+        await api.put(`/membresia/${membershipToEdit.membresia_id}`, payload);
       } else {
         await api.post('/membresia', payload);
-      }
-      console.log('Membresia guardada:', payload);
+      } 
 
       setModalVisible(false);
       setMembershipToEdit(null);
