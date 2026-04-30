@@ -161,9 +161,11 @@ export function usePistaForm(pistas: Pista[], fetchPistas: () => void) {
         errorMessage.toLowerCase().includes('duplicat');
       setErrorModal({
         visible: true,
-        title: isUniqueError ? 'El nombre ya existe' : 'Error al guardar',
+        title: isUniqueError
+          ? i18next.t('adminCourtNameExistsTitle')
+          : i18next.t('adminSaveErrorTitle'),
         message: isUniqueError
-          ? `El nombre "${formData.nombre}" ya está en uso. El nombre de la pista debe ser único.`
+          ? i18next.t('adminCourtNameExistsMessage', { name: formData.nombre })
           : errorMessage,
       });
     }

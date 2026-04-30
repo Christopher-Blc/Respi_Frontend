@@ -25,6 +25,7 @@ import {
   usePistasTab,
 } from '../../../hooks/usePistasTab';
 import { PistaDisponibilidad } from '../../../types/types';
+import { useTranslation } from 'react-i18next';
 
 const CARD_MIN_WIDTH = 230;
 const CARD_MAX_WIDTH = 450;
@@ -34,10 +35,12 @@ const MAX_CONTENT_WIDTH = 1400;
 export default function PistasTab() {
   const router = useRouter();
   const { theme } = useAppTheme();
+  const { t, i18n } = useTranslation();
   const styles = React.useMemo(() => createReservationsStyles(theme), [theme]);
   const localStyles = useMemo(() => createPistasTabStyles(theme), [theme]);
   const headerHeight = useHeaderHeight();
   const { width } = useWindowDimensions();
+  const locale = i18n.language === 'en' ? 'en-US' : 'es-ES';
   const horizontalPadding = width >= 1280 ? 40 : width >= 768 ? 28 : 20;
   const contentWidth = width > MAX_CONTENT_WIDTH ? MAX_CONTENT_WIDTH : width;
   const availableGridWidth = Math.max(contentWidth - horizontalPadding * 2, 0);
@@ -102,7 +105,9 @@ export default function PistasTab() {
         >
           <View style={localStyles.catalogHeaderRow}>
             <View style={localStyles.statusBadge}>
-              <Text style={localStyles.statusText}>Disponible</Text>
+              <Text style={localStyles.statusText}>
+                {t('pistasStatusAvailable')}
+              </Text>
             </View>
           </View>
 
@@ -110,18 +115,18 @@ export default function PistasTab() {
             <View>
               <Text style={localStyles.catalogTitle}>{item.title}</Text>
               <Text style={localStyles.catalogMeta}>
-                Reserva online y confirma en segundos
+                {t('pistasReserveOnlineFast')}
               </Text>
             </View>
             <View style={localStyles.pricePill}>
               <Text style={localStyles.pricePillText}>
-                {formatPrice(item.price)}/h
+                {formatPrice(item.price, locale)}/h
               </Text>
             </View>
           </View>
 
           <View style={localStyles.catalogFooter}>
-            <Text style={localStyles.catalogCta}>Elegir deporte</Text>
+            <Text style={localStyles.catalogCta}>{t('pistasChooseSport')}</Text>
             <Ionicons
               name="chevron-forward"
               size={18}
@@ -159,12 +164,12 @@ export default function PistasTab() {
           <View style={localStyles.sportCardOverlay}>
             <View style={localStyles.sportCardHeader}>
               <Text style={localStyles.sportCardTitle}>
-                {pista.nombre || 'Pista'}
+                {pista.nombre || t('bookingCreateCourtFallback')}
               </Text>
               <Text style={localStyles.sportCardPrice}>
                 {pista.precio_hora
                   ? `EUR ${pista.precio_hora}/h`
-                  : 'Precio N/D'}
+                  : t('pistasPriceFallback')}
               </Text>
             </View>
 
@@ -177,22 +182,26 @@ export default function PistasTab() {
             <View style={localStyles.sportChipsWrap}>
               <View style={localStyles.sportChip}>
                 <Text style={localStyles.sportChipText}>
-                  Capacidad: {pista.capacidad ?? 'N/D'}
+                  {t('pistasCapacity', { count: pista.capacidad ?? 'N/D' })}
                 </Text>
               </View>
               <View style={localStyles.sportChip}>
                 <Text style={localStyles.sportChipText}>
-                  Cubierta: {pista.cubierta ? 'Si' : 'No'}
+                  {t('pistasCovered', {
+                    value: pista.cubierta ? t('commonYes') : t('commonNo'),
+                  })}
                 </Text>
               </View>
               <View style={localStyles.sportChip}>
                 <Text style={localStyles.sportChipText}>
-                  Iluminacion: {pista.iluminacion ? 'Si' : 'No'}
+                  {t('pistasLighting', {
+                    value: pista.iluminacion ? t('commonYes') : t('commonNo'),
+                  })}
                 </Text>
               </View>
               <View style={localStyles.sportChip}>
                 <Text style={localStyles.sportChipText}>
-                  Reservas hoy: {reservasHoy}
+                  {t('pistasBookingsToday', { count: reservasHoy })}
                 </Text>
               </View>
             </View>
@@ -214,7 +223,7 @@ export default function PistasTab() {
             }
           >
             <Text style={localStyles.reserveButtonText}>
-              Reservar esta pista
+              {t('pistasReserveThisCourt')}
             </Text>
           </TouchableOpacity>
         )}
@@ -244,15 +253,17 @@ export default function PistasTab() {
         >
           <View style={localStyles.heroCard}>
             <View style={localStyles.heroTag}>
-              <Text style={localStyles.heroTagText}>Reservas</Text>
+              <Text style={localStyles.heroTagText}>{t('tabsBookings')}</Text>
             </View>
             <Text style={localStyles.heroTitle}>
-              {selectedModel ? selectedModel.title : 'Consulta disponibilidad'}
+              {selectedModel
+                ? selectedModel.title
+                : t('pistasHeroTitleDefault')}
             </Text>
             <Text style={localStyles.heroSubtitle}>
               {selectedModel
-                ? 'Informacion de pistas disponibles para este deporte en la fecha elegida.'
-                : 'Aqui podrás encontrar todas las pistas, ver su disponibilidad y reservar desde aqui mismo.'}
+                ? t('pistasHeroSubtitleSelected')
+                : t('pistasHeroSubtitleDefault')}
             </Text>
 
             {selectedModel && (
@@ -267,7 +278,9 @@ export default function PistasTab() {
                     size={16}
                     color={theme.primary}
                   />
-                  <Text style={localStyles.filterBadgeText}>Quitar filtro</Text>
+                  <Text style={localStyles.filterBadgeText}>
+                    {t('pistasRemoveFilter')}
+                  </Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -277,10 +290,10 @@ export default function PistasTab() {
             <>
               <View style={localStyles.sectionHeader}>
                 <Text style={localStyles.sectionTitle}>
-                  Deportes disponibles
+                  {t('pistasSportsAvailable')}
                 </Text>
                 <Text style={localStyles.sectionSubtitle}>
-                  Selecciona uno para ver sus pistas sin salir de esta pantalla
+                  {t('pistasSportsAvailableSubtitle')}
                 </Text>
               </View>
 
@@ -310,7 +323,7 @@ export default function PistasTab() {
                             selected && localStyles.dateChipTextActive,
                           ]}
                         >
-                          {formatDateDisplay(day)}
+                          {formatDateDisplay(day, locale)}
                         </Text>
                       </TouchableOpacity>
                     );
@@ -319,7 +332,9 @@ export default function PistasTab() {
               </View>
 
               <View style={localStyles.sectionHeader}>
-                <Text style={localStyles.sectionTitle}>Pistas disponibles</Text>
+                <Text style={localStyles.sectionTitle}>
+                  {t('pistasCourtsAvailable')}
+                </Text>
                 <Text style={localStyles.sectionSubtitle}>{formattedDate}</Text>
               </View>
 
@@ -333,8 +348,7 @@ export default function PistasTab() {
                 <Text style={localStyles.feedbackText}>{sportError}</Text>
               ) : sportPistas.length === 0 ? (
                 <Text style={localStyles.feedbackText}>
-                  No hay pistas disponibles para este deporte en la fecha
-                  seleccionada.
+                  {t('pistasNoCourtsForSport')}
                 </Text>
               ) : (
                 <View style={localStyles.gridContainer}>

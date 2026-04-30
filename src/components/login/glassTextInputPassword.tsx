@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import { useAppTheme } from '../../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   value: string;
@@ -13,10 +14,11 @@ interface Props {
 export const GlassTextInputPassword: React.FC<Props> = ({
   value,
   onChangeText,
-  placeholder = 'Enter password',
+  placeholder,
   label,
 }) => {
   const { theme } = useAppTheme();
+  const { t } = useTranslation();
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
@@ -37,7 +39,7 @@ export const GlassTextInputPassword: React.FC<Props> = ({
       <TextInput
         value={value}
         onChangeText={onChangeText}
-        placeholder={isFocused ? '' : placeholder}
+        placeholder={isFocused ? '' : placeholder || t('examplePassword')}
         placeholderTextColor={theme.inputPlaceholder}
         secureTextEntry={!passwordVisible}
         mode="flat"
@@ -58,11 +60,7 @@ export const GlassTextInputPassword: React.FC<Props> = ({
         right={
           <TextInput.Icon
             icon={passwordVisible ? 'eye-off' : 'eye'}
-            color={
-              isFocused
-                ? theme.inputFocus
-                : theme.grayPlaceholder
-            }
+            color={isFocused ? theme.inputFocus : theme.grayPlaceholder}
             onPress={() => setPasswordVisible(!passwordVisible)}
             forceTextInputFocus={false}
           />

@@ -15,8 +15,10 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styles from '../../../style/admin/home.styles';
 import { useProfile } from '../../../hooks/useProfile';
+import { useTranslation } from 'react-i18next';
 
 export default function AdminManagementScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { theme } = useAppTheme();
   const headerHeight = useHeaderHeight();
@@ -41,74 +43,60 @@ export default function AdminManagementScreen() {
 
   const adminOptions = [
     {
-      title: 'Pistas',
-      subtitle:
-        'Crea, edita y elimina pistas deportivas disponibles en el centro.',
+      title: t('adminHomeCourtsTitle'),
+      subtitle: t('adminHomeCourtsSubtitle'),
       icon: 'stadium-variant',
       route: '/(admin)/(management)/pistas',
       color: '#4CAF50',
-      cta: 'Gestionar pistas',
+      cta: t('adminHomeCourtsCta'),
     },
     {
-      title: 'Tipos de Pista',
-      subtitle:
-        'Gestiona los tipos de pista disponibles: tenis, pádel, fútbol y más.',
+      title: t('adminHomeCourtTypesTitle'),
+      subtitle: t('adminHomeCourtTypesSubtitle'),
       icon: 'shape',
       route: '/(admin)/(management)/tipos_pista',
       color: '#00BCD4',
-      cta: 'Gestionar tipos',
+      cta: t('adminHomeCourtTypesCta'),
     },
     {
-      title: 'Usuarios',
-      subtitle:
-        'Consulta perfiles, cambia roles y gestiona el acceso de cada usuario.',
+      title: t('adminHomeUsersTitle'),
+      subtitle: t('adminHomeUsersSubtitle'),
       icon: 'account-group',
       route: '/(admin)/usuarios',
       color: '#2196F3',
-      cta: 'Ver usuarios',
+      cta: t('adminHomeUsersCta'),
     },
     {
-      title: 'Reservas',
-      subtitle:
-        'Visualiza y controla todas las reservas activas y pasadas del centro.',
+      title: t('adminHomeBookingsTitle'),
+      subtitle: t('adminHomeBookingsSubtitle'),
       icon: 'calendar-check',
       route: '/(admin)/reservas-global',
       color: '#FF9800',
-      cta: 'Revisar reservas',
+      cta: t('adminHomeBookingsCta'),
     },
     {
-      title: 'Pagos',
-      subtitle:
-        'Revisa el historial de cobros y el estado de cada transacción.',
+      title: t('adminHomePaymentsTitle'),
+      subtitle: t('adminHomePaymentsSubtitle'),
       icon: 'currency-eur',
       route: '/(admin)/pagos',
       color: '#E91E63',
-      cta: 'Abrir pagos',
+      cta: t('adminHomePaymentsCta'),
     },
     {
-      title: 'Membresías',
-      subtitle:
-        'Ajusta los planes, precios y beneficios de cada tipo de membresía.',
+      title: t('adminHomeMembershipsTitle'),
+      subtitle: t('adminHomeMembershipsSubtitle'),
       icon: 'card-account-details',
       route: '/(admin)/membresias',
       color: '#9C27B0',
-      cta: 'Editar planes',
+      cta: t('adminHomeMembershipsCta'),
     },
     {
-      title: 'Reseñas',
-      subtitle: 'Modera los comentarios y valoraciones que dejan los usuarios.',
+      title: t('adminHomeReviewsTitle'),
+      subtitle: t('adminHomeReviewsSubtitle'),
       icon: 'star-circle',
       route: '/(admin)/resenyas',
       color: '#FBC02D',
-      cta: 'Moderar reseñas',
-    },
-    {
-      title: 'test',
-      subtitle: 'testtest.',
-      icon: 'star-circle',
-      route: '/(admin)/resenyas',
-      color: '#83651b',
-      cta: 'Moderar reseñas',
+      cta: t('adminHomeReviewsCta'),
     },
   ];
 
@@ -195,25 +183,24 @@ export default function AdminManagementScreen() {
             style={[styles.heroTag, { borderColor: theme.borderAccentSoft }]}
           >
             <Text style={[styles.heroTagText, { color: theme.primary }]}>
-              Panel admin
+              {t('adminHomePanel')}
             </Text>
           </View>
 
           <Text style={[styles.heroTitle, { color: theme.textTitle }]}>
-            Bienvenido {user?.username}
+            {t('adminHomeWelcome', { name: user?.username || '' })}
           </Text>
           <Text style={[styles.heroSubtitle, { color: theme.textSubtitle }]}>
-            Desde aquí tienes acceso a todos los flujos de gestión de ResPi®.
+            {t('adminHomeSubtitle')}
           </Text>
         </View>
 
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: theme.textTitle }]}>
-            Herramientas disponibles
+            {t('adminHomeToolsTitle')}
           </Text>
           <Text style={[styles.sectionSubtitle, { color: theme.textSubtitle }]}>
-            Cada bloque abre un flujo distinto con más espacio horizontal para
-            leer y escanear mejor en escritorio.
+            {t('adminHomeToolsSubtitle')}
           </Text>
         </View>
 

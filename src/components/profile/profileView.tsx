@@ -24,8 +24,10 @@ import MembresiaModal from '../../components/profile/membresia.modal';
 import { router } from 'expo-router';
 // Importamos el hook que hemos creado
 import { useProfile } from '../../hooks/useProfile';
+import { useTranslation } from 'react-i18next';
 
 export default function ProfileView() {
+  const { t, i18n } = useTranslation();
   const { signOut, role } = useAuth();
   const {
     isDarkMode,
@@ -142,10 +144,10 @@ export default function ProfileView() {
             </TouchableOpacity>
           </View>
           <Text style={styles.userName}>
-            {user?.username || 'Usuario Cliente'}
+            {user?.username || t('profileUserFallback')}
           </Text>
           <Text style={styles.userEmail}>
-            {user?.email || 'cliente@ejemplo.com'}
+            {user?.email || t('profileEmailFallback')}
           </Text>
 
           {role !== 'SUPER_ADMIN' && (
@@ -154,7 +156,7 @@ export default function ProfileView() {
                 {totalReservas || 0}
               </Text>
               <Text style={[styles.reservasLabel, { color: theme.textBody }]}>
-                Reservas
+                {t('profileReservations')}
               </Text>
             </View>
           )}
@@ -162,14 +164,14 @@ export default function ProfileView() {
 
         {/*grupo: Mi cuenta */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Mi Cuenta</Text>
+          <Text style={styles.sectionTitle}>{t('profileMyAccount')}</Text>
           <View
             style={[styles.card, { backgroundColor: theme.backgroundCard }]}
           >
             <MenuOption
               icon="person-outline"
-              title="Nombre de usuario"
-              value={user?.username || 'JuanPerez88'}
+              title={t('profileUsername')}
+              value={user?.username || t('profileUserFallback')}
               isLast={undefined}
               onPress={() => {
                 setModalEditUserNameVisible(true);
@@ -177,21 +179,25 @@ export default function ProfileView() {
             />
             <MenuOption
               icon="mail-outline"
-              title="Email"
-              value={user?.email || 'juan@mail.com'}
+              title={t('authLoginEmail')}
+              value={user?.email || t('profileEmailFallback')}
               isLast={undefined}
             />
             <MenuOption
               icon="language-outline"
-              title="Idioma"
-              value="Español"
+              title={t('profileLanguage')}
+              value={
+                i18n.language === 'en'
+                  ? t('languageEnglish')
+                  : t('languageSpanish')
+              }
               isLast={undefined}
               onPress={() => setModalIdiomaVisible(true)}
             />
             <MenuOption
               icon="moon-outline"
-              title="Modo Oscuro"
-              value={isDarkMode ? 'Activado' : 'Desactivado'}
+              title={t('profileDarkMode')}
+              value={isDarkMode ? t('profileEnabled') : t('profileDisabled')}
               isLast
               onPress={handleOpenDarkModeModal}
             />
@@ -199,13 +205,13 @@ export default function ProfileView() {
         </View>
         {role !== 'SUPER_ADMIN' && (
           <View style={styles.membresiaCard}>
-            <Text style={styles.sectionTitle}>MEMBRESIA</Text>
+            <Text style={styles.sectionTitle}>{t('profileMembership')}</Text>
             <View
               style={[styles.card, { backgroundColor: theme.backgroundCard }]}
             >
               <MenuOption
                 icon="diamond-outline"
-                title="Membresía"
+                title={t('profileMembership')}
                 value={userMembershipLabel}
                 isLast={true}
                 onPress={() => setModalMembresiaVisible(true)}
@@ -216,19 +222,19 @@ export default function ProfileView() {
 
         {/* GRUPO 2: APP */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Configuración</Text>
+          <Text style={styles.sectionTitle}>{t('profileSettings')}</Text>
           <View
             style={[styles.card, { backgroundColor: theme.backgroundCard }]}
           >
             <MenuOption
               icon="notifications-outline"
-              title="Notificaciones"
+              title={t('profileNotifications')}
               value={undefined}
               isLast={undefined}
             />
             <MenuOption
               icon="lock-closed-outline"
-              title="Privacidad"
+              title={t('profilePrivacy')}
               isLast
               value={undefined}
             />
@@ -238,7 +244,7 @@ export default function ProfileView() {
         {/* BOTÓN LOGOUT */}
         <View style={styles.logoutContainer}>
           <GlassTextButton
-            text="Cerrar Sesión"
+            text={t('profileLogout')}
             onPress={handleLogout}
             color={theme.logoutGlass}
             borderColor={theme.logoutBorder}
@@ -248,7 +254,7 @@ export default function ProfileView() {
         </View>
 
         <Text style={styles.RespiText}>ResPi®</Text>
-        <Text style={styles.versionText}>Versión 1.0.0</Text>
+        <Text style={styles.versionText}>{t('profileVersion')} 1.0.0</Text>
       </ScrollView>
 
       {loading && (

@@ -6,6 +6,7 @@ import { useAppTheme } from '../../../context/ThemeContext';
 import { TipoPista } from '../../../types/types';
 import { GlassTextButton } from '../../login/glassTextButton';
 import { GlassTextInput } from '../../login/glassTextInput';
+import { useTranslation } from 'react-i18next';
 
 type FilterEstado = 'DISPONIBLE' | 'MANTENIMIENTO' | 'INACTIVA' | null;
 
@@ -33,6 +34,7 @@ export function PistasFiltersModal({
   setFilterPrecioMax,
 }: Props) {
   const { theme, isDarkMode } = useAppTheme();
+  const { t } = useTranslation();
 
   const overlayColor = isDarkMode ? theme.overlayDark : 'rgba(0,0,0,0.42)';
   const cardBackground = isDarkMode
@@ -136,7 +138,7 @@ export function PistasFiltersModal({
                   marginBottom: 8,
                 }}
               >
-                Tipo de pista
+                {t('adminCourtTypeLabel')}
               </Text>
               <View
                 style={{
@@ -173,7 +175,7 @@ export function PistasFiltersModal({
                       fontSize: 13,
                     }}
                   >
-                    Todos
+                    {t('adminAll')}
                   </Text>
                 </TouchableOpacity>
                 {tiposPista.map((tipo) => {
@@ -221,7 +223,7 @@ export function PistasFiltersModal({
                   marginBottom: 8,
                 }}
               >
-                Estado
+                {t('adminStatus')}
               </Text>
               <View
                 style={{
@@ -255,7 +257,7 @@ export function PistasFiltersModal({
                       fontSize: 13,
                     }}
                   >
-                    Todos
+                    {t('adminAll')}
                   </Text>
                 </TouchableOpacity>
                 {(['DISPONIBLE', 'MANTENIMIENTO'] as const).map((estado) => {
@@ -285,8 +287,8 @@ export function PistasFiltersModal({
                         }}
                       >
                         {estado === 'DISPONIBLE'
-                          ? 'Disponible'
-                          : 'Mantenimiento'}
+                          ? t('pistasStatusAvailable')
+                          : t('adminSetMaintenance')}
                       </Text>
                     </TouchableOpacity>
                   );
@@ -301,13 +303,13 @@ export function PistasFiltersModal({
                   marginBottom: 8,
                 }}
               >
-                Precio maximo (EUR/h)
+                {t('adminMaxPrice')}
               </Text>
               <View style={{ marginBottom: 8 }}>
                 <GlassTextInput
                   value={filterPrecioMax}
                   onChangeText={setFilterPrecioMax}
-                  placeholder="Ej: 15"
+                  placeholder={t('adminExamplePrice')}
                   keyboardType="decimal-pad"
                 />
               </View>
@@ -325,7 +327,7 @@ export function PistasFiltersModal({
             >
               <View style={{ flex: 1 }}>
                 <GlassTextButton
-                  text="Limpiar"
+                  text={t('adminClear')}
                   onPress={() => {
                     setFilterTipoPistaId(null);
                     setFilterEstado(null);
@@ -340,7 +342,7 @@ export function PistasFiltersModal({
               </View>
               <View style={{ flex: 1 }}>
                 <GlassTextButton
-                  text="Aplicar"
+                  text={t('adminApply')}
                   onPress={onClose}
                   textColor={theme.onPrimary}
                   color={theme.primaryButton}

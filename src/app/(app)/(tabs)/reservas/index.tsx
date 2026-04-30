@@ -30,6 +30,7 @@ import DisponibilidadBarra, {
 } from '../../../../components/reservas/DisponibilidadBarra';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
 import createReservasTabStyles from '../../../../style/reservasTab.styles';
+import { useTranslation } from 'react-i18next';
 
 const getNext7Days = () => {
   const days: Date[] = [];
@@ -48,8 +49,8 @@ const formatDateForAPI = (date: Date) => {
   return year + '-' + month + '-' + day;
 };
 
-const formatDateDisplay = (date: Date) =>
-  date.toLocaleDateString('es-ES', {
+const formatDateDisplay = (date: Date, locale: string) =>
+  date.toLocaleDateString(locale, {
     weekday: 'short',
     day: '2-digit',
     month: 'short',
@@ -86,6 +87,7 @@ const getImageForPista = (pista: PistaDisponibilidad) => {
 };
 
 export default function ReservasTab() {
+  const { t, i18n } = useTranslation();
   const { theme, isDarkMode } = useAppTheme();
   const router = useRouter();
   const params = useLocalSearchParams<{
@@ -100,6 +102,7 @@ export default function ReservasTab() {
   const headerHeight = useHeaderHeight();
   const { width } = useWindowDimensions();
   const isWideScreen = width > 768;
+  const locale = i18n.language === 'en' ? 'en-US' : 'es-ES';
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showDateModal, setShowDateModal] = useState(false);
@@ -128,7 +131,9 @@ export default function ReservasTab() {
   const filteredPistas = useMemo(() => {
     if (!selectedModelId && !selectedModelTitle) return pistas;
 
-    const targetTitle = selectedModelTitle ? normalizeText(selectedModelTitle) : '';
+    const targetTitle = selectedModelTitle
+      ? normalizeText(selectedModelTitle)
+      : '';
 
     return pistas.filter((pista) => {
       const item = pista as any;
@@ -245,7 +250,7 @@ export default function ReservasTab() {
                     isSelected && reservasTabStyles.dateButtonTextSelected,
                   ]}
                 >
-                  {formatDateDisplay(item)}
+                  {formatDateDisplay(item, locale)}
                 </Text>
               </TouchableOpacity>
             );
@@ -288,7 +293,9 @@ export default function ReservasTab() {
             <Text style={reservasTabStyles.pistaName}>{pista.nombre}</Text>
             <View style={reservasTabStyles.priceBadge}>
               <Text style={reservasTabStyles.priceText}>
-                EUR {pista.precio_hora ?? '-'} /h
+                {t('bookingTabPricePerHour', {
+                  price: pista.precio_hora ?? '-',
+                })}
               </Text>
             </View>
           </View>
@@ -296,7 +303,7 @@ export default function ReservasTab() {
           <View style={reservasTabStyles.timelineContainer}>
             <View style={reservasTabStyles.timelineTitleRow}>
               <Text style={reservasTabStyles.horariosLabel}>
-                Disponibilidad del dia
+                {t('bookingTabAvailabilityToday')}
               </Text>
               <TouchableOpacity
                 style={reservasTabStyles.infoButton}
@@ -332,14 +339,16 @@ export default function ReservasTab() {
       <SessionExpiredModal
         visible={showInfoModal}
         onConfirm={() => setShowInfoModal(false)}
-        title={infoTitle || 'Huecos libres'}
-        confirmText="Cerrar"
+        title={infoTitle || t('bookingTabFreeSlots')}
+        confirmText={t('commonClose')}
         content={
           <View>
-            <Text style={reservasTabStyles.infoListTitle}>Huecos libres</Text>
+            <Text style={reservasTabStyles.infoListTitle}>
+              {t('bookingTabFreeSlots')}
+            </Text>
             {infoRanges.length === 0 ? (
               <Text style={reservasTabStyles.infoListEmpty}>
-                No hay disponibilidad en este dia.
+                {t('bookingTabNoAvailability')}
               </Text>
             ) : (
               <View style={reservasTabStyles.infoListWrap}>
@@ -360,9 +369,9 @@ export default function ReservasTab() {
       <SessionExpiredModal
         visible={showNoSlotsModal}
         onConfirm={() => setShowNoSlotsModal(false)}
-        title={noSlotsTitle || 'Sin huecos disponibles'}
-        message="No quedan huecos libres de 30 minutos o mas para esta pista."
-        confirmText="Entendido"
+        title={noSlotsTitle || t('bookingTabNoSlotsTitle')}
+        message={t('bookingTabNoSlotsMessage')}
+        confirmText={t('commonUnderstood')}
       />
 
       {renderDateSelector()}
@@ -379,10 +388,10 @@ export default function ReservasTab() {
             color={theme.textMuted}
           />
           <Text style={reservasTabStyles.emptyTitle}>
-            No hay pistas disponibles para este deporte
+            {t('bookingTabEmptyTitle')}
           </Text>
           <Text style={reservasTabStyles.emptySubtitle}>
-            Selecciona otra fecha o cambia de deporte para continuar
+            {t('bookingTabEmptySubtitle')}
           </Text>
         </View>
       ) : (
@@ -407,9 +416,15 @@ export default function ReservasTab() {
               }}
             >
               <Text
-                style={{ color: theme.textTitle, fontWeight: '700', fontSize: 13 }}
+                style={{
+                  color: theme.textTitle,
+                  fontWeight: '700',
+                  fontSize: 13,
+                }}
               >
-                Mostrando pistas de {selectedModelTitle}
+                {t('bookingTabShowingCourts', {
+                  sport: String(selectedModelTitle),
+                })}
               </Text>
             </View>
           )}

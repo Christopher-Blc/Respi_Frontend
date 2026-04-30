@@ -17,9 +17,11 @@ import { tiposPistaStyles as styles } from '../../../../style/admin/tiposPista.s
 import { TipoPistaCard } from '../../../../components/admin/tipoPista/TipoPistaCard';
 import { TipoPistaFormModal } from '../../../../components/admin/tipoPista/TipoPistaFormModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
+import { useTranslation } from 'react-i18next';
 
 export default function AdminTiposPista() {
   const { theme } = useAppTheme();
+  const { t } = useTranslation();
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
 
@@ -67,7 +69,7 @@ export default function AdminTiposPista() {
         >
           <Ionicons name="search" size={20} color={theme.textBody} />
           <TextInput
-            placeholder="Buscar por nombre..."
+            placeholder={t('adminSearchByName')}
             placeholderTextColor={theme.textBody + '80'}
             style={[styles.searchInput, { color: theme.textTitle }]}
             value={searchQuery}
@@ -126,12 +128,14 @@ export default function AdminTiposPista() {
         visible={deleteModal.visible}
         title={
           deleteModal.canDelete
-            ? `Eliminar "${deleteModal.item?.nombre}"`
-            : 'No se puede eliminar'
+            ? t('adminDeleteCourtTitle', { name: deleteModal.item?.nombre })
+            : t('adminCannotDeleteTitle')
         }
         message={deleteModal.message}
-        confirmText={deleteModal.canDelete ? 'Eliminar' : 'Entendido'}
-        cancelText="Cancelar"
+        confirmText={
+          deleteModal.canDelete ? t('adminDelete') : t('commonUnderstood')
+        }
+        cancelText={t('commonCancel')}
         onConfirm={deleteModal.canDelete ? confirmDelete : cancelDelete}
         onCancel={deleteModal.canDelete ? cancelDelete : undefined}
       />
@@ -141,7 +145,7 @@ export default function AdminTiposPista() {
         visible={errorModal.visible}
         title={errorModal.title}
         message={errorModal.message}
-        confirmText="Entendido"
+        confirmText={t('commonUnderstood')}
         onConfirm={() =>
           setErrorModal({ visible: false, title: '', message: '' })
         }

@@ -4,6 +4,7 @@ import { BlurView } from 'expo-blur';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { GlassTextButton } from '../../login/glassTextButton';
 import { GlassTextInput } from '../../login/glassTextInput';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   visible: boolean;
@@ -29,6 +30,7 @@ export function MaintenanceDateModal({
   onContinue,
 }: Props) {
   const { theme, isDarkMode } = useAppTheme();
+  const { t } = useTranslation();
 
   const overlayColor = isDarkMode ? theme.overlayDark : 'rgba(0,0,0,0.42)';
   const cardBackground = isDarkMode
@@ -86,7 +88,7 @@ export function MaintenanceDateModal({
                 marginBottom: 6,
               }}
             >
-              Fechas de mantenimiento
+              {t('maintenanceModalTitle')}
             </Text>
             <Text
               style={{
@@ -95,7 +97,7 @@ export function MaintenanceDateModal({
                 marginBottom: 14,
               }}
             >
-              Define el rango para "{nombre}" en formato AAAA-MM-DD.
+              {t('maintenanceModalDescription', { name: nombre })}
             </Text>
 
             <Text
@@ -106,7 +108,7 @@ export function MaintenanceDateModal({
                 marginBottom: 8,
               }}
             >
-              Inicio
+              {t('maintenanceModalStart')}
             </Text>
             <GlassTextInput
               value={desde}
@@ -124,7 +126,7 @@ export function MaintenanceDateModal({
                 marginBottom: 8,
               }}
             >
-              Fin
+              {t('maintenanceModalEnd')}
             </Text>
             <GlassTextInput
               value={hasta}
@@ -148,7 +150,7 @@ export function MaintenanceDateModal({
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
               <View style={{ flex: 1 }}>
                 <GlassTextButton
-                  text="Cancelar"
+                  text={t('commonCancel')}
                   onPress={onCancel}
                   textColor={theme.textBody}
                   color={theme.inputBackground}
@@ -159,7 +161,7 @@ export function MaintenanceDateModal({
               </View>
               <View style={{ flex: 1 }}>
                 <GlassTextButton
-                  text="Continuar"
+                  text={t('maintenanceModalContinue')}
                   onPress={onContinue}
                   textColor={theme.onPrimary}
                   color={theme.primaryButton}

@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import api from '../services/api';
 import { TipoPista } from '../types/types';
-
-const fallbackDescription = (nombre: string) =>
-  `Reserva tu pista de ${String(nombre || '').toLowerCase()} de forma rapida y sencilla.`;
+import { useTranslation } from 'react-i18next';
 
 export function usePistaTypes() {
+  const { t } = useTranslation();
   const [modelos, setModelos] = useState<TipoPista[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,7 +34,10 @@ export function usePistaTypes() {
   }, []);
 
   const getCardDescription = (item: TipoPista) =>
-    (item as any)?.descripcion || fallbackDescription(item.nombre || 'deporte');
+    (item as any)?.descripcion ||
+    t('pistaTypesFallbackDescription', {
+      sport: String(item.nombre || 'deporte').toLowerCase(),
+    });
 
   return {
     modelos,

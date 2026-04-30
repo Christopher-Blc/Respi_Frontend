@@ -11,9 +11,11 @@ import { BlurView } from 'expo-blur';
 import { GlassTextButton } from '../components/login/glassTextButton'; // Usamos tu componente de botón
 import { useAppTheme } from '../context/ThemeContext';
 import { AppTheme } from '../theme';
+import { useTranslation } from 'react-i18next';
 
 export default function NotFoundScreen() {
   const { isDarkMode, theme } = useAppTheme();
+  const { t } = useTranslation();
   const styles = React.useMemo(() => createStyles(theme), [theme]);
   const bgImage = isDarkMode
     ? require('../../assets/login-bg-dark.png')
@@ -21,7 +23,9 @@ export default function NotFoundScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Oops!', headerShown: false }} />
+      <Stack.Screen
+        options={{ title: t('notFoundTitle'), headerShown: false }}
+      />
 
       <ImageBackground
         source={bgImage}
@@ -42,18 +46,16 @@ export default function NotFoundScreen() {
         >
           <Text style={styles.errorCode}>404</Text>
 
-          <Text style={styles.title}>¡Te has perdido!</Text>
+          <Text style={styles.title}>{t('notFoundHeading')}</Text>
 
-          <Text style={styles.message}>
-            Parece que esta página no existe o ha sido movida a otra dimensión.
-          </Text>
+          <Text style={styles.message}>{t('notFoundMessage')}</Text>
 
           <View style={{ height: 30 }} />
 
           {/* Usamos un Link de expo-router envolviendo tu botón o un estilo similar */}
           <Link href="/" asChild>
             <GlassTextButton
-              text="Volver al inicio"
+              text={t('notFoundBackHome')}
               textColor={theme.onPrimary}
               color={theme.primarySoft}
             />
@@ -66,56 +68,56 @@ export default function NotFoundScreen() {
 
 const createStyles = (theme: AppTheme) =>
   StyleSheet.create({
-  background: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  glass: {
-    width: '85%',
-    maxWidth: 400,
-    padding: 40,
-    borderRadius: 30,
-    borderWidth: 0.8,
-    borderColor: theme.borderGlass,
-    alignItems: 'center',
-    overflow: 'hidden',
-    ...Platform.select({
-      web: {
-        boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.2)',
-      },
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.2,
-        shadowRadius: 10,
-      },
-      android: {
-        elevation: 5,
-      },
-    }),
-  },
-  errorCode: {
-    fontSize: 80,
-    fontWeight: '900',
-    color: theme.primary,
-    opacity: 0.8,
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: theme.textPrimary,
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  message: {
-    fontSize: 16,
-    color: theme.textSecondary,
-    textAlign: 'center',
-    lineHeight: 22,
-    textShadowColor: theme.surfaceGlass,
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 5,
-  },
+    background: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    glass: {
+      width: '85%',
+      maxWidth: 400,
+      padding: 40,
+      borderRadius: 30,
+      borderWidth: 0.8,
+      borderColor: theme.borderGlass,
+      alignItems: 'center',
+      overflow: 'hidden',
+      ...Platform.select({
+        web: {
+          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.2)',
+        },
+        ios: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.2,
+          shadowRadius: 10,
+        },
+        android: {
+          elevation: 5,
+        },
+      }),
+    },
+    errorCode: {
+      fontSize: 80,
+      fontWeight: '900',
+      color: theme.primary,
+      opacity: 0.8,
+      marginBottom: 10,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: theme.textPrimary,
+      marginBottom: 10,
+      textAlign: 'center',
+    },
+    message: {
+      fontSize: 16,
+      color: theme.textSecondary,
+      textAlign: 'center',
+      lineHeight: 22,
+      textShadowColor: theme.surfaceGlass,
+      textShadowOffset: { width: 1, height: 1 },
+      textShadowRadius: 5,
+    },
   });

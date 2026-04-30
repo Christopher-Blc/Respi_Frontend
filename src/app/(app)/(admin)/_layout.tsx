@@ -8,72 +8,78 @@ import WebSidebar, {
   SidebarSection,
 } from '../../../components/general/WebSidebar';
 import WebProfileBadge from '../../../components/general/WebProfileBadge';
-
-const ADMIN_SIDEBAR_SECTIONS: SidebarSection[] = [
-  {
-    label: 'General',
-    items: [
-      {
-        label: 'Info',
-        route: '/(app)/(admin)/info',
-        icon: 'graph',
-        pathMatch: 'info',
-      },
-      {
-        label: 'Perfil',
-        route: '/(app)/(admin)/profile',
-        icon: 'person',
-        pathMatch: 'profile',
-      },
-    ],
-  },
-  {
-    label: 'Administración',
-    items: [
-      {
-        label: 'Gestión',
-        icon: 'tools',
-        pathMatch: 'gestion-parent',
-        children: [
-          {
-            label: 'Pistas',
-            route: '/(app)/(admin)/(management)/pistas',
-            pathMatch: '/pistas',
-          },
-          {
-            label: 'Tipos de Pista',
-            route: '/(app)/(admin)/(management)/tipos_pista',
-            pathMatch: 'tipos_pista',
-          },
-          {
-            label: 'Usuarios',
-            route: '/(app)/(admin)/usuarios',
-            pathMatch: 'usuarios',
-          },
-          {
-            label: 'Reservas',
-            route: '/(app)/(admin)/reservas-global',
-            pathMatch: 'reservas-global',
-          },
-          { label: 'Pagos', route: '/(app)/(admin)/pagos', pathMatch: 'pagos' },
-          {
-            label: 'Membresías',
-            route: '/(app)/(admin)/membresias',
-            pathMatch: 'membresias',
-          },
-          {
-            label: 'Reseñas',
-            route: '/(app)/(admin)/resenyas',
-            pathMatch: 'resenyas',
-          },
-        ],
-      },
-    ],
-  },
-];
+import { useTranslation } from 'react-i18next';
 
 export default function AdminTabLayout() {
   const { isDarkMode, theme } = useAppTheme();
+  const { t } = useTranslation();
+
+  const adminSidebarSections: SidebarSection[] = [
+    {
+      label: t('adminSectionGeneral'),
+      items: [
+        {
+          label: t('adminInfo'),
+          route: '/(app)/(admin)/info',
+          icon: 'graph',
+          pathMatch: 'info',
+        },
+        {
+          label: t('tabsProfile'),
+          route: '/(app)/(admin)/profile',
+          icon: 'person',
+          pathMatch: 'profile',
+        },
+      ],
+    },
+    {
+      label: t('adminSectionAdministration'),
+      items: [
+        {
+          label: t('adminManagement'),
+          icon: 'tools',
+          pathMatch: 'gestion-parent',
+          children: [
+            {
+              label: t('tabsCourts'),
+              route: '/(app)/(admin)/(management)/pistas',
+              pathMatch: '/pistas',
+            },
+            {
+              label: t('adminCourtTypes'),
+              route: '/(app)/(admin)/(management)/tipos_pista',
+              pathMatch: 'tipos_pista',
+            },
+            {
+              label: t('adminUsers'),
+              route: '/(app)/(admin)/usuarios',
+              pathMatch: 'usuarios',
+            },
+            {
+              label: t('tabsBookings'),
+              route: '/(app)/(admin)/reservas-global',
+              pathMatch: 'reservas-global',
+            },
+            {
+              label: t('adminPayments'),
+              route: '/(app)/(admin)/pagos',
+              pathMatch: 'pagos',
+            },
+            {
+              label: t('adminMemberships'),
+              route: '/(app)/(admin)/membresias',
+              pathMatch: 'membresias',
+            },
+            {
+              label: t('adminReviews'),
+              route: '/(app)/(admin)/resenyas',
+              pathMatch: 'resenyas',
+            },
+          ],
+        },
+      ],
+    },
+  ];
 
   const isWeb = Platform.OS === 'web';
 
@@ -135,7 +141,7 @@ export default function AdminTabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Gestión',
+          title: t('adminManagement'),
           tabBarIcon: ({ color, size }) => (
             <Octicons name="tools" size={size} color={color} />
           ),
@@ -145,8 +151,8 @@ export default function AdminTabLayout() {
       <Tabs.Screen
         name="info"
         options={{
-          title: 'Información',
-          tabBarLabel: 'Info',
+          title: t('adminInfo'),
+          tabBarLabel: t('adminInfo'),
           tabBarIcon: ({ color, size }) => (
             <Octicons name="graph" size={size} color={color} />
           ),
@@ -157,7 +163,7 @@ export default function AdminTabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Perfil',
+          title: t('tabsProfile'),
           tabBarIcon: ({ color, size }) => (
             <Octicons name="person" size={size} color={color} />
           ),
@@ -167,7 +173,7 @@ export default function AdminTabLayout() {
       <Tabs.Screen
         name="(management)"
         options={{
-          title: 'Gestión',
+          title: t('adminManagement'),
           headerShown: false,
           href: null,
         }}
@@ -184,9 +190,9 @@ export default function AdminTabLayout() {
       {isWeb ? (
         <View style={{ flex: 1, flexDirection: 'row' }}>
           <WebSidebar
-            sections={ADMIN_SIDEBAR_SECTIONS}
+            sections={adminSidebarSections}
             appName="RESPI"
-            appSubtitle="Panel admin"
+            appSubtitle={t('adminPanelSubtitle')}
           />
           <View style={{ flex: 1 }}>{tabs}</View>
         </View>

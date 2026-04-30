@@ -10,6 +10,7 @@ import {
 import { Platform } from 'react-native';
 import { useAppTheme } from '../../context/ThemeContext';
 import createModalDarkModeStyles from '../../style/modalDarkMode.styles';
+import { useTranslation } from 'react-i18next';
 
 const lightModeExample = require('../../../assets/exampleLightMode.jpeg');
 const darkModeExample = require('../../../assets/exampleDarkMode.jpeg');
@@ -34,6 +35,7 @@ export default function DarkModeModal({
   onClose,
 }: Props) {
   const { theme } = useAppTheme();
+  const { t } = useTranslation();
   const isWeb = Platform.OS === 'web';
   const styles = React.useMemo(
     () => createModalDarkModeStyles(theme, isWeb),
@@ -75,13 +77,15 @@ export default function DarkModeModal({
       <View style={styles.headerContainer}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={onClose}>
-            <Text style={styles.headerText}>Cancelar</Text>
+            <Text style={styles.headerText}>{t('commonCancel')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => onSave(localValue, localSystemValue)}
           >
-            <Text style={[styles.headerText, styles.saveText]}>Guardar</Text>
+            <Text style={[styles.headerText, styles.saveText]}>
+              {t('commonSave')}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -103,7 +107,7 @@ export default function DarkModeModal({
               style={styles.previewImage}
               resizeMode="contain"
             />
-            <Text style={styles.previewLabel}>Claro</Text>
+            <Text style={styles.previewLabel}>{t('profileThemeLight')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -121,22 +125,22 @@ export default function DarkModeModal({
               style={styles.previewImage}
               resizeMode="contain"
             />
-            <Text style={styles.previewLabel}>Oscuro</Text>
+            <Text style={styles.previewLabel}>{t('profileThemeDark')}</Text>
           </TouchableOpacity>
         </View>
       </View>
 
       <View style={styles.settingsSection}>
         <View style={styles.settingsCard}>
-          <Text style={styles.title}>Modo oscuro</Text>
+          <Text style={styles.title}>{t('profileDarkMode')}</Text>
 
           <Text style={styles.description}>
-            Activa o desactiva el modo oscuro para la pantalla de perfil.
+            {t('profileDarkModeDescription')}
           </Text>
 
           <View style={styles.toggleGroup}>
             <View style={styles.toggleRow}>
-              <Text style={styles.toggleLabel}>Sistema</Text>
+              <Text style={styles.toggleLabel}>{t('profileSystem')}</Text>
               <Switch
                 value={localSystemValue}
                 onValueChange={handleSystemChange}
@@ -151,7 +155,7 @@ export default function DarkModeModal({
 
             <View style={styles.toggleRow}>
               <Text style={styles.toggleLabel}>
-                {localValue ? 'Activado' : 'Desactivado'}
+                {localValue ? t('profileEnabled') : t('profileDisabled')}
               </Text>
               <Switch
                 value={localValue}

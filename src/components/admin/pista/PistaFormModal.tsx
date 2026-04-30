@@ -19,6 +19,7 @@ import {
   WeeklyScheduleItem,
 } from '../../../types/types';
 import { WEEK_DAYS } from '../../../hooks/pistaUtils';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   visible: boolean;
@@ -79,6 +80,7 @@ export function PistaFormModal({
   toggleSamePrice,
 }: Props) {
   const { theme } = useAppTheme();
+  const { t } = useTranslation();
   const switchTrackOff = theme.borderMain;
   const switchTrackOn = theme.primary;
   const switchThumbOff = theme.backgroundCard;
@@ -96,7 +98,9 @@ export function PistaFormModal({
           >
             <View style={styles.modalHeader}>
               <Text style={[styles.modalTitle, { color: theme.textTitle }]}>
-                {pistaAEditar ? 'Editar Pista' : 'Nueva Pista'}
+                {pistaAEditar
+                  ? t('adminCourtEditTitle')
+                  : t('adminCourtNewTitle')}
               </Text>
               <TouchableOpacity onPress={onClose}>
                 <Ionicons name="close" size={26} color={theme.textTitle} />
@@ -104,7 +108,7 @@ export function PistaFormModal({
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
-              <InputLabel label="Tipo de Pista" theme={theme} />
+              <InputLabel label={t('adminCourtTypeLabel')} theme={theme} />
               <View
                 style={{
                   flexDirection: 'row',
@@ -154,7 +158,7 @@ export function PistaFormModal({
                 })}
               </View>
 
-              <InputLabel label="Nombre de la Pista" theme={theme} />
+              <InputLabel label={t('adminCourtNameLabel')} theme={theme} />
               <TextInput
                 style={[
                   styles.input,
@@ -166,7 +170,7 @@ export function PistaFormModal({
 
               <View style={{ flexDirection: 'row', gap: 12 }}>
                 <View style={{ flex: 1 }}>
-                  <InputLabel label="Capacidad" theme={theme} />
+                  <InputLabel label={t('adminCapacityLabel')} theme={theme} />
                   <TextInput
                     style={[
                       styles.input,
@@ -193,7 +197,7 @@ export function PistaFormModal({
                   marginBottom: 12,
                 }}
               >
-                <InputLabel label="Mismo precio siempre" theme={theme} />
+                <InputLabel label={t('adminSamePriceAlways')} theme={theme} />
                 <Switch
                   value={samePriceMode}
                   onValueChange={(enabled) =>
@@ -207,7 +211,7 @@ export function PistaFormModal({
 
               {samePriceMode && (
                 <>
-                  <InputLabel label="Precio/Hora (€)" theme={theme} />
+                  <InputLabel label={t('adminPricePerHour')} theme={theme} />
                   <TextInput
                     style={[
                       styles.input,
@@ -216,7 +220,7 @@ export function PistaFormModal({
                         borderColor: theme.primarySoft,
                       },
                     ]}
-                    placeholder="Ingrese el precio para todos los días"
+                    placeholder={t('adminPriceAllDaysPlaceholder')}
                     value={globalPrice}
                     keyboardType="numeric"
                     onChangeText={(t) => {
@@ -227,7 +231,7 @@ export function PistaFormModal({
                 </>
               )}
 
-              <InputLabel label="Horario semanal" theme={theme} />
+              <InputLabel label={t('adminWeeklySchedule')} theme={theme} />
               <View style={styles.weeklyGrid}>
                 {weeklySchedule.map((day) => (
                   <View
@@ -250,7 +254,7 @@ export function PistaFormModal({
                       {day.dia_semana}
                     </Text>
 
-                    <InputLabel label="Precio" theme={theme} />
+                    <InputLabel label={t('adminPrice')} theme={theme} />
                     <TextInput
                       style={[
                         styles.weeklyHourInput,
@@ -268,7 +272,7 @@ export function PistaFormModal({
                           marginBottom: 8,
                         },
                       ]}
-                      placeholder="Precio/h (€)"
+                      placeholder={t('adminPricePerHourPlaceholder')}
                       value={day.precio_hora}
                       editable={!day.cerrado && !samePriceMode}
                       keyboardType="numeric"
@@ -279,7 +283,7 @@ export function PistaFormModal({
 
                     <View style={styles.weeklyHoursRow}>
                       <View style={{ flex: 1 }}>
-                        <InputLabel label="Hora Inicio" theme={theme} />
+                        <InputLabel label={t('adminStartTime')} theme={theme} />
                         <TextInput
                           style={[
                             styles.weeklyHourInput,
@@ -309,7 +313,7 @@ export function PistaFormModal({
                         -
                       </Text>
                       <View style={{ flex: 1 }}>
-                        <InputLabel label="Hora Fin" theme={theme} />
+                        <InputLabel label={t('adminEndTime')} theme={theme} />
                         <TextInput
                           style={[
                             styles.weeklyHourInput,
@@ -338,7 +342,9 @@ export function PistaFormModal({
                     </View>
 
                     <View style={styles.weeklyClosedRow}>
-                      <Text style={{ color: theme.textBody }}>Cerrado</Text>
+                      <Text style={{ color: theme.textBody }}>
+                        {t('adminClosed')}
+                      </Text>
                       <Switch
                         value={day.cerrado}
                         onValueChange={(v) =>
@@ -360,7 +366,7 @@ export function PistaFormModal({
 
               <View style={styles.switchRow}>
                 <Text style={{ color: theme.textTitle }}>
-                  ¿Es pista cubierta?
+                  {t('adminCoveredQuestion')}
                 </Text>
                 <Switch
                   value={formData.cubierta}
@@ -377,7 +383,7 @@ export function PistaFormModal({
 
               <View style={styles.switchRow}>
                 <Text style={{ color: theme.textTitle }}>
-                  Iluminación disponible
+                  {t('adminLightingAvailable')}
                 </Text>
                 <Switch
                   value={formData.iluminacion}
@@ -396,7 +402,7 @@ export function PistaFormModal({
                 style={[styles.saveBtn, { backgroundColor: theme.primary }]}
                 onPress={onSave}
               >
-                <Text style={styles.saveBtnText}>Guardar Pista</Text>
+                <Text style={styles.saveBtnText}>{t('adminSaveCourt')}</Text>
               </TouchableOpacity>
             </ScrollView>
           </View>
@@ -407,7 +413,7 @@ export function PistaFormModal({
         visible={errorModal.visible}
         title={errorModal.title}
         message={errorModal.message}
-        confirmText="Entendido"
+        confirmText={t('commonUnderstood')}
         onConfirm={() =>
           setErrorModal({ visible: false, title: '', message: '' })
         }

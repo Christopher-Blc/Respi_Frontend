@@ -5,10 +5,12 @@ import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { useAppTheme } from '../../../../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 export default function ManagementLayout() {
   const router = useRouter();
   const { isDarkMode, theme } = useAppTheme();
+  const { t } = useTranslation();
 
   return (
     <Stack
@@ -45,7 +47,7 @@ export default function ManagementLayout() {
       <Stack.Screen
         name="pistas"
         options={{
-          title: 'Gestión de pistas',
+          title: t('adminManageCourts'),
           headerLeft: () => (
             <TouchableOpacity
               onPress={() => {
@@ -71,7 +73,7 @@ export default function ManagementLayout() {
       <Stack.Screen
         name="tipos_pista"
         options={{
-          title: 'Tipos de Pista',
+          title: t('adminCourtTypes'),
           headerLeft: () => (
             <TouchableOpacity
               onPress={() => {

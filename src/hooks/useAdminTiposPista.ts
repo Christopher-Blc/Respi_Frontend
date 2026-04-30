@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Pista, TipoPista } from '../types/types';
 import api from '../services/api';
+import { useTranslation } from 'react-i18next';
 
 const getUniquePistasByNombre = (pistas: Pista[] = []) => {
   const seen = new Map<string, Pista>();
@@ -18,6 +19,7 @@ const getUniquePistasByNombre = (pistas: Pista[] = []) => {
 };
 
 export function useAdminTiposPista() {
+  const { t } = useTranslation();
   const [tiposPista, setTiposPista] = useState<TipoPista[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,8 +60,8 @@ export function useAdminTiposPista() {
     } catch {
       setErrorModal({
         visible: true,
-        title: 'Error',
-        message: 'No se pudieron cargar los tipos de pista.',
+        title: t('bookingConfirmErrorTitle'),
+        message: t('adminLoadCourtTypesError'),
       });
     } finally {
       setLoading(false);
@@ -90,8 +92,8 @@ export function useAdminTiposPista() {
     if (!nombre.trim()) {
       setErrorModal({
         visible: true,
-        title: 'Campo requerido',
-        message: 'El nombre del tipo de pista no puede estar vacío.',
+        title: t('adminRequiredFieldTitle'),
+        message: t('adminCourtTypeNameRequired'),
       });
       return;
     }
@@ -117,10 +119,10 @@ export function useAdminTiposPista() {
     } catch {
       setErrorModal({
         visible: true,
-        title: 'Error',
+        title: t('bookingConfirmErrorTitle'),
         message: tipoPistaAEditar
-          ? 'No se pudo actualizar el tipo de pista.'
-          : 'No se pudo crear el tipo de pista.',
+          ? t('adminCourtTypeUpdateError')
+          : t('adminCourtTypeCreateError'),
       });
     }
   };
@@ -132,8 +134,11 @@ export function useAdminTiposPista() {
       item,
       canDelete: !hasPistas,
       message: hasPistas
-        ? `No puedes eliminar "${item.nombre}" porque tiene ${item.pistas.length} pista(s) asociada(s). Elimina primero las pistas.`
-        : `¿Seguro que quieres eliminar el tipo "${item.nombre}"?`,
+        ? t('adminTypeDeleteBlocked', {
+            name: item.nombre,
+            count: item.pistas.length,
+          })
+        : t('adminTypeDeleteConfirm', { name: item.nombre }),
     });
   };
 
@@ -147,8 +152,8 @@ export function useAdminTiposPista() {
       setDeleteModal({ visible: false, item: null, message: '', canDelete: false });
       setErrorModal({
         visible: true,
-        title: 'Error',
-        message: 'No se pudo eliminar el tipo de pista.',
+        title: t('bookingConfirmErrorTitle'),
+        message: t('adminTypeDeleteError'),
       });
     }
   };

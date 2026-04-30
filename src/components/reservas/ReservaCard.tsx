@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Reserva } from '../../hooks/useReservas';
 import { lightModeSemanticTokens } from '../../theme';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   reserva: Reserva;
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export default function ReservaCard({ reserva, onCancel, onEdit }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.card}>
       <View style={styles.row}>
@@ -18,14 +20,20 @@ export default function ReservaCard({ reserva, onCancel, onEdit }: Props) {
       </View>
 
       <Text style={styles.meta}>
-        Inicio: {new Date(reserva.fecha_inicio).toLocaleString()}
+        {t('reservationCardStart', {
+          value: new Date(reserva.fecha_inicio).toLocaleString(),
+        })}
       </Text>
       <Text style={styles.meta}>
-        Fin: {new Date(reserva.fecha_fin).toLocaleString()}
+        {t('reservationCardEnd', {
+          value: new Date(reserva.fecha_fin).toLocaleString(),
+        })}
       </Text>
 
       {reserva.nota ? (
-        <Text style={styles.note}>Nota: {reserva.nota}</Text>
+        <Text style={styles.note}>
+          {t('reservationCardNote', { value: reserva.nota })}
+        </Text>
       ) : null}
 
       <View style={styles.actions}>
@@ -33,7 +41,7 @@ export default function ReservaCard({ reserva, onCancel, onEdit }: Props) {
           style={styles.btn}
           onPress={() => onEdit?.(reserva.id)}
         >
-          <Text style={styles.btnText}>Editar</Text>
+          <Text style={styles.btnText}>{t('reservationCardEdit')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.btn, styles.cancel]}
@@ -45,7 +53,7 @@ export default function ReservaCard({ reserva, onCancel, onEdit }: Props) {
               { color: lightModeSemanticTokens.onPrimary },
             ]}
           >
-            Cancelar
+            {t('reservationCardCancel')}
           </Text>
         </TouchableOpacity>
       </View>

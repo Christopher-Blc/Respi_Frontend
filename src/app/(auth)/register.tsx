@@ -20,6 +20,7 @@ import { useAuth } from '../../context/AuthContext';
 import createRegisterStyles from '../../style/register.styles';
 import RespiLogo from '../../components/login/respiLogo';
 import { useAppTheme } from '../../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 const Register: React.FC = () => {
   const [name, setName] = useState('');
@@ -35,6 +36,7 @@ const Register: React.FC = () => {
 
   const [error, setError] = useState('');
   const router = useRouter();
+  const { t } = useTranslation();
 
   const { isDarkMode, theme } = useAppTheme();
   const styles = React.useMemo(() => createRegisterStyles(theme), [theme]);
@@ -100,7 +102,7 @@ const Register: React.FC = () => {
       !birthDate ||
       !location
     ) {
-      setError('Por favor, rellena todos los campos.');
+      setError(t('authLoginEmptyFields'));
       return;
     }
 
@@ -124,12 +126,12 @@ const Register: React.FC = () => {
       if (response.status === 201 || response.data.access_token) {
         const token = response.data.access_token;
         const refreshToken = response.data.refresh_token;
-        alert('¡Cuenta creada correctamente! Bienvenido.');
+        alert(t('authRegisterSuccess'));
         signIn(token, refreshToken); //el signin ya se encarga de guardar el token y todo
       }
     } catch (err: any) {
       //si ha habido un error lo enseñamos
-      const message = err.response?.data?.message || 'Error de conexión';
+      const message = err.response?.data?.message || t('authConnectionError');
       console.log('Error en registro:', err.response?.data || err.message);
       setError(Array.isArray(message) ? message[0] : message);
     }
@@ -202,7 +204,7 @@ const Register: React.FC = () => {
               },
             ]}
           >
-            Create an account
+            {t('authRegisterTitle')}
           </Text>
 
           <Text
@@ -213,10 +215,10 @@ const Register: React.FC = () => {
               },
             ]}
           >
-            Name:
+            {t('authRegisterName')}:
           </Text>
           <GlassTextInput
-            placeholder="Name"
+            placeholder={t('authRegisterName')}
             value={name}
             onChangeText={setName}
           />
@@ -229,10 +231,10 @@ const Register: React.FC = () => {
               },
             ]}
           >
-            Surname:
+            {t('authRegisterSurname')}:
           </Text>
           <GlassTextInput
-            placeholder="Surname"
+            placeholder={t('authRegisterSurname')}
             value={surname}
             onChangeText={setSurname}
           />
@@ -245,10 +247,10 @@ const Register: React.FC = () => {
               },
             ]}
           >
-            Username:
+            {t('authRegisterUsername')}:
           </Text>
           <GlassTextInput
-            placeholder="Username"
+            placeholder={t('authRegisterUsername')}
             value={username}
             onChangeText={setUsername}
           />
@@ -261,11 +263,11 @@ const Register: React.FC = () => {
               },
             ]}
           >
-            Email:
+            {t('authLoginEmail')}:
           </Text>
           <GlassTextInput
             keyboardType="email-address"
-            placeholder="Enter email"
+            placeholder={t('exampleEmail')}
             value={email}
             onChangeText={setEmail}
           />
@@ -278,11 +280,11 @@ const Register: React.FC = () => {
               },
             ]}
           >
-            Phone:
+            {t('authRegisterPhone')}:
           </Text>
           <GlassTextInput
             keyboardType="phone-pad"
-            placeholder="Enter phone"
+            placeholder={t('authRegisterPhone')}
             value={phone}
             onChangeText={setPhone}
           />
@@ -295,10 +297,10 @@ const Register: React.FC = () => {
               },
             ]}
           >
-            Password:
+            {t('authLoginPassword')}:
           </Text>
           <GlassTextInputPassword
-            placeholder="Enter password"
+            placeholder={t('examplePassword')}
             value={password}
             onChangeText={setPassword}
           />
@@ -311,7 +313,7 @@ const Register: React.FC = () => {
               },
             ]}
           >
-            Birth Date:
+            {t('authRegisterBirthDate')}:
           </Text>
 
           <View style={styles.inputWrapper}>
@@ -388,16 +390,16 @@ const Register: React.FC = () => {
               },
             ]}
           >
-            Location:
+            {t('authRegisterLocation')}:
           </Text>
           <GlassTextInput
-            placeholder="Location"
+            placeholder={t('authRegisterLocation')}
             value={location}
             onChangeText={setLocation}
           />
 
           <GlassTextButton
-            text="Register"
+            text={t('authRegisterButton')}
             textColor={theme.onPrimary}
             onPress={handleSubmit}
             color={theme.primaryButton}
@@ -411,12 +413,12 @@ const Register: React.FC = () => {
               textAlign: 'center',
             }}
           >
-            Already have an account?{' '}
+            {t('authRegisterHasAccount')}{' '}
             <Text
               style={{ color: theme.primary, fontWeight: 'bold' }}
               onPress={() => router.replace('login')}
             >
-              Login
+              {t('authLoginButton')}
             </Text>
           </Text>
 

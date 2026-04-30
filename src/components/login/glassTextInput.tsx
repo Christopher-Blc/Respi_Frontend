@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput as RNTextInput } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import { useAppTheme } from '../../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   value: string;
@@ -15,12 +16,13 @@ interface Props {
 export const GlassTextInput: React.FC<Props> = ({
   value,
   onChangeText,
-  placeholder = 'Enter text',
+  placeholder,
   label,
   keyboardType = 'default',
   readonly = false,
 }) => {
   const { theme } = useAppTheme();
+  const { t } = useTranslation();
   const [isFocused, setIsFocused] = useState(false);
 
   return (
@@ -42,7 +44,7 @@ export const GlassTextInput: React.FC<Props> = ({
         value={value}
         onChangeText={onChangeText}
         // 2. Si está focused, quitamos el placeholder para que no moleste
-        placeholder={isFocused ? '' : placeholder}
+        placeholder={isFocused ? '' : placeholder || t('exampleText')}
         placeholderTextColor={theme.inputPlaceholder}
         mode="flat"
         underlineColor="transparent"

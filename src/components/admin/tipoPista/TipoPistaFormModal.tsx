@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { tiposPistaStyles as styles } from '../../../style/admin/tiposPista.styles';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   visible: boolean;
@@ -22,6 +23,7 @@ export function TipoPistaFormModal({
   onSave,
 }: Props) {
   const { theme } = useAppTheme();
+  const { t } = useTranslation();
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
@@ -34,7 +36,9 @@ export function TipoPistaFormModal({
         >
           <View style={styles.modalHeader}>
             <Text style={[styles.modalTitle, { color: theme.textTitle }]}>
-              {isEditing ? 'Editar Tipo de Pista' : 'Nuevo Tipo de Pista'}
+              {isEditing
+                ? t('adminCourtTypeEditTitle')
+                : t('adminCourtTypeNewTitle')}
             </Text>
             <TouchableOpacity onPress={onClose}>
               <Ionicons name="close" size={26} color={theme.textTitle} />
@@ -49,14 +53,14 @@ export function TipoPistaFormModal({
               fontWeight: '600',
             }}
           >
-            Nombre
+            {t('adminNameLabel')}
           </Text>
           <TextInput
             style={[
               styles.input,
               { color: theme.textTitle, borderColor: theme.primarySoft },
             ]}
-            placeholder="Ej: Tenis, Pádel, Fútbol..."
+            placeholder={t('adminCourtTypePlaceholder')}
             placeholderTextColor={theme.textBody + '80'}
             value={nombre}
             onChangeText={setNombre}
@@ -67,7 +71,7 @@ export function TipoPistaFormModal({
             onPress={onSave}
           >
             <Text style={styles.saveBtnText}>
-              {isEditing ? 'Guardar cambios' : 'Crear tipo'}
+              {isEditing ? t('adminSaveChanges') : t('adminCreateType')}
             </Text>
           </TouchableOpacity>
         </View>

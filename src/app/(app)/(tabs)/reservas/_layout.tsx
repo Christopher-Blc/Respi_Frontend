@@ -1,8 +1,10 @@
 import { Stack } from 'expo-router';
 import { useAppTheme } from '../../../../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 export default function bookingLayout() {
   const { theme } = useAppTheme();
+  const { t } = useTranslation();
   return (
     <Stack
       screenOptions={{
@@ -13,12 +15,18 @@ export default function bookingLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="createBooking" options={{ title: 'Nueva reserva' }} />
+      <Stack.Screen
+        name="createBooking"
+        options={{ title: t('bookingLayoutCreateTitle') }}
+      />
       <Stack.Screen
         name="confirmacion"
-        options={{ title: 'Confirmar reserva' }}
+        options={{ title: t('bookingLayoutConfirmTitle') }}
       />
-      <Stack.Screen name="pistaTypes" options={{ title: 'Tipos de pista' }} />
+      <Stack.Screen
+        name="pistaTypes"
+        options={{ title: t('bookingLayoutCourtTypesTitle') }}
+      />
     </Stack>
   );
 }
