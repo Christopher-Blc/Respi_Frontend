@@ -204,6 +204,7 @@
   "adminInfoLineTitleNext3m": "Urmatoarele 3 luni",
   "adminInfoLineTitleAll": "Ultimele 3 luni",
   "adminInfoTotalInPeriod": "Total in perioada: {{count}}",
+  "adminInfoReservations": "Rezervari",
   "adminInfoTooltipConfirmedShort": "Conf",
   "adminInfoTooltipCompletedShort": "Fin",
   "adminInfoTooltipPendingShort": "Ast",

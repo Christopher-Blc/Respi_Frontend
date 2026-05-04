@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   useWindowDimensions,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../../context/ThemeContext';
@@ -19,6 +20,16 @@ import { TipoCourtCard } from '../../../../components/admin/courtTypes/CourtType
 import { TipoCourtFormModal } from '../../../../components/admin/courtTypes/CourtTypeFormModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
 import { useTranslation } from 'react-i18next';
+
+const IMAGE_BASE_URL = 'https://respi.es/public';
+
+const getImageUri = (
+  imagePath: string | null | undefined,
+): string | undefined => {
+  if (!imagePath) return undefined;
+  if (imagePath.startsWith('http')) return imagePath;
+  return `${IMAGE_BASE_URL}/${imagePath}`;
+};
 
 export default function AdminTiposPista() {
   const { theme } = useAppTheme();
@@ -35,9 +46,11 @@ export default function AdminTiposPista() {
     searchQuery,
     setSearchQuery,
     modalVisible,
-    setModalVisible,
+    closeModal,
     nombre,
     setNombre,
+    imagen,
+    setImagen,
     tipoPistaAEditar,
     openModal,
     openEditModal,
@@ -172,30 +185,21 @@ export default function AdminTiposPista() {
             >
               Nombre
             </Text>
-            <Text
-              style={[
-                styles.colImage,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Imagen
-            </Text>
-            <Text
-              style={[
-                styles.colCount,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Pistas
-            </Text>
-            <Text
-              style={[
-                styles.colActions,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Acciones
-            </Text>
+            <View style={styles.colImage}>
+              <Text style={{ color: theme.textTitle, fontWeight: '700' }}>
+                Imagen
+              </Text>
+            </View>
+            <View style={styles.colCount}>
+              <Text style={{ color: theme.textTitle, fontWeight: '700' }}>
+                Pistas
+              </Text>
+            </View>
+            <View style={styles.colActions}>
+              <Text style={{ color: theme.textTitle, fontWeight: '700' }}>
+                Acciones
+              </Text>
+            </View>
           </View>
           <FlatList
             data={filteredTiposPista}
@@ -216,15 +220,33 @@ export default function AdminTiposPista() {
                 >
                   {item.nombre}
                 </Text>
-                <Text
-                  style={[styles.colImage, { color: theme.textBody }]}
-                  numberOfLines={1}
+                <View
+                  style={[
+                    styles.colImage,
+                    { justifyContent: 'center', alignItems: 'center' },
+                  ]}
                 >
-                  {item.imagen || '-'}
-                </Text>
-                <Text style={[styles.colCount, { color: theme.textBody }]}>
-                  {item.pistas?.length ?? 0}
-                </Text>
+                  {item.imagen ? (
+                    <Image
+                      source={{ uri: getImageUri(item.imagen) }}
+                      style={{
+                        width: 72,
+                        height: 40,
+                        borderRadius: 6,
+                        borderWidth: 1,
+                        borderColor: theme.primarySoft,
+                      }}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <Text style={{ color: theme.textBody }}>-</Text>
+                  )}
+                </View>
+                <View style={styles.colCount}>
+                  <Text style={{ color: theme.textBody }}>
+                    {item.pistas?.length ?? 0}
+                  </Text>
+                </View>
                 <View style={styles.colActions}>
                   <View style={{ flexDirection: 'row', gap: 10 }}>
                     <TouchableOpacity onPress={() => openEditModal(item)}>
@@ -254,7 +276,10 @@ export default function AdminTiposPista() {
         isEditing={Boolean(tipoPistaAEditar)}
         nombre={nombre}
         setNombre={setNombre}
-        onClose={() => setModalVisible(false)}
+        imagen={imagen}
+        setImagen={setImagen}
+        existingImageUri={tipoPistaAEditar?.imagen}
+        onClose={closeModal}
         onSave={handleSave}
       />
 

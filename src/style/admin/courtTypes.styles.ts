@@ -104,6 +104,7 @@ export const tiposPistaStyles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 12,
     borderBottomWidth: 1,
+    alignItems: 'center',
   },
   tableRow: {
     flexDirection: 'row',
@@ -113,7 +114,7 @@ export const tiposPistaStyles = StyleSheet.create({
     alignItems: 'center',
   },
   colName: { flex: 1.2 },
-  colImage: { flex: 1.2 },
-  colCount: { flex: 0.8 },
-  colActions: { flex: 0.8, alignItems: 'flex-end' },
+  colImage: { flex: 1.2, justifyContent: 'center', alignItems: 'center' },
+  colCount: { flex: 0.8, justifyContent: 'center', alignItems: 'center' },
+  colActions: { flex: 0.8, justifyContent: 'flex-end', alignItems: 'center' },
 });
