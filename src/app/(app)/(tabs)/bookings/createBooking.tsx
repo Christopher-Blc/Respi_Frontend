@@ -17,6 +17,7 @@ import { createCreateBookingStyles } from '../../../../style/create-booking.styl
 import api from '../../../../services/api';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../../i18n';
+import { Membresia, User } from '../../../../types/types';
 
 type ReservaActual = {
   inicio: string;
@@ -105,6 +106,9 @@ export default function CreateBooking() {
   const [submitting, setSubmitting] = useState(false);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [membershipName, setMembershipName] = useState('');
+  const [membershipDiscountPct, setMembershipDiscountPct] = useState(0);
+  const [loadingMembership, setLoadingMembership] = useState(true);
 
   const openingMinutes = useMemo(() => toMinutes(horaApertura), [horaApertura]);
   const closingMinutes = useMemo(() => toMinutes(horaCierre), [horaCierre]);
@@ -170,14 +174,76 @@ export default function CreateBooking() {
     }
   }, [availableStarts, horaInicioMin]);
 
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchMembershipDiscount = async () => {
+      try {
+        const profileResponse = await api.get('/users/profile/me');
+        const user = profileResponse.data as User;
+
+        if (!user?.membresia_id || user?.isActive === false) {
+          if (mounted) {
+            setMembershipDiscountPct(0);
+            setMembershipName('');
+          }
+          return;
+        }
+
+        const membershipsResponse = await api.get('/membresia');
+        const payload = membershipsResponse.data;
+        const memberships: Membresia[] = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.data)
+            ? payload.data
+            : [];
+
+        const activeMembership = memberships.find(
+          (item) => item.membresia_id === user.membresia_id,
+        );
+
+        if (mounted && activeMembership) {
+          setMembershipName(activeMembership.nombre);
+          setMembershipDiscountPct(Number(activeMembership.descuento || 0));
+        }
+      } catch (error) {
+        if (mounted) {
+          setMembershipDiscountPct(0);
+          setMembershipName('');
+        }
+        console.error('Error loading membership discount', error);
+      } finally {
+        if (mounted) setLoadingMembership(false);
+      }
+    };
+
+    fetchMembershipDiscount();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const horaInicio = horaInicioMin != null ? toHHmm(horaInicioMin) : '--:--';
   const horaFin =
     horaInicioMin != null ? toHHmm(horaInicioMin + duration) : '--:--';
 
-  const total = useMemo(() => {
+  const totalBase = useMemo(() => {
     if (!precioHora) return 0;
     return (precioHora * duration) / 60;
   }, [precioHora, duration]);
+
+  const discountAmount = useMemo(
+    () => (totalBase * membershipDiscountPct) / 100,
+    [totalBase, membershipDiscountPct],
+  );
+
+  const totalFinal = useMemo(
+    () => Math.max(0, totalBase - discountAmount),
+    [totalBase, discountAmount],
+  );
+
+  const hasMembershipDiscount = membershipDiscountPct > 0;
 
   const showError = (message: string) => {
     setSnackbarMessage(message);
@@ -198,18 +264,26 @@ export default function CreateBooking() {
     try {
       setSubmitting(true);
 
+      const membershipNote = hasMembershipDiscount
+        ? `Descuento membresia ${membershipName || 'activa'}: -${membershipDiscountPct}% (ahorro ${discountAmount.toFixed(2)} EUR, total ${totalFinal.toFixed(2)} EUR)`
+        : '';
+
       const payload = {
         pista_id: Number(pistaId),
         fecha_reserva: fechaReserva,
         hora_inicio: horaInicio,
         hora_fin: horaFin,
         estado: 'PENDIENTE',
-        nota: nota.trim(),
+        nota: [nota.trim(), membershipNote].filter(Boolean).join(' | '),
       };
 
       await api.post('/reserva', payload);
 
-      setSnackbarMessage(t('bookingCreateSuccess'));
+      setSnackbarMessage(
+        hasMembershipDiscount
+          ? `Reserva creada. Se aplico ${membershipDiscountPct}% de descuento por tu membresia.`
+          : t('bookingCreateSuccess'),
+      );
       setSnackbarVisible(true);
       setTimeout(() => router.replace('/(app)/(tabs)/bookings'), 700);
     } catch (error: any) {
@@ -379,7 +453,30 @@ export default function CreateBooking() {
             <Text style={styles.totalLabel}>
               {t('bookingCreateEstimatedTotal')}
             </Text>
-            <Text style={styles.totalValue}>{total.toFixed(2)} EUR</Text>
+
+            {hasMembershipDiscount ? (
+              <>
+                <Text style={styles.totalOldValue}>
+                  {totalBase.toFixed(2)} EUR
+                </Text>
+                <Text style={styles.totalValue}>
+                  {totalFinal.toFixed(2)} EUR
+                </Text>
+                <Text style={styles.membershipDiscountText}>
+                  Membresia {membershipName}: -{membershipDiscountPct}% (-
+                  {discountAmount.toFixed(2)} EUR)
+                </Text>
+              </>
+            ) : (
+              <Text style={styles.totalValue}>{totalBase.toFixed(2)} EUR</Text>
+            )}
+
+            {loadingMembership && (
+              <Text style={styles.totalMeta}>
+                Comprobando descuento de membresia...
+              </Text>
+            )}
+
             <Text style={styles.totalMeta}>
               {horaInicio} - {horaFin}
             </Text>

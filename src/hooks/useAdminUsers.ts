@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import api from '../services/api';
 import { Membresia, User } from '../types/types';
 import { UserFormData } from '../components/admin/users/UserFormModal';
+import axios from 'axios';
 
 type AdminUser = User & {
   membresia?: Membresia | null;
@@ -21,6 +22,23 @@ const EMPTY_FORM: UserFormData = {
   fecha_nacimiento: '',
   direccion: '',
   membresia_id: '',
+};
+
+const normalizeDateOnly = (value?: string | null) => {
+  if (!value) return '';
+  return String(value).slice(0, 10);
+};
+
+const getApiErrorMessage = (error: unknown, fallback: string) => {
+  if (!axios.isAxiosError(error)) return fallback;
+
+  const backendMessage = error.response?.data?.message;
+  if (Array.isArray(backendMessage)) return backendMessage.join(' | ');
+  if (typeof backendMessage === 'string' && backendMessage.trim()) {
+    return backendMessage;
+  }
+
+  return fallback;
 };
 
 export function useAdminUsers() {
@@ -112,7 +130,7 @@ export function useAdminUsers() {
       password: '',
       role: user.role === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 'CLIENTE',
       isActive: Boolean(user.isActive),
-      fecha_nacimiento: user.fecha_nacimiento || '',
+      fecha_nacimiento: normalizeDateOnly(user.fecha_nacimiento),
       direccion: user.direccion || '',
       membresia_id: user.membresia_id ? String(user.membresia_id) : '',
     });
@@ -152,19 +170,24 @@ export function useAdminUsers() {
         const membresiaId = formData.membresia_id
           ? Number(formData.membresia_id)
           : null;
+        const currentMembresiaId =
+          userToEdit.membresia_id === undefined || userToEdit.membresia_id === null
+            ? null
+            : Number(userToEdit.membresia_id);
         const currentRole =
           userToEdit.role === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 'CLIENTE';
+        const currentFechaNacimiento = (userToEdit.fecha_nacimiento || '').slice(0, 10);
 
         if (username !== (userToEdit.username || '')) payload.username = username;
         if (name !== (userToEdit.name || '')) payload.name = name;
         if (surname !== (userToEdit.surname || '')) payload.surname = surname;
         if (email !== (userToEdit.email || '')) payload.email = email;
         if (phone !== (userToEdit.phone || '')) payload.phone = phone;
-        if (fechaNacimiento !== (userToEdit.fecha_nacimiento || '')) {
+        if (fechaNacimiento !== currentFechaNacimiento) {
           payload.fecha_nacimiento = fechaNacimiento;
         }
         if (direccion !== (userToEdit.direccion || '')) payload.direccion = direccion;
-        if (membresiaId !== (userToEdit.membresia_id ?? null)) {
+        if (membresiaId !== currentMembresiaId) {
           payload.membresia_id = membresiaId;
         }
         if (formData.role !== currentRole) payload.role = formData.role;
@@ -172,14 +195,12 @@ export function useAdminUsers() {
           payload.isActive = formData.isActive;
         }
 
-        if (Object.keys(payload).length === 0) {
-          setModalVisible(false);
-          setUserToEdit(null);
-          setFormData(EMPTY_FORM);
-          return;
-        }
+        if (Object.keys(payload).length > 0) {
+          const updateUrl = `/users/${userToEdit.usuario_id}`;
+          const res = await api.put(updateUrl, payload);        
+          console.log('Resultado de put', res?.data.message || res);
 
-        await api.put(`/users/${userToEdit.usuario_id}`, payload);
+        }
       } else {
         const payload = {
           username: formData.username.trim(),
@@ -196,16 +217,20 @@ export function useAdminUsers() {
 
         await api.post('/users', payload);
        }
-       setModalVisible(false);
-      setUserToEdit(null);
-      setFormData(EMPTY_FORM);
-      fetchUsers();
+      await fetchUsers();
+      setModalVisible(false);
+       setUserToEdit(null);
+      setFormData(EMPTY_FORM); 
     } catch (err){
-      console.log('Error guardando usuario:', err);
        setErrorModal({
         visible: true,
         title: 'Error',
-        message: userToEdit ? 'No se pudo actualizar el usuario.' : 'No se pudo crear el usuario.',
+        message: getApiErrorMessage(
+          err,
+          userToEdit
+            ? 'No se pudo actualizar el usuario.'
+            : 'No se pudo crear el usuario.',
+        ),
       });
     }
   };
@@ -226,14 +251,18 @@ export function useAdminUsers() {
     if (confirmModal.onConfirmType !== 'toggle-active' || !pendingUser) return;
 
     try {
-      await api.put(`/users/${pendingUser.usuario_id}`, {
+      const updateUrl = `/users/${pendingUser.usuario_id}`;
+      const payload = {
         isActive: !pendingUser.isActive,
-      });
+      };
+
+      await api.put(updateUrl, payload);
 
       setConfirmModal({ visible: false, title: '', message: '', onConfirmType: '' });
       setPendingUser(null);
       fetchUsers();
     } catch {
+
       setConfirmModal({ visible: false, title: '', message: '', onConfirmType: '' });
       setPendingUser(null);
       setErrorModal({ visible: true, title: 'Error', message: 'No se pudo cambiar el estado del usuario.' });
