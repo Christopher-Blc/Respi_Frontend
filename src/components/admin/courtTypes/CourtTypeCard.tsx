@@ -1,9 +1,19 @@
 ﻿import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { TipoPista } from '../../../types/types';
 import { AppTheme } from '../../../theme';
 import { tiposPistaStyles as styles } from '../../../style/admin/courtTypes.styles';
+
+const IMAGE_BASE_URL = 'https://respi.es/public';
+
+const getImageUri = (
+  imagePath: string | null | undefined,
+): string | undefined => {
+  if (!imagePath) return undefined;
+  if (imagePath.startsWith('http')) return imagePath;
+  return `${IMAGE_BASE_URL}/${imagePath}`;
+};
 
 type Props = {
   item: TipoPista;
@@ -25,13 +35,23 @@ export function TipoCourtCard({ item, theme, onEdit, onDelete }: Props) {
         },
       ]}
     >
+      {item.imagen ? (
+        <Image
+          source={{ uri: getImageUri(item.imagen) }}
+          style={{
+            width: '100%',
+            height: 120,
+            borderRadius: 10,
+            marginBottom: 12,
+          }}
+          resizeMode="cover"
+        />
+      ) : null}
+
       <View style={styles.cardHeader}>
         <View style={{ flex: 1 }}>
           <Text style={[styles.cardTitle, { color: theme.textTitle }]}>
             {item.nombre}
-          </Text>
-          <Text style={[styles.cardSubtitle, { color: theme.textBody }]}>
-            {item.imagen}
           </Text>
         </View>
         <View

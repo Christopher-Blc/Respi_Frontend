@@ -204,6 +204,7 @@
   "adminInfoLineTitleNext3m": "Proximos 3 meses",
   "adminInfoLineTitleAll": "Ultimos 3 meses",
   "adminInfoTotalInPeriod": "Total en periodo: {{count}}",
+  "adminInfoReservations": "Reservas",
   "adminInfoTooltipConfirmedShort": "Conf",
   "adminInfoTooltipCompletedShort": "Final",
   "adminInfoTooltipPendingShort": "Pend",
