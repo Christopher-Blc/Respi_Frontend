@@ -89,6 +89,8 @@ export default function AdminUsuarios() {
             placeholderTextColor={theme.textBody + '80'}
             style={[styles.searchInput, { color: theme.textTitle }]}
             value={searchQuery}
+            autoComplete="off"
+            importantForAutofill="no"
             onChangeText={setSearchQuery}
           />
           {searchQuery.length > 0 && (

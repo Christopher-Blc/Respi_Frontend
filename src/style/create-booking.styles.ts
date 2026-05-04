@@ -204,6 +204,17 @@ export const createCreateBookingStyles = (theme: AppTheme) =>
       fontSize: 22,
       fontWeight: '900',
     },
+    totalOldValue: {
+      color: theme.textMuted,
+      fontSize: 14,
+      fontWeight: '700',
+      textDecorationLine: 'line-through',
+    },
+    membershipDiscountText: {
+      color: theme.success,
+      fontSize: 12,
+      fontWeight: '700',
+    },
     totalMeta: {
       color: theme.textMuted,
       fontSize: 12,
