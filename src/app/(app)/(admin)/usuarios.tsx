@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -29,6 +29,7 @@ export default function AdminUsuarios() {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const cardsColumns = width >= 1280 ? 3 : width >= 780 ? 2 : 1;
+  const [searchReadOnly, setSearchReadOnly] = useState(true);
   const {
     filteredUsers,
     memberships,
@@ -89,8 +90,9 @@ export default function AdminUsuarios() {
             placeholderTextColor={theme.textBody + '80'}
             style={[styles.searchInput, { color: theme.textTitle }]}
             value={searchQuery}
-            autoComplete="off"
-            importantForAutofill="no"
+            readOnly={searchReadOnly}
+            onFocus={() => setSearchReadOnly(false)}
+            onBlur={() => setSearchReadOnly(true)}
             onChangeText={setSearchQuery}
           />
           {searchQuery.length > 0 && (

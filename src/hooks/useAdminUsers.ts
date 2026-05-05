@@ -197,9 +197,7 @@ export function useAdminUsers() {
 
         if (Object.keys(payload).length > 0) {
           const updateUrl = `/users/${userToEdit.usuario_id}`;
-          const res = await api.put(updateUrl, payload);        
-          console.log('Resultado de put', res?.data.message || res);
-
+          const res = await api.put(updateUrl, payload);  
         }
       } else {
         const payload = {
