@@ -21,6 +21,12 @@ export default function AdminTabLayout() {
       label: t('adminSectionGeneral'),
       items: [
         {
+          label: 'Home',
+          route: '/(app)/(admin)/index',
+          icon: 'home',
+          pathMatch: '/',
+        },
+        {
           label: t('adminInfo'),
           route: '/(app)/(admin)/info',
           icon: 'graph',
@@ -38,46 +44,58 @@ export default function AdminTabLayout() {
       label: t('adminSectionAdministration'),
       items: [
         {
-          label: t('adminManagement'),
-          icon: 'tools',
-          pathMatch: 'gestion-parent',
-          children: [
-            {
-              label: t('tabsCourts'),
-              route: '/(app)/(admin)/(management)/courts',
-              pathMatch: '/courts',
-            },
-            {
-              label: t('adminCourtTypes'),
-              route: '/(app)/(admin)/(management)/court-types',
-              pathMatch: 'court-types',
-            },
-            {
-              label: t('adminUsers'),
-              route: '/(app)/(admin)/usuarios',
-              pathMatch: 'usuarios',
-            },
-            {
-              label: t('tabsBookings'),
-              route: '/(app)/(admin)/reservas-global',
-              pathMatch: 'reservas-global',
-            },
-            {
-              label: t('adminPayments'),
-              route: '/(app)/(admin)/pagos',
-              pathMatch: 'pagos',
-            },
-            {
-              label: t('adminMemberships'),
-              route: '/(app)/(admin)/membresias',
-              pathMatch: 'membresias',
-            },
-            {
-              label: t('adminReviews'),
-              route: '/(app)/(admin)/resenyas',
-              pathMatch: 'resenyas',
-            },
-          ],
+          label: t('tabsCourts'),
+          route: '/(app)/(admin)/(management)/courts',
+          icon: 'project',
+          pathMatch: '/courts',
+        },
+        {
+          label: t('adminInstallations'),
+          route: '/(app)/(admin)/(management)/installations',
+          icon: 'organization',
+          pathMatch: 'installations',
+        },
+        {
+          label: t('adminCourtTypes'),
+          route: '/(app)/(admin)/(management)/court-types',
+          icon: 'tag',
+          pathMatch: 'court-types',
+        },
+        {
+          label: t('adminUsers'),
+          route: '/(app)/(admin)/(management)/usuarios',
+          icon: 'people',
+          pathMatch: 'usuarios',
+        },
+        {
+          label: t('tabsBookings'),
+          route: '/(app)/(admin)/reservas-global',
+          icon: 'calendar',
+          pathMatch: 'reservas-global',
+        },
+        {
+          label: t('adminPayments'),
+          route: '/(app)/(admin)/pagos',
+          icon: 'credit-card',
+          pathMatch: 'pagos',
+        },
+        {
+          label: t('adminMemberships'),
+          route: '/(app)/(admin)/membresias',
+          icon: 'gift',
+          pathMatch: 'membresias',
+        },
+        {
+          label: t('adminReviews'),
+          route: '/(app)/(admin)/resenyas',
+          icon: 'star',
+          pathMatch: 'resenyas',
+        },
+        {
+          label: 'Notificaciones',
+          route: '/(app)/(admin)/notificaciones',
+          icon: 'bell',
+          pathMatch: 'notificaciones',
         },
       ],
     },
@@ -179,6 +197,14 @@ export default function AdminTabLayout() {
           tabBarIcon: ({ color, size }) => (
             <Octicons name="person" size={size} color={color} />
           ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="notificaciones"
+        options={{
+          title: 'Notificaciones',
+          href: null,
         }}
       />
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, View } from 'react-native';
+import { TouchableOpacity, StyleSheet, View, Platform } from 'react-native';
 import Octicons from '@expo/vector-icons/Octicons';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
@@ -11,6 +11,10 @@ export default function ManagementLayout() {
   const router = useRouter();
   const { isDarkMode, theme } = useAppTheme();
   const { t } = useTranslation();
+
+  const handleBackPress = () => {
+    router.replace('/(app)/(admin)/index');
+  };
 
   return (
     <Stack
@@ -42,22 +46,11 @@ export default function ManagementLayout() {
             />
           </View>
         ),
-      }}
-    >
-      <Stack.Screen
-        name="courts"
-        options={{
-          title: t('adminManageCourts'),
-          headerLeft: () => (
+        headerLeft: () => {
+          if (Platform.OS === 'web') return null;
+          return (
             <TouchableOpacity
-              onPress={() => {
-                if (router.canGoBack()) {
-                  router.back();
-                  return;
-                }
-
-                router.replace('/(admin)');
-              }}
+              onPress={handleBackPress}
               hitSlop={12}
               style={{ paddingHorizontal: 4, paddingVertical: 4 }}
             >
@@ -67,34 +60,43 @@ export default function ManagementLayout() {
                 color={theme.headerText}
               />
             </TouchableOpacity>
-          ),
+          );
+        },
+      }}
+    >
+      <Stack.Screen
+        name="index"
+        options={{
+          title: t('adminManagement'),
+          headerLeft: () => null,
+        }}
+      />
+      <Stack.Screen
+        name="courts"
+        options={{
+          title: t('adminManageCourts'),
+        }}
+      />
+      <Stack.Screen
+        name="installations"
+        options={{
+          title: t('adminInstallations'),
         }}
       />
       <Stack.Screen
         name="court-types"
         options={{
           title: t('adminCourtTypes'),
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => {
-                if (router.canGoBack()) {
-                  router.back();
-                  return;
-                }
-
-                router.replace('/(admin)');
-              }}
-              hitSlop={12}
-              style={{ paddingHorizontal: 4, paddingVertical: 4 }}
-            >
-              <Octicons
-                name="chevron-left"
-                size={24}
-                color={theme.headerText}
-              />
-            </TouchableOpacity>
-          ),
         }}
+      />
+      <Stack.Screen name="usuarios" options={{ title: t('adminUsers') }} />
+      <Stack.Screen
+        name="membresias"
+        options={{ title: t('adminMemberships') }}
+      />
+      <Stack.Screen
+        name="notificaciones"
+        options={{ title: 'Notificaciones' }}
       />
     </Stack>
   );

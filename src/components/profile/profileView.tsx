@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Platform,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -27,6 +28,10 @@ import { ThemePalette } from '../../theme';
 import { useProfile } from '../../hooks/useProfile';
 import { useTranslation } from 'react-i18next';
 import { getAppLanguage } from '../../i18n';
+import {
+  requestPushPermissionsAndToken,
+  scheduleLocalNotification,
+} from '../../services/notificationsService';
 
 export default function ProfileView() {
   const { t, i18n } = useTranslation();
@@ -58,6 +63,9 @@ export default function ProfileView() {
   const [modalDarkmodeVisible, setModalDarkmodeVisible] = useState(false);
   const [modalEditUserNameVisible, setModalEditUserNameVisible] =
     useState(false);
+  const [notificationStatus, setNotificationStatus] = useState(
+    t('profileDisabled', { defaultValue: 'Desactivado' }),
+  );
 
   //estados para darkmode que pilla de settings del dispositivo
   const [initialDarkModeValue, setInitialDarkModeValue] = useState(isDarkMode);
@@ -151,6 +159,60 @@ export default function ProfileView() {
       console.error('Error guardando preferencia de modo oscuro', error);
     } finally {
       setModalDarkmodeVisible(false);
+    }
+  };
+
+  const handleEnableNotifications = async () => {
+    const result = await requestPushPermissionsAndToken();
+
+    if (!result.granted) {
+      setNotificationStatus(
+        t('profileDisabled', { defaultValue: 'Desactivado' }),
+      );
+      Alert.alert(
+        t('profileNotifications', { defaultValue: 'Notificaciones' }),
+        result.error || t('authConnectionError', { defaultValue: 'Error' }),
+      );
+      return;
+    }
+
+    setNotificationStatus(t('profileEnabled', { defaultValue: 'Activado' }));
+
+    if (result.token) {
+      console.log('Expo push token:', result.token);
+    }
+
+    Alert.alert(
+      t('profileNotifications', { defaultValue: 'Notificaciones' }),
+      t('notificationsEnabledMessage', {
+        defaultValue: 'Notificaciones activadas correctamente.',
+      }),
+    );
+  };
+
+  const handleSendTestNotification = async () => {
+    try {
+      await scheduleLocalNotification(
+        t('notificationsTestTitle', { defaultValue: 'Recordatorio ResPi' }),
+        t('notificationsTestBody', {
+          defaultValue: 'Esta es una notificacion local de prueba.',
+        }),
+      );
+
+      Alert.alert(
+        t('profileNotifications', { defaultValue: 'Notificaciones' }),
+        t('notificationsScheduledMessage', {
+          defaultValue: 'Notificacion de prueba programada en 2 segundos.',
+        }),
+      );
+    } catch (error) {
+      console.error('Error scheduling test notification', error);
+      Alert.alert(
+        t('profileNotifications', { defaultValue: 'Notificaciones' }),
+        t('bookingCreateError', {
+          defaultValue: 'No se pudo crear la reserva',
+        }),
+      );
     }
   };
 
@@ -276,8 +338,18 @@ export default function ProfileView() {
             <MenuOption
               icon="notifications-outline"
               title={t('profileNotifications')}
+              value={notificationStatus}
+              isLast={undefined}
+              onPress={handleEnableNotifications}
+            />
+            <MenuOption
+              icon="paper-plane-outline"
+              title={t('notificationsTestButton', {
+                defaultValue: 'Notificacion de prueba',
+              })}
               value={undefined}
               isLast={undefined}
+              onPress={handleSendTestNotification}
             />
             <MenuOption
               icon="lock-closed-outline"

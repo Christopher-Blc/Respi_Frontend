@@ -58,7 +58,7 @@ export function useHome() {
     async (silent = false) => {
       try {
         if (!silent) setLoading(true);
-        const response = await api.get('/reserva/mis-reservas');
+        const response = await api.get('/Reservation/mis-reservas');
 
         const allReservas = extractReservas(response?.data);
 

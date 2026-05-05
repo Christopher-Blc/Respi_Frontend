@@ -44,7 +44,7 @@ export function useCourtMaintenance(pistas: Pista[], fetchPistas: () => void) {
       try {
         const results = await Promise.all(
           ids.map((id) =>
-            api.get('/reserva', { params: { pista_id: id, fecha_inicio: maintenanceDesde, fecha_fin: maintenanceHasta } }),
+            api.get('/Reservation', { params: { pista_id: id, fecha_inicio: maintenanceDesde, fecha_fin: maintenanceHasta } }),
           ),
         );
         return countUniqueReservas(results);
@@ -55,7 +55,7 @@ export function useCourtMaintenance(pistas: Pista[], fetchPistas: () => void) {
         const days = eachDateInclusive(from, to);
         const results = await Promise.all(
           ids.flatMap((id) =>
-            days.map((fecha) => api.get('/reserva', { params: { fecha, pista_id: id } })),
+            days.map((fecha) => api.get('/Reservation', { params: { fecha, pista_id: id } })),
           ),
         );
         return countUniqueReservas(results);
@@ -64,7 +64,7 @@ export function useCourtMaintenance(pistas: Pista[], fetchPistas: () => void) {
 
     const today = new Date().toISOString().slice(0, 10);
     const results = await Promise.all(
-      ids.map((id) => api.get('/reserva', { params: { fecha: today, pista_id: id } })),
+      ids.map((id) => api.get('/Reservation', { params: { fecha: today, pista_id: id } })),
     );
     return results.reduce((sum, r) => sum + (Array.isArray(r.data) ? r.data.length : 0), 0);
   };
@@ -155,13 +155,13 @@ export function useCourtMaintenance(pistas: Pista[], fetchPistas: () => void) {
           deleteModal.ids.map((id) => {
             const pista = pistas.find((p) => p.pista_id === id);
             if (!pista) return Promise.resolve();
-            return api.put(`/pista/${id}`, { nombre: `deleted ('${pista.nombre}')`, estado: 'INACTIVA' });
+            return api.put(`/Court/${id}`, { nombre: `deleted ('${pista.nombre}')`, estado: 'INACTIVA' });
           }),
         );
       } else {
         await Promise.all(
           deleteModal.ids.map((id) =>
-            api.put(`/pista/${id}`, {
+            api.put(`/Court/${id}`, {
               estado: 'MANTENIMIENTO',
               mantenimiento_desde: deleteModal.mantenimientoDesde,
               mantenimiento_hasta: deleteModal.mantenimientoHasta,

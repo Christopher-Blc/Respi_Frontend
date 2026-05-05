@@ -190,7 +190,7 @@ export default function CreateBooking() {
           return;
         }
 
-        const membershipsResponse = await api.get('/membresia');
+        const membershipsResponse = await api.get('/membership');
         const payload = membershipsResponse.data;
         const memberships: Membresia[] = Array.isArray(payload)
           ? payload
@@ -277,7 +277,7 @@ export default function CreateBooking() {
         nota: [nota.trim(), membershipNote].filter(Boolean).join(' | '),
       };
 
-      await api.post('/reserva', payload);
+      await api.post('/Reservation', payload);
 
       setSnackbarMessage(
         hasMembershipDiscount

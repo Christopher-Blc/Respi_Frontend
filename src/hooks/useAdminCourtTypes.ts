@@ -105,7 +105,7 @@ export function useAdminCourtTypes() {
   const fetchTiposPista = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/tipo_pista');
+      const res = await api.get('/tipo_court');
 
       const normalizedTipos: TipoPista[] = res.data.map((tipo: TipoPista) => ({
         ...tipo,
@@ -229,11 +229,11 @@ export function useAdminCourtTypes() {
 
     try {
       if (tipoPistaAEditar) {
-        await api.put(`/tipo_pista/${tipoPistaAEditar.tipo_pista_id}`, formData, {
+        await api.put(`/tipo_court/${tipoPistaAEditar.tipo_pista_id}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       } else {
-        await api.post('/tipo_pista', formData, {
+        await api.post('/tipo_court', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       }
@@ -283,7 +283,7 @@ export function useAdminCourtTypes() {
   const confirmDelete = async () => {
     if (!deleteModal.item || !deleteModal.canDelete) return;
     try {
-      await api.delete(`/tipo_pista/${deleteModal.item.tipo_pista_id}`);
+      await api.delete(`/tipo_court/${deleteModal.item.tipo_pista_id}`);
       setDeleteModal({ visible: false, item: null, message: '', canDelete: false });
       fetchTiposPista();
     } catch {

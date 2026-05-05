@@ -16,6 +16,7 @@ import {
 import { jwtDecode } from 'jwt-decode';
 import { router } from 'expo-router';
 import { JWTPayload } from '../types/types';
+import api from '../services/api';
 
 const AuthContext = createContext<{
   userToken: string | null;
@@ -105,6 +106,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         signOut: async () => {
           suppressForcedLogoutModalRef.current = true;
           setShowExpiredModal(false);
+
+          try {
+            await api.post('/users/clear-token');
+          } catch {
+            // Silent fail: logout should continue even if token cleanup fails.
+          }
+
           setUserToken(null);
           setRole(null);
           await logout(false); // Esto ya borra ambos tokens según tu authStorage
