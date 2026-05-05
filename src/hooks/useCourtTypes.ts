@@ -14,7 +14,7 @@ export function useCourtTypes() {
     const fetchTipos = async () => {
       try {
         setLoading(true);
-        const response = await api.get('/tipo_pista');
+        const response = await api.get('/tipo_court');
         if (!mounted) return;
         setModelos(Array.isArray(response.data) ? response.data : []);
       } catch (error) {

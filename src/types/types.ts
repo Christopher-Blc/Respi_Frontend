@@ -16,6 +16,17 @@ export interface User {
   refresh_token_hash: string;
 }
 
+export interface Instalacion {
+  instalacion_id: number;
+  nombre: string;
+  direccion: string;
+  telefono: string;
+  email: string;
+  descripcion: string;
+  fecha_creacion: string;
+  estado?: 'activa' | 'inactiva';
+}
+
 
 
 //objeto que devuelve el backend de la pista con relaciones
@@ -35,16 +46,7 @@ export type Pista = {
   hora_apertura: string,
   hora_cierre: string,
   dia_semana: 'LUNES' | 'MARTES' | 'MIERCOLES' | 'JUEVES' | 'VIERNES' | 'SABADO' | 'DOMINGO',
-  instalacion: {
-    instalacion_id: number,
-    nombre: string,
-    direccion: string,
-    telefono: string,
-    email: string,
-    descripcion: string,
-    fecha_creacion: string,
-    estado: string
-  }, 
+  instalacion: Instalacion,
 };
 
 // 3. Tipo para el Pago
@@ -93,7 +95,7 @@ export interface Membresia {
   beneficios: string;
 }
 
-//objeto que devuelve el endpoint /pista/disponibilidad
+//objeto que devuelve el endpoint /court/disponibilidad
 export type PistaDisponibilidad = {
 
   pista_id: number | string,

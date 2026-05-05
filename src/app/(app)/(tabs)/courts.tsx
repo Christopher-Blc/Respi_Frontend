@@ -175,11 +175,6 @@ export default function PistasTab() {
             <View style={localStyles.sportChipsWrap}>
               <View style={localStyles.sportChip}>
                 <Text style={localStyles.sportChipText}>
-                  {t('pistasCapacity', { count: pista.capacidad ?? 'N/D' })}
-                </Text>
-              </View>
-              <View style={localStyles.sportChip}>
-                <Text style={localStyles.sportChipText}>
                   {t('pistasCovered', {
                     value: pista.cubierta ? t('commonYes') : t('commonNo'),
                   })}

@@ -134,9 +134,9 @@ export function useCourtsTab() {
 
         const [tiposRes, disponibilidadRes, pistasRes] =
           await Promise.allSettled([
-            api.get('/tipo_pista'),
-            api.get(`/pista/disponibilidad?fecha=${formattedDate}`),
-            api.get('/pista'),
+            api.get('/tipo_court'),
+            api.get(`/Court/disponibilidad?fecha=${formattedDate}`),
+            api.get('/Court'),
           ]);
 
         const tiposPayload =

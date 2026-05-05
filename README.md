@@ -86,6 +86,29 @@ npx expo start
 
 ---
 
+## Notificaciones (implementado)
+
+La app ya incluye:
+- Registro de listeners globales en `src/app/_layout.tsx`
+- Servicio central de notificaciones en `src/services/notificationsService.ts`
+- Acciones desde Perfil para:
+  - Solicitar permisos y obtener token Expo Push
+  - Programar una notificación local de prueba
+
+### Cómo probar
+
+1. Abre la app y entra en **Perfil**.
+2. Pulsa **Notificaciones** para conceder permisos.
+3. Pulsa **Notificacion de prueba** para recibir una local en ~2 segundos.
+
+### Notas importantes
+
+- Para push token real necesitas dispositivo físico (no Expo Go en algunos flujos).
+- El token Expo se imprime en consola (`Expo push token: ...`) tras conceder permisos.
+- En Android se crea automáticamente el canal `default` con prioridad alta.
+
+---
+
 ## Estructura del proyecto
 
 ```

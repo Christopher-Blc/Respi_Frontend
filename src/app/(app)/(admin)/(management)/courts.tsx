@@ -48,6 +48,7 @@ export default function AdminPistas() {
     weeklySchedule,
     weeklyCardWidth,
     tiposPista,
+    instalaciones,
     deleteModal,
     filteredPistas,
     openModal,
@@ -332,6 +333,7 @@ export default function AdminPistas() {
         weeklySchedule={weeklySchedule}
         weeklyCardWidth={weeklyCardWidth}
         tiposPista={tiposPista}
+        instalaciones={instalaciones}
         onClose={() => setModalVisible(false)}
         onSave={handleSave}
         updateWeeklySchedule={updateWeeklySchedule}

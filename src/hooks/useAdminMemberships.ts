@@ -58,7 +58,7 @@ export function useAdminMemberships() {
   const fetchMemberships = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/membresia');
+      const res = await api.get('/membership');
       const rows = Array.isArray(res.data) ? res.data : [];
       setMemberships(rows);
     } catch {
@@ -142,9 +142,9 @@ export function useAdminMemberships() {
 
     try {
       if (membershipToEdit) {
-        await api.put(`/membresia/${membershipToEdit.membresia_id}`, payload);
+        await api.put(`/membership/${membershipToEdit.membresia_id}`, payload);
       } else {
-        await api.post('/membresia', payload);
+        await api.post('/membership', payload);
       } 
 
       setModalVisible(false);
@@ -216,7 +216,7 @@ export function useAdminMemberships() {
     if (!deleteModal.item || !deleteModal.canDelete) return;
 
     try {
-      await api.delete(`/membresia/${deleteModal.item.membresia_id}`);
+      await api.delete(`/membership/${deleteModal.item.membresia_id}`);
       setDeleteModal({ visible: false, item: null, message: '', canDelete: false });
       fetchMemberships();
     } catch {

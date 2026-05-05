@@ -23,7 +23,7 @@ export const useProfile = () => {
   // 2. Cargar Reservas
   const fetchTotalReservas = async () => {
     try {
-      const response = await api.get('reserva/mis-reservas');
+      const response = await api.get('Reservation/mis-reservas');
       const responseFiltrado = reservasActivasFilter(response);
       setTotalReservas(responseFiltrado.length);
     } catch (error) {
@@ -38,7 +38,7 @@ export const useProfile = () => {
       return;
     }
     try {
-      const response = await api.get('/membresia');
+      const response = await api.get('/membership');
       const payload = response.data;
       const parsed = Array.isArray(payload) ? payload : payload?.data || [];
       const found = parsed.find((m: Membresia) => m.membresia_id === id);

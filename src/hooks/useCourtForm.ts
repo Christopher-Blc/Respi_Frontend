@@ -1,5 +1,10 @@
 ﻿import { useState } from 'react';
-import { Pista, WeeklyScheduleItem, PistaFormData } from '../types/types';
+import {
+  Instalacion,
+  Pista,
+  WeeklyScheduleItem,
+  PistaFormData,
+} from '../types/types';
 import api from '../services/api';
 import {
   WEEK_DAYS,
@@ -9,11 +14,17 @@ import {
   hourToMinutes,
   isValidPrice,
 } from './courtUtils';
+import { useTranslation } from 'react-i18next';
 
-export function useCourtForm(pistas: Pista[], fetchPistas: () => void) {
+export function useCourtForm(
+  pistas: Pista[],
+  instalaciones: Instalacion[],
+  fetchPistas: () => void,
+) {
   const [modalVisible, setModalVisible] = useState(false);
   const [pistaAEditar, setPistaAEditar] = useState<Pista | null>(null);
   const [formData, setFormData] = useState<PistaFormData>(DEFAULT_FORM);
+  const { t } = useTranslation();
   const [weeklySchedule, setWeeklySchedule] = useState<WeeklyScheduleItem[]>(
     createDefaultWeeklySchedule(),
   );
@@ -56,7 +67,11 @@ export function useCourtForm(pistas: Pista[], fetchPistas: () => void) {
         }),
       );
     } else {
-      setFormData(DEFAULT_FORM);
+      setFormData({
+        ...DEFAULT_FORM,
+        instalacion_id:
+          instalaciones[0]?.instalacion_id?.toString() || DEFAULT_FORM.instalacion_id,
+      });
       setWeeklySchedule(createDefaultWeeklySchedule());
     }
     setSamePriceMode(false);
@@ -67,8 +82,28 @@ export function useCourtForm(pistas: Pista[], fetchPistas: () => void) {
   const handleSave = async () => {
     try {
       const capacidad = Number(formData.capacidad);
+      const instalacionId = Number(formData.instalacion_id);
+      const tipoPistaId = Number(formData.tipo_pista_id);
       if (!Number.isInteger(capacidad) || capacidad < 2 || capacidad > 20) {
         setErrorModal({ visible: true, title: 'Capacidad invalida', message: 'La capacidad debe ser un numero entero entre 2 y 20.' });
+        return;
+      }
+
+      if (!Number.isInteger(instalacionId) || instalacionId <= 0) {
+        setErrorModal({
+          visible: true,
+          title: 'Instalacion obligatoria',
+          message: 'Debes seleccionar una instalacion antes de guardar.',
+        });
+        return;
+      }
+
+      if (!Number.isInteger(tipoPistaId) || tipoPistaId <= 0) {
+        setErrorModal({
+          visible: true,
+          title: 'Tipo de pista obligatorio',
+          message: 'Debes seleccionar un tipo de pista antes de guardar.',
+        });
         return;
       }
 
@@ -105,8 +140,8 @@ export function useCourtForm(pistas: Pista[], fetchPistas: () => void) {
         capacidad,
         cubierta: formData.cubierta,
         iluminacion: formData.iluminacion,
-        instalacion_id: parseInt(formData.instalacion_id),
-        tipo_pista_id: parseInt(formData.tipo_pista_id),
+        instalacion_id: instalacionId,
+        tipo_pista_id: tipoPistaId,
       };
 
       if (pistaAEditar) {
@@ -132,14 +167,14 @@ export function useCourtForm(pistas: Pista[], fetchPistas: () => void) {
               hora_cierre: day.hora_cierre.substring(0, 5),
               estado: 'DISPONIBLE',
             };
-            return existingId ? api.put(`/pista/${existingId}`, body) : api.post('/pista', body);
+            return existingId ? api.put(`/Court/${existingId}`, body) : api.post('/court', body);
           }),
         );
       } else {
         await Promise.all(
           activeDays.map((day) => {
             const precio = (samePriceMode ? globalPrice : day.precio_hora).trim().replace(',', '.');
-            return api.post('/pista', {
+            return api.post('/court', {
               ...bodyBase,
               precio_hora: parseFloat(precio),
               dia_semana: day.dia_semana,
@@ -162,10 +197,10 @@ export function useCourtForm(pistas: Pista[], fetchPistas: () => void) {
       setErrorModal({
         visible: true,
         title: isUniqueError
-          ? i18next.t('adminCourtNameExistsTitle')
-          : i18next.t('adminSaveErrorTitle'),
+          ? t('adminCourtNameExistsTitle')
+          : t('adminSaveErrorTitle'),
         message: isUniqueError
-          ? i18next.t('adminCourtNameExistsMessage', { name: formData.nombre })
+          ? t('adminCourtNameExistsMessage', { name: formData.nombre })
           : errorMessage,
       });
     }

@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
 import { Alert, useWindowDimensions } from 'react-native';
-import { Pista, TipoPista } from '../types/types';
+import { Instalacion, Pista, TipoPista } from '../types/types';
 import api from '../services/api';
 import { useCourtForm } from './useCourtForm';
 import { useCourtMaintenance } from './useCourtMaintenance';
@@ -14,15 +14,38 @@ export function useAdminCourts() {
 
   const [pistas, setPistas] = useState<Pista[]>([]);
   const [tiposPista, setTiposPista] = useState<TipoPista[]>([]);
+  const [instalaciones, setInstalaciones] = useState<Instalacion[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const fetchInstalaciones = async () => {
+    const endpoint = '/Installation';
+    const response = await api.get(endpoint);
+    const rows = Array.isArray(response?.data)
+      ? response.data
+        : Array.isArray(response?.data?.data)
+          ? response.data.data
+            : Array.isArray(response?.data?.items)
+              ? response.data.items
+              : [];
+
+    if (rows.length > 0) {
+      setInstalaciones(rows);
+      return;
+    }
+      
+    
+
+    setInstalaciones([]);
+  };
 
   const fetchPistas = async () => {
     try {
       setLoading(true);
       const [pistaRes, tipoRes] = await Promise.all([
-        api.get('/pista'),
-        api.get('/tipo_pista'),
+        api.get('/Court'),
+        api.get('/tipo_court'),
+        fetchInstalaciones(),
       ]);
       setPistas(pistaRes.data);
       setTiposPista(tipoRes.data);
@@ -37,13 +60,14 @@ export function useAdminCourts() {
     fetchPistas();
   }, []);
 
-  const form = useCourtForm(pistas, fetchPistas);
+  const form = useCourtForm(pistas, instalaciones, fetchPistas);
   const maintenance = useCourtMaintenance(pistas, fetchPistas);
   const filters = useCourtFilters(pistas, searchQuery);
 
   return {
     pistas,
     tiposPista,
+    instalaciones,
     loading,
     searchQuery,
     setSearchQuery,

@@ -53,7 +53,7 @@ export default function ConfirmacionReserva() {
 
     const fetchPista = async () => {
       try {
-        const response = await api.get(`/pista/${pistaIdValue}`);
+        const response = await api.get(`/Court/${pistaIdValue}`);
         setPista(response.data);
       } catch (error) {
         console.error('Error loading court:', error);
@@ -93,7 +93,7 @@ export default function ConfirmacionReserva() {
         nota: notes,
       };
 
-      const response = await api.post('/reserva', payload);
+      const response = await api.post('/Reservation', payload);
 
       if (response.status === 201 || response.data?.reserva_id) {
         Alert.alert(

@@ -13,12 +13,12 @@ import { useAppTheme } from '../../../context/ThemeContext';
 import { pistasStyles as styles } from '../../../style/admin/courts.styles';
 import { SessionExpiredModal } from '../../alert.modal';
 import {
+  Instalacion,
   Pista,
   TipoPista,
   PistaFormData,
   WeeklyScheduleItem,
 } from '../../../types/types';
-import { WEEK_DAYS } from '../../../hooks/courtUtils';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
@@ -29,6 +29,7 @@ type Props = {
   weeklySchedule: WeeklyScheduleItem[];
   weeklyCardWidth: string;
   tiposPista: TipoPista[];
+  instalaciones: Instalacion[];
   onClose: () => void;
   onSave: () => void;
   updateWeeklySchedule: <K extends keyof WeeklyScheduleItem>(
@@ -69,6 +70,7 @@ export function CourtFormModal({
   weeklySchedule,
   weeklyCardWidth,
   tiposPista,
+  instalaciones,
   onClose,
   onSave,
   updateWeeklySchedule,
@@ -156,6 +158,65 @@ export function CourtFormModal({
                     </TouchableOpacity>
                   );
                 })}
+              </View>
+
+              <InputLabel
+                label={t('adminCourtInstallationLabel')}
+                theme={theme}
+              />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
+                  gap: 8,
+                  marginBottom: 14,
+                }}
+              >
+                {instalaciones.map((instalacion) => {
+                  const selected =
+                    formData.instalacion_id ===
+                    instalacion.instalacion_id.toString();
+                  return (
+                    <TouchableOpacity
+                      key={instalacion.instalacion_id}
+                      onPress={() =>
+                        setFormData({
+                          ...formData,
+                          instalacion_id: instalacion.instalacion_id.toString(),
+                        })
+                      }
+                      style={[
+                        {
+                          paddingHorizontal: 14,
+                          paddingVertical: 8,
+                          borderRadius: 20,
+                          borderWidth: 1,
+                          borderColor: selected
+                            ? theme.primary
+                            : theme.primarySoft,
+                          backgroundColor: selected
+                            ? theme.primary + '20'
+                            : 'transparent',
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={{
+                          color: selected ? theme.primary : theme.textBody,
+                          fontWeight: selected ? '700' : '400',
+                          fontSize: 13,
+                        }}
+                      >
+                        {instalacion.nombre}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+                {instalaciones.length === 0 && (
+                  <Text style={{ color: theme.textBody, opacity: 0.8 }}>
+                    {t('adminCourtInstallationEmpty')}
+                  </Text>
+                )}
               </View>
 
               <InputLabel label={t('adminCourtNameLabel')} theme={theme} />
