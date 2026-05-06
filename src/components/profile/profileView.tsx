@@ -22,9 +22,7 @@ import EditUserNameModal from '../../components/profile/editUserName.modal';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import MembresiaModal from '../../components/profile/membership.modal';
-import { router } from 'expo-router';
 import { ThemePalette } from '../../theme';
-// Importamos el hook que hemos creado
 import { useProfile } from '../../hooks/useProfile';
 import { useTranslation } from 'react-i18next';
 import { getAppLanguage } from '../../i18n';

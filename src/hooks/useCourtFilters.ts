@@ -30,7 +30,7 @@ export function useCourtFilters(pistas: Pista[], searchQuery: string) {
       const matchesTipo =
         filterTipoPistaId === null || Number(p.tipo_pista_id) === filterTipoPistaId;
       const matchesPrecio =
-        maxPrice === null || isNaN(maxPrice) || parseFloat(p.precio_hora) <= maxPrice;
+        maxPrice === null || isNaN(maxPrice) || p.precio_hora <= maxPrice;
       const matchesEstado = filterEstado === null || p.estado === filterEstado;
       const isNotInactiva = p.estado !== 'INACTIVA';
       return matchesSearch && matchesTipo && matchesPrecio && matchesEstado && isNotInactiva;

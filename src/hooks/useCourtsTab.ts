@@ -1,13 +1,26 @@
 ﻿import { useEffect, useMemo, useState } from 'react';
-import { MODELOS, Modelo } from '../data/modelos';
 import { API_PUBLIC_URL } from '../constants';
-import { bookingsService } from '../services/bookingsService';
 import api from '../services/api';
-import { PistaDisponibilidad, TipoPista } from '../types/types';
+import { Pista, PistaDisponibilidad, TipoPista } from '../types/types';
 import { useTranslation } from 'react-i18next';
- 
- 
+import {  getTipoPistaImage } from '../utils/getImage';
 
+
+export const resolvePistaImageSource = (pista: PistaDisponibilidad) =>
+  getTipoPistaImage(pista);
+
+const resolvePistaCardImage = (
+  pista: Pista,
+  tipos: TipoPista[],
+): { uri: string } | undefined => {
+  const tipo = tipos.find(
+    (item) => String(item.tipo_pista_id) === String(pista.tipo_pista_id),
+  );
+  if (!tipo?.imagen) return undefined;
+  return {
+    uri: `${API_PUBLIC_URL}${tipo.imagen.startsWith('/') ? '' : '/'}${tipo.imagen}`,
+  };
+};
 
 export const formatPrice = (price: number, locale = 'es-ES') =>
   new Intl.NumberFormat(locale, {
@@ -16,33 +29,6 @@ export const formatPrice = (price: number, locale = 'es-ES') =>
     maximumFractionDigits: 0,
   }).format(price);
 
-export const resolveImageSource = (img: Modelo['img']) => {
-  if (typeof img === 'number') return img;
-  if (typeof img === 'string') {
-    return img.startsWith('http')
-      ? { uri: img }
-      : { uri: `${API_PUBLIC_URL}/${img.replace(/^\//, '')}` };
-  }
-
-  return img;
-};
-
-export const resolvePistaImageSource = (
-  pista: PistaDisponibilidad,
-  fallbackModel?: Modelo | null,
-) => {
-  const candidate =
-    pista?.tipo_pista?.imagen || fallbackModel?.img;
-
-  if (typeof candidate === 'number') return candidate;
-  if (typeof candidate === 'string') {
-    return candidate.startsWith('http')
-      ? { uri: candidate }
-      : { uri: `${API_PUBLIC_URL}/${candidate.replace(/^\//, '')}` };
-  }
-
-  return fallbackModel?.img || MODELOS[0].img;
-};
 
 export const formatDateDisplay = (date: Date, locale = 'es-ES') =>
   date.toLocaleDateString(locale, {
@@ -68,21 +54,12 @@ const formatDateForAPI = (date: Date) => {
   return `${year}-${month}-${day}`;
 };
 
-const normalizeText = (value: string) =>
-  value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim();
-
-const getTypeIdCandidates = (item: PistaDisponibilidad): string =>
-  String(item?.tipo_pista_id ?? '');
-
 export function useCourtsTab() {
   const { t } = useTranslation();
-  const [modelos, setModelos] = useState<Modelo[]>([]);
+  const [tipos, setTipos] = useState<TipoPista[]>([]);
+  const [pistas, setPistas] = useState<Pista[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedModel, setSelectedModel] = useState<Modelo | null>(null);
+  const [selectedModel, setSelectedModel] = useState<Pista | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [loadingSportInfo, setLoadingSportInfo] = useState(false);
   const [sportError, setSportError] = useState<string | null>(null);
@@ -91,27 +68,41 @@ export function useCourtsTab() {
 
   const availableDays = useMemo(() => getNext7Days(), []);
   const formattedDate = formatDateForAPI(selectedDate);
-  const displayedModelos = modelos.length ? modelos : MODELOS;
+
+  const displayedModelos = useMemo<Pista[]>(
+    () => {
+      const grouped = new Map<string, Pista>();
+      for (const pista of pistas) {
+        const key = String(pista.tipo_pista_id ?? '');
+        if (key && !grouped.has(key)) {
+          grouped.set(key, pista);
+        }
+      }
+      return Array.from(grouped.values());
+    },
+    [pistas],
+  );
 
   useEffect(() => {
     let mounted = true;
-
     (async () => {
       try {
-        const remote = await bookingsService.getModelos();
-        if (mounted) {
-          setModelos(remote.length ? remote : MODELOS);
+        const [tiposRes, pistasRes] = await Promise.all([
+          api.get('/tipo_court'),
+          api.get('/Court'),
+        ]);
+        if (mounted && Array.isArray(tiposRes.data)) {
+          setTipos(tiposRes.data as TipoPista[]);
+        }
+        if (mounted && Array.isArray(pistasRes.data)) {
+          setPistas(pistasRes.data as Pista[]);
         }
       } catch (error) {
-        if (mounted) {
-          setModelos(MODELOS);
-        }
-        console.error('Error al cargar deportes', error);
+        console.error('Error al cargar tipos de pista', error);
       } finally {
         if (mounted) setLoading(false);
       }
     })();
-
     return () => {
       mounted = false;
     };
@@ -132,17 +123,10 @@ export function useCourtsTab() {
         setLoadingSportInfo(true);
         setSportError(null);
 
-        const [tiposRes, disponibilidadRes, pistasRes] =
-          await Promise.allSettled([
-            api.get('/tipo_court'),
-            api.get(`/Court/disponibilidad?fecha=${formattedDate}`),
-            api.get('/Court'),
-          ]);
-
-        const tiposPayload =
-          tiposRes.status === 'fulfilled' && Array.isArray(tiposRes.value?.data)
-            ? (tiposRes.value.data as TipoPista[])
-            : [];
+        const [disponibilidadRes, pistasRes] = await Promise.allSettled([
+          api.get(`/Court/disponibilidad?fecha=${formattedDate}`),
+          api.get('/Court'),
+        ]);
 
         const disponibilidadPayload =
           disponibilidadRes.status === 'fulfilled' &&
@@ -156,14 +140,11 @@ export function useCourtsTab() {
             ? (pistasRes.value.data as PistaDisponibilidad[])
             : [];
 
-        const selectedType = tiposPayload.find((tipo) => {
-          const typeId = String(tipo.tipo_pista_id ?? '');
-          const typeName = normalizeText(tipo.nombre || '');
-          return (
-            typeId === String(selectedModel.id) ||
-            typeName.includes(normalizeText(selectedModel.title))
-          );
-        });
+        const selectedType =
+          tipos.find(
+            (tipo) =>
+              String(tipo.tipo_pista_id) === String(selectedModel.tipo_pista_id),
+          ) ?? null;
 
         const fullMap = new Map<string, PistaDisponibilidad>();
         for (const pista of pistasPayload) {
@@ -171,16 +152,10 @@ export function useCourtsTab() {
           if (id) fullMap.set(id, pista);
         }
 
-        const filtered = disponibilidadPayload.filter((pista) => {
-          const ids = getTypeIdCandidates(pista);
-          const idMatch = ids.includes(String(selectedModel.id));
-          const typeName = normalizeText(pista.tipo_pista?.nombre || '');
-          const pistaName = normalizeText(pista.nombre || '');
-          const title = normalizeText(selectedModel.title);
-          return (
-            idMatch || typeName.includes(title) || pistaName.includes(title)
-          );
-        });
+        const filtered = disponibilidadPayload.filter(
+          (pista) =>
+            String(pista.tipo_pista_id) === String(selectedModel.tipo_pista_id),
+        );
 
         const merged = filtered.map((pista) => {
           const id = String(pista.pista_id ?? '');
@@ -198,7 +173,7 @@ export function useCourtsTab() {
         });
 
         if (!mounted) return;
-        setSportType(selectedType ?? null);
+        setSportType(selectedType);
         setSportPistas(merged);
       } catch (error) {
         if (!mounted) return;
@@ -215,7 +190,7 @@ export function useCourtsTab() {
     return () => {
       mounted = false;
     };
-  }, [formattedDate, selectedModel, t]);
+  }, [formattedDate, selectedModel, tipos, t]);
 
   const clearSportFilter = () => {
     setSelectedModel(null);
@@ -225,6 +200,7 @@ export function useCourtsTab() {
   return {
     loading,
     displayedModelos,
+    resolveModelImage: (pista: Pista) => resolvePistaCardImage(pista, tipos),
     selectedModel,
     setSelectedModel,
     selectedDate,

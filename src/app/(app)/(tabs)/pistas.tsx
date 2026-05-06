@@ -12,7 +12,6 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Modelo } from '../../../data/modelos';
 import createReservationsStyles from '../../../style/reservations.styles';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
@@ -21,10 +20,9 @@ import {
   formatDateDisplay,
   formatPrice,
   resolvePistaImageSource,
-  resolveImageSource,
   useCourtsTab,
 } from '../../../hooks/useCourtsTab';
-import { PistaDisponibilidad } from '../../../types/types';
+import { Pista, PistaDisponibilidad } from '../../../types/types';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../i18n';
 
@@ -59,6 +57,7 @@ export default function PistasTab() {
     availableDays,
     formattedDate,
     clearSportFilter,
+    resolveModelImage,
   } = useCourtsTab();
 
   let baseColumnsCount = 1;
@@ -77,9 +76,9 @@ export default function PistasTab() {
   const modelCardWidth = getResponsiveCardWidth(displayedModelos.length);
   const sportCardWidth = getResponsiveCardWidth(sportPistas.length);
 
-  const renderModel = (item: Modelo) => (
+  const renderModel = (item: Pista) => (
     <TouchableOpacity
-      key={item.id}
+      key={item.pista_id}
       style={[
         localStyles.catalogCard,
         {
@@ -93,7 +92,7 @@ export default function PistasTab() {
       onPress={() => setSelectedModel(item)}
     >
       <ImageBackground
-        source={resolveImageSource(item.img)}
+        source={resolveModelImage(item)}
         style={localStyles.catalogCardBg}
         imageStyle={{ borderRadius: 18 }}
       >
@@ -114,14 +113,14 @@ export default function PistasTab() {
 
           <View style={localStyles.catalogBottom}>
             <View>
-              <Text style={localStyles.catalogTitle}>{item.title}</Text>
+              <Text style={localStyles.catalogTitle}>{item.nombre}</Text>
               <Text style={localStyles.catalogMeta}>
                 {t('pistasReserveOnlineFast')}
               </Text>
             </View>
             <View style={localStyles.pricePill}>
               <Text style={localStyles.pricePillText}>
-                {formatPrice(item.price, locale)}/h
+                {formatPrice(Number(item.precio_hora || 0), locale)}/h
               </Text>
             </View>
           </View>
@@ -142,7 +141,7 @@ export default function PistasTab() {
   const renderSportCourtCard = (pista: PistaDisponibilidad) => {
     const pistaId = String(pista.pista_id ?? '');
     const reservasHoy = pista.reservas_actuales?.length || 0;
-    const pistaImage = resolvePistaImageSource(pista, selectedModel);
+    const pistaImage = resolvePistaImageSource(pista);
 
     return (
       <View
@@ -253,7 +252,7 @@ export default function PistasTab() {
             </View>
             <Text style={localStyles.heroTitle}>
               {selectedModel
-                ? selectedModel.title
+                ? selectedModel.nombre
                 : t('pistasHeroTitleDefault')}
             </Text>
             <Text style={localStyles.heroSubtitle}>

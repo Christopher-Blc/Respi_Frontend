@@ -27,7 +27,6 @@ const getImageUri = (
   imagePath: string | null | undefined,
 ): string | undefined => {
   if (!imagePath) return undefined;
-  if (imagePath.startsWith('http')) return imagePath;
   return `${IMAGE_BASE_URL}/${imagePath}`;
 };
 
