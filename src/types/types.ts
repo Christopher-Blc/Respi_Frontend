@@ -36,7 +36,7 @@ export type Pista = {
   tipo_pista_id: number | string,
   nombre: string,
   capacidad: number,
-  precio_hora: string,
+  precio_hora: number,
   cubierta: boolean,
   iluminacion: boolean,
   descripcion: string,
@@ -125,6 +125,18 @@ export interface JWTPayload {
   email: string;
   role: 'SUPER_ADMIN' | 'CLIENTE';
 }
+
+export type DatePickerMode = 'date' | 'time' | null;
+
+export type BookingCourtOption = {
+  id: string;
+  name: string;
+  openingHour?: string;
+  closingHour?: string;
+  status?: string;
+  pricePerHour?: number;
+  tipoPistaId?: string;
+};
 
 export type WeeklyScheduleItem = {
   dia_semana: Pista['dia_semana'];

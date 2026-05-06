@@ -111,6 +111,7 @@ const Login: React.FC = () => {
           {t('authLoginEmail')}:
         </Text>
         <GlassTextInput
+          autoComplete="email"
           keyboardType="email-address"
           placeholder={t('exampleEmail')}
           value={email}
@@ -128,6 +129,7 @@ const Login: React.FC = () => {
           {t('authLoginPassword')}:
         </Text>
         <GlassTextInputPassword
+          autoComplete="current-password"
           placeholder={t('examplePassword')}
           value={password}
           onChangeText={setPassword}

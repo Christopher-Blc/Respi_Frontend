@@ -13,7 +13,6 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MODELOS } from '../../../data/modelos';
 import { Reserva } from '../../../types/types';
 import createReservationsStyles from '../../../style/reservations.styles';
 import { useAppTheme } from '../../../context/ThemeContext';
@@ -23,6 +22,7 @@ import { createHomeStyles } from '../../../style/home.styles';
 import DateModal from '../../../components/bookings/date.modal';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../i18n';
+import { getTipoPistaImage } from '../../../utils/getImage';
 
 //pantalla home del cliente
 
@@ -53,41 +53,9 @@ export default function HomeScreen() {
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase();
 
-  const getImageForReservation = (reservation: Reserva) => {
-    const pista = reservation.pista as any;
-
-    const typeId =
-      String(
-        pista?.tipo_pista_id ??
-          pista?.tipoPistaId ??
-          pista?.tipo_pista?.tipo_pista_id ??
-          pista?.tipo_pista?.id ??
-          '',
-      ) || null;
-
-    if (typeId) {
-      const byId = MODELOS.find((m) => String(m.id) === typeId);
-      if (byId) return byId.img;
-    }
-
-    const typeName = normalize(
-      pista?.tipo_pista?.nombre || pista?.tipo || pista?.deporte || '',
-    );
-    if (typeName) {
-      const byTypeName = MODELOS.find((m) =>
-        typeName.includes(normalize(m.title)),
-      );
-      if (byTypeName) return byTypeName.img;
-    }
-
-    const title = normalize(pista?.nombre || '');
-    const byTitle = MODELOS.find((m) => title.includes(normalize(m.title)));
-    return byTitle ? byTitle.img : MODELOS[0].img;
-  };
-
   const renderReservation = (item: Reserva) => {
     const title = item.pista?.nombre || t('homeReservationFallback');
-    const img = getImageForReservation(item);
+    const img = getTipoPistaImage(item);
     const cleanDate = new Date(item.fecha_reserva).toLocaleDateString(locale, {
       day: '2-digit',
       month: 'short',
