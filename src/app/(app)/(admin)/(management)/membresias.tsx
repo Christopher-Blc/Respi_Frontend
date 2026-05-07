@@ -132,6 +132,12 @@ export default function AdminMembresias() {
           color={theme.primary}
           style={{ marginTop: 50 }}
         />
+      ) : filteredMemberships.length === 0 ? (
+        <View style={{ paddingHorizontal: 20, paddingTop: 40 }}>
+          <Text style={{ color: theme.textBody, textAlign: 'center' }}>
+            No hay membresias.
+          </Text>
+        </View>
       ) : viewMode === 'cards' ? (
         <FlatList
           key={`memberships-cards-${cardsColumns}`}
@@ -222,16 +228,16 @@ export default function AdminMembresias() {
                     { color: theme.textTitle, fontWeight: '600' },
                   ]}
                 >
-                  {item.nombre}
+                  {item.name}
                 </Text>
                 <Text style={[styles.colRange, { color: theme.textBody }]}>
-                  #{item.rango}
+                  #{item.level}
                 </Text>
                 <Text style={[styles.colDiscount, { color: theme.textBody }]}>
-                  {item.descuento}%
+                  {item.discount}%
                 </Text>
                 <Text style={[styles.colBookings, { color: theme.textBody }]}>
-                  {item.reservas_requeridas}
+                  {item.required_reservations}
                 </Text>
                 <View style={styles.colActions}>
                   <View style={{ flexDirection: 'row', gap: 10 }}>

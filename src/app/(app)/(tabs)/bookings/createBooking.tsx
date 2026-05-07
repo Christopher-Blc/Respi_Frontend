@@ -190,7 +190,7 @@ export default function CreateBooking() {
           return;
         }
 
-        const membershipsResponse = await api.get('/membership');
+        const membershipsResponse = await api.get('/memberships');
         const payload = membershipsResponse.data;
         const memberships: Membresia[] = Array.isArray(payload)
           ? payload
@@ -203,8 +203,8 @@ export default function CreateBooking() {
         );
 
         if (mounted && activeMembership) {
-          setMembershipName(activeMembership.nombre);
-          setMembershipDiscountPct(Number(activeMembership.descuento || 0));
+          setMembershipName(activeMembership.name);
+          setMembershipDiscountPct(Number(activeMembership.discount || 0));
         }
       } catch (error) {
         if (mounted) {

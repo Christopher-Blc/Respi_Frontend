@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { Membresia } from '../types/types';
 import api from '../services/api';
 
-type MembershipFormData = {
-  rango: string;
-  nombre: string;
-  descuento: string;
-  reservas_requeridas: string;
-  beneficios: string;
+export type MembershipFormData = {
+  level: string;
+  name: string;
+  discount: string;
+  required_reservations: string;
+  benefits: string;
 };
 
 type DeleteModalState = {
@@ -24,11 +24,11 @@ type BasicUser = {
 };
 
 const EMPTY_FORM: MembershipFormData = {
-  rango: '',
-  nombre: '',
-  descuento: '',
-  reservas_requeridas: '',
-  beneficios: '',
+  level: '',
+  name: '',
+  discount: '',
+  required_reservations: '',
+  benefits: '',
 };
 
 export function useAdminMemberships() {
@@ -58,8 +58,10 @@ export function useAdminMemberships() {
   const fetchMemberships = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/membership');
-      const rows = Array.isArray(res.data) ? res.data : [];
+      const res = await api.get('/memberships');
+      const rows = (Array.isArray(res.data) ? res.data : []).filter(
+        (m: any) => m != null && m.membresia_id != null,
+      );
       setMemberships(rows);
     } catch {
       setErrorModal({
@@ -81,7 +83,7 @@ export function useAdminMemberships() {
     if (!q) return memberships;
 
     return memberships.filter((m) => {
-      const text = `${m.nombre} ${m.beneficios} ${m.rango}`.toLowerCase();
+      const text = `${m.name} ${m.benefits} ${m.level}`.toLowerCase();
       return text.includes(q);
     });
   }, [memberships, searchQuery]);
@@ -95,28 +97,28 @@ export function useAdminMemberships() {
   const openEditModal = (item: Membresia) => {
     setMembershipToEdit(item);
     setFormData({
-      rango: String(item.rango),
-      nombre: item.nombre,
-      descuento: String(item.descuento),
-      reservas_requeridas: String(item.reservas_requeridas),
-      beneficios: item.beneficios,
+      level: String(item.level),
+      name: item.name,
+      discount: String(item.discount),
+      required_reservations: String(item.required_reservations),
+      benefits: item.benefits,
     });
     setModalVisible(true);
   };
 
   const validateForm = () => {
-    const rango = Number(formData.rango);
-    const descuento = Number(formData.descuento);
-    const reservas = Number(formData.reservas_requeridas);
+    const level = Number(formData.level);
+    const discount = Number(formData.discount);
+    const requiredReservations = Number(formData.required_reservations);
 
-    if (!formData.nombre.trim()) return 'El nombre del tipo es obligatorio.';
-    if (!Number.isFinite(rango) || rango <= 0)
-      return 'El rango debe ser un numero mayor a 0.';
-    if (!Number.isFinite(descuento) || descuento < 0 || descuento >= 100)
+    if (!formData.name.trim()) return 'El nombre de la membresia es obligatorio.';
+    if (!Number.isFinite(level) || level <= 0)
+      return 'El nivel debe ser un numero mayor a 0.';
+    if (!Number.isFinite(discount) || discount < 0 || discount >= 100)
       return 'El descuento debe estar entre 0 y 99.';
-    if (!Number.isFinite(reservas) || reservas < 0)
+    if (!Number.isFinite(requiredReservations) || requiredReservations < 0)
       return 'Las reservas requeridas no pueden ser negativas.';
-    if (!formData.beneficios.trim()) return 'Los beneficios son obligatorios.';
+    if (!formData.benefits.trim()) return 'Los beneficios son obligatorios.';
 
     return null;
   };
@@ -133,18 +135,18 @@ export function useAdminMemberships() {
     }
 
     const payload = {
-      rango: Number(formData.rango),
-      nombre: formData.nombre.trim(),
-      descuento: Number(formData.descuento),
-      reservas_requeridas: Number(formData.reservas_requeridas),
-      beneficios: formData.beneficios.trim(),
+      level: Number(formData.level),
+      name: formData.name.trim(),
+      discount: Number(formData.discount),
+      required_reservations: Number(formData.required_reservations),
+      benefits: formData.benefits.trim(),
     };
 
     try {
       if (membershipToEdit) {
-        await api.put(`/membership/${membershipToEdit.membresia_id}`, payload);
+        await api.put(`/memberships/${membershipToEdit.membresia_id}`, payload);
       } else {
-        await api.post('/membership', payload);
+        await api.post('/memberships', payload);
       } 
 
       setModalVisible(false);
@@ -192,7 +194,7 @@ export function useAdminMemberships() {
           visible: true,
           item,
           canDelete: false,
-          message: `No puedes eliminar \"${item.nombre}\" porque hay ${usersUsingMembership.length} usuario(s) usando esta membresia.`,
+          message: `No puedes eliminar \"${item.name}\" porque hay ${usersUsingMembership.length} usuario(s) usando esta membresia.`,
         });
         return;
       }
@@ -201,7 +203,7 @@ export function useAdminMemberships() {
         visible: true,
         item,
         canDelete: true,
-        message: `Seguro que quieres eliminar la membresia \"${item.nombre}\"?`,
+        message: `Seguro que quieres eliminar la membresia \"${item.name}\"?`,
       });
     } catch {
       setErrorModal({
@@ -216,7 +218,7 @@ export function useAdminMemberships() {
     if (!deleteModal.item || !deleteModal.canDelete) return;
 
     try {
-      await api.delete(`/membership/${deleteModal.item.membresia_id}`);
+      await api.delete(`/memberships/${deleteModal.item.membresia_id}`);
       setDeleteModal({ visible: false, item: null, message: '', canDelete: false });
       fetchMemberships();
     } catch {

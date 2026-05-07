@@ -118,7 +118,7 @@ export default function MembresiaModal({ visible, onClose }: Props) {
       setLoading(true);
       setErrorMsg(null);
 
-      const response = await api.get('/membership');
+      const response = await api.get('/memberships');
       const payload = response.data;
       const parsed = Array.isArray(payload)
         ? payload
