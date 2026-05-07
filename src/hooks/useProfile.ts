@@ -38,7 +38,7 @@ export const useProfile = () => {
       return;
     }
     try {
-      const response = await api.get('/membership');
+      const response = await api.get('/memberships');
       const payload = response.data;
       const parsed = Array.isArray(payload) ? payload : payload?.data || [];
       const found = parsed.find((m: Membresia) => m.membresia_id === id);

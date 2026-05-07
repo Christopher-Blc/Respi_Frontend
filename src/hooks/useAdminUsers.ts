@@ -72,7 +72,7 @@ export function useAdminUsers() {
       setLoading(true);
       const [usersRes, membershipsRes] = await Promise.all([
         api.get<AdminUser[]>('/users'),
-        api.get('/membership'),
+        api.get('/memberships'),
       ]);
 
       setUsers(Array.isArray(usersRes.data) ? usersRes.data : []);
