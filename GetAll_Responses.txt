@@ -1,0 +1,274 @@
+GetAll users
+{
+    "id": 1,
+    "membership_id": null,
+    "username": "ResPi",
+    "name": "test",
+    "surname": "test",
+    "email": "test@test.com",
+    "phone": "634323242",
+    "role": "SUPER_ADMIN",
+    "is_active": true,
+    "registration_date": "2025-10-23T00:00:00.000Z",
+    "last_login_date": "2026-05-08T05:58:56.000Z",
+    "date_of_birth": "2007-10-23",
+    "address": "C/ Casa al costat de la de Carolina",
+    "refresh_token_hash": "$2b$10$lckv2GWnTpsgaBr5y7uQDe4nyhQ/MpzSuIURaI4MOAe0EINPokwvW",
+    "expoPushToken": null,
+    "membership": null,
+    "reservations_count": 0
+  },
+
+Get users/profile/me
+{
+  "id": 1,
+  "membership_id": null,
+  "username": "ResPi",
+  "name": "test",
+  "surname": "test",
+  "email": "test@test.com",
+  "phone": "634323242",
+  "role": "SUPER_ADMIN",
+  "is_active": true,
+  "registration_date": "2025-10-23T00:00:00.000Z",
+  "last_login_date": "2026-05-08T05:58:56.000Z",
+  "date_of_birth": "2007-10-23",
+  "address": "C/ Casa al costat de la de Carolina",
+  "refresh_token_hash": "$2b$10$lckv2GWnTpsgaBr5y7uQDe4nyhQ/MpzSuIURaI4MOAe0EINPokwvW",
+  "expoPushToken": null,
+  "membership": null,
+  "reservations_count": 0
+}
+
+Getall reservas
+
+{
+    "id": 1,
+    "user_id": 1,
+    "court_id": 1,
+    "reservation_date": "2025-01-10",
+    "start_time": "10:00:00",
+    "end_time": "12:00:00",
+    "status": "FINALIZADA",
+    "total_price": "31.00",
+    "createdAt": "2026-05-08T05:28:14.000Z",
+    "note": "Reservation para historial (Bronce)",
+    "user": {
+      "id": 1,
+      "membership_id": null,
+      "username": "ResPi",
+      "name": "test",
+      "surname": "test",
+      "email": "test@test.com",
+      "phone": "634323242",
+      "role": "SUPER_ADMIN",
+      "is_active": true,
+      "registration_date": "2025-10-23T00:00:00.000Z",
+      "last_login_date": "2026-05-08T05:58:56.000Z",
+      "date_of_birth": "2007-10-23",
+      "address": "C/ Casa al costat de la de Carolina",
+      "refresh_token_hash": "$2b$10$lckv2GWnTpsgaBr5y7uQDe4nyhQ/MpzSuIURaI4MOAe0EINPokwvW",
+      "expoPushToken": null
+    },
+    "court": {
+      "id": 1,
+      "installation_id": 1,
+      "court_type_id": 1,
+      "name": "Court Central Tenis",
+      "capacity": 4,
+      "price_per_hour": "15.50",
+      "is_covered": true,
+      "has_lighting": true,
+      "description": "Court de tenis con iluminación nocturna y superficie rápida.",
+      "status": "DISPONIBLE",
+      "opening_time": "08:00:00",
+      "closing_time": "22:00:00",
+      "day_of_week": "LUNES",
+      "reservations_made": 5
+    },
+    "payments": []
+  },
+
+get reservations/my-reservations
+
+{
+    "id": 1,
+    "user_id": 1,
+    "court_id": 1,
+    "reservation_date": "2025-01-10",
+    "start_time": "10:00:00",
+    "end_time": "12:00:00",
+    "status": "FINALIZADA",
+    "total_price": "31.00",
+    "createdAt": "2026-05-08T05:28:14.000Z",
+    "note": "Reservation para historial (Bronce)",
+    "user": {
+      "id": 1,
+      "membership_id": null,
+      "username": "ResPi",
+      "name": "test",
+      "surname": "test",
+      "email": "test@test.com",
+      "phone": "634323242",
+      "role": "SUPER_ADMIN",
+      "is_active": true,
+      "registration_date": "2025-10-23T00:00:00.000Z",
+      "last_login_date": "2026-05-08T05:58:56.000Z",
+      "date_of_birth": "2007-10-23",
+      "address": "C/ Casa al costat de la de Carolina",
+      "refresh_token_hash": "$2b$10$lckv2GWnTpsgaBr5y7uQDe4nyhQ/MpzSuIURaI4MOAe0EINPokwvW",
+      "expoPushToken": null
+    },
+    "court": {
+      "id": 1,
+      "installation_id": 1,
+      "court_type_id": 1,
+      "name": "Court Central Tenis",
+      "capacity": 4,
+      "price_per_hour": "15.50",
+      "is_covered": true,
+      "has_lighting": true,
+      "description": "Court de tenis con iluminación nocturna y superficie rápida.",
+      "status": "DISPONIBLE",
+      "opening_time": "08:00:00",
+      "closing_time": "22:00:00",
+      "day_of_week": "LUNES",
+      "reservations_made": 5
+    },
+    "payments": []
+  },
+
+GETALL memberships:
+{
+    "id": 1,
+    "level": 1,
+    "name": "Bronce",
+    "discount": 0,
+    "required_reservations": 0,
+    "benefits": "Rango inicial. Sin descuentos aplicados."
+  },
+
+Getall installation:
+{
+    "id": 1,
+    "name": "Installation Central",
+    "address": "Calle Principal 123, Ciudad",
+    "phone": "123-456-7890",
+    "email": "Installation.central@example.com",
+    "description": "Installation deportiva",
+    "created_at": "2023-01-15",
+    "status": "activa",
+    "maxCapacity": null,
+    "openingHours": null,
+    "closingHours": null,
+    "courts": [
+      {
+        "id": 1,
+        "installation_id": 1,
+        "court_type_id": 1,
+        "name": "Court Central Tenis",
+        "capacity": 4,
+        "price_per_hour": "15.50",
+        "is_covered": true,
+        "has_lighting": true,
+        "description": "Court de tenis con iluminación nocturna y superficie rápida.",
+        "status": "DISPONIBLE",
+        "opening_time": "08:00:00",
+        "closing_time": "22:00:00",
+        "day_of_week": "LUNES",
+        "reservations_made": 5
+      },
+      {
+        "id": 2,
+        "installation_id": 1,
+        "court_type_id": 2,
+        "name": "Court Padel 1",
+        "capacity": 4,
+        "price_per_hour": "10.00",
+        "is_covered": false,
+        "has_lighting": true,
+        "description": "Court de pádel de cristal.",
+        "status": "DISPONIBLE",
+        "opening_time": "08:00:00",
+        "closing_time": "22:00:00",
+        "day_of_week": "LUNES",
+        "reservations_made": 5
+      }
+    ]
+  }
+
+Getall Notification:
+ {
+    "id": 1,
+    "user_id": 1,
+    "title": null,
+    "message": "Tienes una partida hoy",
+    "notification_type": "Recordatorio",
+    "is_read": true,
+    "created_at": "2025-10-27T09:24:04.000Z",
+    "user": {
+      "id": 1,
+      "membership_id": null,
+      "username": "ResPi",
+      "name": "test",
+      "surname": "test",
+      "email": "test@test.com",
+      "phone": "634323242",
+      "role": "SUPER_ADMIN",
+      "is_active": true,
+      "registration_date": "2025-10-23T00:00:00.000Z",
+      "last_login_date": "2026-05-08T05:58:56.000Z",
+      "date_of_birth": "2007-10-23",
+      "address": "C/ Casa al costat de la de Carolina",
+      "refresh_token_hash": "$2b$10$lckv2GWnTpsgaBr5y7uQDe4nyhQ/MpzSuIURaI4MOAe0EINPokwvW",
+      "expoPushToken": null
+    }
+  }
+
+getall Courts:
+{
+    "id": 1,
+    "installation_id": 1,
+    "court_type_id": 1,
+    "name": "Court Central Tenis",
+    "capacity": 4,
+    "price_per_hour": "15.50",
+    "is_covered": true,
+    "has_lighting": true,
+    "description": "Court de tenis con iluminación nocturna y superficie rápida.",
+    "status": "DISPONIBLE",
+    "opening_time": "08:00:00",
+    "closing_time": "22:00:00",
+    "day_of_week": "LUNES",
+    "reservations_made": 5,
+    "installation": {
+      "id": 1,
+      "name": "Installation Central",
+      "address": "Calle Principal 123, Ciudad",
+      "phone": "123-456-7890",
+      "email": "Installation.central@example.com",
+      "description": "Installation deportiva",
+      "created_at": "2023-01-15",
+      "status": "activa",
+      "maxCapacity": null,
+      "openingHours": null,
+      "closingHours": null
+    },
+    "courtType": {
+      "id": 1,
+      "name": "Tenis",
+      "image": "fondo-tennis.png"
+    }
+  },
+
+
+getall court_type
+{
+    "id": 1,
+    "name": "Tenis",
+    "image": "fondo-tennis.png"
+  },
+
+
+
+

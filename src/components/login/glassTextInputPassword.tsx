@@ -9,6 +9,7 @@ interface Props {
   onChangeText: (text: string) => void;
   placeholder?: string;
   label?: string;
+  autoComplete?: 'password' | 'current-password' | 'new-password' | 'off';
 }
 
 export const GlassTextInputPassword: React.FC<Props> = ({
@@ -16,6 +17,7 @@ export const GlassTextInputPassword: React.FC<Props> = ({
   onChangeText,
   placeholder,
   label,
+  autoComplete = 'off',
 }) => {
   const { theme } = useAppTheme();
   const { t } = useTranslation();
@@ -37,6 +39,7 @@ export const GlassTextInputPassword: React.FC<Props> = ({
         </Text>
       )}
       <TextInput
+        autoComplete={autoComplete}
         value={value}
         onChangeText={onChangeText}
         placeholder={isFocused ? '' : placeholder || t('examplePassword')}

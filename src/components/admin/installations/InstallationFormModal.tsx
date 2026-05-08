@@ -12,12 +12,12 @@ import { useAppTheme } from '../../../context/ThemeContext';
 import { membershipsStyles as styles } from '../../../style/admin/memberships.styles';
 
 type InstallationFormData = {
-  nombre: string;
-  direccion: string;
-  telefono: string;
+  name: string;
+  address: string;
+  phone: string;
   email: string;
-  descripcion: string;
-  estado: string;
+  description: string;
+  status: string;
 };
 
 type Props = {
@@ -77,8 +77,8 @@ export function InstallationFormModal({
                 styles.input,
                 { color: theme.textTitle, borderColor: theme.primarySoft },
               ]}
-              value={formData.nombre}
-              onChangeText={(v) => setFormData({ ...formData, nombre: v })}
+              value={formData.name}
+              onChangeText={(v) => setFormData({ ...formData, name: v })}
             />
 
             <InputLabel label="Direccion" theme={theme} />
@@ -87,8 +87,8 @@ export function InstallationFormModal({
                 styles.input,
                 { color: theme.textTitle, borderColor: theme.primarySoft },
               ]}
-              value={formData.direccion}
-              onChangeText={(v) => setFormData({ ...formData, direccion: v })}
+              value={formData.address}
+              onChangeText={(v) => setFormData({ ...formData, address: v })}
             />
 
             <InputLabel label="Telefono" theme={theme} />
@@ -98,8 +98,8 @@ export function InstallationFormModal({
                 { color: theme.textTitle, borderColor: theme.primarySoft },
               ]}
               keyboardType="phone-pad"
-              value={formData.telefono}
-              onChangeText={(v) => setFormData({ ...formData, telefono: v })}
+              value={formData.phone}
+              onChangeText={(v) => setFormData({ ...formData, phone: v })}
             />
 
             <InputLabel label="Email" theme={theme} />
@@ -122,8 +122,8 @@ export function InstallationFormModal({
                 { color: theme.textTitle, borderColor: theme.primarySoft },
               ]}
               multiline
-              value={formData.descripcion}
-              onChangeText={(v) => setFormData({ ...formData, descripcion: v })}
+              value={formData.description}
+              onChangeText={(v) => setFormData({ ...formData, description: v })}
             />
 
             <InputLabel label="Estado" theme={theme} />
@@ -134,8 +134,8 @@ export function InstallationFormModal({
               ]}
               placeholder="activa o inactiva"
               placeholderTextColor={theme.textBody + '80'}
-              value={formData.estado}
-              onChangeText={(v) => setFormData({ ...formData, estado: v })}
+              value={formData.status}
+              onChangeText={(v) => setFormData({ ...formData, status: v })}
             />
 
             <TouchableOpacity

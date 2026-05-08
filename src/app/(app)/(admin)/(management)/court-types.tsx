@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { TipoPista } from '../../../../types/types';
+import { CourtType } from '../../../../types/types';
 import { useAdminCourtTypes } from '../../../../hooks/useAdminCourtTypes';
 import { tiposPistaStyles as styles } from '../../../../style/admin/courtTypes.styles';
 import { TipoCourtCard } from '../../../../components/admin/courtTypes/CourtTypeCard';
@@ -27,7 +27,6 @@ const getImageUri = (
   imagePath: string | null | undefined,
 ): string | undefined => {
   if (!imagePath) return undefined;
-  if (imagePath.startsWith('http')) return imagePath;
   return `${IMAGE_BASE_URL}/${imagePath}`;
 };
 
@@ -63,7 +62,7 @@ export default function AdminTiposPista() {
     setErrorModal,
   } = useAdminCourtTypes();
 
-  const renderCard = ({ item }: { item: TipoPista }) => {
+  const renderCard = ({ item }: { item: CourtType }) => {
     const cardWidthStyle =
       cardsColumns === 1
         ? { width: '100%' as const }
@@ -151,7 +150,7 @@ export default function AdminTiposPista() {
           data={filteredTiposPista}
           renderItem={renderCard}
           numColumns={cardsColumns}
-          keyExtractor={(item) => item.tipo_pista_id.toString()}
+          keyExtractor={(item) => item.id.toString()}
           columnWrapperStyle={cardsColumns > 1 ? styles.gridRow : undefined}
           contentContainerStyle={[
             styles.gridContent,
@@ -203,7 +202,7 @@ export default function AdminTiposPista() {
           </View>
           <FlatList
             data={filteredTiposPista}
-            keyExtractor={(item) => item.tipo_pista_id.toString()}
+            keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
             renderItem={({ item }) => (
               <View
@@ -218,7 +217,7 @@ export default function AdminTiposPista() {
                     { color: theme.textTitle, fontWeight: '600' },
                   ]}
                 >
-                  {item.nombre}
+                  {item.name}
                 </Text>
                 <View
                   style={[
@@ -226,9 +225,9 @@ export default function AdminTiposPista() {
                     { justifyContent: 'center', alignItems: 'center' },
                   ]}
                 >
-                  {item.imagen ? (
+                  {item.image ? (
                     <Image
-                      source={{ uri: getImageUri(item.imagen) }}
+                      source={{ uri: getImageUri(item.image) }}
                       style={{
                         width: 72,
                         height: 40,
@@ -244,7 +243,7 @@ export default function AdminTiposPista() {
                 </View>
                 <View style={styles.colCount}>
                   <Text style={{ color: theme.textBody }}>
-                    {item.pistas?.length ?? 0}
+                    {item.courts?.length ?? 0}
                   </Text>
                 </View>
                 <View style={styles.colActions}>
@@ -278,7 +277,7 @@ export default function AdminTiposPista() {
         setNombre={setNombre}
         imagen={imagen}
         setImagen={setImagen}
-        existingImageUri={tipoPistaAEditar?.imagen}
+        existingImageUri={tipoPistaAEditar?.image}
         onClose={closeModal}
         onSave={handleSave}
       />
@@ -288,7 +287,7 @@ export default function AdminTiposPista() {
         visible={deleteModal.visible}
         title={
           deleteModal.canDelete
-            ? t('adminDeleteCourtTitle', { name: deleteModal.item?.nombre })
+            ? t('adminDeleteCourtTitle', { name: deleteModal.item?.name })
             : t('adminCannotDeleteTitle')
         }
         message={deleteModal.message}

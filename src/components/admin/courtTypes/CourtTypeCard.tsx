@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { TipoPista } from '../../../types/types';
+import { CourtType } from '../../../types/types';
 import { AppTheme } from '../../../theme';
 import { tiposPistaStyles as styles } from '../../../style/admin/courtTypes.styles';
 
@@ -16,14 +16,14 @@ const getImageUri = (
 };
 
 type Props = {
-  item: TipoPista;
+  item: CourtType;
   theme: AppTheme;
-  onEdit: (item: TipoPista) => void;
-  onDelete: (item: TipoPista) => void;
+  onEdit: (item: CourtType) => void;
+  onDelete: (item: CourtType) => void;
 };
 
 export function TipoCourtCard({ item, theme, onEdit, onDelete }: Props) {
-  const pistasCount = item.pistas?.length ?? 0;
+  const pistasCount = item.courts?.length ?? 0;
 
   return (
     <View
@@ -35,9 +35,9 @@ export function TipoCourtCard({ item, theme, onEdit, onDelete }: Props) {
         },
       ]}
     >
-      {item.imagen ? (
+      {item.image ? (
         <Image
-          source={{ uri: getImageUri(item.imagen) }}
+          source={{ uri: getImageUri(item.image) }}
           style={{
             width: '100%',
             height: 120,
@@ -51,7 +51,7 @@ export function TipoCourtCard({ item, theme, onEdit, onDelete }: Props) {
       <View style={styles.cardHeader}>
         <View style={{ flex: 1 }}>
           <Text style={[styles.cardTitle, { color: theme.textTitle }]}>
-            {item.nombre}
+            {item.name}
           </Text>
         </View>
         <View

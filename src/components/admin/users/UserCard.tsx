@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Membresia, User } from '../../../types/types';
+import { Membership, User } from '../../../types/types';
 import { AppTheme } from '../../../theme';
 import { usersAdminStyles as styles } from '../../../style/admin/users.styles';
 
 type AdminUser = User & {
-  membresia?: Membresia | null;
+  membership?: Membership | null;
 };
 
 type Props = {
@@ -17,8 +17,8 @@ type Props = {
 };
 
 export function UserCard({ item, theme, onEdit, onToggleActive }: Props) {
-  const membershipLabel = item.membresia?.nombre
-    ? `${item.membresia.nombre} · Rango ${item.membresia?.rango || '-'}`
+  const membershipLabel = item.membership?.name
+    ? `${item.membership.name} · Nivel ${item.membership.level}`
     : 'Sin membresia';
 
   return (
@@ -49,18 +49,18 @@ export function UserCard({ item, theme, onEdit, onToggleActive }: Props) {
           style={[
             styles.pill,
             {
-              backgroundColor: item.isActive ? '#4CAF5020' : '#F4433620',
-              borderColor: item.isActive ? '#4CAF50' : '#F44336',
+              backgroundColor: item.is_active ? '#4CAF5020' : '#F4433620',
+              borderColor: item.is_active ? '#4CAF50' : '#F44336',
             },
           ]}
         >
           <Text
             style={{
-              color: item.isActive ? '#4CAF50' : '#F44336',
+              color: item.is_active ? '#4CAF50' : '#F44336',
               fontWeight: '700',
             }}
           >
-            {item.isActive ? 'Activa' : 'Inactiva'}
+            {item.is_active ? 'Activa' : 'Inactiva'}
           </Text>
         </View>
       </View>
@@ -103,7 +103,7 @@ export function UserCard({ item, theme, onEdit, onToggleActive }: Props) {
         >
           <Ionicons
             name={
-              item.isActive
+              item.is_active
                 ? 'pause-circle-outline'
                 : 'checkmark-circle-outline'
             }
@@ -113,7 +113,7 @@ export function UserCard({ item, theme, onEdit, onToggleActive }: Props) {
           <Text
             style={{ color: theme.textBody, marginLeft: 4, fontWeight: '600' }}
           >
-            {item.isActive ? 'Desactivar' : 'Activar'}
+            {item.is_active ? 'Desactivar' : 'Activar'}
           </Text>
         </TouchableOpacity>
       </View>

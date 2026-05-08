@@ -35,7 +35,7 @@ export default function ConfirmacionReserva() {
   const router = useRouter();
   const { theme } = useAppTheme();
   const headerHeight = useHeaderHeight();
-  const { userToken } = useAuth();
+  useAuth();
   const styles = useMemo(() => createConfirmacionReservaStyles(theme), [theme]);
   const locale = getDateLocale(i18n.resolvedLanguage || i18n.language);
 
@@ -86,16 +86,16 @@ export default function ConfirmacionReserva() {
       const endTime = `${endHour}:${endMin}:00`;
 
       const payload = {
-        pista_id: parseInt(pistaIdValue),
-        fecha_reserva: fechaValue,
-        hora_inicio: `${horaValue}:00`,
-        hora_fin: endTime,
-        nota: notes,
+        court_id: parseInt(pistaIdValue),
+        reservation_date: fechaValue,
+        start_time: `${horaValue}:00`,
+        end_time: endTime,
+        note: notes,
       };
 
-      const response = await api.post('/Reservation', payload);
+      const response = await api.post('/reservations', payload);
 
-      if (response.status === 201 || response.data?.reserva_id) {
+      if (response.status === 201 || response.data?.id) {
         Alert.alert(
           t('bookingConfirmSuccessTitle'),
           t('bookingConfirmSuccessMessage'),
@@ -130,7 +130,9 @@ export default function ConfirmacionReserva() {
   }
 
   const precioEstimado = pista
-    ? (parseFloat(pista.precio_hora || 0) * (durationMinutes / 60)).toFixed(2)
+    ? (parseFloat(pista.price_per_hour || 0) * (durationMinutes / 60)).toFixed(
+        2,
+      )
     : '0.00';
 
   const [hourStr, minStr] = String(horaValue || '00:00').split(':');
@@ -177,7 +179,7 @@ export default function ConfirmacionReserva() {
               />
               <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>{t('bookingConfirmCourt')}</Text>
-                <Text style={styles.infoValue}>{pista.nombre}</Text>
+                <Text style={styles.infoValue}>{pista.name}</Text>
               </View>
             </View>
 
@@ -238,7 +240,7 @@ export default function ConfirmacionReserva() {
               {t('bookingConfirmFeatures')}
             </Text>
             <View style={styles.featuresList}>
-              {pista.cubierta && (
+              {pista.is_covered && (
                 <View style={styles.featureItem}>
                   <Ionicons
                     name="shield-checkmark-outline"
@@ -250,7 +252,7 @@ export default function ConfirmacionReserva() {
                   </Text>
                 </View>
               )}
-              {pista.iluminacion && (
+              {pista.has_lighting && (
                 <View style={styles.featureItem}>
                   <Ionicons
                     name="flashlight-outline"
@@ -269,7 +271,7 @@ export default function ConfirmacionReserva() {
                   color={theme.primary}
                 />
                 <Text style={styles.featureItemText}>
-                  {t('bookingConfirmCapacity', { count: pista.capacidad })}
+                  {t('bookingConfirmCapacity', { count: pista.capacity })}
                 </Text>
               </View>
             </View>

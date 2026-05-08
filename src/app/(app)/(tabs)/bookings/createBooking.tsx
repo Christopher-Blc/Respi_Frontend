@@ -17,12 +17,9 @@ import { createCreateBookingStyles } from '../../../../style/create-booking.styl
 import api from '../../../../services/api';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../../i18n';
-import { Membresia, User } from '../../../../types/types';
+import { CourtAvailability, Membership, User } from '../../../../types/types';
 
-type ReservaActual = {
-  inicio: string;
-  fin: string;
-};
+type ReservaActual = CourtAvailability['current_reservations'][number];
 
 const DURATION_OPTIONS = [30, 60, 90, 120];
 
@@ -63,7 +60,7 @@ const parseReservas = (value: string): ReservaActual[] => {
   try {
     const parsed = JSON.parse(value);
     return Array.isArray(parsed)
-      ? parsed.filter((item) => item?.inicio && item?.fin)
+      ? parsed.filter((item) => item?.start && item?.end)
       : [];
   } catch {
     return [];
@@ -117,8 +114,8 @@ export default function CreateBooking() {
     () =>
       reservasActuales
         .map((reserva) => ({
-          start: toMinutes(reserva.inicio),
-          end: toMinutes(reserva.fin),
+          start: toMinutes(reserva.start),
+          end: toMinutes(reserva.end),
         }))
         .filter((range) => range.end > range.start),
     [reservasActuales],
@@ -182,7 +179,7 @@ export default function CreateBooking() {
         const profileResponse = await api.get('/users/profile/me');
         const user = profileResponse.data as User;
 
-        if (!user?.membresia_id || user?.isActive === false) {
+        if (!user?.membership_id || user?.is_active === false) {
           if (mounted) {
             setMembershipDiscountPct(0);
             setMembershipName('');
@@ -190,21 +187,21 @@ export default function CreateBooking() {
           return;
         }
 
-        const membershipsResponse = await api.get('/membership');
+        const membershipsResponse = await api.get('/memberships');
         const payload = membershipsResponse.data;
-        const memberships: Membresia[] = Array.isArray(payload)
+        const memberships: Membership[] = Array.isArray(payload)
           ? payload
           : Array.isArray(payload?.data)
             ? payload.data
             : [];
 
         const activeMembership = memberships.find(
-          (item) => item.membresia_id === user.membresia_id,
+          (item) => item.id === user.membership_id,
         );
 
         if (mounted && activeMembership) {
-          setMembershipName(activeMembership.nombre);
-          setMembershipDiscountPct(Number(activeMembership.descuento || 0));
+          setMembershipName(activeMembership.name);
+          setMembershipDiscountPct(Number(activeMembership.discount || 0));
         }
       } catch (error) {
         if (mounted) {
@@ -269,15 +266,14 @@ export default function CreateBooking() {
         : '';
 
       const payload = {
-        pista_id: Number(pistaId),
-        fecha_reserva: fechaReserva,
-        hora_inicio: horaInicio,
-        hora_fin: horaFin,
-        estado: 'PENDIENTE',
-        nota: [nota.trim(), membershipNote].filter(Boolean).join(' | '),
+        court_id: Number(pistaId),
+        reservation_date: fechaReserva,
+        start_time: horaInicio,
+        end_time: horaFin,
+        note: [nota.trim(), membershipNote].filter(Boolean).join(' | '),
       };
 
-      await api.post('/Reservation', payload);
+      await api.post('/reservations', payload);
 
       setSnackbarMessage(
         hasMembershipDiscount

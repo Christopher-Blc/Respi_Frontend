@@ -10,14 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { membershipsStyles as styles } from '../../../style/admin/memberships.styles';
-
-type MembershipFormData = {
-  rango: string;
-  nombre: string;
-  descuento: string;
-  reservas_requeridas: string;
-  beneficios: string;
-};
+import { MembershipFormData } from '../../../hooks/useAdminMemberships';
 
 type Props = {
   visible: boolean;
@@ -77,8 +70,8 @@ export function MembershipFormModal({
                 { color: theme.textTitle, borderColor: theme.primarySoft },
               ]}
               keyboardType="numeric"
-              value={formData.rango}
-              onChangeText={(v) => setFormData({ ...formData, rango: v })}
+              value={formData.level}
+              onChangeText={(v) => setFormData({ ...formData, level: v })}
             />
 
             <InputLabel label="Nombre" theme={theme} />
@@ -87,8 +80,8 @@ export function MembershipFormModal({
                 styles.input,
                 { color: theme.textTitle, borderColor: theme.primarySoft },
               ]}
-              value={formData.nombre}
-              onChangeText={(v) => setFormData({ ...formData, nombre: v })}
+              value={formData.name}
+              onChangeText={(v) => setFormData({ ...formData, name: v })}
             />
 
             <InputLabel label="Descuento (%)" theme={theme} />
@@ -98,8 +91,8 @@ export function MembershipFormModal({
                 { color: theme.textTitle, borderColor: theme.primarySoft },
               ]}
               keyboardType="numeric"
-              value={formData.descuento}
-              onChangeText={(v) => setFormData({ ...formData, descuento: v })}
+              value={formData.discount}
+              onChangeText={(v) => setFormData({ ...formData, discount: v })}
             />
 
             <InputLabel label="Reservas requeridas" theme={theme} />
@@ -109,9 +102,9 @@ export function MembershipFormModal({
                 { color: theme.textTitle, borderColor: theme.primarySoft },
               ]}
               keyboardType="numeric"
-              value={formData.reservas_requeridas}
+              value={formData.required_reservations}
               onChangeText={(v) =>
-                setFormData({ ...formData, reservas_requeridas: v })
+                setFormData({ ...formData, required_reservations: v })
               }
             />
 
@@ -123,8 +116,8 @@ export function MembershipFormModal({
                 { color: theme.textTitle, borderColor: theme.primarySoft },
               ]}
               multiline
-              value={formData.beneficios}
-              onChangeText={(v) => setFormData({ ...formData, beneficios: v })}
+              value={formData.benefits}
+              onChangeText={(v) => setFormData({ ...formData, benefits: v })}
             />
 
             <TouchableOpacity

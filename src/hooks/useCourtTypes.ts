@@ -1,11 +1,11 @@
 ﻿import { useEffect, useState } from 'react';
 import api from '../services/api';
-import { TipoPista } from '../types/types';
+import { CourtType } from '../types/types';
 import { useTranslation } from 'react-i18next';
 
 export function useCourtTypes() {
   const { t } = useTranslation();
-  const [modelos, setModelos] = useState<TipoPista[]>([]);
+  const [modelos, setModelos] = useState<CourtType[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,7 +14,7 @@ export function useCourtTypes() {
     const fetchTipos = async () => {
       try {
         setLoading(true);
-        const response = await api.get('/tipo_court');
+        const response = await api.get( '/court-types');
         if (!mounted) return;
         setModelos(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
@@ -33,10 +33,10 @@ export function useCourtTypes() {
     };
   }, []);
 
-  const getCardDescription = (item: TipoPista) =>
-    (item as any)?.descripcion ||
+  const getCardDescription = (item: CourtType) =>
+    (item as any)?.description ||
     t('pistaTypesFallbackDescription', {
-      sport: String(item.nombre || 'deporte').toLowerCase(),
+      sport: String(item.name || 'deporte').toLowerCase(),
     });
 
   return {

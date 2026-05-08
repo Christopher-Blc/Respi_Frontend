@@ -13,8 +13,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MODELOS } from '../../../data/modelos';
-import { Reserva } from '../../../types/types';
+import { Reservation } from '../../../types/types';
 import createReservationsStyles from '../../../style/reservations.styles';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
@@ -23,6 +22,7 @@ import { createHomeStyles } from '../../../style/home.styles';
 import DateModal from '../../../components/bookings/date.modal';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../i18n';
+import { getTipoPistaImage } from '../../../utils/getImage';
 
 //pantalla home del cliente
 
@@ -53,55 +53,26 @@ export default function HomeScreen() {
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase();
 
-  const getImageForReservation = (reservation: Reserva) => {
-    const pista = reservation.pista as any;
-
-    const typeId =
-      String(
-        pista?.tipo_pista_id ??
-          pista?.tipoPistaId ??
-          pista?.tipo_pista?.tipo_pista_id ??
-          pista?.tipo_pista?.id ??
-          '',
-      ) || null;
-
-    if (typeId) {
-      const byId = MODELOS.find((m) => String(m.id) === typeId);
-      if (byId) return byId.img;
-    }
-
-    const typeName = normalize(
-      pista?.tipo_pista?.nombre || pista?.tipo || pista?.deporte || '',
+  const renderReservation = (item: Reservation) => {
+    const title = item.court?.name || t('homeReservationFallback');
+    const img = getTipoPistaImage(item);
+    const cleanDate = new Date(item.reservation_date).toLocaleDateString(
+      locale,
+      {
+        day: '2-digit',
+        month: 'short',
+      },
     );
-    if (typeName) {
-      const byTypeName = MODELOS.find((m) =>
-        typeName.includes(normalize(m.title)),
-      );
-      if (byTypeName) return byTypeName.img;
-    }
-
-    const title = normalize(pista?.nombre || '');
-    const byTitle = MODELOS.find((m) => title.includes(normalize(m.title)));
-    return byTitle ? byTitle.img : MODELOS[0].img;
-  };
-
-  const renderReservation = (item: Reserva) => {
-    const title = item.pista?.nombre || t('homeReservationFallback');
-    const img = getImageForReservation(item);
-    const cleanDate = new Date(item.fecha_reserva).toLocaleDateString(locale, {
-      day: '2-digit',
-      month: 'short',
-    });
     const cleanTime =
-      item.hora_inicio.split(':').slice(0, 2).join(':') +
+      item.start_time.split(':').slice(0, 2).join(':') +
       ' - ' +
-      item.hora_fin.split(':').slice(0, 2).join(':');
+      item.end_time.split(':').slice(0, 2).join(':');
 
     return (
       <TouchableOpacity
-        key={item.reserva_id}
+        key={item.id}
         style={localStyles.card}
-        onPress={() => router.push(`/(app)/(tabs)/bookings/${item.reserva_id}`)}
+        onPress={() => router.push(`/(app)/(tabs)/bookings/${item.id}`)}
       >
         <ImageBackground
           source={img}
@@ -118,7 +89,7 @@ export default function HomeScreen() {
             <View style={localStyles.cardHeaderRow}>
               <Text style={localStyles.cardTitle}>{title}</Text>
               <View style={localStyles.statusBadge}>
-                <Text style={localStyles.statusText}>{item.estado}</Text>
+                <Text style={localStyles.statusText}>{item.status}</Text>
               </View>
             </View>
 
@@ -266,7 +237,7 @@ export default function HomeScreen() {
             <View style={localStyles.gridContainer}>
               {reservations.map((item) => (
                 <View
-                  key={item.reserva_id}
+                  key={item.id}
                   style={{
                     flexBasis: isWideScreen ? 320 : '100%',
                     flexGrow: 1,

@@ -12,7 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../../../context/ThemeContext';
-import { Membresia, User } from '../../../../types/types';
+import { Membership, User } from '../../../../types/types';
 import { usersAdminStyles as styles } from '../../../../style/admin/users.styles';
 import { UserCard } from '../../../../components/admin/users/UserCard';
 import { UserFormModal } from '../../../../components/admin/users/UserFormModal';
@@ -20,7 +20,7 @@ import { SessionExpiredModal } from '../../../../components/alert.modal';
 import { useAdminUsers } from '../../../../hooks/useAdminUsers';
 
 type AdminUser = User & {
-  membresia?: Membresia | null;
+  membership?: Membership | null;
 };
 
 export default function AdminUsuarios() {
@@ -147,7 +147,7 @@ export default function AdminUsuarios() {
           data={filteredUsers}
           renderItem={renderCard}
           numColumns={cardsColumns}
-          keyExtractor={(item) => item.usuario_id.toString()}
+          keyExtractor={(item) => item.id.toString()}
           columnWrapperStyle={cardsColumns > 1 ? styles.gridRow : undefined}
           contentContainerStyle={[
             styles.gridContent,
@@ -216,7 +216,7 @@ export default function AdminUsuarios() {
           </View>
           <FlatList
             data={filteredUsers}
-            keyExtractor={(item) => item.usuario_id.toString()}
+            keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
             renderItem={({ item }) => (
               <View
@@ -237,18 +237,18 @@ export default function AdminUsuarios() {
                   {item.role}
                 </Text>
                 <Text style={[styles.colMembership, { color: theme.textBody }]}>
-                  {item.membresia?.nombre || 'Sin membresia'}
+                  {item.membership?.name || 'Sin membresia'}
                 </Text>
                 <Text
                   style={[
                     styles.colStatus,
                     {
-                      color: item.isActive ? '#4CAF50' : '#F44336',
+                      color: item.is_active ? '#4CAF50' : '#F44336',
                       fontWeight: '700',
                     },
                   ]}
                 >
-                  {item.isActive ? 'Activa' : 'Inactiva'}
+                  {item.is_active ? 'Activa' : 'Inactiva'}
                 </Text>
                 <View style={styles.colActions}>
                   <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -262,7 +262,7 @@ export default function AdminUsuarios() {
                     <TouchableOpacity onPress={() => handleToggleActive(item)}>
                       <Ionicons
                         name={
-                          item.isActive
+                          item.is_active
                             ? 'pause-circle-outline'
                             : 'checkmark-circle-outline'
                         }

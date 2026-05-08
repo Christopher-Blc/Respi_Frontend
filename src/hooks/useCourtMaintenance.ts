@@ -1,6 +1,6 @@
 ﻿import { useState } from 'react';
 import { Alert } from 'react-native';
-import { Pista } from '../types/types';
+import { Court } from '../types/types';
 import api from '../services/api';
 import { useTranslation } from 'react-i18next';
 import {
@@ -30,7 +30,7 @@ const EMPTY_MAINTENANCE_MODAL = {
   error: '',
 };
 
-export function useCourtMaintenance(pistas: Pista[], fetchPistas: () => void) {
+export function useCourtMaintenance(pistas: Court[], fetchPistas: () => void) {
   const { t } = useTranslation();
   const [deleteModal, setDeleteModal] = useState(EMPTY_DELETE_MODAL);
   const [maintenanceDateModal, setMaintenanceDateModal] = useState(EMPTY_MAINTENANCE_MODAL);
@@ -44,7 +44,7 @@ export function useCourtMaintenance(pistas: Pista[], fetchPistas: () => void) {
       try {
         const results = await Promise.all(
           ids.map((id) =>
-            api.get('/Reservation', { params: { pista_id: id, fecha_inicio: maintenanceDesde, fecha_fin: maintenanceHasta } }),
+            api.get('/reservations', { params: { pista_id: id, fecha_inicio: maintenanceDesde, fecha_fin: maintenanceHasta } }),
           ),
         );
         return countUniqueReservas(results);
@@ -55,7 +55,7 @@ export function useCourtMaintenance(pistas: Pista[], fetchPistas: () => void) {
         const days = eachDateInclusive(from, to);
         const results = await Promise.all(
           ids.flatMap((id) =>
-            days.map((fecha) => api.get('/Reservation', { params: { fecha, pista_id: id } })),
+            days.map((fecha) => api.get('/reservations', { params: { fecha, pista_id: id } })),
           ),
         );
         return countUniqueReservas(results);
@@ -64,7 +64,7 @@ export function useCourtMaintenance(pistas: Pista[], fetchPistas: () => void) {
 
     const today = new Date().toISOString().slice(0, 10);
     const results = await Promise.all(
-      ids.map((id) => api.get('/Reservation', { params: { fecha: today, pista_id: id } })),
+      ids.map((id) => api.get('/reservations', { params: { fecha: today, pista_id: id } })),
     );
     return results.reduce((sum, r) => sum + (Array.isArray(r.data) ? r.data.length : 0), 0);
   };
@@ -91,21 +91,21 @@ export function useCourtMaintenance(pistas: Pista[], fetchPistas: () => void) {
     }
   };
 
-  const getIdsForPista = (item: Pista) =>
+  const getIdsForPista = (item: Court) =>
     pistas
-      .filter((p) => p.nombre?.trim().toLowerCase() === item.nombre?.trim().toLowerCase())
-      .map((p) => p.pista_id);
+      .filter((p) => p.name?.trim().toLowerCase() === item.name?.trim().toLowerCase())
+      .map((p) => p.id);
 
-  const handleDelete = (item: Pista) =>
-    openConfirmModal({ nombre: item.nombre, ids: getIdsForPista(item), accion: 'eliminar' });
+  const handleDelete = (item: Court) =>
+    openConfirmModal({ nombre: item.name, ids: getIdsForPista(item), accion: 'eliminar' });
 
-  const handleMantenimiento = (item: Pista) => {
+  const handleMantenimiento = (item: Court) => {
     const today = new Date();
     const nextWeek = new Date(today);
     nextWeek.setDate(today.getDate() + 7);
     setMaintenanceDateModal({
       visible: true,
-      nombre: item.nombre,
+      nombre: item.name,
       ids: getIdsForPista(item),
       desde: toDateInputValue(today),
       hasta: toDateInputValue(nextWeek),
@@ -153,19 +153,26 @@ export function useCourtMaintenance(pistas: Pista[], fetchPistas: () => void) {
       if (deleteModal.accion === 'eliminar') {
         await Promise.all(
           deleteModal.ids.map((id) => {
-            const pista = pistas.find((p) => p.pista_id === id);
+            const pista = pistas.find((p) => p.id === id);
             if (!pista) return Promise.resolve();
-            return api.put(`/Court/${id}`, { nombre: `deleted ('${pista.nombre}')`, estado: 'INACTIVA' });
+            return api.put(`/courts/${id}`, { name: `deleted ('${pista.name}')`, status: 'INACTIVA' });
           }),
         );
       } else {
         await Promise.all(
           deleteModal.ids.map((id) =>
-            api.put(`/Court/${id}`, {
-              estado: 'MANTENIMIENTO',
-              mantenimiento_desde: deleteModal.mantenimientoDesde,
-              mantenimiento_hasta: deleteModal.mantenimientoHasta,
-            }),
+            api.put(
+              `/courts/${id}`,
+              {
+                status: 'MANTENIMIENTO',
+              },
+              {
+                headers: {
+                  maintenance_from: deleteModal.mantenimientoDesde,
+                  maintenance_until: deleteModal.mantenimientoHasta,
+                },
+              },
+            ),
           ),
         );
       }

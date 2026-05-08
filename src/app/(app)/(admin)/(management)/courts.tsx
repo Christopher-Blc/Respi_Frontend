@@ -12,7 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Pista } from '../../../../types/types';
+import { Court } from '../../../../types/types';
 import { useAdminCourts } from '../../../../hooks/useAdminCourts';
 import { pistasStyles as styles } from '../../../../style/admin/courts.styles';
 import { CourtFormModal } from '../../../../components/admin/courts/CourtFormModal';
@@ -79,7 +79,7 @@ export default function AdminPistas() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
 
-  const renderCourtCard = ({ item }: { item: Pista }) => {
+  const renderCourtCard = ({ item }: { item: Court }) => {
     const cardWidthStyle =
       cardsColumns === 1
         ? { width: '100%' as const }
@@ -187,7 +187,7 @@ export default function AdminPistas() {
           data={filteredPistas}
           renderItem={renderCourtCard}
           numColumns={cardsColumns}
-          keyExtractor={(item) => item.pista_id.toString()}
+          keyExtractor={(item) => item.id.toString()}
           columnWrapperStyle={cardsColumns > 1 ? styles.gridRow : undefined}
           contentContainerStyle={[
             styles.gridContent,
@@ -256,7 +256,7 @@ export default function AdminPistas() {
           </View>
           <FlatList
             data={filteredPistas}
-            keyExtractor={(item) => item.pista_id.toString()}
+            keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
             renderItem={({ item }) => (
               <View
@@ -267,32 +267,31 @@ export default function AdminPistas() {
               >
                 <View style={styles.colName}>
                   <Text style={{ color: theme.textTitle, fontWeight: '600' }}>
-                    {item.nombre}
+                    {item.name}
                   </Text>
                   <Text style={{ color: theme.textBody, fontSize: 12 }}>
-                    {item.instalacion?.nombre || '-'}
+                    {item.installation?.name || '-'}
                   </Text>
                 </View>
                 <Text style={[styles.colType, { color: theme.textBody }]}>
                   {tiposPista.find(
-                    (tipo) =>
-                      String(tipo.tipo_pista_id) === String(item.tipo_pista_id),
-                  )?.nombre || '-'}
+                    (tipo) => String(tipo.id) === String(item.court_type_id),
+                  )?.name || '-'}
                 </Text>
                 <Text style={[styles.colPrice, { color: theme.textBody }]}>
-                  {item.precio_hora}€/h
+                  {item.price_per_hour}€/h
                 </Text>
                 <Text
                   style={[
                     styles.colStatus,
                     {
                       color:
-                        item.estado === 'DISPONIBLE' ? '#4CAF50' : '#F44336',
+                        item.status === 'DISPONIBLE' ? '#4CAF50' : '#F44336',
                       fontWeight: '700',
                     },
                   ]}
                 >
-                  {item.estado}
+                  {item.status}
                 </Text>
                 <View style={styles.colActions}>
                   <View style={{ flexDirection: 'row', gap: 10 }}>

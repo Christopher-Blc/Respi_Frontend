@@ -118,8 +118,8 @@ const Register: React.FC = () => {
         email: email.toLowerCase(),
         phone: phone,
         password: password,
-        fecha_nacimiento: formatLocalDateForApi(date),
-        direccion: location,
+        date_of_birth: formatLocalDateForApi(date),
+        address: location,
       });
 
       //si ha cinseguido una respuesta valida , lo avisamos y guardamos el token en securestorage
@@ -218,6 +218,7 @@ const Register: React.FC = () => {
             {t('authRegisterName')}:
           </Text>
           <GlassTextInput
+            autoComplete="name"
             placeholder={t('authRegisterName')}
             value={name}
             onChangeText={setName}
@@ -234,6 +235,7 @@ const Register: React.FC = () => {
             {t('authRegisterSurname')}:
           </Text>
           <GlassTextInput
+            autoComplete="family-name"
             placeholder={t('authRegisterSurname')}
             value={surname}
             onChangeText={setSurname}
@@ -250,6 +252,7 @@ const Register: React.FC = () => {
             {t('authRegisterUsername')}:
           </Text>
           <GlassTextInput
+            autoComplete="username"
             placeholder={t('authRegisterUsername')}
             value={username}
             onChangeText={setUsername}
@@ -266,6 +269,7 @@ const Register: React.FC = () => {
             {t('authLoginEmail')}:
           </Text>
           <GlassTextInput
+            autoComplete="email"
             keyboardType="email-address"
             placeholder={t('exampleEmail')}
             value={email}
@@ -283,6 +287,7 @@ const Register: React.FC = () => {
             {t('authRegisterPhone')}:
           </Text>
           <GlassTextInput
+            autoComplete="tel"
             keyboardType="phone-pad"
             placeholder={t('authRegisterPhone')}
             value={phone}
@@ -300,6 +305,7 @@ const Register: React.FC = () => {
             {t('authLoginPassword')}:
           </Text>
           <GlassTextInputPassword
+            autoComplete="new-password"
             placeholder={t('examplePassword')}
             value={password}
             onChangeText={setPassword}
@@ -393,6 +399,7 @@ const Register: React.FC = () => {
             {t('authRegisterLocation')}:
           </Text>
           <GlassTextInput
+            autoComplete="off"
             placeholder={t('authRegisterLocation')}
             value={location}
             onChangeText={setLocation}

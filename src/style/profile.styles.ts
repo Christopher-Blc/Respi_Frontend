@@ -3,11 +3,6 @@ import { AppTheme } from '../theme';
 
 export const createProfileStyles = (theme: AppTheme) =>
   StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.background,
-    },
-    scrollContent: {},
     header: {
       alignItems: 'center',
       marginTop: 20,

@@ -1,13 +1,13 @@
 ﻿import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Reserva } from '../../hooks/useBookings';
+import { Reservation } from '../../types/types';
 import { lightModeSemanticTokens } from '../../theme';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
-  reserva: Reserva;
-  onCancel?: (id: string) => void;
-  onEdit?: (id: string) => void;
+  reserva: Reservation;
+  onCancel?: (id: number) => void;
+  onEdit?: (id: number) => void;
 };
 
 export default function BookingCard({ reserva, onCancel, onEdit }: Props) {
@@ -15,24 +15,28 @@ export default function BookingCard({ reserva, onCancel, onEdit }: Props) {
   return (
     <View style={styles.card}>
       <View style={styles.row}>
-        <Text style={styles.code}>{reserva.codigo_reserva ?? reserva.id}</Text>
-        <Text style={styles.status}>{reserva.estado}</Text>
+        <Text style={styles.code}>{reserva.id}</Text>
+        <Text style={styles.status}>{reserva.status}</Text>
       </View>
 
       <Text style={styles.meta}>
         {t('reservationCardStart', {
-          value: new Date(reserva.fecha_inicio).toLocaleString(),
+          value: new Date(
+            `${reserva.reservation_date}T${reserva.start_time}`,
+          ).toLocaleString(),
         })}
       </Text>
       <Text style={styles.meta}>
         {t('reservationCardEnd', {
-          value: new Date(reserva.fecha_fin).toLocaleString(),
+          value: new Date(
+            `${reserva.reservation_date}T${reserva.end_time}`,
+          ).toLocaleString(),
         })}
       </Text>
 
-      {reserva.nota ? (
+      {reserva.note ? (
         <Text style={styles.note}>
-          {t('reservationCardNote', { value: reserva.nota })}
+          {t('reservationCardNote', { value: reserva.note })}
         </Text>
       ) : null}
 

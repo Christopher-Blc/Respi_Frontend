@@ -1,9 +1,9 @@
 ﻿import { useState } from 'react';
 import {
-  Instalacion,
-  Pista,
+  Installation,
+  Court,
   WeeklyScheduleItem,
-  PistaFormData,
+  CourtFormData,
 } from '../types/types';
 import api from '../services/api';
 import {
@@ -17,13 +17,13 @@ import {
 import { useTranslation } from 'react-i18next';
 
 export function useCourtForm(
-  pistas: Pista[],
-  instalaciones: Instalacion[],
+  pistas: Court[],
+  instalaciones: Installation[],
   fetchPistas: () => void,
 ) {
   const [modalVisible, setModalVisible] = useState(false);
-  const [pistaAEditar, setPistaAEditar] = useState<Pista | null>(null);
-  const [formData, setFormData] = useState<PistaFormData>(DEFAULT_FORM);
+  const [pistaAEditar, setPistaAEditar] = useState<Court | null>(null);
+  const [formData, setFormData] = useState<CourtFormData>(DEFAULT_FORM);
   const { t } = useTranslation();
   const [weeklySchedule, setWeeklySchedule] = useState<WeeklyScheduleItem[]>(
     createDefaultWeeklySchedule(),
@@ -36,41 +36,41 @@ export function useCourtForm(
   const [samePriceMode, setSamePriceMode] = useState(false);
   const [globalPrice, setGlobalPrice] = useState('');
 
-  const openModal = (pista: Pista | null = null) => {
+  const openModal = (pista: Court | null = null) => {
     setPistaAEditar(pista);
     if (pista) {
       setFormData({
-        nombre: pista.nombre,
-        descripcion: pista.descripcion,
-        capacidad: pista.capacidad.toString(),
-        cubierta: pista.cubierta,
-        iluminacion: pista.iluminacion,
-        estado: pista.estado,
-        dia_semana: pista.dia_semana,
-        instalacion_id: pista.instalacion_id.toString(),
-        tipo_pista_id: pista.tipo_pista_id.toString(),
+        name: pista.name,
+        description: pista.description,
+        capacity: pista.capacity.toString(),
+        is_covered: pista.is_covered,
+        has_lighting: pista.has_lighting,
+        status: pista.status,
+        day_of_week: pista.day_of_week,
+        installation_id: pista.installation_id.toString(),
+        court_type_id: pista.court_type_id.toString(),
       });
       setWeeklySchedule(
-        WEEK_DAYS.map((dia) => {
+        WEEK_DAYS.map((day) => {
           const existing = pistas.find(
             (p) =>
-              p.nombre?.trim().toLowerCase() === pista.nombre?.trim().toLowerCase() &&
-              p.dia_semana === dia,
+              p.name?.trim().toLowerCase() === pista.name?.trim().toLowerCase() &&
+              p.day_of_week === day,
           );
           return {
-            dia_semana: dia,
-            hora_apertura: existing ? existing.hora_apertura.substring(0, 5) : '08:00',
-            hora_cierre: existing ? existing.hora_cierre.substring(0, 5) : '22:00',
-            precio_hora: existing ? existing.precio_hora.toString() : '',
-            cerrado: !existing,
+            day_of_week: day,
+            opening_time: existing ? existing.opening_time.substring(0, 5) : '08:00',
+            closing_time: existing ? existing.closing_time.substring(0, 5) : '22:00',
+            price_per_hour: existing ? existing.price_per_hour.toString() : '',
+            closed: !existing,
           };
         }),
       );
     } else {
       setFormData({
         ...DEFAULT_FORM,
-        instalacion_id:
-          instalaciones[0]?.instalacion_id?.toString() || DEFAULT_FORM.instalacion_id,
+        installation_id:
+          instalaciones[0]?.id?.toString() || DEFAULT_FORM.installation_id,
       });
       setWeeklySchedule(createDefaultWeeklySchedule());
     }
@@ -81,15 +81,15 @@ export function useCourtForm(
 
   const handleSave = async () => {
     try {
-      const capacidad = Number(formData.capacidad);
-      const instalacionId = Number(formData.instalacion_id);
-      const tipoPistaId = Number(formData.tipo_pista_id);
-      if (!Number.isInteger(capacidad) || capacidad < 2 || capacidad > 20) {
+      const capacity = Number(formData.capacity);
+      const installationId = Number(formData.installation_id);
+      const courtTypeId = Number(formData.court_type_id);
+      if (!Number.isInteger(capacity) || capacity < 2 || capacity > 20) {
         setErrorModal({ visible: true, title: 'Capacidad invalida', message: 'La capacidad debe ser un numero entero entre 2 y 20.' });
         return;
       }
 
-      if (!Number.isInteger(instalacionId) || instalacionId <= 0) {
+      if (!Number.isInteger(installationId) || installationId <= 0) {
         setErrorModal({
           visible: true,
           title: 'Instalacion obligatoria',
@@ -98,7 +98,7 @@ export function useCourtForm(
         return;
       }
 
-      if (!Number.isInteger(tipoPistaId) || tipoPistaId <= 0) {
+      if (!Number.isInteger(courtTypeId) || courtTypeId <= 0) {
         setErrorModal({
           visible: true,
           title: 'Tipo de pista obligatorio',
@@ -107,7 +107,7 @@ export function useCourtForm(
         return;
       }
 
-      const activeDays = weeklySchedule.filter((day) => !day.cerrado);
+      const activeDays = weeklySchedule.filter((day) => !day.closed);
       if (activeDays.length === 0) {
         setErrorModal({ visible: true, title: 'Horario invalido', message: 'Debes dejar al menos un dia abierto para la pista.' });
         return;
@@ -119,36 +119,36 @@ export function useCourtForm(
       }
 
       for (const day of activeDays) {
-        if (!isValidHour(day.hora_apertura) || !isValidHour(day.hora_cierre)) {
-          setErrorModal({ visible: true, title: 'Hora invalida', message: `Revisa las horas de ${day.dia_semana}. Usa formato HH:MM.` });
+        if (!isValidHour(day.opening_time) || !isValidHour(day.closing_time)) {
+          setErrorModal({ visible: true, title: 'Hora invalida', message: `Revisa las horas de ${day.day_of_week}. Usa formato HH:MM.` });
           return;
         }
-        if (hourToMinutes(day.hora_apertura) === hourToMinutes(day.hora_cierre)) {
-          setErrorModal({ visible: true, title: 'Horario invalido', message: `La hora de inicio y fin de ${day.dia_semana} no pueden ser iguales.` });
+        if (hourToMinutes(day.opening_time) === hourToMinutes(day.closing_time)) {
+          setErrorModal({ visible: true, title: 'Horario invalido', message: `La hora de inicio y fin de ${day.day_of_week} no pueden ser iguales.` });
           return;
         }
-        const precioAValidar = samePriceMode ? globalPrice : day.precio_hora;
+        const precioAValidar = samePriceMode ? globalPrice : day.price_per_hour;
         if (!isValidPrice(precioAValidar)) {
-          setErrorModal({ visible: true, title: 'Precio invalido', message: `Revisa el precio de ${day.dia_semana}. Debe ser un numero mayor que 0.` });
+          setErrorModal({ visible: true, title: 'Precio invalido', message: `Revisa el precio de ${day.day_of_week}. Debe ser un numero mayor que 0.` });
           return;
         }
       }
 
       const bodyBase = {
-        nombre: formData.nombre,
-        descripcion: formData.descripcion,
-        capacidad,
-        cubierta: formData.cubierta,
-        iluminacion: formData.iluminacion,
-        instalacion_id: instalacionId,
-        tipo_pista_id: tipoPistaId,
+        name: formData.name,
+        description: formData.description,
+        capacity,
+        is_covered: formData.is_covered,
+        has_lighting: formData.has_lighting,
+        installation_id: installationId,
+        court_type_id: courtTypeId,
       };
 
       if (pistaAEditar) {
         const existingByDay = pistas.reduce(
           (acc, p) => {
-            if (p.nombre?.trim().toLowerCase() === pistaAEditar.nombre?.trim().toLowerCase()) {
-              acc[p.dia_semana] = p.pista_id;
+            if (p.name?.trim().toLowerCase() === pistaAEditar.name?.trim().toLowerCase()) {
+              acc[p.day_of_week] = p.id;
             }
             return acc;
           },
@@ -157,30 +157,30 @@ export function useCourtForm(
 
         await Promise.all(
           activeDays.map((day) => {
-            const existingId = existingByDay[day.dia_semana];
-            const precio = (samePriceMode ? globalPrice : day.precio_hora).trim().replace(',', '.');
+            const existingId = existingByDay[day.day_of_week];
+            const precio = (samePriceMode ? globalPrice : day.price_per_hour).trim().replace(',', '.');
             const body = {
               ...bodyBase,
-              precio_hora: parseFloat(precio),
-              dia_semana: day.dia_semana,
-              hora_apertura: day.hora_apertura.substring(0, 5),
-              hora_cierre: day.hora_cierre.substring(0, 5),
-              estado: 'DISPONIBLE',
+              price_per_hour: parseFloat(precio),
+              day_of_week: day.day_of_week,
+              opening_time: day.opening_time.substring(0, 5),
+              closing_time: day.closing_time.substring(0, 5),
+              status: 'DISPONIBLE',
             };
-            return existingId ? api.put(`/Court/${existingId}`, body) : api.post('/court', body);
+            return existingId ? api.put(`/courts/${existingId}`, body) : api.post('/courts', body);
           }),
         );
       } else {
         await Promise.all(
           activeDays.map((day) => {
-            const precio = (samePriceMode ? globalPrice : day.precio_hora).trim().replace(',', '.');
-            return api.post('/court', {
+            const precio = (samePriceMode ? globalPrice : day.price_per_hour).trim().replace(',', '.');
+            return api.post('/courts', {
               ...bodyBase,
-              precio_hora: parseFloat(precio),
-              dia_semana: day.dia_semana,
-              hora_apertura: day.hora_apertura.substring(0, 5),
-              hora_cierre: day.hora_cierre.substring(0, 5),
-              estado: 'DISPONIBLE',
+              price_per_hour: parseFloat(precio),
+              day_of_week: day.day_of_week,
+              opening_time: day.opening_time.substring(0, 5),
+              closing_time: day.closing_time.substring(0, 5),
+              status: 'DISPONIBLE',
             });
           }),
         );
@@ -200,19 +200,19 @@ export function useCourtForm(
           ? t('adminCourtNameExistsTitle')
           : t('adminSaveErrorTitle'),
         message: isUniqueError
-          ? t('adminCourtNameExistsMessage', { name: formData.nombre })
+          ? t('adminCourtNameExistsMessage', { name: formData.name })
           : errorMessage,
       });
     }
   };
 
   const updateWeeklySchedule = <K extends keyof WeeklyScheduleItem>(
-    dia: Pista['dia_semana'],
+    day: Court['day_of_week'],
     field: K,
     value: WeeklyScheduleItem[K],
   ) => {
     setWeeklySchedule((prev) =>
-      prev.map((item) => (item.dia_semana === dia ? { ...item, [field]: value } : item)),
+      prev.map((item) => (item.day_of_week === day ? { ...item, [field]: value } : item)),
     );
   };
 
@@ -220,7 +220,7 @@ export function useCourtForm(
     setSamePriceMode(enabled);
     setGlobalPrice(price);
     if (enabled && price) {
-      setWeeklySchedule((prev) => prev.map((day) => ({ ...day, precio_hora: price })));
+      setWeeklySchedule((prev) => prev.map((day) => ({ ...day, price_per_hour: price })));
     }
   };
 
