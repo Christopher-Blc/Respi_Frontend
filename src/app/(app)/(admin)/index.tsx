@@ -78,7 +78,7 @@ export default function AdminManagementScreen() {
       title: t('adminHomeBookingsTitle'),
       subtitle: t('adminHomeBookingsSubtitle'),
       icon: 'calendar-check',
-      route: '/(admin)/(management)/reservas-global',
+      route: '/(app)/(admin)/(management)/reservas-global',
       color: '#FF9800',
       cta: t('adminHomeBookingsCta'),
     },
