@@ -20,14 +20,13 @@ import { TipoCourtCard } from '../../../../components/admin/courtTypes/CourtType
 import { TipoCourtFormModal } from '../../../../components/admin/courtTypes/CourtTypeFormModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
 import { useTranslation } from 'react-i18next';
-
-const IMAGE_BASE_URL = 'https://respi.es/public';
+import { API_PUBLIC_URL } from '../../../../constants';
 
 const getImageUri = (
   imagePath: string | null | undefined,
 ): string | undefined => {
   if (!imagePath) return undefined;
-  return `${IMAGE_BASE_URL}/${imagePath}`;
+  return `${API_PUBLIC_URL}/${imagePath}`;
 };
 
 export default function AdminTiposPista() {

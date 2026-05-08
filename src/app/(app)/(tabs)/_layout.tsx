@@ -124,18 +124,19 @@ export default function tabLayout() {
         tabBarActiveTintColor: theme.tabActive,
         tabBarInactiveTintColor: theme.tabInactive,
         tabBarLabelPosition: 'below-icon',
-        tabBarStyle: isWeb || isWideScreen
-          ? { display: 'none' }
-          : {
-              position: 'absolute',
-              height: 90,
-              paddingTop: 6,
-              paddingBottom: 6,
-              backgroundColor: theme.primaryHeader,
-              elevation: 0,
-              borderColor: theme.primarySoft,
-              borderTopWidth: 1,
-            },
+        tabBarStyle:
+          isWeb || isWideScreen
+            ? { display: 'none' }
+            : {
+                position: 'absolute',
+                height: 90,
+                paddingTop: 6,
+                paddingBottom: 6,
+                backgroundColor: theme.primaryHeader,
+                elevation: 0,
+                borderColor: theme.primarySoft,
+                borderTopWidth: 1,
+              },
         headerRight: isWideScreen ? () => <WebProfileBadge /> : undefined,
         tabBarBackground: () => (
           <BlurView
