@@ -17,7 +17,7 @@ import { useAdminMemberships } from '../../../../hooks/useAdminMemberships';
 import { MembershipCard } from '../../../../components/admin/memberships/MembershipCard';
 import { MembershipFormModal } from '../../../../components/admin/memberships/MembershipFormModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
-import { Membresia } from '../../../../types/types';
+import { Membership } from '../../../../types/types';
 
 export default function AdminMembresias() {
   const { theme } = useAppTheme();
@@ -48,7 +48,7 @@ export default function AdminMembresias() {
     setErrorModal,
   } = useAdminMemberships();
 
-  const renderCard = ({ item }: { item: Membresia }) => {
+  const renderCard = ({ item }: { item: Membership }) => {
     const cardWidthStyle =
       cardsColumns === 1
         ? { width: '100%' as const }
@@ -144,7 +144,7 @@ export default function AdminMembresias() {
           data={filteredMemberships}
           renderItem={renderCard}
           numColumns={cardsColumns}
-          keyExtractor={(item) => item.membresia_id.toString()}
+          keyExtractor={(item) => item.id.toString()}
           columnWrapperStyle={cardsColumns > 1 ? styles.gridRow : undefined}
           contentContainerStyle={[
             styles.gridContent,
@@ -213,7 +213,7 @@ export default function AdminMembresias() {
           </View>
           <FlatList
             data={filteredMemberships}
-            keyExtractor={(item) => item.membresia_id.toString()}
+            keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
             renderItem={({ item }) => (
               <View

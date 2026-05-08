@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import { getDateLocale } from '../i18n';
 import { AppTheme } from '../theme';
-import { Reserva } from '../types/types';
+import { Reservation } from '../types/types';
 
 export type LineChartRange = 'last30' | 'next30' | 'ytd' | 'next3m' | 'all';
 
@@ -46,12 +46,12 @@ export type BarChartDataPoint = {
 
 export type BarChartData = BarChartDataPoint[];
 
-const extractReservas = (payload: any): Reserva[] => {
-  if (Array.isArray(payload)) return payload as Reserva[];
-  if (Array.isArray(payload?.data)) return payload.data as Reserva[];
-  if (Array.isArray(payload?.items)) return payload.items as Reserva[];
-  if (Array.isArray(payload?.rows)) return payload.rows as Reserva[];
-  if (Array.isArray(payload?.reservas)) return payload.reservas as Reserva[];
+const extractReservas = (payload: any): Reservation[] => {
+  if (Array.isArray(payload)) return payload as Reservation[];
+  if (Array.isArray(payload?.data)) return payload.data as Reservation[];
+  if (Array.isArray(payload?.items)) return payload.items as Reservation[];
+  if (Array.isArray(payload?.rows)) return payload.rows as Reservation[];
+  if (Array.isArray(payload?.reservations)) return payload.reservations as Reservation[];
   return [];
 };
 
@@ -83,7 +83,7 @@ export function useAdminInfo(theme: AppTheme) {
   const { t, i18n } = useTranslation();
   const locale = getDateLocale(i18n.resolvedLanguage || i18n.language);
 
-  const [reservas, setReservas] = useState<Reserva[]>([]);
+  const [reservas, setReservas] = useState<Reservation[]>([]);
   const [loadingChart, setLoadingChart] = useState(true);
   const [selectedSliceIndex, setSelectedSliceIndex] = useState(0);
   const [lineChartRange, setLineChartRange] =
@@ -122,7 +122,7 @@ export function useAdminInfo(theme: AppTheme) {
     };
 
     reservas.forEach((reserva) => {
-      const normalized = String(reserva.estado || '')
+      const normalized = String(reserva.status || '')
         .trim()
         .toLowerCase();
 
@@ -225,10 +225,10 @@ export function useAdminInfo(theme: AppTheme) {
     };
 
     reservas.forEach((reserva) => {
-      const key = getReservaDateKey(reserva.fecha_reserva);
+      const key = getReservaDateKey(reserva.reservation_date);
       if (!key) return;
 
-      const normalized = String(reserva.estado || '')
+      const normalized = String(reserva.status || '')
         .trim()
         .toLowerCase();
 
@@ -336,10 +336,10 @@ export function useAdminInfo(theme: AppTheme) {
     };
 
     reservas.forEach((reserva) => {
-      const key = getReservaDateKey(reserva.fecha_reserva);
+      const key = getReservaDateKey(reserva.reservation_date);
       if (!key) return;
 
-      const normalized = String(reserva.estado || '')
+      const normalized = String(reserva.status || '')
         .trim()
         .toLowerCase();
 

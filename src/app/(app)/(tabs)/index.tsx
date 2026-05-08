@@ -13,7 +13,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Reserva } from '../../../types/types';
+import { Reservation } from '../../../types/types';
 import createReservationsStyles from '../../../style/reservations.styles';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
@@ -53,23 +53,26 @@ export default function HomeScreen() {
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase();
 
-  const renderReservation = (item: Reserva) => {
-    const title = item.pista?.nombre || t('homeReservationFallback');
+  const renderReservation = (item: Reservation) => {
+    const title = item.court?.name || t('homeReservationFallback');
     const img = getTipoPistaImage(item);
-    const cleanDate = new Date(item.fecha_reserva).toLocaleDateString(locale, {
-      day: '2-digit',
-      month: 'short',
-    });
+    const cleanDate = new Date(item.reservation_date).toLocaleDateString(
+      locale,
+      {
+        day: '2-digit',
+        month: 'short',
+      },
+    );
     const cleanTime =
-      item.hora_inicio.split(':').slice(0, 2).join(':') +
+      item.start_time.split(':').slice(0, 2).join(':') +
       ' - ' +
-      item.hora_fin.split(':').slice(0, 2).join(':');
+      item.end_time.split(':').slice(0, 2).join(':');
 
     return (
       <TouchableOpacity
-        key={item.reserva_id}
+        key={item.id}
         style={localStyles.card}
-        onPress={() => router.push(`/(app)/(tabs)/bookings/${item.reserva_id}`)}
+        onPress={() => router.push(`/(app)/(tabs)/bookings/${item.id}`)}
       >
         <ImageBackground
           source={img}
@@ -86,7 +89,7 @@ export default function HomeScreen() {
             <View style={localStyles.cardHeaderRow}>
               <Text style={localStyles.cardTitle}>{title}</Text>
               <View style={localStyles.statusBadge}>
-                <Text style={localStyles.statusText}>{item.estado}</Text>
+                <Text style={localStyles.statusText}>{item.status}</Text>
               </View>
             </View>
 
@@ -234,7 +237,7 @@ export default function HomeScreen() {
             <View style={localStyles.gridContainer}>
               {reservations.map((item) => (
                 <View
-                  key={item.reserva_id}
+                  key={item.id}
                   style={{
                     flexBasis: isWideScreen ? 320 : '100%',
                     flexGrow: 1,

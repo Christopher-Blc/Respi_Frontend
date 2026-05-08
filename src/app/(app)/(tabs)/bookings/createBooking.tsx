@@ -17,7 +17,7 @@ import { createCreateBookingStyles } from '../../../../style/create-booking.styl
 import api from '../../../../services/api';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../../i18n';
-import { Membresia, User } from '../../../../types/types';
+import { Membership, User } from '../../../../types/types';
 
 type ReservaActual = {
   inicio: string;
@@ -182,7 +182,7 @@ export default function CreateBooking() {
         const profileResponse = await api.get('/users/profile/me');
         const user = profileResponse.data as User;
 
-        if (!user?.membresia_id || user?.isActive === false) {
+        if (!user?.membership_id || user?.is_active === false) {
           if (mounted) {
             setMembershipDiscountPct(0);
             setMembershipName('');
@@ -192,14 +192,14 @@ export default function CreateBooking() {
 
         const membershipsResponse = await api.get('/memberships');
         const payload = membershipsResponse.data;
-        const memberships: Membresia[] = Array.isArray(payload)
+        const memberships: Membership[] = Array.isArray(payload)
           ? payload
           : Array.isArray(payload?.data)
             ? payload.data
             : [];
 
         const activeMembership = memberships.find(
-          (item) => item.membresia_id === user.membresia_id,
+          (item) => item.id === user.membership_id,
         );
 
         if (mounted && activeMembership) {
@@ -269,12 +269,11 @@ export default function CreateBooking() {
         : '';
 
       const payload = {
-        pista_id: Number(pistaId),
-        fecha_reserva: fechaReserva,
-        hora_inicio: horaInicio,
-        hora_fin: horaFin,
-        estado: 'PENDIENTE',
-        nota: [nota.trim(), membershipNote].filter(Boolean).join(' | '),
+        court_id: Number(pistaId),
+        reservation_date: fechaReserva,
+        start_time: horaInicio,
+        end_time: horaFin,
+        note: [nota.trim(), membershipNote].filter(Boolean).join(' | '),
       };
 
       await api.post('/Reservation', payload);

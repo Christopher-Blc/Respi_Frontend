@@ -1,24 +1,24 @@
 ﻿import { useEffect, useMemo, useState } from 'react';
 import { API_PUBLIC_URL } from '../constants';
 import api from '../services/api';
-import { Pista, PistaDisponibilidad, TipoPista } from '../types/types';
+import { Court, CourtAvailability, CourtType } from '../types/types';
 import { useTranslation } from 'react-i18next';
-import {  getTipoPistaImage } from '../utils/getImage';
+import { getTipoPistaImage } from '../utils/getImage';
 
 
-export const resolvePistaImageSource = (pista: PistaDisponibilidad) =>
+export const resolvePistaImageSource = (pista: CourtAvailability) =>
   getTipoPistaImage(pista);
 
 const resolvePistaCardImage = (
-  pista: Pista,
-  tipos: TipoPista[],
+  pista: Court,
+  tipos: CourtType[],
 ): { uri: string } | undefined => {
   const tipo = tipos.find(
-    (item) => String(item.tipo_pista_id) === String(pista.tipo_pista_id),
+    (item) => String(item.id) === String(pista.court_type_id),
   );
-  if (!tipo?.imagen) return undefined;
+  if (!tipo?.image) return undefined;
   return {
-    uri: `${API_PUBLIC_URL}${tipo.imagen.startsWith('/') ? '' : '/'}${tipo.imagen}`,
+    uri: `${API_PUBLIC_URL}${tipo.image.startsWith('/') ? '' : '/'}${tipo.image}`,
   };
 };
 
@@ -56,24 +56,24 @@ const formatDateForAPI = (date: Date) => {
 
 export function useCourtsTab() {
   const { t } = useTranslation();
-  const [tipos, setTipos] = useState<TipoPista[]>([]);
-  const [pistas, setPistas] = useState<Pista[]>([]);
+  const [tipos, setTipos] = useState<CourtType[]>([]);
+  const [pistas, setPistas] = useState<Court[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedModel, setSelectedModel] = useState<Pista | null>(null);
+  const [selectedModel, setSelectedModel] = useState<Court | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [loadingSportInfo, setLoadingSportInfo] = useState(false);
   const [sportError, setSportError] = useState<string | null>(null);
-  const [sportType, setSportType] = useState<TipoPista | null>(null);
-  const [sportPistas, setSportPistas] = useState<PistaDisponibilidad[]>([]);
+  const [sportType, setSportType] = useState<CourtType | null>(null);
+  const [sportPistas, setSportPistas] = useState<CourtAvailability[]>([]);
 
   const availableDays = useMemo(() => getNext7Days(), []);
   const formattedDate = formatDateForAPI(selectedDate);
 
-  const displayedModelos = useMemo<Pista[]>(
+  const displayedModelos = useMemo<Court[]>(
     () => {
-      const grouped = new Map<string, Pista>();
+      const grouped = new Map<string, Court>();
       for (const pista of pistas) {
-        const key = String(pista.tipo_pista_id ?? '');
+        const key = String(pista.court_type_id ?? '');
         if (key && !grouped.has(key)) {
           grouped.set(key, pista);
         }
@@ -92,10 +92,10 @@ export function useCourtsTab() {
           api.get('/Court'),
         ]);
         if (mounted && Array.isArray(tiposRes.data)) {
-          setTipos(tiposRes.data as TipoPista[]);
+          setTipos(tiposRes.data as CourtType[]);
         }
         if (mounted && Array.isArray(pistasRes.data)) {
-          setPistas(pistasRes.data as Pista[]);
+          setPistas(pistasRes.data as Court[]);
         }
       } catch (error) {
         console.error('Error al cargar tipos de pista', error);
@@ -131,45 +131,45 @@ export function useCourtsTab() {
         const disponibilidadPayload =
           disponibilidadRes.status === 'fulfilled' &&
           Array.isArray(disponibilidadRes.value?.data)
-            ? (disponibilidadRes.value.data as PistaDisponibilidad[])
+            ? (disponibilidadRes.value.data as CourtAvailability[])
             : [];
 
         const pistasPayload =
           pistasRes.status === 'fulfilled' &&
           Array.isArray(pistasRes.value?.data)
-            ? (pistasRes.value.data as PistaDisponibilidad[])
+            ? (pistasRes.value.data as Court[])
             : [];
 
         const selectedType =
           tipos.find(
             (tipo) =>
-              String(tipo.tipo_pista_id) === String(selectedModel.tipo_pista_id),
+              String(tipo.id) === String(selectedModel.court_type_id),
           ) ?? null;
 
-        const fullMap = new Map<string, PistaDisponibilidad>();
+        const fullMap = new Map<string, Court>();
         for (const pista of pistasPayload) {
-          const id = String(pista.pista_id ?? '');
+          const id = String(pista.id ?? '');
           if (id) fullMap.set(id, pista);
         }
 
         const filtered = disponibilidadPayload.filter(
           (pista) =>
-            String(pista.tipo_pista_id) === String(selectedModel.tipo_pista_id),
+            String(pista.court_type_id) === String(selectedModel.court_type_id),
         );
 
         const merged = filtered.map((pista) => {
-          const id = String(pista.pista_id ?? '');
+          const id = String(pista.id ?? '');
           const full = fullMap.get(id);
           return {
             ...full,
             ...pista,
-            descripcion: pista.descripcion || full?.descripcion,
-            capacidad: pista.capacidad ?? full?.capacidad,
-            cubierta: pista.cubierta ?? full?.cubierta,
-            iluminacion: pista.iluminacion ?? full?.iluminacion,
-            estado: pista.estado || full?.estado,
-            precio_hora: pista.precio_hora ?? full?.precio_hora,
-          } as PistaDisponibilidad;
+            description: pista.description || full?.description,
+            capacity: pista.capacity ?? full?.capacity,
+            is_covered: pista.is_covered ?? full?.is_covered,
+            has_lighting: pista.has_lighting ?? full?.has_lighting,
+            status: pista.status || full?.status,
+            price_per_hour: pista.price_per_hour ?? full?.price_per_hour,
+          } as CourtAvailability;
         });
 
         if (!mounted) return;
@@ -200,7 +200,7 @@ export function useCourtsTab() {
   return {
     loading,
     displayedModelos,
-    resolveModelImage: (pista: Pista) => resolvePistaCardImage(pista, tipos),
+    resolveModelImage: (pista: Court) => resolvePistaCardImage(pista, tipos),
     selectedModel,
     setSelectedModel,
     selectedDate,

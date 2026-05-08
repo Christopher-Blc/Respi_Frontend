@@ -1,27 +1,6 @@
 ﻿import { useEffect, useState, useCallback } from 'react';
 import api from '../services/api';
-
-export type ReservaActual = {
-  inicio: string;
-  fin: string;
-};
-
-export type TipoPistaDisponibilidad = {
-  imagen?: string;
-};
-
-export type PistaDisponibilidad = {
-  pista_id: number;
-  nombre: string;
-  hora_apertura: string;
-  hora_cierre: string;
-  estado?: string;
-  tipo_pista?: TipoPistaDisponibilidad;
-  reservas_actuales: ReservaActual[];
-  precio_hora?: string | number;
-  cubierta?: boolean;
-  iluminacion?: boolean;
-};
+import { CourtAvailability } from '../types/types';
 
 const isDisponible = (value?: string) =>
   String(value || '')
@@ -29,7 +8,7 @@ const isDisponible = (value?: string) =>
     .toUpperCase() === 'DISPONIBLE';
 
 export function useAvailableBookings(fecha: string) {
-  const [pistas, setPistas] = useState<PistaDisponibilidad[]>([]);
+  const [pistas, setPistas] = useState<CourtAvailability[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,8 +23,8 @@ export function useAvailableBookings(fecha: string) {
       console.log('Fecha solicitada:', fecha);
 
       const disponibles = Array.isArray(payload)
-        ? payload.filter((pista: PistaDisponibilidad) =>
-            isDisponible((pista as any)?.estado),
+        ? payload.filter((pista: CourtAvailability) =>
+            isDisponible((pista as any)?.status),
           )
         : [];
 

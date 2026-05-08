@@ -1,6 +1,11 @@
 import { API_PUBLIC_URL } from '../constants';
 import api from '../services/api';
-import { Pista, PistaDisponibilidad, Reserva, TipoPista } from '../types/types';
+import {
+  Court,
+  CourtAvailability,
+  Reservation,
+  CourtType,
+} from '../types/types';
 
 const toImageSource = (imagen?: string): { uri: string } | undefined => {
   if (!imagen) return undefined;
@@ -10,13 +15,18 @@ const toImageSource = (imagen?: string): { uri: string } | undefined => {
 };
 
 export function getTipoPistaImage(
-  entity: Pista | PistaDisponibilidad | Reserva,
+  entity: Court | CourtAvailability | Reservation,
 ): { uri: string } | undefined;
 export function getTipoPistaImage(
   tipoPistaId: number | string,
 ): Promise<{ uri: string } | undefined>;
 export function getTipoPistaImage(
-  entityOrTipoPistaId: Pista | PistaDisponibilidad | Reserva | number | string,
+  entityOrTipoPistaId:
+    | Court
+    | CourtAvailability
+    | Reservation
+    | number
+    | string,
 ): { uri: string } | undefined | Promise<{ uri: string } | undefined> {
   if (
     typeof entityOrTipoPistaId === 'number' ||
@@ -24,22 +34,22 @@ export function getTipoPistaImage(
   ) {
     return api
       .get(`/tipo_court/${entityOrTipoPistaId}`)
-      .then((response) => response?.data as TipoPista | undefined)
-      .then((tipoPista) => toImageSource(tipoPista?.imagen))
+      .then((response) => response?.data as CourtType | undefined)
+      .then((courtType) => toImageSource(courtType?.image))
       .catch(() => undefined);
   }
 
   const entity = entityOrTipoPistaId;
-  let raw: Pista | PistaDisponibilidad | undefined;
+  let raw: Court | CourtAvailability | undefined;
 
-  // Si es una Reserva, bajamos al objeto pista
-  if ('reserva_id' in entity) {
-    raw = (entity as Reserva).pista;
+  // Si es una Reservation, bajamos al objeto court
+  if ('reservation_date' in entity) {
+    raw = (entity as Reservation).court;
   } else {
-    raw = entity as Pista | PistaDisponibilidad;
+    raw = entity as Court | CourtAvailability;
   }
 
-  const imagen = (raw as PistaDisponibilidad)?.tipo_pista?.imagen;
+  const imagen = raw?.courtType?.image;
 
   console.log('Imagen---->', toImageSource(imagen));
   return toImageSource(imagen);

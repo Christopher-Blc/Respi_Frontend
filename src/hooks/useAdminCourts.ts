@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
 import { Alert, useWindowDimensions } from 'react-native';
-import { Instalacion, Pista, TipoPista } from '../types/types';
+import { Installation, Court, CourtType } from '../types/types';
 import api from '../services/api';
 import { useCourtForm } from './useCourtForm';
 import { useCourtMaintenance } from './useCourtMaintenance';
@@ -12,9 +12,9 @@ export function useAdminCourts() {
   const { width } = useWindowDimensions();
   const weeklyCardWidth = width >= 1400 ? '32%' : width >= 980 ? '49%' : '100%';
 
-  const [pistas, setPistas] = useState<Pista[]>([]);
-  const [tiposPista, setTiposPista] = useState<TipoPista[]>([]);
-  const [instalaciones, setInstalaciones] = useState<Instalacion[]>([]);
+  const [pistas, setPistas] = useState<Court[]>([]);
+  const [tiposPista, setTiposPista] = useState<CourtType[]>([]);
+  const [instalaciones, setInstalaciones] = useState<Installation[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 

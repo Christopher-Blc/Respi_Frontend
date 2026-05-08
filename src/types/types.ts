@@ -1,93 +1,79 @@
-// 1. Tipo para el Usuario (Relacionado)
+// ─── Installation ────────────────────────────────────────────────
+export interface Installation {
+  id: number;
+  name: string;
+  address: string;
+  phone: string;
+  email: string;
+  description: string;
+  created_at: string;
+  status?: 'activa' | 'inactiva';
+  maxCapacity?: number | null;
+  openingHours?: string | null;
+  closingHours?: string | null;
+  courts?: Court[];
+}
+
+// ─── CourtType (tipo_court) ───────────────────────────────────────
+export interface CourtType {
+  id: number;
+  name: string;
+  image: string;
+  courts?: Court[];
+}
+
+// ─── Court (/Court) ───────────────────────────────────────────────
+export interface Court {
+  id: number;
+  installation_id: number;
+  court_type_id: number;
+  name: string;
+  capacity: number;
+  price_per_hour: string;
+  is_covered: boolean;
+  has_lighting: boolean;
+  description: string;
+  status: 'DISPONIBLE' | 'MANTENIMIENTO' | 'INACTIVA';
+  opening_time: string;
+  closing_time: string;
+  day_of_week: 'LUNES' | 'MARTES' | 'MIERCOLES' | 'JUEVES' | 'VIERNES' | 'SABADO' | 'DOMINGO';
+  reservations_made?: number;
+  maintenance_from?: string | null;
+  maintenance_until?: string | null;
+  // Relations
+  installation?: Installation;
+  courtType?: CourtType;
+}
+
+// ─── CourtAvailability (/Court/disponibilidad) ───────────────────
+export interface CourtAvailability extends Court {
+  current_reservations: Array<{ start: string; end: string }>;
+}
+
+// ─── User (/users, /users/profile/me) ────────────────────────────
 export interface User {
-  usuario_id: number;
-  membresia_id: number | null;
+  id: number;
+  membership_id: number | null;
   username: string;
   name: string;
   surname: string;
   email: string;
   phone: string;
-  role: 'SUPER_ADMIN' | 'ADMIN' | 'USER'; // Ajusta según tus roles
-  isActive: boolean;
-  fecha_registro: string; // O Date, dependiendo de cómo manejes el parseo
-  fecha_ultimo_login: string;
-  fecha_nacimiento: string;
-  direccion: string;
-  refresh_token_hash: string;
+  role: 'SUPER_ADMIN' | 'ADMIN' | 'USER' | 'CLIENTE';
+  is_active: boolean;
+  registration_date: string;
+  last_login_date: string;
+  date_of_birth: string;
+  address: string;
+  refresh_token_hash?: string;
+  expoPushToken?: string | null;
+  membership?: Membership | null;
+  reservations_count?: number;
 }
 
-export interface Instalacion {
-  instalacion_id: number;
-  nombre: string;
-  direccion: string;
-  telefono: string;
-  email: string;
-  descripcion: string;
-  fecha_creacion: string;
-  estado?: 'activa' | 'inactiva';
-}
-
-
-
-//objeto que devuelve el backend de la pista con relaciones
-export type Pista = {
-  pista_id: number ,
-  instalacion_id: number | string,
-  tipo_pista_id: number | string,
-  nombre: string,
-  capacidad: number,
-  precio_hora: number,
-  cubierta: boolean,
-  iluminacion: boolean,
-  descripcion: string,
-  estado: string,
-  mantenimiento_desde?: string | null,
-  mantenimiento_hasta?: string | null,
-  hora_apertura: string,
-  hora_cierre: string,
-  dia_semana: 'LUNES' | 'MARTES' | 'MIERCOLES' | 'JUEVES' | 'VIERNES' | 'SABADO' | 'DOMINGO',
-  instalacion: Instalacion,
-};
-
-// 3. Tipo para el Pago
-export interface Pago {
-  pago_id: number;
-  reserva_id: number;
-  monto: string;
-  fecha_pago: string;
-  metodo_pago: string;
-  estado_pago: string;
-  nota: string;
-}
-
-// 4. La Entidad Principal: Reserva
-export interface Reserva {
-  reserva_id: number;
-  usuario_id: number;
-  pista_id: number;
-  fecha_reserva: string;
-  hora_inicio: string;
-  hora_fin: string;
-  estado: 'FINALIZADA' | 'PENDIENTE' | 'CANCELADA';
-  precio_total: string;
-  fecha_creacion: string;
-  nota: string;
-  
-  // Relaciones (Opcionales si no siempre haces el "relations")
-  usuario?: User; 
-  pista?: Pista;
-  pagos?: Pago[];
-}
-
-export interface TipoPista {
-  tipo_pista_id: number;
-  nombre: string;
-  imagen: string;
-  pistas: Pista[];
-}
-
-export interface Membresia {
-  membresia_id: number;
+// ─── Membership (/memberships) ───────────────────────────────────
+export interface Membership {
+  id: number;
   level: number;
   name: string;
   discount: number;
@@ -95,37 +81,55 @@ export interface Membresia {
   benefits: string;
 }
 
-//objeto que devuelve el endpoint /court/disponibilidad
-export type PistaDisponibilidad = {
+// ─── Payment ─────────────────────────────────────────────────────
+export interface Payment {
+  id: number;
+  reservation_id: number;
+  amount: string;
+  payment_date: string;
+  payment_method: string;
+  payment_status: string;
+  note: string;
+}
 
-  pista_id: number | string,
-  instalacion_id: number | string,
-  tipo_pista_id: number | string,
-  nombre: string,
-  capacidad: number,
-  precio_hora: number,
-  cubierta: boolean,
-  iluminacion: boolean,
-  descripcion: string,
-  estado: 'DISPONIBLE',
-  hora_apertura: string,
-  hora_cierre: string,
-  dia_semana: 'LUNES' | 'MARTES' | 'MIERCOLES' | 'JUEVES' | 'VIERNES' | 'SABADO' | 'DOMINGO',
-  tipo_pista: {
-    tipo_pista_id: number | string,
-    nombre: string,
-    imagen: string
-  },
-  reservas_actuales: Array<{ inicio: string; fin: string }>
-  
-};
+// ─── Reservation (/Reservation, /Reservation/mis-reservas) ───────
+export interface Reservation {
+  id: number;
+  user_id: number;
+  court_id: number;
+  reservation_date: string;
+  start_time: string;
+  end_time: string;
+  status: 'FINALIZADA' | 'PENDIENTE' | 'CANCELADA' | 'CONFIRMADA';
+  total_price: string;
+  createdAt: string;
+  note: string;
+  // Relations
+  user?: User;
+  court?: Court;
+  payments?: Payment[];
+}
 
+// ─── Notification ─────────────────────────────────────────────────
+export interface Notification {
+  id: number;
+  user_id: number;
+  title: string | null;
+  message: string;
+  notification_type: string;
+  is_read: boolean;
+  created_at: string;
+  user?: User;
+}
+
+// ─── JWT ─────────────────────────────────────────────────────────
 export interface JWTPayload {
   sub: number;
   email: string;
   role: 'SUPER_ADMIN' | 'CLIENTE';
 }
 
+// ─── Frontend-only types ─────────────────────────────────────────
 export type DatePickerMode = 'date' | 'time' | null;
 
 export type BookingCourtOption = {
@@ -135,25 +139,25 @@ export type BookingCourtOption = {
   closingHour?: string;
   status?: string;
   pricePerHour?: number;
-  tipoPistaId?: string;
+  courtTypeId?: string;
 };
 
 export type WeeklyScheduleItem = {
-  dia_semana: Pista['dia_semana'];
-  hora_apertura: string;
-  hora_cierre: string;
-  precio_hora: string;
-  cerrado: boolean;
+  day_of_week: Court['day_of_week'];
+  opening_time: string;
+  closing_time: string;
+  price_per_hour: string;
+  closed: boolean;
 };
 
-export type PistaFormData = {
-  nombre: string;
-  descripcion: string;
-  capacidad: string;
-  cubierta: boolean;
-  iluminacion: boolean;
-  estado: string;
-  dia_semana: Pista['dia_semana'];
-  instalacion_id: string;
-  tipo_pista_id: string;
+export type CourtFormData = {
+  name: string;
+  description: string;
+  capacity: string;
+  is_covered: boolean;
+  has_lighting: boolean;
+  status: string;
+  day_of_week: Court['day_of_week'];
+  installation_id: string;
+  court_type_id: string;
 };

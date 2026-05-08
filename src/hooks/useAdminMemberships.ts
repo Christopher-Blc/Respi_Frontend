@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Membresia } from '../types/types';
+import { Membership } from '../types/types';
 import api from '../services/api';
 
 export type MembershipFormData = {
@@ -12,15 +12,15 @@ export type MembershipFormData = {
 
 type DeleteModalState = {
   visible: boolean;
-  item: Membresia | null;
+  item: Membership | null;
   message: string;
   canDelete: boolean;
 };
 
 type BasicUser = {
-  usuario_id?: number;
+  id?: number;
   user_id?: number;
-  membresia_id?: number | null;
+  membership_id?: number | null;
 };
 
 const EMPTY_FORM: MembershipFormData = {
@@ -32,12 +32,12 @@ const EMPTY_FORM: MembershipFormData = {
 };
 
 export function useAdminMemberships() {
-  const [memberships, setMemberships] = useState<Membresia[]>([]);
+  const [memberships, setMemberships] = useState<Membership[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [membershipToEdit, setMembershipToEdit] = useState<Membresia | null>(
+  const [membershipToEdit, setMembershipToEdit] = useState<Membership | null>(
     null,
   );
   const [formData, setFormData] = useState<MembershipFormData>(EMPTY_FORM);
@@ -60,7 +60,7 @@ export function useAdminMemberships() {
       setLoading(true);
       const res = await api.get('/memberships');
       const rows = (Array.isArray(res.data) ? res.data : []).filter(
-        (m: any) => m != null && m.membresia_id != null,
+        (m: any) => m != null && m.id != null,
       );
       setMemberships(rows);
     } catch {
@@ -94,7 +94,7 @@ export function useAdminMemberships() {
     setModalVisible(true);
   };
 
-  const openEditModal = (item: Membresia) => {
+  const openEditModal = (item: Membership) => {
     setMembershipToEdit(item);
     setFormData({
       level: String(item.level),
@@ -144,7 +144,7 @@ export function useAdminMemberships() {
 
     try {
       if (membershipToEdit) {
-        await api.put(`/memberships/${membershipToEdit.membresia_id}`, payload);
+        await api.put(`/memberships/${membershipToEdit.id}`, payload);
       } else {
         await api.post('/memberships', payload);
       } 
@@ -182,11 +182,11 @@ export function useAdminMemberships() {
     return [];
   };
 
-  const handleDelete = async (item: Membresia) => {
+  const handleDelete = async (item: Membership) => {
     try {
       const users = await fetchUsersForDeleteCheck();
       const usersUsingMembership = users.filter(
-        (u) => Number(u.membresia_id) === item.membresia_id,
+        (u) => Number(u.membership_id) === item.id,
       );
 
       if (usersUsingMembership.length > 0) {
@@ -218,7 +218,7 @@ export function useAdminMemberships() {
     if (!deleteModal.item || !deleteModal.canDelete) return;
 
     try {
-      await api.delete(`/memberships/${deleteModal.item.membresia_id}`);
+      await api.delete(`/memberships/${deleteModal.item.id}`);
       setDeleteModal({ visible: false, item: null, message: '', canDelete: false });
       fetchMemberships();
     } catch {
