@@ -114,13 +114,13 @@ export default function WebBurgerMenu({ navItems }: Props) {
 
 const styles = StyleSheet.create({
   burgerBtn: {
-    marginRight: 14,
+    marginLeft: 14,
     padding: 4,
   },
   overlay: {
     flex: 1,
     backgroundColor: 'transparent',
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
     paddingTop: 64,
   },
   dropdown: {
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingVertical: 8,
     minWidth: 190,
-    marginRight: 16,
+    marginLeft: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.14,
