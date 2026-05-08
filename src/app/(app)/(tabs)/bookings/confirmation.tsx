@@ -93,7 +93,7 @@ export default function ConfirmacionReserva() {
         note: notes,
       };
 
-      const response = await api.post('/Reservation', payload);
+      const response = await api.post('/reservations', payload);
 
       if (response.status === 201 || response.data?.id) {
         Alert.alert(

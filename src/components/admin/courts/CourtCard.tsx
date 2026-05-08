@@ -1,17 +1,17 @@
 ﻿import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Pista } from '../../../types/types';
+import { Court } from '../../../types/types';
 import { AppTheme } from '../../../theme';
 import { pistasStyles as styles } from '../../../style/admin/courts.styles';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
-  item: Pista;
+  item: Court;
   theme: AppTheme;
-  onEdit: (item: Pista) => void;
-  onMaintenance: (item: Pista) => void;
-  onDelete: (item: Pista) => void;
+  onEdit: (item: Court) => void;
+  onMaintenance: (item: Court) => void;
+  onDelete: (item: Court) => void;
 };
 
 export function CourtCard({
@@ -35,10 +35,10 @@ export function CourtCard({
       <View style={styles.cardHeader}>
         <View style={{ flex: 1 }}>
           <Text style={[styles.cardTitle, { color: theme.textTitle }]}>
-            {item.nombre}
+            {item.name}
           </Text>
           <Text style={[styles.cardSubtitle, { color: theme.textBody }]}>
-            {item.instalacion?.nombre || t('courtCardInstallationFallback')}
+            {item.installation?.name || t('courtCardInstallationFallback')}
           </Text>
         </View>
         <View
@@ -46,18 +46,18 @@ export function CourtCard({
             styles.statusBadge,
             {
               backgroundColor:
-                item.estado === 'DISPONIBLE' ? '#4CAF5020' : '#F4433620',
+                item.status === 'DISPONIBLE' ? '#4CAF5020' : '#F4433620',
             },
           ]}
         >
           <Text
             style={{
-              color: item.estado === 'DISPONIBLE' ? '#4CAF50' : '#F44336',
+              color: item.status === 'DISPONIBLE' ? '#4CAF50' : '#F44336',
               fontSize: 10,
               fontWeight: 'bold',
             }}
           >
-            {item.estado}
+            {item.status}
           </Text>
         </View>
       </View>
@@ -65,17 +65,17 @@ export function CourtCard({
       <View style={styles.cardDetails}>
         <DetailItem
           icon="people-outline"
-          text={t('courtCardCapacity', { count: item.capacidad })}
+          text={t('courtCardCapacity', { count: item.capacity })}
           theme={theme}
         />
         <DetailItem
           icon="cash-outline"
-          text={`${item.precio_hora}€/h`}
+          text={`${item.price_per_hour}€/h`}
           theme={theme}
         />
         <DetailItem
-          icon={item.cubierta ? 'business-outline' : 'trail-sign-outline'}
-          text={item.cubierta ? t('courtCardCovered') : t('courtCardOutdoor')}
+          icon={item.is_covered ? 'business-outline' : 'trail-sign-outline'}
+          text={item.is_covered ? t('courtCardCovered') : t('courtCardOutdoor')}
           theme={theme}
         />
       </View>

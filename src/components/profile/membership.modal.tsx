@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useAppTheme } from '../../context/ThemeContext';
 import api from '../../services/api';
-import { Membresia } from '../../types/types';
+import { Membership } from '../../types/types';
 import { useTranslation } from 'react-i18next';
 
 interface Props {
@@ -109,7 +109,7 @@ const getMembershipPalette = (
 export default function MembresiaModal({ visible, onClose }: Props) {
   const { theme, isDarkMode } = useAppTheme();
   const { t } = useTranslation();
-  const [membresias, setMembresias] = useState<Membresia[]>([]);
+  const [membresias, setMembresias] = useState<Membership[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -331,11 +331,11 @@ export default function MembresiaModal({ visible, onClose }: Props) {
             </View>
           ) : (
             membresias.map((item) => {
-              const palette = getMembershipPalette(item.nombre, isDarkMode);
+              const palette = getMembershipPalette(item.name, isDarkMode);
 
               return (
                 <View
-                  key={item.membresia_id}
+                  key={item.id}
                   style={[
                     styles.membershipCard,
                     {
@@ -358,7 +358,7 @@ export default function MembresiaModal({ visible, onClose }: Props) {
                   />
 
                   <View style={styles.topRow}>
-                    <Text style={styles.tipo}>{item.nombre}</Text>
+                    <Text style={styles.tipo}>{item.name}</Text>
                     <View
                       style={[
                         styles.badge,
@@ -371,27 +371,29 @@ export default function MembresiaModal({ visible, onClose }: Props) {
                       <Text
                         style={[styles.badgeText, { color: palette.badgeText }]}
                       >
-                        {t('membershipRange', { value: item.rango })}
+                        {t('membershipRange', { value: item.level })}
                       </Text>
                     </View>
                   </View>
 
                   <View style={styles.row}>
                     <Text style={styles.label}>{t('membershipDiscount')}</Text>
-                    <Text style={styles.value}>{item.descuento}%</Text>
+                    <Text style={styles.value}>{item.discount}%</Text>
                   </View>
 
                   <View style={styles.row}>
                     <Text style={styles.label}>
                       {t('membershipRequiredBookings')}
                     </Text>
-                    <Text style={styles.value}>{item.reservas_requeridas}</Text>
+                    <Text style={styles.value}>
+                      {item.required_reservations}
+                    </Text>
                   </View>
 
                   <Text style={styles.benefitsLabel}>
                     {t('membershipBenefits')}
                   </Text>
-                  <Text style={styles.benefits}>{item.beneficios}</Text>
+                  <Text style={styles.benefits}>{item.benefits}</Text>
                 </View>
               );
             })

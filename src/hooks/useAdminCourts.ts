@@ -19,8 +19,7 @@ export function useAdminCourts() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const fetchInstalaciones = async () => {
-    const endpoint = '/Installation';
-    const response = await api.get(endpoint);
+     const response = await api.get('/installations');
     const rows = Array.isArray(response?.data)
       ? response.data
         : Array.isArray(response?.data?.data)
@@ -43,8 +42,8 @@ export function useAdminCourts() {
     try {
       setLoading(true);
       const [pistaRes, tipoRes] = await Promise.all([
-        api.get('/Court'),
-        api.get('/tipo_court'),
+        api.get('/courts'),
+        api.get('/court-types'),
         fetchInstalaciones(),
       ]);
       setPistas(pistaRes.data);

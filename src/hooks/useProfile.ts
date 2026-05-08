@@ -23,7 +23,7 @@ export const useProfile = () => {
   // 2. Cargar Reservas
   const fetchTotalReservas = async () => {
     try {
-      const response = await api.get('Reservation/mis-reservas');
+      const response = await api.get('/reservations/my-reservations');
       const responseFiltrado = reservasActivasFilter(response);
       setTotalReservas(responseFiltrado.length);
     } catch (error) {

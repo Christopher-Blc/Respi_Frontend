@@ -10,7 +10,7 @@ export function useReservas() {
   const fetchReservas = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await api.get('/Reservation/mis-reservas');
+      const response = await api.get('/reservations/my-reservations');
       const payload = response?.data;
       const data: Reservation[] = Array.isArray(payload)
         ? payload

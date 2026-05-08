@@ -26,7 +26,6 @@ const EMPTY_FORM: InstallationFormData = {
   status: 'activa',
 };
 
-const INSTALLATION_POST_ENDPOINT = '/Installation';
 
 const getRowsFromResponse = (data: any): Installation[] => {
   if (Array.isArray(data)) return data as Installation[];
@@ -72,7 +71,7 @@ export function useAdminInstallations() {
   const fetchInstallations = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/Installation');
+      const response = await api.get('/installations');
       const rows = getRowsFromResponse(response?.data);
       if (rows.length > 0) {
         setInstallations(rows);
@@ -186,13 +185,13 @@ export function useAdminInstallations() {
     try {
       if (installationToEdit) {
         const installationId = getInstallationId(installationToEdit);
-        const response = await api.put(`/Installation/${installationId}`, payload);
+        const response = await api.put(`/installations/${installationId}`, payload);
 
         if (!isSuccessStatus(response.status)) {
           throw new Error('No se pudo actualizar la instalacion.');
         }
       } else {
-        const response = await api.post(INSTALLATION_POST_ENDPOINT, payload);
+        const response = await api.post('/installations', payload);
         if (!isSuccessStatus(response.status)) {
           throw new Error('No se pudo crear la instalacion.');
         }
@@ -227,7 +226,7 @@ export function useAdminInstallations() {
     const installationId = getInstallationId(deleteModal.item);
 
     try {
-      const response = await api.delete(`/Installation/${installationId}`);
+      const response = await api.delete(`/installations/${installationId}`);
       if (!isSuccessStatus(response.status)) {
         throw new Error('No se pudo eliminar la instalacion.');
       }

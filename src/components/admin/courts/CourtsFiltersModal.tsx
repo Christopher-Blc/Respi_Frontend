@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../context/ThemeContext';
-import { TipoPista } from '../../../types/types';
+import { CourtType } from '../../../types/types';
 import { GlassTextButton } from '../../login/glassTextButton';
 import { GlassTextInput } from '../../login/glassTextInput';
 import { useTranslation } from 'react-i18next';
@@ -13,7 +13,7 @@ type FilterEstado = 'DISPONIBLE' | 'MANTENIMIENTO' | 'INACTIVA' | null;
 type Props = {
   visible: boolean;
   onClose: () => void;
-  tiposPista: TipoPista[];
+  tiposPista: CourtType[];
   filterTipoPistaId: number | null;
   setFilterTipoPistaId: (value: number | null) => void;
   filterEstado: FilterEstado;
@@ -179,14 +179,12 @@ export function CourtsFiltersModal({
                   </Text>
                 </TouchableOpacity>
                 {tiposPista.map((tipo) => {
-                  const selected = filterTipoPistaId === tipo.tipo_pista_id;
+                  const selected = filterTipoPistaId === tipo.id;
                   return (
                     <TouchableOpacity
-                      key={tipo.tipo_pista_id}
+                      key={tipo.id}
                       onPress={() =>
-                        setFilterTipoPistaId(
-                          selected ? null : tipo.tipo_pista_id,
-                        )
+                        setFilterTipoPistaId(selected ? null : tipo.id)
                       }
                       style={{
                         paddingHorizontal: 13,
@@ -208,7 +206,7 @@ export function CourtsFiltersModal({
                           fontSize: 13,
                         }}
                       >
-                        {tipo.nombre}
+                        {tipo.name}
                       </Text>
                     </TouchableOpacity>
                   );

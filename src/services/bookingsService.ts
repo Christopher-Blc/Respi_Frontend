@@ -59,7 +59,7 @@ const dedupeModels = (items: Modelo[]) => {
 export const bookingsService = {
   async getModelos(): Promise<Modelo[]> {
     try {
-      const res = await api.get('/tipo_court');
+      const res = await api.get( '/court-types');
       const data = res?.data;
       if (!Array.isArray(data)) return [];
       return dedupeModels(
@@ -92,7 +92,7 @@ export const bookingsService = {
     };
 
     try {
-      const res = await api.post('/Reservation', payload);
+      const res = await api.post('/reservations', payload);
       const json = res?.data;
       const id =
         json?.id ??
