@@ -17,12 +17,9 @@ import { createCreateBookingStyles } from '../../../../style/create-booking.styl
 import api from '../../../../services/api';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../../i18n';
-import { Membership, User } from '../../../../types/types';
+import { CourtAvailability, Membership, User } from '../../../../types/types';
 
-type ReservaActual = {
-  inicio: string;
-  fin: string;
-};
+type ReservaActual = CourtAvailability['current_reservations'][number];
 
 const DURATION_OPTIONS = [30, 60, 90, 120];
 
@@ -63,7 +60,7 @@ const parseReservas = (value: string): ReservaActual[] => {
   try {
     const parsed = JSON.parse(value);
     return Array.isArray(parsed)
-      ? parsed.filter((item) => item?.inicio && item?.fin)
+      ? parsed.filter((item) => item?.start && item?.end)
       : [];
   } catch {
     return [];
@@ -117,8 +114,8 @@ export default function CreateBooking() {
     () =>
       reservasActuales
         .map((reserva) => ({
-          start: toMinutes(reserva.inicio),
-          end: toMinutes(reserva.fin),
+          start: toMinutes(reserva.start),
+          end: toMinutes(reserva.end),
         }))
         .filter((range) => range.end > range.start),
     [reservasActuales],

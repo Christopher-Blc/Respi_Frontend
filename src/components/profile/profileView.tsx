@@ -30,6 +30,7 @@ import {
   requestPushPermissionsAndToken,
   scheduleLocalNotification,
 } from '../../services/notificationsService';
+import { transparent } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
 export default function ProfileView() {
   const { t, i18n } = useTranslation();
@@ -215,29 +216,14 @@ export default function ProfileView() {
   };
 
   return loading ? (
-    <View
-      style={[
-        styles.container,
-        { justifyContent: 'center', alignItems: 'center' },
-      ]}
-    >
+    <View style={[{ flex: 1, justifyContent: 'center', alignItems: 'center' }]}>
       <ActivityIndicator size={36} color={theme.primaryButton} />
     </View>
   ) : (
-    <View style={[styles.container, { backgroundColor: theme.backgroundMain }]}>
-      <LinearGradient
-        colors={[
-          theme.profileGradientStart,
-          theme.profileGradientMiddle,
-          theme.profileGradientEnd,
-        ]}
-        style={StyleSheet.absoluteFill}
-      />
-
+    <View style={{ flex: 1 }}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
-          styles.scrollContent,
           {
             paddingTop: headerHeight + 10,
             paddingBottom: insets.bottom + (Platform.OS === 'web' ? 100 : 120),

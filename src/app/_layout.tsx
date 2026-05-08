@@ -45,9 +45,9 @@ function AuthNavigation() {
         }
 
         try {
-          await api.patch('/users/push-token', { pushToken: result.token });
+          await api.patch('/users/push-token', { expoPushToken: result.token });
         } catch {
-          await api.post('/users/push-token', { pushToken: result.token });
+          await api.post('/users/push-token', { expoPushToken: result.token });
         }
       } catch (error) {
         console.log('error al hacer push/patch del notification token', error);

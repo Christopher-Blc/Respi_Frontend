@@ -155,17 +155,24 @@ export function useCourtMaintenance(pistas: Court[], fetchPistas: () => void) {
           deleteModal.ids.map((id) => {
             const pista = pistas.find((p) => p.id === id);
             if (!pista) return Promise.resolve();
-            return api.put(`/Court/${id}`, { name: `deleted ('${pista.name}')`, status: 'INACTIVA' });
+            return api.put(`/courts/${id}`, { name: `deleted ('${pista.name}')`, status: 'INACTIVA' });
           }),
         );
       } else {
         await Promise.all(
           deleteModal.ids.map((id) =>
-            api.put(`/Court/${id}`, {
-              status: 'MANTENIMIENTO',
-              maintenance_from: deleteModal.mantenimientoDesde,
-              maintenance_until: deleteModal.mantenimientoHasta,
-            }),
+            api.put(
+              `/courts/${id}`,
+              {
+                status: 'MANTENIMIENTO',
+              },
+              {
+                headers: {
+                  maintenance_from: deleteModal.mantenimientoDesde,
+                  maintenance_until: deleteModal.mantenimientoHasta,
+                },
+              },
+            ),
           ),
         );
       }

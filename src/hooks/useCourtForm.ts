@@ -167,14 +167,14 @@ export function useCourtForm(
               closing_time: day.closing_time.substring(0, 5),
               status: 'DISPONIBLE',
             };
-            return existingId ? api.put(`/Court/${existingId}`, body) : api.post('/Court', body);
+            return existingId ? api.put(`/courts/${existingId}`, body) : api.post('/courts', body);
           }),
         );
       } else {
         await Promise.all(
           activeDays.map((day) => {
             const precio = (samePriceMode ? globalPrice : day.price_per_hour).trim().replace(',', '.');
-            return api.post('/Court', {
+            return api.post('/courts', {
               ...bodyBase,
               price_per_hour: parseFloat(precio),
               day_of_week: day.day_of_week,
