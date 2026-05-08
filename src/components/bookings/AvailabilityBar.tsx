@@ -1,8 +1,10 @@
 ﻿import React, { useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { ReservaActual } from '../../hooks/useAvailableBookings';
+import { CourtAvailability } from '../../types/types';
 import { useAppTheme } from '../../context/ThemeContext';
 import createAvailabilityBarStyles from '../../style/availabilityBar.styles';
+
+type ReservaActual = CourtAvailability['current_reservations'][number];
 
 export type BloqueDisponibilidad = {
   tipo: 'libre' | 'ocupado';
@@ -91,8 +93,8 @@ export const crearBloquesDisponibilidad = (
 
   const reservasNormalizadas = (reservasActuales || [])
     .map((reserva) => ({
-      inicio: parseTimeToMinutes(reserva?.inicio),
-      fin: parseTimeToMinutes(reserva?.fin),
+      inicio: parseTimeToMinutes(reserva?.start),
+      fin: parseTimeToMinutes(reserva?.end),
     }))
     .filter(
       (reserva) => !Number.isNaN(reserva.inicio) && !Number.isNaN(reserva.fin),

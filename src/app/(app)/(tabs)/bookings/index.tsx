@@ -18,10 +18,8 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import createReservationsStyles from '../../../../style/reservations.styles';
 import { useAppTheme } from '../../../../context/ThemeContext';
-import {
-  PistaDisponibilidad,
-  useAvailableBookings,
-} from '../../../../hooks/useAvailableBookings';
+import { useAvailableBookings } from '../../../../hooks/useAvailableBookings';
+import { CourtAvailability } from '../../../../types/types';
 import { API_PUBLIC_URL } from '../../../../constants';
 import DateModal from '../../../../components/bookings/date.modal';
 import AvailabilityBar, {
@@ -100,9 +98,9 @@ const buildFreeRanges = (bloques: BloqueDisponibilidad[]) =>
         `${formatCompactHour(bloque.inicio)} - ${formatCompactHour(bloque.fin)}`,
     );
 
-const getImageForPista = (pista: PistaDisponibilidad) => {
-  if (pista.tipo_pista?.imagen) {
-    const path = pista.tipo_pista.imagen;
+const getImageForPista = (pista: CourtAvailability) => {
+  if (pista.courtType?.image) {
+    const path = pista.courtType.image;
     return {
       uri: path.startsWith('http')
         ? path
@@ -166,7 +164,9 @@ export default function ReservasTab() {
   );
 
   const selectedDateChips = useMemo(() => {
-    const remaining = availableDays.filter((day) => !sameDay(day, selectedDate));
+    const remaining = availableDays.filter(
+      (day) => !sameDay(day, selectedDate),
+    );
     return [selectedDate, ...remaining];
   }, [availableDays, selectedDate]);
 
@@ -192,10 +192,9 @@ export default function ReservasTab() {
     return pistas.filter((pista) => {
       const item = pista as any;
       const candidateTypeIds = [
-        item?.tipo_pista_id,
+        item?.court_type_id,
         item?.tipoPistaId,
-        item?.tipo_pista?.tipo_pista_id,
-        item?.tipo_pista?.id,
+        item?.courtType?.id,
       ]
         .filter((id) => id !== undefined && id !== null)
         .map((id) => String(id));
@@ -207,9 +206,12 @@ export default function ReservasTab() {
       if (!targetTitle) return false;
 
       const tipoNombre = String(
-        item?.tipo_pista?.nombre || item?.tipo_pista?.title || '',
+        item?.courtType?.name ||
+          item?.tipo_pista?.nombre ||
+          item?.tipo_pista?.title ||
+          '',
       );
-      const pistaNombre = String(item?.nombre || '');
+      const pistaNombre = String(item?.name || item?.nombre || '');
 
       return (
         normalizeText(tipoNombre).includes(targetTitle) ||
@@ -223,22 +225,22 @@ export default function ReservasTab() {
     setShowDateModal(false);
   };
 
-  const openInfo = (pista: PistaDisponibilidad) => {
+  const openInfo = (pista: CourtAvailability) => {
     const bloques = crearBloquesDisponibilidad(
-      pista.hora_apertura,
-      pista.hora_cierre,
-      pista.reservas_actuales || [],
+      pista.opening_time,
+      pista.closing_time,
+      pista.current_reservations || [],
     );
-    setInfoTitle(pista.nombre);
+    setInfoTitle(pista.name);
     setInfoRanges(buildFreeRanges(bloques));
     setShowInfoModal(true);
   };
 
-  const openCreateBooking = (pista: PistaDisponibilidad) => {
+  const openCreateBooking = (pista: CourtAvailability) => {
     const bloques = crearBloquesDisponibilidad(
-      pista.hora_apertura,
-      pista.hora_cierre,
-      pista.reservas_actuales || [],
+      pista.opening_time,
+      pista.closing_time,
+      pista.current_reservations || [],
     );
     const hasFreeSlot = bloques.some(
       (bloque) =>
@@ -246,7 +248,7 @@ export default function ReservasTab() {
     );
 
     if (!hasFreeSlot) {
-      setNoSlotsTitle(pista.nombre);
+      setNoSlotsTitle(pista.name);
       setShowNoSlotsModal(true);
       return;
     }
@@ -254,13 +256,13 @@ export default function ReservasTab() {
     router.push({
       pathname: '/(app)/(tabs)/bookings/createBooking',
       params: {
-        pistaId: String(pista.pista_id),
-        pistaNombre: pista.nombre,
+        pistaId: String(pista.id),
+        pistaNombre: pista.name,
         fecha: formattedDate,
-        horaApertura: pista.hora_apertura,
-        horaCierre: pista.hora_cierre,
-        precioHora: String(pista.precio_hora ?? ''),
-        reservasActuales: JSON.stringify(pista.reservas_actuales || []),
+        horaApertura: pista.opening_time,
+        horaCierre: pista.closing_time,
+        precioHora: String(pista.price_per_hour ?? ''),
+        reservasActuales: JSON.stringify(pista.current_reservations || []),
       },
     });
   };
@@ -357,11 +359,11 @@ export default function ReservasTab() {
     </>
   );
 
-  const renderCourtCard = (pista: PistaDisponibilidad) => (
+  const renderCourtCard = (pista: CourtAvailability) => (
     <TouchableOpacity
       activeOpacity={0.9}
       onPress={() => openCreateBooking(pista)}
-      key={pista.pista_id}
+      key={pista.id}
       style={[
         reservasTabStyles.pistaCard,
         { flexBasis: isWideScreen ? '48%' : '100%', flexGrow: 1 },
@@ -380,11 +382,11 @@ export default function ReservasTab() {
           style={reservasTabStyles.pistaOverlay}
         >
           <View style={reservasTabStyles.pistaHeader}>
-            <Text style={reservasTabStyles.pistaName}>{pista.nombre}</Text>
+            <Text style={reservasTabStyles.pistaName}>{pista.name}</Text>
             <View style={reservasTabStyles.priceBadge}>
               <Text style={reservasTabStyles.priceText}>
                 {t('bookingTabPricePerHour', {
-                  price: pista.precio_hora ?? '-',
+                  price: pista.price_per_hour ?? '-',
                 })}
               </Text>
             </View>
@@ -408,9 +410,9 @@ export default function ReservasTab() {
             </View>
 
             <AvailabilityBar
-              horaApertura={pista.hora_apertura}
-              horaCierre={pista.hora_cierre}
-              reservasActuales={pista.reservas_actuales || []}
+              horaApertura={pista.opening_time}
+              horaCierre={pista.closing_time}
+              reservasActuales={pista.current_reservations || []}
             />
           </View>
         </LinearGradient>

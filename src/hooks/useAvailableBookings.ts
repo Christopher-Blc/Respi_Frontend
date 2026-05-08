@@ -17,7 +17,7 @@ export function useAvailableBookings(fecha: string) {
       setLoading(true);
       setError(null);
 
-      const response = await api.get(`/Court/disponibilidad?fecha=${fecha}`);
+      const response = await api.get(`/courts/disponibilidad?fecha=${fecha}`);
       const payload = response?.data;
       console.log('Disponibilidad de pistas:', payload);
       console.log('Fecha solicitada:', fecha);

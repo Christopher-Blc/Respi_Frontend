@@ -195,7 +195,7 @@ export function useCreateBooking() {
     const loadCourts = async () => {
       setIsLoadingCourts(true);
       try {
-        const response = await api.get('/Court');
+        const response = await api.get('/courts');
         const pistas = Array.isArray(response?.data)
           ? (response.data as CourtAvailability[])
           : [];

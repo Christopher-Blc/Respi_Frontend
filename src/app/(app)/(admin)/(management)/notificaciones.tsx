@@ -65,7 +65,7 @@ export default function AdminNotificationsScreen() {
   const fetchNotifications = useCallback(async () => {
     setLoadingList(true);
     try {
-      const res = await api.get('/Notification');
+      const res = await api.get('/notifications');
       const rawItems = Array.isArray(res.data)
         ? res.data
         : Array.isArray(res.data?.data)
@@ -90,13 +90,13 @@ export default function AdminNotificationsScreen() {
     setSending(true);
 
     const body = {
-      titulo: title.trim(),
-      mensaje: message.trim(),
-      tipoNoti,
+      title: title.trim(),
+      message: message.trim(),
+      notification_type: tipoNoti,
     };
 
     try {
-      const res = await api.post('/Notification/massive', body);
+      const res = await api.post('/notifications/massive', body);
 
       setTitle('');
       setMessage('');

@@ -89,7 +89,7 @@ export function useCourtsTab() {
       try {
         const [tiposRes, pistasRes] = await Promise.all([
           api.get( '/court-types'),
-          api.get('/Court'),
+          api.get('/courts'),
         ]);
         if (mounted && Array.isArray(tiposRes.data)) {
           setTipos(tiposRes.data as CourtType[]);
@@ -124,8 +124,8 @@ export function useCourtsTab() {
         setSportError(null);
 
         const [disponibilidadRes, pistasRes] = await Promise.allSettled([
-          api.get(`/Court/disponibilidad?fecha=${formattedDate}`),
-          api.get('/Court'),
+          api.get(`/court/disponibilidad?fecha=${formattedDate}`),
+          api.get('/courts'),
         ]);
 
         const disponibilidadPayload =

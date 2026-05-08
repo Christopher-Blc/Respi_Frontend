@@ -17,6 +17,7 @@ import { useAppTheme } from '../../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useCourtTypes } from '../../../../hooks/useCourtTypes';
 import createPistaTypesStyles from '../../../../style/courtTypes.styles';
+import { CourtType } from '../../../../types/types';
 import { useTranslation } from 'react-i18next';
 
 export default function PistaTypeIndex() {
@@ -97,23 +98,31 @@ export default function PistaTypeIndex() {
 
       <View style={styles.gridContainer}>
         {modelos.map((item) => {
-          const imgSource = item.imagen
-            ? { uri: `${API_PUBLIC_URL}/${item.imagen}` }
+          const imgSource = item.image
+            ? {
+                uri: item.image.startsWith('http')
+                  ? item.image
+                  : `${API_PUBLIC_URL}${item.image.startsWith('/') ? '' : '/'}${item.image}`,
+              }
             : require('../../../../../assets/RespiLogo.png');
           const description = getCardDescription(item);
 
           return (
             <TouchableOpacity
-              key={item.tipo_pista_id}
+              key={item.id}
               style={[
                 styles.modelCard,
                 { flexBasis: isWideScreen ? 320 : '100%', flexGrow: 1 },
               ]}
               activeOpacity={0.8}
               onPress={() =>
-                router.push(
-                  `/(app)/booking/details?modelId=${item.tipo_pista_id}`,
-                )
+                router.push({
+                  pathname: '/(app)/(tabs)/bookings',
+                  params: {
+                    modelId: String(item.id),
+                    modelTitle: item.name,
+                  },
+                })
               }
             >
               <ImageBackground
@@ -150,7 +159,7 @@ export default function PistaTypeIndex() {
                   <View style={styles.modelBottomPanel}>
                     <View style={styles.modelBottom}>
                       <View style={styles.modelInfoWrap}>
-                        <Text style={styles.modelTitle}>{item.nombre}</Text>
+                        <Text style={styles.modelTitle}>{item.name}</Text>
                         <Text style={styles.modelDescription} numberOfLines={3}>
                           {description}
                         </Text>
