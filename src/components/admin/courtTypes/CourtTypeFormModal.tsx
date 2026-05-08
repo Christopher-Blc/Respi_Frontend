@@ -12,13 +12,12 @@ import { useAppTheme } from '../../../context/ThemeContext';
 import { tiposPistaStyles as styles } from '../../../style/admin/courtTypes.styles';
 import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
-
-const IMAGE_BASE_URL = 'https://respi.es/public';
+import { API_PUBLIC_URL } from '../../../constants';
 
 const getImageUri = (imagePath: string | null | undefined) => {
   if (!imagePath) return null;
   if (imagePath.startsWith('http')) return imagePath;
-  return `${IMAGE_BASE_URL}/${imagePath}`;
+  return `${API_PUBLIC_URL}/${imagePath}`;
 };
 
 type Props = {

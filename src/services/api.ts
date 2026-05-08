@@ -12,7 +12,7 @@ let isRedirecting = false;
 let isRefreshing = false;
  
 const api = axios.create({
-  baseURL: 'https://respi.es',
+  baseURL: 'https://respi.es/api',
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
 });
@@ -76,7 +76,7 @@ api.interceptors.response.use(
         if (!refreshToken) throw new Error('No hay refresh token');
 
         // Intentamos el refresh con axios plano
-        const res = await axios.post('https://respi.es/auth/refresh', {
+        const res = await axios.post('https://respi.es/api/auth/refresh', {
           refresh_token: refreshToken
         });
 

@@ -4,15 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { CourtType } from '../../../types/types';
 import { AppTheme } from '../../../theme';
 import { tiposPistaStyles as styles } from '../../../style/admin/courtTypes.styles';
-
-const IMAGE_BASE_URL = 'https://respi.es/public';
+import { API_PUBLIC_URL } from '../../../constants';
 
 const getImageUri = (
   imagePath: string | null | undefined,
 ): string | undefined => {
   if (!imagePath) return undefined;
   if (imagePath.startsWith('http')) return imagePath;
-  return `${IMAGE_BASE_URL}/${imagePath}`;
+  return `${API_PUBLIC_URL}/${imagePath}`;
 };
 
 type Props = {
