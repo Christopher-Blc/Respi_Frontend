@@ -22,7 +22,7 @@ import {
   resolvePistaImageSource,
   useCourtsTab,
 } from '../../../hooks/useCourtsTab';
-import { Pista, PistaDisponibilidad } from '../../../types/types';
+import { Court, CourtAvailability } from '../../../types/types';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../i18n';
 
@@ -76,9 +76,9 @@ export default function PistasTab() {
   const modelCardWidth = getResponsiveCardWidth(displayedModelos.length);
   const sportCardWidth = getResponsiveCardWidth(sportPistas.length);
 
-  const renderModel = (item: Pista) => (
+  const renderModel = (item: Court) => (
     <TouchableOpacity
-      key={item.pista_id}
+      key={item.id}
       style={[
         localStyles.catalogCard,
         {
@@ -113,14 +113,14 @@ export default function PistasTab() {
 
           <View style={localStyles.catalogBottom}>
             <View>
-              <Text style={localStyles.catalogTitle}>{item.nombre}</Text>
+              <Text style={localStyles.catalogTitle}>{item.name}</Text>
               <Text style={localStyles.catalogMeta}>
                 {t('pistasReserveOnlineFast')}
               </Text>
             </View>
             <View style={localStyles.pricePill}>
               <Text style={localStyles.pricePillText}>
-                {formatPrice(Number(item.precio_hora || 0), locale)}/h
+                {formatPrice(Number(item.price_per_hour || 0), locale)}/h
               </Text>
             </View>
           </View>
@@ -138,14 +138,14 @@ export default function PistasTab() {
     </TouchableOpacity>
   );
 
-  const renderSportCourtCard = (pista: PistaDisponibilidad) => {
-    const pistaId = String(pista.pista_id ?? '');
-    const reservasHoy = pista.reservas_actuales?.length || 0;
+  const renderSportCourtCard = (pista: CourtAvailability) => {
+    const pistaId = String(pista.id ?? '');
+    const reservasHoy = pista.current_reservations?.length || 0;
     const pistaImage = resolvePistaImageSource(pista);
 
     return (
       <View
-        key={pistaId || pista.nombre}
+        key={pistaId || pista.name}
         style={[
           localStyles.sportCard,
           {
@@ -164,18 +164,18 @@ export default function PistasTab() {
           <View style={localStyles.sportCardOverlay}>
             <View style={localStyles.sportCardHeader}>
               <Text style={localStyles.sportCardTitle}>
-                {pista.nombre || t('bookingCreateCourtFallback')}
+                {pista.name || t('bookingCreateCourtFallback')}
               </Text>
               <Text style={localStyles.sportCardPrice}>
-                {pista.precio_hora
-                  ? `EUR ${pista.precio_hora}/h`
+                {pista.price_per_hour
+                  ? `EUR ${pista.price_per_hour}/h`
                   : t('pistasPriceFallback')}
               </Text>
             </View>
 
-            {!!pista.descripcion && (
+            {!!pista.description && (
               <Text style={localStyles.sportCardDescription}>
-                {pista.descripcion}
+                {pista.description}
               </Text>
             )}
 
@@ -183,14 +183,14 @@ export default function PistasTab() {
               <View style={localStyles.sportChip}>
                 <Text style={localStyles.sportChipText}>
                   {t('pistasCovered', {
-                    value: pista.cubierta ? t('commonYes') : t('commonNo'),
+                    value: pista.is_covered ? t('commonYes') : t('commonNo'),
                   })}
                 </Text>
               </View>
               <View style={localStyles.sportChip}>
                 <Text style={localStyles.sportChipText}>
                   {t('pistasLighting', {
-                    value: pista.iluminacion ? t('commonYes') : t('commonNo'),
+                    value: pista.has_lighting ? t('commonYes') : t('commonNo'),
                   })}
                 </Text>
               </View>
@@ -211,7 +211,7 @@ export default function PistasTab() {
                 pathname: '/(app)/(tabs)/reservas/createBooking',
                 params: {
                   pistaId,
-                  pistaNombre: pista.nombre || 'Pista',
+                  pistaNombre: pista.name || 'Pista',
                   fecha: formattedDate,
                 },
               })
@@ -251,9 +251,7 @@ export default function PistasTab() {
               <Text style={localStyles.heroTagText}>{t('tabsBookings')}</Text>
             </View>
             <Text style={localStyles.heroTitle}>
-              {selectedModel
-                ? selectedModel.nombre
-                : t('pistasHeroTitleDefault')}
+              {selectedModel ? selectedModel.name : t('pistasHeroTitleDefault')}
             </Text>
             <Text style={localStyles.heroSubtitle}>
               {selectedModel

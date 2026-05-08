@@ -10,7 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { usersAdminStyles as styles } from '../../../style/admin/users.styles';
-import { Membresia } from '../../../types/types';
+import { Membership } from '../../../types/types';
 
 export type UserFormData = {
   username: string;
@@ -31,7 +31,7 @@ type Props = {
   isEditing?: boolean;
   formData: UserFormData;
   setFormData: (value: UserFormData) => void;
-  memberships: Membresia[];
+  memberships: Membership[];
   onClose: () => void;
   onSave: () => void;
 };
@@ -266,14 +266,14 @@ export function UserFormModal({
               </TouchableOpacity>
               {memberships.map((membership) => {
                 const selected =
-                  formData.membresia_id === String(membership.membresia_id);
+                  formData.membresia_id === String(membership.id);
                 return (
                   <TouchableOpacity
-                    key={membership.membresia_id}
+                    key={membership.id}
                     onPress={() =>
                       setFormData({
                         ...formData,
-                        membresia_id: String(membership.membresia_id),
+                        membresia_id: String(membership.id),
                       })
                     }
                     style={[
@@ -291,7 +291,7 @@ export function UserFormModal({
                         fontWeight: selected ? '700' : '500',
                       }}
                     >
-                      {membership.nombre}
+                      {membership.name}
                     </Text>
                   </TouchableOpacity>
                 );

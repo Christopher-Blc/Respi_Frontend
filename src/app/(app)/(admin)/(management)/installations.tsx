@@ -13,7 +13,7 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../../../context/ThemeContext';
 import { membershipsStyles as styles } from '../../../../style/admin/memberships.styles';
-import { Instalacion } from '../../../../types/types';
+import { Installation } from '../../../../types/types';
 import { useAdminInstallations } from '../../../../hooks/useAdminInstallations';
 import { InstallationCard } from '../../../../components/admin/installations/InstallationCard';
 import { InstallationFormModal } from '../../../../components/admin/installations/InstallationFormModal';
@@ -48,7 +48,7 @@ export default function AdminInstallations() {
     setErrorModal,
   } = useAdminInstallations();
 
-  const renderCard = ({ item }: { item: Instalacion }) => {
+  const renderCard = ({ item }: { item: Installation }) => {
     const cardWidthStyle =
       cardsColumns === 1
         ? { width: '100%' as const }
@@ -138,9 +138,7 @@ export default function AdminInstallations() {
           data={filteredInstallations}
           renderItem={renderCard}
           numColumns={cardsColumns}
-          keyExtractor={(item, index) =>
-            String((item as any)?.instalacion_id ?? (item as any)?.id ?? index)
-          }
+          keyExtractor={(item) => String(item.id)}
           columnWrapperStyle={cardsColumns > 1 ? styles.gridRow : undefined}
           contentContainerStyle={[
             styles.gridContent,
@@ -201,11 +199,7 @@ export default function AdminInstallations() {
           </View>
           <FlatList
             data={filteredInstallations}
-            keyExtractor={(item, index) =>
-              String(
-                (item as any)?.instalacion_id ?? (item as any)?.id ?? index,
-              )
-            }
+            keyExtractor={(item) => String(item.id)}
             contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
             renderItem={({ item }) => (
               <View
@@ -216,17 +210,17 @@ export default function AdminInstallations() {
               >
                 <View style={styles.colType}>
                   <Text style={{ color: theme.textTitle, fontWeight: '600' }}>
-                    {item.nombre}
+                    {item.name}
                   </Text>
                   <Text style={{ color: theme.textBody, fontSize: 12 }}>
-                    {item.direccion || '-'}
+                    {item.address || '-'}
                   </Text>
                 </View>
                 <Text style={[styles.colBookings, { color: theme.textBody }]}>
-                  {item.telefono || '-'}
+                  {item.phone || '-'}
                 </Text>
                 <Text style={[styles.colDiscount, { color: theme.textBody }]}>
-                  {item.estado || 'activa'}
+                  {item.status || 'activa'}
                 </Text>
                 <View style={styles.colActions}>
                   <View style={{ flexDirection: 'row', gap: 10 }}>

@@ -1,6 +1,6 @@
-import { Pista, PistaFormData, WeeklyScheduleItem } from '../types/types';
+import { Court, CourtFormData, WeeklyScheduleItem } from '../types/types';
 
-export const WEEK_DAYS: Pista['dia_semana'][] = [
+export const WEEK_DAYS: Court['day_of_week'][] = [
   'LUNES',
   'MARTES',
   'MIERCOLES',
@@ -10,25 +10,25 @@ export const WEEK_DAYS: Pista['dia_semana'][] = [
   'DOMINGO',
 ];
 
-export const DEFAULT_FORM: PistaFormData = {
-  nombre: '',
-  descripcion: '',
-  capacidad: '4',
-  cubierta: false,
-  iluminacion: false,
-  estado: 'DISPONIBLE',
-  dia_semana: 'LUNES',
-  instalacion_id: '1',
-  tipo_pista_id: '1',
+export const DEFAULT_FORM: CourtFormData = {
+  name: '',
+  description: '',
+  capacity: '4',
+  is_covered: false,
+  has_lighting: false,
+  status: 'DISPONIBLE',
+  day_of_week: 'LUNES',
+  installation_id: '1',
+  court_type_id: '1',
 };
 
 export const createDefaultWeeklySchedule = (): WeeklyScheduleItem[] =>
-  WEEK_DAYS.map((dia) => ({
-    dia_semana: dia,
-    hora_apertura: '08:00',
-    hora_cierre: '22:00',
-    precio_hora: '',
-    cerrado: false,
+  WEEK_DAYS.map((day) => ({
+    day_of_week: day,
+    opening_time: '08:00',
+    closing_time: '22:00',
+    price_per_hour: '',
+    closed: false,
   }));
 
 // --- Hour helpers ---

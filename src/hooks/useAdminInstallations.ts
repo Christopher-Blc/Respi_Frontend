@@ -1,42 +1,41 @@
 import { useEffect, useMemo, useState } from 'react';
 import api from '../services/api';
-import { Instalacion } from '../types/types';
+import { Installation } from '../types/types';
 
 type InstallationFormData = {
-  nombre: string;
-  direccion: string;
-  telefono: string;
+  name: string;
+  address: string;
+  phone: string;
   email: string;
-  descripcion: string;
-  estado: string;
+  description: string;
+  status: string;
 };
 
 type DeleteModalState = {
   visible: boolean;
-  item: Instalacion | null;
+  item: Installation | null;
   message: string;
 };
 
 const EMPTY_FORM: InstallationFormData = {
-  nombre: '',
-  direccion: '',
-  telefono: '',
+  name: '',
+  address: '',
+  phone: '',
   email: '',
-  descripcion: '',
-  estado: 'activa',
+  description: '',
+  status: 'activa',
 };
 
 const INSTALLATION_POST_ENDPOINT = '/Installation';
 
-const getRowsFromResponse = (data: any): Instalacion[] => {
-  if (Array.isArray(data)) return data as Instalacion[];
-  if (Array.isArray(data?.data)) return data.data as Instalacion[];
-  if (Array.isArray(data?.items)) return data.items as Instalacion[];
+const getRowsFromResponse = (data: any): Installation[] => {
+  if (Array.isArray(data)) return data as Installation[];
+  if (Array.isArray(data?.data)) return data.data as Installation[];
+  if (Array.isArray(data?.items)) return data.items as Installation[];
   return [];
 };
 
-const getInstallationId = (item: Instalacion) =>
-  Number((item as any)?.instalacion_id ?? (item as any)?.id);
+const getInstallationId = (item: Installation) => Number(item.id);
 
 const isSuccessStatus = (status: number) => status >= 200 && status < 300;
 
@@ -48,12 +47,12 @@ const normalizeEstado = (value: string): 'activa' | 'inactiva' | undefined => {
 };
 
 export function useAdminInstallations() {
-  const [installations, setInstallations] = useState<Instalacion[]>([]);
+  const [installations, setInstallations] = useState<Installation[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [installationToEdit, setInstallationToEdit] = useState<Instalacion | null>(
+  const [installationToEdit, setInstallationToEdit] = useState<Installation | null>(
     null,
   );
   const [formData, setFormData] = useState<InstallationFormData>(EMPTY_FORM);
@@ -102,11 +101,11 @@ export function useAdminInstallations() {
 
     return installations.filter((item) => {
       const text = [
-        item.nombre,
-        item.direccion,
-        item.telefono,
+        item.name,
+        item.address,
+        item.phone,
         item.email,
-        item.descripcion,
+        item.description,
       ]
         .join(' ')
         .toLowerCase();
@@ -120,25 +119,25 @@ export function useAdminInstallations() {
     setModalVisible(true);
   };
 
-  const openEditModal = (item: Instalacion) => {
+  const openEditModal = (item: Installation) => {
     setInstallationToEdit(item);
     setFormData({
-      nombre: item.nombre || '',
-      direccion: item.direccion || '',
-      telefono: item.telefono || '',
+      name: item.name || '',
+      address: item.address || '',
+      phone: item.phone || '',
       email: item.email || '',
-      descripcion: item.descripcion || '',
-      estado: item.estado || 'activa',
+      description: item.description || '',
+      status: item.status || 'activa',
     });
     setModalVisible(true);
   };
 
   const validateForm = () => {
-    const estado = normalizeEstado(formData.estado);
+    const estado = normalizeEstado(formData.status);
 
-    if (!formData.nombre.trim()) return 'El nombre es obligatorio.';
-    if (!formData.direccion.trim()) return 'La direccion es obligatoria.';
-    if (formData.estado.trim() && !estado) {
+    if (!formData.name.trim()) return 'El nombre es obligatorio.';
+    if (!formData.address.trim()) return 'La direccion es obligatoria.';
+    if (formData.status.trim() && !estado) {
       return 'El estado debe ser activa o inactiva.';
     }
 
@@ -163,25 +162,25 @@ export function useAdminInstallations() {
       return;
     }
 
-    const estado = normalizeEstado(formData.estado);
+    const estado = normalizeEstado(formData.status);
 
     const payload: {
-      nombre: string;
-      direccion: string;
-      telefono: string;
+      name: string;
+      address: string;
+      phone: string;
       email: string;
-      descripcion: string;
-      estado?: 'activa' | 'inactiva';
+      description: string;
+      status?: 'activa' | 'inactiva';
     } = {
-      nombre: formData.nombre.trim(),
-      direccion: formData.direccion.trim(),
-      telefono: formData.telefono.trim(),
+      name: formData.name.trim(),
+      address: formData.address.trim(),
+      phone: formData.phone.trim(),
       email: formData.email.trim(),
-      descripcion: formData.descripcion.trim(),
+      description: formData.description.trim(),
     };
 
     if (estado) {
-      payload.estado = estado;
+      payload.status = estado;
     }
 
     try {
@@ -214,11 +213,11 @@ export function useAdminInstallations() {
     }
   };
 
-  const handleDelete = (item: Instalacion) => {
+  const handleDelete = (item: Installation) => {
     setDeleteModal({
       visible: true,
       item,
-      message: `Seguro que quieres eliminar la instalacion "${item.nombre}"?`,
+      message: `Seguro que quieres eliminar la instalacion "${item.name}"?`,
     });
   };
 

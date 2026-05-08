@@ -8,10 +8,10 @@ import api from '../services/api';
 import { bookingsService } from '../services/bookingsService';
 import {
   BookingCourtOption,
+  CourtAvailability,
+  CourtType,
   DatePickerMode,
   JWTPayload,
-  PistaDisponibilidad,
-  TipoPista,
 } from '../types/types';
 
 export const DURATION_CHIPS = [60, 90, 120, 180, 240, 360, 480];
@@ -26,17 +26,17 @@ const isDisponible = (value?: string) =>
     .toUpperCase() === 'DISPONIBLE';
 
 const normalizeCourtsFromPayload = (
-  payload: PistaDisponibilidad[],
+  payload: CourtAvailability[],
 ): BookingCourtOption[] => {
   return payload
     .map((pista) => ({
-      id: String(pista.pista_id),
-      name: pista.nombre,
-      openingHour: pista.hora_apertura,
-      closingHour: pista.hora_cierre,
-      status: pista.estado,
-      pricePerHour: Number(pista.precio_hora ?? 0),
-      tipoPistaId: String(pista.tipo_pista_id ?? ''),
+      id: String(pista.id),
+      name: pista.name,
+      openingHour: pista.opening_time,
+      closingHour: pista.closing_time,
+      status: pista.status,
+      pricePerHour: Number(pista.price_per_hour ?? 0),
+      courtTypeId: String(pista.court_type_id ?? ''),
     }))
     .filter((court: BookingCourtOption) => isDisponible(court.status));
 };
@@ -67,7 +67,7 @@ export function useCreateBooking() {
   const router = useRouter();
   const { userToken } = useAuth();
 
-  const [selectedTipoPista, setSelectedTipoPista] = useState<TipoPista | null>(null);
+  const [selectedTipoPista, setSelectedTipoPista] = useState<CourtType | null>(null);
   const [loadingTipoPista, setLoadingTipoPista] = useState(true);
   const [email, setEmail] = useState('');
   const [nombre, setNombre] = useState('');
@@ -99,7 +99,7 @@ export function useCreateBooking() {
   }, [userToken]);
 
   const imageSource = useMemo(() => {
-    const imagen = selectedTipoPista?.imagen;
+    const imagen = selectedTipoPista?.image;
     if (!imagen) return undefined;
     return {
       uri: `${API_PUBLIC_URL}${imagen.startsWith('/') ? '' : '/'}${imagen}`,
@@ -126,12 +126,12 @@ export function useCreateBooking() {
         }
 
         const response = await api.get(`/tipo_court/${tipoPistaId}`);
-        const tipoPista = response?.data as TipoPista | undefined;
+        const tipoPista = response?.data as CourtType | undefined;
 
         if (!mounted) return;
         setSelectedTipoPista(tipoPista ?? null);
-        if (tipoPista?.pistas?.[0]?.precio_hora) {
-          setPrecioHora(String(tipoPista.pistas[0].precio_hora));
+        if (tipoPista?.courts?.[0]?.price_per_hour) {
+          setPrecioHora(String(tipoPista.courts[0].price_per_hour));
         }
       } catch (error) {
         if (mounted) {
@@ -197,12 +197,12 @@ export function useCreateBooking() {
       try {
         const response = await api.get('/Court');
         const pistas = Array.isArray(response?.data)
-          ? (response.data as PistaDisponibilidad[])
+          ? (response.data as CourtAvailability[])
           : [];
         const mapped = normalizeCourtsFromPayload(pistas);
         const filtered = tipoPistaId
           ? mapped.filter(
-              (court) => court.tipoPistaId === String(tipoPistaId),
+              (court) => court.courtTypeId === String(tipoPistaId),
             )
           : mapped;
 
@@ -354,7 +354,7 @@ export function useCreateBooking() {
         usuarioId: 'local-uid',
         email: resolvedEmail,
         nombre,
-        modeloId: Number(tipoPistaId ?? selectedTipoPista?.tipo_pista_id ?? 0),
+        modeloId: Number(tipoPistaId ?? selectedTipoPista?.id ?? 0),
         pistaId: Number(selectedCourt.id),
         precioHora: Number(precioHora || selectedCourt.pricePerHour || 0),
         fechaInicio: fechaInicio.toISOString(),
