@@ -1,3 +1,5 @@
 const API_PUBLIC_URL = 'https://respi.es/public';
 
-export { API_PUBLIC_URL };
+const RESPONSIVE_NAVIGATION_BREAKPOINT = 900;
+
+export { API_PUBLIC_URL, RESPONSIVE_NAVIGATION_BREAKPOINT };
