@@ -29,6 +29,6 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
-          source: 'dist/*'
+          source: 'dist/*' # Keep the asterisk
           target: '/var/www/respi-expo'
-          strip_components: 1
+          strip_components: 1 # This "strips" the 'dist/' folder name
