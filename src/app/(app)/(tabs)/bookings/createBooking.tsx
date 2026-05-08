@@ -276,7 +276,7 @@ export default function CreateBooking() {
         note: [nota.trim(), membershipNote].filter(Boolean).join(' | '),
       };
 
-      await api.post('/Reservation', payload);
+      await api.post('/reservations', payload);
 
       setSnackbarMessage(
         hasMembershipDiscount

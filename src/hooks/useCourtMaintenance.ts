@@ -44,7 +44,7 @@ export function useCourtMaintenance(pistas: Court[], fetchPistas: () => void) {
       try {
         const results = await Promise.all(
           ids.map((id) =>
-            api.get('/Reservation', { params: { pista_id: id, fecha_inicio: maintenanceDesde, fecha_fin: maintenanceHasta } }),
+            api.get('/reservations', { params: { pista_id: id, fecha_inicio: maintenanceDesde, fecha_fin: maintenanceHasta } }),
           ),
         );
         return countUniqueReservas(results);
@@ -55,7 +55,7 @@ export function useCourtMaintenance(pistas: Court[], fetchPistas: () => void) {
         const days = eachDateInclusive(from, to);
         const results = await Promise.all(
           ids.flatMap((id) =>
-            days.map((fecha) => api.get('/Reservation', { params: { fecha, pista_id: id } })),
+            days.map((fecha) => api.get('/reservations', { params: { fecha, pista_id: id } })),
           ),
         );
         return countUniqueReservas(results);
@@ -64,7 +64,7 @@ export function useCourtMaintenance(pistas: Court[], fetchPistas: () => void) {
 
     const today = new Date().toISOString().slice(0, 10);
     const results = await Promise.all(
-      ids.map((id) => api.get('/Reservation', { params: { fecha: today, pista_id: id } })),
+      ids.map((id) => api.get('/reservations', { params: { fecha: today, pista_id: id } })),
     );
     return results.reduce((sum, r) => sum + (Array.isArray(r.data) ? r.data.length : 0), 0);
   };

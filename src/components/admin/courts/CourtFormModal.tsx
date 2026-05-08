@@ -13,27 +13,27 @@ import { useAppTheme } from '../../../context/ThemeContext';
 import { pistasStyles as styles } from '../../../style/admin/courts.styles';
 import { SessionExpiredModal } from '../../alert.modal';
 import {
-  Instalacion,
-  Pista,
-  TipoPista,
-  PistaFormData,
+  Installation,
+  Court,
+  CourtType,
+  CourtFormData,
   WeeklyScheduleItem,
 } from '../../../types/types';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
   visible: boolean;
-  pistaAEditar: Pista | null;
-  formData: PistaFormData;
-  setFormData: (data: PistaFormData) => void;
+  pistaAEditar: Court | null;
+  formData: CourtFormData;
+  setFormData: (data: CourtFormData) => void;
   weeklySchedule: WeeklyScheduleItem[];
   weeklyCardWidth: string;
-  tiposPista: TipoPista[];
-  instalaciones: Instalacion[];
+  tiposPista: CourtType[];
+  instalaciones: Installation[];
   onClose: () => void;
   onSave: () => void;
   updateWeeklySchedule: <K extends keyof WeeklyScheduleItem>(
-    dia: Pista['dia_semana'],
+    day: Court['day_of_week'],
     field: K,
     value: WeeklyScheduleItem[K],
   ) => void;
@@ -121,14 +121,14 @@ export function CourtFormModal({
               >
                 {tiposPista.map((tipo) => {
                   const selected =
-                    formData.tipo_pista_id === tipo.tipo_pista_id.toString();
+                    formData.court_type_id === tipo.id.toString();
                   return (
                     <TouchableOpacity
-                      key={tipo.tipo_pista_id}
+                      key={tipo.id}
                       onPress={() =>
                         setFormData({
                           ...formData,
-                          tipo_pista_id: tipo.tipo_pista_id.toString(),
+                          court_type_id: tipo.id.toString(),
                         })
                       }
                       style={[
@@ -153,7 +153,7 @@ export function CourtFormModal({
                           fontSize: 13,
                         }}
                       >
-                        {tipo.nombre}
+                        {tipo.name}
                       </Text>
                     </TouchableOpacity>
                   );
@@ -174,15 +174,14 @@ export function CourtFormModal({
               >
                 {instalaciones.map((instalacion) => {
                   const selected =
-                    formData.instalacion_id ===
-                    instalacion.instalacion_id.toString();
+                    formData.installation_id === instalacion.id.toString();
                   return (
                     <TouchableOpacity
-                      key={instalacion.instalacion_id}
+                      key={instalacion.id}
                       onPress={() =>
                         setFormData({
                           ...formData,
-                          instalacion_id: instalacion.instalacion_id.toString(),
+                          installation_id: instalacion.id.toString(),
                         })
                       }
                       style={[
@@ -207,7 +206,7 @@ export function CourtFormModal({
                           fontSize: 13,
                         }}
                       >
-                        {instalacion.nombre}
+                        {instalacion.name}
                       </Text>
                     </TouchableOpacity>
                   );
@@ -225,8 +224,8 @@ export function CourtFormModal({
                   styles.input,
                   { color: theme.textTitle, borderColor: theme.primarySoft },
                 ]}
-                value={formData.nombre}
-                onChangeText={(t) => setFormData({ ...formData, nombre: t })}
+                value={formData.name}
+                onChangeText={(t) => setFormData({ ...formData, name: t })}
               />
 
               <View style={{ flexDirection: 'row', gap: 12 }}>
@@ -240,10 +239,10 @@ export function CourtFormModal({
                         borderColor: theme.primarySoft,
                       },
                     ]}
-                    value={formData.capacidad}
+                    value={formData.capacity}
                     keyboardType="numeric"
                     onChangeText={(t) =>
-                      setFormData({ ...formData, capacidad: t })
+                      setFormData({ ...formData, capacity: t })
                     }
                   />
                 </View>
@@ -296,7 +295,7 @@ export function CourtFormModal({
               <View style={styles.weeklyGrid}>
                 {weeklySchedule.map((day) => (
                   <View
-                    key={day.dia_semana}
+                    key={day.day_of_week}
                     style={[
                       styles.weeklyRow,
                       {
@@ -312,7 +311,7 @@ export function CourtFormModal({
                         { color: theme.textTitle },
                       ]}
                     >
-                      {day.dia_semana}
+                      {day.day_of_week}
                     </Text>
 
                     <InputLabel label={t('adminPrice')} theme={theme} />
@@ -322,23 +321,27 @@ export function CourtFormModal({
                         {
                           color: theme.textTitle,
                           borderColor:
-                            day.cerrado || samePriceMode
+                            day.closed || samePriceMode
                               ? theme.borderSoft
                               : theme.primarySoft,
-                          opacity: day.cerrado || samePriceMode ? 0.55 : 1,
+                          opacity: day.closed || samePriceMode ? 0.55 : 1,
                           backgroundColor:
-                            day.cerrado || samePriceMode
+                            day.closed || samePriceMode
                               ? theme.backgroundCard
                               : theme.backgroundCard,
                           marginBottom: 8,
                         },
                       ]}
                       placeholder={t('adminPricePerHourPlaceholder')}
-                      value={day.precio_hora}
-                      editable={!day.cerrado && !samePriceMode}
+                      value={day.price_per_hour}
+                      editable={!day.closed && !samePriceMode}
                       keyboardType="numeric"
                       onChangeText={(t) =>
-                        updateWeeklySchedule(day.dia_semana, 'precio_hora', t)
+                        updateWeeklySchedule(
+                          day.day_of_week,
+                          'price_per_hour',
+                          t,
+                        )
                       }
                     />
 
@@ -350,21 +353,21 @@ export function CourtFormModal({
                             styles.weeklyHourInput,
                             {
                               color: theme.textTitle,
-                              borderColor: day.cerrado
+                              borderColor: day.closed
                                 ? theme.borderSoft
                                 : theme.primarySoft,
-                              opacity: day.cerrado ? 0.55 : 1,
-                              backgroundColor: day.cerrado
+                              opacity: day.closed ? 0.55 : 1,
+                              backgroundColor: day.closed
                                 ? theme.backgroundCard
                                 : theme.backgroundCard,
                             },
                           ]}
-                          value={day.hora_apertura}
-                          editable={!day.cerrado}
+                          value={day.opening_time}
+                          editable={!day.closed}
                           onChangeText={(t) =>
                             updateWeeklySchedule(
-                              day.dia_semana,
-                              'hora_apertura',
+                              day.day_of_week,
+                              'opening_time',
                               t,
                             )
                           }
@@ -380,21 +383,21 @@ export function CourtFormModal({
                             styles.weeklyHourInput,
                             {
                               color: theme.textTitle,
-                              borderColor: day.cerrado
+                              borderColor: day.closed
                                 ? theme.borderSoft
                                 : theme.primarySoft,
-                              opacity: day.cerrado ? 0.55 : 1,
-                              backgroundColor: day.cerrado
+                              opacity: day.closed ? 0.55 : 1,
+                              backgroundColor: day.closed
                                 ? theme.backgroundCard
                                 : theme.backgroundCard,
                             },
                           ]}
-                          value={day.hora_cierre}
-                          editable={!day.cerrado}
+                          value={day.closing_time}
+                          editable={!day.closed}
                           onChangeText={(t) =>
                             updateWeeklySchedule(
-                              day.dia_semana,
-                              'hora_cierre',
+                              day.day_of_week,
+                              'closing_time',
                               t,
                             )
                           }
@@ -407,14 +410,12 @@ export function CourtFormModal({
                         {t('adminClosed')}
                       </Text>
                       <Switch
-                        value={day.cerrado}
+                        value={day.closed}
                         onValueChange={(v) =>
-                          updateWeeklySchedule(day.dia_semana, 'cerrado', v)
+                          updateWeeklySchedule(day.day_of_week, 'closed', v)
                         }
                         ios_backgroundColor={switchTrackOff}
-                        thumbColor={
-                          day.cerrado ? switchThumbOn : switchThumbOff
-                        }
+                        thumbColor={day.closed ? switchThumbOn : switchThumbOff}
                         trackColor={{
                           false: switchTrackOff,
                           true: switchTrackOn,
@@ -430,13 +431,13 @@ export function CourtFormModal({
                   {t('adminCoveredQuestion')}
                 </Text>
                 <Switch
-                  value={formData.cubierta}
+                  value={formData.is_covered}
                   onValueChange={(v) =>
-                    setFormData({ ...formData, cubierta: v })
+                    setFormData({ ...formData, is_covered: v })
                   }
                   ios_backgroundColor={switchTrackOff}
                   thumbColor={
-                    formData.cubierta ? switchThumbOn : switchThumbOff
+                    formData.is_covered ? switchThumbOn : switchThumbOff
                   }
                   trackColor={{ false: switchTrackOff, true: switchTrackOn }}
                 />
@@ -447,13 +448,13 @@ export function CourtFormModal({
                   {t('adminLightingAvailable')}
                 </Text>
                 <Switch
-                  value={formData.iluminacion}
+                  value={formData.has_lighting}
                   onValueChange={(v) =>
-                    setFormData({ ...formData, iluminacion: v })
+                    setFormData({ ...formData, has_lighting: v })
                   }
                   ios_backgroundColor={switchTrackOff}
                   thumbColor={
-                    formData.iluminacion ? switchThumbOn : switchThumbOff
+                    formData.has_lighting ? switchThumbOn : switchThumbOff
                   }
                   trackColor={{ false: switchTrackOff, true: switchTrackOn }}
                 />

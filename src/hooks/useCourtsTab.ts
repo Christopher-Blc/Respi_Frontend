@@ -88,7 +88,7 @@ export function useCourtsTab() {
     (async () => {
       try {
         const [tiposRes, pistasRes] = await Promise.all([
-          api.get('/tipo_court'),
+          api.get( '/court-types'),
           api.get('/Court'),
         ]);
         if (mounted && Array.isArray(tiposRes.data)) {

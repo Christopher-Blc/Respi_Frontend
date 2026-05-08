@@ -105,7 +105,7 @@ export function useAdminCourtTypes() {
   const fetchTiposPista = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/tipo_court');
+      const res = await api.get( '/court-types');
 
       const normalizedTipos: TipoPista[] = res.data.map((tipo: TipoPista) => ({
         ...tipo,
@@ -233,7 +233,7 @@ export function useAdminCourtTypes() {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       } else {
-        await api.post('/tipo_court', formData, {
+        await api.post( '/court-types', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       }

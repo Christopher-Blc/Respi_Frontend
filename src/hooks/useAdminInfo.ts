@@ -101,7 +101,7 @@ export function useAdminInfo(theme: AppTheme) {
     const fetchReservas = async () => {
       try {
         setLoadingChart(true);
-        const response = await api.get('/Reservation');
+        const response = await api.get('/reservations');
         setReservas(extractReservas(response?.data));
       } catch {
         setReservas([]);

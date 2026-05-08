@@ -3,17 +3,17 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AppTheme } from '../../../theme';
 import { membershipsStyles as styles } from '../../../style/admin/memberships.styles';
-import { Instalacion } from '../../../types/types';
+import { Installation } from '../../../types/types';
 
 type Props = {
-  item: Instalacion;
+  item: Installation;
   theme: AppTheme;
-  onEdit: (item: Instalacion) => void;
-  onDelete: (item: Instalacion) => void;
+  onEdit: (item: Installation) => void;
+  onDelete: (item: Installation) => void;
 };
 
 export function InstallationCard({ item, theme, onEdit, onDelete }: Props) {
-  const isInactive = String(item.estado || '').toLowerCase() === 'inactiva';
+  const isInactive = String(item.status || '').toLowerCase() === 'inactiva';
 
   return (
     <View
@@ -28,10 +28,10 @@ export function InstallationCard({ item, theme, onEdit, onDelete }: Props) {
       <View style={styles.cardHeader}>
         <View style={{ flex: 1 }}>
           <Text style={[styles.cardTitle, { color: theme.textTitle }]}>
-            {item.nombre}
+            {item.name}
           </Text>
           <Text style={[styles.cardSubtitle, { color: theme.textBody }]}>
-            {item.telefono || 'Sin telefono'} · {item.email || 'Sin email'}
+            {item.phone || 'Sin telefono'} · {item.email || 'Sin email'}
           </Text>
         </View>
         <View
@@ -49,18 +49,18 @@ export function InstallationCard({ item, theme, onEdit, onDelete }: Props) {
               fontWeight: '700',
             }}
           >
-            {item.estado || 'activa'}
+            {item.status || 'activa'}
           </Text>
         </View>
       </View>
 
       <Text style={{ color: theme.textBody, marginBottom: 6 }}>
-        {item.direccion}
+        {item.address}
       </Text>
 
-      {!!item.descripcion && (
+      {!!item.description && (
         <Text style={{ color: theme.textBody, marginBottom: 12 }}>
-          {item.descripcion}
+          {item.description}
         </Text>
       )}
 
