@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform, StatusBar, StyleSheet, View } from 'react-native';
+import { StatusBar, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Octicons from '@expo/vector-icons/Octicons';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
@@ -12,12 +12,15 @@ import WebSidebar, {
 } from '../../../components/general/WebSidebar';
 import WebProfileBadge from '../../../components/general/WebProfileBadge';
 import { useTranslation } from 'react-i18next';
+import { RESPONSIVE_NAVIGATION_BREAKPOINT } from '../../../constants';
 
 export default function tabLayout() {
   const { isDarkMode, theme } = useAppTheme();
   const { t } = useTranslation();
   const router = useRouter();
   const segments = useSegments();
+  const { width } = useWindowDimensions();
+  const isWideScreen = width >= RESPONSIVE_NAVIGATION_BREAKPOINT;
 
   const webSidebarSections: SidebarSection[] = [
     {
@@ -55,8 +58,6 @@ export default function tabLayout() {
   const isReservasNestedScreen =
     bookingsSegmentIndex !== -1 && segments.length > bookingsSegmentIndex + 1;
 
-  const isWeb = Platform.OS === 'web';
-
   const tabs = (
     <Tabs
       screenOptions={{
@@ -69,7 +70,7 @@ export default function tabLayout() {
           borderBottomWidth: 1,
         },
         headerShown: true,
-        headerTitleAlign: isWeb ? 'left' : 'center',
+        headerTitleAlign: isWideScreen ? 'left' : 'center',
         headerTintColor: theme.headerText,
         headerTransparent: true,
         headerBackground: () => (
@@ -83,7 +84,7 @@ export default function tabLayout() {
         tabBarActiveTintColor: theme.tabActive,
         tabBarInactiveTintColor: theme.tabInactive,
         tabBarLabelPosition: 'below-icon',
-        tabBarStyle: isWeb
+        tabBarStyle: isWideScreen
           ? { display: 'none' }
           : {
               position: 'absolute',
@@ -95,7 +96,7 @@ export default function tabLayout() {
               borderColor: theme.primarySoft,
               borderTopWidth: 1,
             },
-        headerRight: isWeb ? () => <WebProfileBadge /> : undefined,
+        headerRight: isWideScreen ? () => <WebProfileBadge /> : undefined,
         tabBarBackground: () => (
           <BlurView
             intensity={80}
@@ -181,7 +182,7 @@ export default function tabLayout() {
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         animated
       />
-      {isWeb ? (
+      {isWideScreen ? (
         <View style={{ flex: 1, flexDirection: 'row' }}>
           <WebSidebar
             sections={webSidebarSections}

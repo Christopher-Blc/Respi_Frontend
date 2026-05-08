@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform, StatusBar, StyleSheet, View } from 'react-native';
+import { StatusBar, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Octicons from '@expo/vector-icons/Octicons';
 import { BlurView } from 'expo-blur';
 import { useAppTheme } from '../../../context/ThemeContext';
@@ -9,12 +9,15 @@ import WebSidebar, {
 } from '../../../components/general/WebSidebar';
 import WebProfileBadge from '../../../components/general/WebProfileBadge';
 import { useTranslation } from 'react-i18next';
+import { RESPONSIVE_NAVIGATION_BREAKPOINT } from '../../../constants';
 
 const WEB_ADMIN_HEADER_HEIGHT = 73;
 
 export default function AdminTabLayout() {
   const { isDarkMode, theme } = useAppTheme();
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const isWideScreen = width >= RESPONSIVE_NAVIGATION_BREAKPOINT;
 
   const adminSidebarSections: SidebarSection[] = [
     {
@@ -101,12 +104,10 @@ export default function AdminTabLayout() {
     },
   ];
 
-  const isWeb = Platform.OS === 'web';
-
   const tabs = (
     <Tabs
       screenOptions={{
-        headerTitleContainerStyle: isWeb
+        headerTitleContainerStyle: isWideScreen
           ? {
               top: 0,
               bottom: 0,
@@ -119,13 +120,13 @@ export default function AdminTabLayout() {
           borderBottomColor: theme.primarySoft,
           borderBottomWidth: 1,
         },
-        headerStyle: isWeb
+        headerStyle: isWideScreen
           ? {
               height: WEB_ADMIN_HEADER_HEIGHT,
             }
           : undefined,
         headerShown: true,
-        headerTitleAlign: isWeb ? 'left' : 'center',
+        headerTitleAlign: isWideScreen ? 'left' : 'center',
         headerTintColor: theme.headerText,
         headerTransparent: true,
         headerBackground: () => (
@@ -139,7 +140,7 @@ export default function AdminTabLayout() {
         tabBarActiveTintColor: theme.tabActive,
         tabBarInactiveTintColor: theme.tabInactive,
         tabBarLabelPosition: 'below-icon',
-        tabBarStyle: isWeb
+        tabBarStyle: isWideScreen
           ? { display: 'none' }
           : {
               position: 'absolute',
@@ -151,7 +152,7 @@ export default function AdminTabLayout() {
               borderColor: theme.primarySoft,
               borderTopWidth: 1,
             },
-        headerRight: isWeb
+        headerRight: isWideScreen
           ? () => <WebProfileBadge profileRoute="/(app)/(admin)/profile" />
           : undefined,
         tabBarBackground: () => (
@@ -225,7 +226,7 @@ export default function AdminTabLayout() {
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         animated
       />
-      {isWeb ? (
+      {isWideScreen ? (
         <View style={{ flex: 1, flexDirection: 'row' }}>
           <WebSidebar
             sections={adminSidebarSections}
