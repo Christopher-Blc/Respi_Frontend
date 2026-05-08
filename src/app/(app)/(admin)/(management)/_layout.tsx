@@ -98,6 +98,10 @@ export default function ManagementLayout() {
         name="notificaciones"
         options={{ title: 'Notificaciones' }}
       />
+      <Stack.Screen
+        name="reservas-global"
+        options={{ title: t('tabsBookings') }}
+      />
     </Stack>
   );
 }
