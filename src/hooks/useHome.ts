@@ -2,15 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { jwtDecode } from 'jwt-decode';
-import { Reserva } from '../types/types';
-import { JWTPayload } from '../types/types';
+import { Reservation, JWTPayload } from '../types/types';
 
-const extractReservas = (payload: any): Reserva[] => {
-  if (Array.isArray(payload)) return payload as Reserva[];
-  if (Array.isArray(payload?.data)) return payload.data as Reserva[];
-  if (Array.isArray(payload?.items)) return payload.items as Reserva[];
-  if (Array.isArray(payload?.rows)) return payload.rows as Reserva[];
-  if (Array.isArray(payload?.reservas)) return payload.reservas as Reserva[];
+const extractReservas = (payload: any): Reservation[] => {
+  if (Array.isArray(payload)) return payload as Reservation[];
+  if (Array.isArray(payload?.data)) return payload.data as Reservation[];
+  if (Array.isArray(payload?.items)) return payload.items as Reservation[];
+  if (Array.isArray(payload?.rows)) return payload.rows as Reservation[];
+  if (Array.isArray(payload?.reservations)) return payload.reservations as Reservation[];
   return [];
 };
 
@@ -19,28 +18,28 @@ const normalizeState = (value: string | undefined) =>
     .trim()
     .toLowerCase();
 
-const isUpcoming = (reserva: Reserva) => {
-  const state = normalizeState(reserva.estado);
+const isUpcoming = (reserva: Reservation) => {
+  const state = normalizeState(reserva.status);
   if (state === 'cancelada' || state === 'finalizada') return false;
 
   const start = new Date(
-    `${reserva.fecha_reserva}T${String(reserva.hora_inicio || '00:00').slice(0, 5)}:00`,
+    `${reserva.reservation_date}T${String(reserva.start_time || '00:00').slice(0, 5)}:00`,
   );
 
   if (Number.isNaN(start.getTime())) return true;
   return start.getTime() >= Date.now();
 };
 
-const getReservaTimestamp = (reserva: Reserva) => {
+const getReservaTimestamp = (reserva: Reservation) => {
   const start = new Date(
-    `${reserva.fecha_reserva}T${String(reserva.hora_inicio || '00:00').slice(0, 5)}:00`,
+    `${reserva.reservation_date}T${String(reserva.start_time || '00:00').slice(0, 5)}:00`,
   ).getTime();
   return Number.isNaN(start) ? Number.MAX_SAFE_INTEGER : start;
 };
 
 export function useHome() {
   const { userToken } = useAuth();
-  const [reservations, setReservations] = useState<Reserva[]>([]);
+  const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -58,15 +57,15 @@ export function useHome() {
     async (silent = false) => {
       try {
         if (!silent) setLoading(true);
-        const response = await api.get('/Reservation/mis-reservas');
+        const response = await api.get('/reservations/my-reservations');
 
         const allReservas = extractReservas(response?.data);
 
         const userScoped = allReservas.filter((reserva) => {
           if (!loggedUserId) return true;
           const ownerId =
-            Number((reserva as any)?.usuario_id) ||
-            Number((reserva as any)?.usuario?.usuario_id);
+            Number((reserva as any)?.user_id) ||
+            Number((reserva as any)?.user?.id);
 
           // If backend doesn't include owner id for this row, keep it.
           if (!ownerId) return true;
@@ -105,7 +104,7 @@ export function useHome() {
       (a, b) => getReservaTimestamp(a) - getReservaTimestamp(b),
     );
 
-    return new Date(sorted[0].fecha_reserva).toLocaleDateString('es-ES', {
+    return new Date(sorted[0].reservation_date).toLocaleDateString('es-ES', {
       day: '2-digit',
       month: 'short',
     });
@@ -114,7 +113,7 @@ export function useHome() {
   const uniqueSportsCount = useMemo(() => {
     const unique = new Set(
       reservations
-        .map((reservation) => reservation.pista?.nombre || '')
+        .map((reservation) => reservation.court?.name || '')
         .filter(Boolean),
     );
     return unique.size;

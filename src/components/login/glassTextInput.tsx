@@ -11,6 +11,16 @@ interface Props {
   label?: string;
   keyboardType?: React.ComponentProps<typeof RNTextInput>['keyboardType'];
   readonly?: boolean;
+  autoComplete?:
+    | 'username'
+    | 'email'
+    | 'name'
+    | 'tel'
+    | 'street-address'
+    | 'postal-code'
+    | 'country'
+    | 'family-name'
+    | 'off';
 }
 
 export const GlassTextInput: React.FC<Props> = ({
@@ -20,6 +30,7 @@ export const GlassTextInput: React.FC<Props> = ({
   label,
   keyboardType = 'default',
   readonly = false,
+  autoComplete = 'off',
 }) => {
   const { theme } = useAppTheme();
   const { t } = useTranslation();
@@ -40,6 +51,7 @@ export const GlassTextInput: React.FC<Props> = ({
         </Text>
       )}
       <TextInput
+        autoComplete={autoComplete}
         readOnly={readonly}
         value={value}
         onChangeText={onChangeText}

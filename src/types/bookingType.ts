@@ -1,25 +1,16 @@
+// POST body for /Reservation
 export type ReservationsDto = {
-  //pista_id: MOCK_PISTA.id,
-  pista_id: number,
-  fecha_reserva: string,
-  hora_inicio: string,
-  hora_fin: string,
-  nota: string
+  court_id: number;
+  reservation_date: string;
+  start_time: string;
+  end_time: string;
+  note: string;
 };
 
-export type ReservationsInformation = {
-  //pista_id: MOCK_PISTA.id,
-  pista_id: number,
-  fecha_reserva: string,
-  hora_inicio: string,
-  hora_fin: string,
-  nota: string
-};
+// Kept for legacy — same shape as ReservationsDto
+export type ReservationsInformation = ReservationsDto;
 
-/**
- * Mock de respuesta para una Reserva Completa
- * Incluye relaciones cargadas (Usuario, Pista y Pagos)
- */
+/** @deprecated Use Reservation from types/types.ts instead */
 export type ReservaDetalles = {
   reserva_id: 1,
   usuario_id: 1,

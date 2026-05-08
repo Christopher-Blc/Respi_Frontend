@@ -1,12 +1,12 @@
 ﻿import { useState, useEffect, useMemo } from 'react';
 import api from '../services/api';
-import { User, Membresia } from '../types/types';
+import { User, Membership } from '../types/types';
 import { reservasActivasFilter } from '../filtersApi';
 
 export const useProfile = () => {
   const [user, setUser] = useState<User | null>(null);
   const [totalReservas, setTotalReservas] = useState<number>(0);
-  const [currentMembership, setCurrentMembership] = useState<Membresia | null>(null);
+  const [currentMembership, setCurrentMembership] = useState<Membership | null>(null);
   const [loading, setLoading] = useState(true);
 
   // 1. Cargar Perfil
@@ -23,7 +23,7 @@ export const useProfile = () => {
   // 2. Cargar Reservas
   const fetchTotalReservas = async () => {
     try {
-      const response = await api.get('Reservation/mis-reservas');
+      const response = await api.get('/reservations/my-reservations');
       const responseFiltrado = reservasActivasFilter(response);
       setTotalReservas(responseFiltrado.length);
     } catch (error) {
@@ -38,10 +38,10 @@ export const useProfile = () => {
       return;
     }
     try {
-      const response = await api.get('/membership');
+      const response = await api.get('/memberships');
       const payload = response.data;
       const parsed = Array.isArray(payload) ? payload : payload?.data || [];
-      const found = parsed.find((m: Membresia) => m.membresia_id === id);
+    const found = parsed.find((m: Membership) => m.id === id);
       setCurrentMembership(found || null);
     } catch (error) {
       console.error('Error fetching membership:', error);
@@ -58,9 +58,9 @@ export const useProfile = () => {
 
   // 5. Etiqueta de membresía
   const userMembershipLabel = useMemo(() => {
-    if (user?.membresia_id == null) return 'Sin membresia';
-    return currentMembership 
-      ? `${currentMembership.nombre} · Rango ${currentMembership.rango}` 
+    if (user?.membership_id == null) return 'Sin membresia';
+    return currentMembership
+      ? currentMembership.name
       : `Cargando...`;
   }, [user, currentMembership]);
 
@@ -70,8 +70,8 @@ export const useProfile = () => {
       setLoading(true);
       const userData = await fetchUserProfile();
       await fetchTotalReservas();
-      if (userData?.membresia_id) {
-        await fetchMembershipById(userData.membresia_id);
+      if (userData?.membership_id) {
+        await fetchMembershipById(userData.membership_id);
       }
       setLoading(false);
     };

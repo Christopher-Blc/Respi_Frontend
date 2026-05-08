@@ -1,0 +1,428 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  ActivityIndicator,
+  TouchableOpacity,
+  useWindowDimensions,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useHeaderHeight } from '@react-navigation/elements';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppTheme } from '../../../../context/ThemeContext';
+import { Reservation } from '../../../../types/types';
+import { bookingsAdminStyles as styles } from '../../../../style/admin/bookings.styles';
+import { BookingCard } from '../../../../components/admin/bookings/BookingCard';
+import { BookingFormModal } from '../../../../components/admin/bookings/BookingFormModal';
+import { BookingsFiltersModal } from '../../../../components/admin/bookings/BookingsFiltersModal';
+import { SessionExpiredModal } from '../../../../components/alert.modal';
+import { useAdminBookings } from '../../../../hooks/useAdminBookings';
+
+const statusColorMap: Record<string, string> = {
+  CONFIRMADA: '#1E88E5',
+  PENDIENTE: '#FB8C00',
+  CANCELADA: '#E53935',
+  FINALIZADA: '#43A047',
+};
+
+export default function AdminReservasGlobal() {
+  const { theme } = useAppTheme();
+  const headerHeight = useHeaderHeight();
+  const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const gridGap = 12;
+  const [gridWidth, setGridWidth] = useState(0);
+  const gridHorizontalPadding = 32;
+  const minCardWidth = width >= 1440 ? 360 : width >= 1100 ? 320 : 280;
+  const measuredWidth = gridWidth > 0 ? gridWidth : width;
+  const availableGridWidth = Math.max(
+    measuredWidth - gridHorizontalPadding,
+    minCardWidth,
+  );
+  const cardsColumns = Math.max(
+    1,
+    Math.min(
+      3,
+      Math.floor((availableGridWidth + gridGap) / (minCardWidth + gridGap)),
+    ),
+  );
+  const cardWidth =
+    cardsColumns === 1
+      ? availableGridWidth
+      : (availableGridWidth - gridGap * (cardsColumns - 1)) / cardsColumns;
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  const {
+    users,
+    courts,
+    courtTypes,
+    filteredReservations,
+    loading,
+    searchQuery,
+    setSearchQuery,
+    viewMode,
+    setViewMode,
+    dateFromFilter,
+    setDateFromFilter,
+    dateToFilter,
+    setDateToFilter,
+    statusFilter,
+    setStatusFilter,
+    courtFilter,
+    setCourtFilter,
+    courtTypeFilter,
+    setCourtTypeFilter,
+    clearFilters,
+    modalVisible,
+    setModalVisible,
+    reservationToEdit,
+    formData,
+    setFormData,
+    openCreateModal,
+    openEditModal,
+    handleSave,
+    handleCancelReservation,
+    handleDeleteReservation,
+    confirmModal,
+    confirmAction,
+    cancelConfirm,
+    errorModal,
+    setErrorModal,
+  } = useAdminBookings();
+
+  const renderCard = ({ item }: { item: Reservation }) => {
+    const cardWidthStyle = { width: cardWidth };
+
+    return (
+      <View style={[styles.cardColumn, cardWidthStyle]}>
+        <BookingCard
+          item={item}
+          theme={theme}
+          onEdit={openEditModal}
+          onCancel={handleCancelReservation}
+          onDelete={handleDeleteReservation}
+        />
+      </View>
+    );
+  };
+
+  return (
+    <View
+      style={[styles.container, { backgroundColor: theme.backgroundMain }]}
+      onLayout={(event) => {
+        const nextWidth = event.nativeEvent.layout.width;
+        if (Math.abs(nextWidth - gridWidth) > 2) {
+          setGridWidth(nextWidth);
+        }
+      }}
+    >
+      <View style={[styles.headerActions, { paddingTop: headerHeight + 10 }]}>
+        <View
+          style={[
+            styles.searchBar,
+            {
+              backgroundColor: theme.backgroundCard,
+              borderColor: theme.primarySoft,
+            },
+          ]}
+        >
+          <Ionicons name="search" size={20} color={theme.textBody} />
+          <TextInput
+            placeholder="Buscar reserva..."
+            placeholderTextColor={theme.textBody + '80'}
+            style={[styles.searchInput, { color: theme.textTitle }]}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <Ionicons name="close-circle" size={18} color={theme.textBody} />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <TouchableOpacity
+          style={[
+            styles.squareBtn,
+            {
+              backgroundColor:
+                filtersOpen ||
+                dateFromFilter.trim().length > 0 ||
+                dateToFilter.trim().length > 0 ||
+                statusFilter !== 'ALL' ||
+                courtFilter !== 'ALL' ||
+                courtTypeFilter !== 'ALL'
+                  ? theme.primary + '18'
+                  : theme.inputBackground,
+              borderWidth: 1,
+              borderColor: theme.primarySoft,
+            },
+          ]}
+          onPress={() => setFiltersOpen(true)}
+        >
+          <Ionicons name="options-outline" size={22} color={theme.textBody} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.squareBtn,
+            {
+              backgroundColor: theme.primary + '18',
+              borderWidth: 1,
+              borderColor: theme.primarySoft,
+            },
+          ]}
+          onPress={() => setViewMode(viewMode === 'cards' ? 'list' : 'cards')}
+        >
+          <Ionicons
+            name={viewMode === 'cards' ? 'list-outline' : 'grid-outline'}
+            size={22}
+            color={theme.textBody}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.squareBtn,
+            {
+              backgroundColor: theme.primary + '18',
+              borderWidth: 1,
+              borderColor: theme.primarySoft,
+            },
+          ]}
+          onPress={openCreateModal}
+        >
+          <Ionicons name="add" size={30} color={theme.textBody} />
+        </TouchableOpacity>
+      </View>
+
+      {loading ? (
+        <ActivityIndicator
+          size="large"
+          color={theme.primary}
+          style={{ marginTop: 50 }}
+        />
+      ) : filteredReservations.length === 0 ? (
+        <View style={{ paddingHorizontal: 20, paddingTop: 40 }}>
+          <Text style={{ color: theme.textBody, textAlign: 'center' }}>
+            No hay reservas.
+          </Text>
+        </View>
+      ) : viewMode === 'cards' ? (
+        <FlatList
+          key={`bookings-cards-${cardsColumns}`}
+          data={filteredReservations}
+          renderItem={renderCard}
+          numColumns={cardsColumns}
+          keyExtractor={(item) => item.id.toString()}
+          columnWrapperStyle={cardsColumns > 1 ? styles.gridRow : undefined}
+          contentContainerStyle={[
+            styles.gridContent,
+            { paddingBottom: insets.bottom + 100 },
+          ]}
+        />
+      ) : (
+        <View
+          style={[
+            styles.tableWrap,
+            {
+              borderColor: theme.primarySoft,
+              backgroundColor: theme.backgroundCard,
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.tableHeader,
+              {
+                borderBottomColor: theme.primarySoft,
+                backgroundColor: theme.primary + '10',
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.colId,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              ID
+            </Text>
+            <Text
+              style={[
+                styles.colUser,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Usuario
+            </Text>
+            <Text
+              style={[
+                styles.colCourt,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Pista
+            </Text>
+            <Text
+              style={[
+                styles.colDate,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Fecha
+            </Text>
+            <Text
+              style={[
+                styles.colStatus,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Estado
+            </Text>
+            <Text
+              style={[
+                styles.colActions,
+                { color: theme.textTitle, fontWeight: '700' },
+              ]}
+            >
+              Acciones
+            </Text>
+          </View>
+
+          <FlatList
+            data={filteredReservations}
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+            renderItem={({ item }) => {
+              const statusColor = statusColorMap[item.status] || theme.textBody;
+              const canCancel =
+                item.status !== 'FINALIZADA' && item.status !== 'CANCELADA';
+
+              return (
+                <View
+                  style={[
+                    styles.tableRow,
+                    { borderBottomColor: theme.primarySoft },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.colId,
+                      { color: theme.textBody, fontWeight: '600' },
+                    ]}
+                  >
+                    #{item.id}
+                  </Text>
+                  <Text style={[styles.colUser, { color: theme.textBody }]}>
+                    {item.user?.username || item.user_id}
+                  </Text>
+                  <Text style={[styles.colCourt, { color: theme.textBody }]}>
+                    {item.court?.name || item.court_id}
+                  </Text>
+                  <Text style={[styles.colDate, { color: theme.textBody }]}>
+                    {item.reservation_date}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.colStatus,
+                      {
+                        color: statusColor,
+                        fontWeight: '700',
+                      },
+                    ]}
+                  >
+                    {item.status}
+                  </Text>
+                  <View style={styles.colActions}>
+                    <View style={{ flexDirection: 'row', gap: 10 }}>
+                      <TouchableOpacity onPress={() => openEditModal(item)}>
+                        <Ionicons
+                          name="create-outline"
+                          size={18}
+                          color={theme.textBody}
+                        />
+                      </TouchableOpacity>
+                      {canCancel && (
+                        <TouchableOpacity
+                          onPress={() => handleCancelReservation(item)}
+                        >
+                          <Ionicons
+                            name="close-circle-outline"
+                            size={18}
+                            color={theme.textBody}
+                          />
+                        </TouchableOpacity>
+                      )}
+                      <TouchableOpacity
+                        onPress={() => handleDeleteReservation(item)}
+                      >
+                        <Ionicons
+                          name="trash-outline"
+                          size={18}
+                          color={theme.textBody}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              );
+            }}
+          />
+        </View>
+      )}
+
+      <BookingFormModal
+        visible={modalVisible}
+        isEditing={Boolean(reservationToEdit)}
+        formData={formData}
+        setFormData={setFormData}
+        users={users}
+        courts={courts}
+        reservationStatus={reservationToEdit?.status ?? null}
+        onClose={() => setModalVisible(false)}
+        onSave={handleSave}
+      />
+
+      <BookingsFiltersModal
+        visible={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        courts={courts}
+        courtTypes={courtTypes}
+        dateFromFilter={dateFromFilter}
+        setDateFromFilter={setDateFromFilter}
+        dateToFilter={dateToFilter}
+        setDateToFilter={setDateToFilter}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        courtFilter={courtFilter}
+        setCourtFilter={setCourtFilter}
+        courtTypeFilter={courtTypeFilter}
+        setCourtTypeFilter={setCourtTypeFilter}
+        clearFilters={clearFilters}
+      />
+
+      <SessionExpiredModal
+        visible={confirmModal.visible}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText="Confirmar"
+        cancelText="Cancelar"
+        onConfirm={confirmAction}
+        onCancel={cancelConfirm}
+      />
+
+      <SessionExpiredModal
+        visible={errorModal.visible}
+        title={errorModal.title}
+        message={errorModal.message}
+        confirmText="Entendido"
+        onConfirm={() =>
+          setErrorModal({ visible: false, title: '', message: '' })
+        }
+      />
+    </View>
+  );
+}

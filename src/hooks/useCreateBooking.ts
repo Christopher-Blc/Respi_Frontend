@@ -3,57 +3,45 @@ import { Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { jwtDecode } from 'jwt-decode';
 import { API_PUBLIC_URL } from '../constants';
-import { MODELOS, Modelo } from '../data/modelos';
 import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 import { bookingsService } from '../services/bookingsService';
-import { JWTPayload } from '../types/types';
+import {
+  BookingCourtOption,
+  CourtAvailability,
+  CourtType,
+  DatePickerMode,
+  JWTPayload,
+} from '../types/types';
 
 export const DURATION_CHIPS = [60, 90, 120, 180, 240, 360, 480];
 const MIN_MINUTES = 60;
 const MAX_MINUTES = 8 * 60;
-export const COURT_3D_URL =
-  'https://my.spline.design/untitled-o8FhbQhvF8XmEF9SVboAdTmE/';
-
-export type DatePickerMode = 'date' | 'time' | null;
-
-export type CourtOption = {
-  id: string;
-  name: string;
-  openingHour?: string;
-  closingHour?: string;
-  status?: string;
-};
+// export const COURT_3D_URL =
+//   'https://my.spline.design/untitled-o8FhbQhvF8XmEF9SVboAdTmE/';
 
 const isDisponible = (value?: string) =>
   String(value || '')
     .trim()
     .toUpperCase() === 'DISPONIBLE';
 
-const normalizeCourtsFromPayload = (payload: any): CourtOption[] => {
-  const raw = Array.isArray(payload)
-    ? payload
-    : Array.isArray(payload?.data)
-      ? payload.data
-      : Array.isArray(payload?.items)
-        ? payload.items
-        : Array.isArray(payload?.rows)
-          ? payload.rows
-          : Array.isArray(payload?.pistas)
-            ? payload.pistas
-            : [];
-
-  return raw
-    .map((item: any, idx: number) => ({
-      id: String(item.id ?? item.pista_id ?? item._id ?? idx + 1),
-      name: item.nombre || item.name || `Pista ${idx + 1}`,
-      openingHour: item.hora_apertura || item.openingHour,
-      closingHour: item.hora_cierre || item.closingHour,
-      status: item.estado || item.status,
+const normalizeCourtsFromPayload = (
+  payload: CourtAvailability[],
+): BookingCourtOption[] => {
+  return payload
+    .map((pista) => ({
+      id: String(pista.id),
+      name: pista.name,
+      openingHour: pista.opening_time,
+      closingHour: pista.closing_time,
+      status: pista.status,
+      pricePerHour: Number(pista.price_per_hour ?? 0),
+      courtTypeId: String(pista.court_type_id ?? ''),
     }))
-    .filter((court: CourtOption) => isDisponible(court.status));
+    .filter((court: BookingCourtOption) => isDisponible(court.status));
 };
 
-const dedupeCourts = (list: CourtOption[]) => {
+const dedupeCourts = (list: BookingCourtOption[]) => {
   const seen = new Set<string>();
   return list.filter((court) => {
     if (seen.has(court.id)) return false;
@@ -70,27 +58,17 @@ export const formatDuration = (minutes: number) => {
   return `${hours}h${remainingMinutes ? ` ${remainingMinutes}m` : ''}`;
 };
 
-export const resolveImageSource = (img: Modelo['img']) => {
-  if (typeof img === 'number') return img;
-  if (typeof img === 'string') {
-    return img.startsWith('http')
-      ? { uri: img }
-      : { uri: `${API_PUBLIC_URL}/${img.replace(/^\//, '')}` };
-  }
-
-  return img;
-};
 
 export function useCreateBooking() {
   const params = useLocalSearchParams<{ modelId?: string | string[] }>();
-  const modelId = Array.isArray(params?.modelId)
+  const tipoPistaId = Array.isArray(params?.modelId)
     ? params.modelId[0]
     : params?.modelId;
   const router = useRouter();
   const { userToken } = useAuth();
 
-  const [model, setModel] = useState<Modelo | null>(null);
-  const [loadingModel, setLoadingModel] = useState(true);
+  const [selectedTipoPista, setSelectedTipoPista] = useState<CourtType | null>(null);
+  const [loadingTipoPista, setLoadingTipoPista] = useState(true);
   const [email, setEmail] = useState('');
   const [nombre, setNombre] = useState('');
   const [notes, setNotes] = useState('');
@@ -107,8 +85,8 @@ export function useCreateBooking() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [showCourtModal, setShowCourtModal] = useState(false);
   const [isLoadingCourts, setIsLoadingCourts] = useState(false);
-  const [courts, setCourts] = useState<CourtOption[]>([]);
-  const [selectedCourt, setSelectedCourt] = useState<CourtOption | null>(null);
+  const [courts, setCourts] = useState<BookingCourtOption[]>([]);
+  const [selectedCourt, setSelectedCourt] = useState<BookingCourtOption | null>(null);
 
   const sessionEmail = useMemo(() => {
     if (!userToken) return '';
@@ -120,12 +98,16 @@ export function useCreateBooking() {
     }
   }, [userToken]);
 
-  const imageSource = useMemo(
-    () => resolveImageSource(model?.img as Modelo['img']),
-    [model],
-  );
+  const imageSource = useMemo(() => {
+    const imagen = selectedTipoPista?.image;
+    if (!imagen) return undefined;
+    return {
+      uri: `${API_PUBLIC_URL}${imagen.startsWith('/') ? '' : '/'}${imagen}`,
+    };
+  }, [selectedTipoPista]);
   const total =
-    (durationMinutes / 60) * Number(precioHora || model?.price || 0);
+    (durationMinutes / 60) *
+    Number(precioHora || selectedCourt?.pricePerHour || 0);
 
   useEffect(() => {
     if (!email && sessionEmail) {
@@ -138,35 +120,33 @@ export function useCreateBooking() {
 
     (async () => {
       try {
-        const remote = await bookingsService.getModelos();
-        const found = remote.find(
-          (item) => String(item.id) === String(modelId),
-        );
-        const selected =
-          found ??
-          MODELOS.find((item) => item.id === String(modelId)) ??
-          remote[0] ??
-          MODELOS[0];
+        if (!tipoPistaId) {
+          if (mounted) setSelectedTipoPista(null);
+          return;
+        }
+
+        const response = await api.get(`/tipo_court/${tipoPistaId}`);
+        const tipoPista = response?.data as CourtType | undefined;
 
         if (!mounted) return;
-        setModel(selected);
-        setPrecioHora(String(selected.price));
+        setSelectedTipoPista(tipoPista ?? null);
+        if (tipoPista?.courts?.[0]?.price_per_hour) {
+          setPrecioHora(String(tipoPista.courts[0].price_per_hour));
+        }
       } catch (error) {
-        if (!mounted) return;
-        const fallback =
-          MODELOS.find((item) => item.id === String(modelId)) ?? MODELOS[0];
-        setModel(fallback);
-        setPrecioHora(String(fallback.price));
-        console.error('Error al cargar el deporte seleccionado', error);
+        if (mounted) {
+          setSelectedTipoPista(null);
+        }
+        console.error('Error al cargar el tipo de pista seleccionado', error);
       } finally {
-        if (mounted) setLoadingModel(false);
+        if (mounted) setLoadingTipoPista(false);
       }
     })();
 
     return () => {
       mounted = false;
     };
-  }, [modelId]);
+  }, [tipoPistaId]);
 
   useEffect(() => {
     let mounted = true;
@@ -215,29 +195,21 @@ export function useCreateBooking() {
     const loadCourts = async () => {
       setIsLoadingCourts(true);
       try {
-        const api = (await import('../services/api')).default;
-        const endpoints = [
-          '/pista',
-          '/pistas',
-          '/pista/all',
-          '/instalacion/pistas',
-        ];
-        let merged: CourtOption[] = [];
-
-        for (const endpoint of endpoints) {
-          try {
-            const response = await api.get(endpoint);
-            const mapped = normalizeCourtsFromPayload(response?.data);
-            if (mapped.length > 0) {
-              merged = dedupeCourts([...merged, ...mapped]);
-            }
-          } catch {
-            // probar siguiente endpoint
-          }
-        }
+        const response = await api.get('/courts');
+        const pistas = Array.isArray(response?.data)
+          ? (response.data as CourtAvailability[])
+          : [];
+        const mapped = normalizeCourtsFromPayload(pistas);
+        const filtered = tipoPistaId
+          ? mapped.filter(
+              (court) => court.courtTypeId === String(tipoPistaId),
+            )
+          : mapped;
 
         if (!mounted) return;
-        const sorted = [...merged].sort((a, b) => a.name.localeCompare(b.name));
+        const sorted = dedupeCourts(filtered).sort((a, b) =>
+          a.name.localeCompare(b.name),
+        );
         setCourts(sorted);
       } catch (error) {
         console.error('No se pudieron cargar las pistas', error);
@@ -250,7 +222,7 @@ export function useCreateBooking() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [tipoPistaId]);
 
   const closePicker = () => setShowPicker(null);
 
@@ -382,9 +354,9 @@ export function useCreateBooking() {
         usuarioId: 'local-uid',
         email: resolvedEmail,
         nombre,
-        modeloId: Number(modelId ?? model?.id ?? 0),
+        modeloId: Number(tipoPistaId ?? selectedTipoPista?.id ?? 0),
         pistaId: Number(selectedCourt.id),
-        precioHora: Number(precioHora || model?.price || 0),
+        precioHora: Number(precioHora || selectedCourt.pricePerHour || 0),
         fechaInicio: fechaInicio.toISOString(),
         fechaFin: fechaFin.toISOString(),
         notas: mergedNotes,
@@ -407,8 +379,8 @@ export function useCreateBooking() {
   };
 
   return {
-    model,
-    loadingModel,
+    selectedTipoPista,
+    loadingTipoPista,
     email,
     nombre,
     notes,

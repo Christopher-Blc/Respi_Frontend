@@ -1,44 +1,40 @@
 import { useCallback, useMemo, useState } from 'react';
-
-export type Reserva = {
-  id: string;
-  codigo_reserva?: string;
-  estado?: string;
-  fecha_inicio: string; // ISO
-  fecha_fin: string; // ISO
-  nota?: string;
-};
+import api from '../services/api';
+import { Reservation } from '../types/types';
 
 export function useReservas() {
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setRefreshing] = useState(false);
-  const [reservas, setReservas] = useState<Reserva[]>(() => [
-    {
-      id: '1',
-      codigo_reserva: 'R-001',
-      estado: 'PREPARADA',
-      fecha_inicio: new Date(Date.now() + 86400000).toISOString(),
-      fecha_fin: new Date(Date.now() + 2 * 86400000).toISOString(),
-      nota: 'Traer raqueta',
-    },
-    {
-      id: '2',
-      codigo_reserva: 'R-002',
-      estado: 'ENTREGADA',
-      fecha_inicio: new Date(Date.now() + 3 * 86400000).toISOString(),
-      fecha_fin: new Date(Date.now() + 4 * 86400000).toISOString(),
-    },
-  ]);
+  const [reservas, setReservas] = useState<Reservation[]>([]);
 
-  const handleRefresh = useCallback(() => {
-    setRefreshing(true);
-    // Simular recarga
-    setTimeout(() => setRefreshing(false), 800);
+  const fetchReservas = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.get('/reservations/my-reservations');
+      const payload = response?.data;
+      const data: Reservation[] = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload?.data)
+          ? payload.data
+          : [];
+      setReservas(data);
+    } catch (error) {
+      console.error('Error al cargar reservas:', error);
+      setReservas([]);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  const handleCancelReserva = useCallback((id: string) => {
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchReservas();
+    setRefreshing(false);
+  }, [fetchReservas]);
+
+  const handleCancelReserva = useCallback((id: number) => {
     setReservas((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, estado: 'CANCELADA' } : r)),
+      prev.map((r) => (r.id === id ? { ...r, status: 'CANCELADA' as const } : r)),
     );
   }, []);
 

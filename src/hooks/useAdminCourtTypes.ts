@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
-import { Pista, TipoPista } from '../types/types';
+import { Court, CourtType } from '../types/types';
 import api from '../services/api';
 import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
@@ -56,12 +56,12 @@ const compressWebImageFile = async (
   }
 };
 
-const getUniquePistasByNombre = (pistas: Pista[] = []) => {
-  const seen = new Map<string, Pista>();
+const getUniquePistasByNombre = (pistas: Court[] = []) => {
+  const seen = new Map<string, Court>();
 
   pistas.forEach((pista) => {
-    const normalizedNombre = pista.nombre?.trim().toLowerCase();
-    const key = normalizedNombre || `pista-${pista.pista_id}`;
+    const normalizedNombre = pista.name?.trim().toLowerCase();
+    const key = normalizedNombre || `pista-${pista.id}`;
 
     if (!seen.has(key)) {
       seen.set(key, pista);
@@ -73,7 +73,7 @@ const getUniquePistasByNombre = (pistas: Pista[] = []) => {
 
 export function useAdminCourtTypes() {
   const { t } = useTranslation();
-  const [tiposPista, setTiposPista] = useState<TipoPista[]>([]);
+  const [tiposPista, setTiposPista] = useState<CourtType[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -83,14 +83,14 @@ export function useAdminCourtTypes() {
   const [imagen, setImagen] = useState<ImagePicker.ImagePickerAsset | null>(
     null,
   );
-  const [tipoPistaAEditar, setTipoPistaAEditar] = useState<TipoPista | null>(
+  const [tipoPistaAEditar, setTipoPistaAEditar] = useState<CourtType | null>(
     null,
   );
 
   // Delete confirm modal
   const [deleteModal, setDeleteModal] = useState<{
     visible: boolean;
-    item: TipoPista | null;
+    item: CourtType | null;
     message: string;
     canDelete: boolean;
   }>({ visible: false, item: null, message: '', canDelete: false });
@@ -105,11 +105,11 @@ export function useAdminCourtTypes() {
   const fetchTiposPista = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/tipo_court');
+      const res = await api.get('/court-types');
 
-      const normalizedTipos: TipoPista[] = res.data.map((tipo: TipoPista) => ({
+      const normalizedTipos: CourtType[] = res.data.map((tipo: CourtType) => ({
         ...tipo,
-        pistas: getUniquePistasByNombre(tipo.pistas),
+        courts: getUniquePistasByNombre(tipo.courts),
       }));
 
       setTiposPista(normalizedTipos);
@@ -129,7 +129,7 @@ export function useAdminCourtTypes() {
   }, []);
 
   const filteredTiposPista = tiposPista.filter((t) =>
-    t.nombre.toLowerCase().includes(searchQuery.toLowerCase()),
+    t.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const openModal = () => {
@@ -139,9 +139,9 @@ export function useAdminCourtTypes() {
     setModalVisible(true);
   };
 
-  const openEditModal = (item: TipoPista) => {
+  const openEditModal = (item: CourtType) => {
     setTipoPistaAEditar(item);
-    setNombre(item.nombre);
+    setNombre(item.name);
     setImagen(null);
     setModalVisible(true);
   };
@@ -173,7 +173,7 @@ export function useAdminCourtTypes() {
     }
 
     const formData = new FormData();
-    formData.append('nombre', nombre.trim());
+    formData.append('name', nombre.trim());
 
     if (imagen?.uri) {
       const webFile = (imagen as ImagePicker.ImagePickerAsset & { file?: File })
@@ -196,9 +196,8 @@ export function useAdminCourtTypes() {
           return;
         }
 
-        formData.append('imagen', fileToUpload, fileToUpload.name);
-        // Backend DTO validates imagen as string, so we send a mirror text field too.
-        formData.append('imagen', fileToUpload.name);
+        formData.append('image', fileToUpload, fileToUpload.name);
+        formData.append('image', fileToUpload.name);
       } else {
         const imageSizeBytes = getImageSizeBytes(imagen);
         if (imageSizeBytes > MAX_IMAGE_SIZE_BYTES) {
@@ -212,28 +211,26 @@ export function useAdminCourtTypes() {
         }
 
         formData.append(
-          'imagen',
+          'image',
           {
             uri: imagen.uri,
             name: imagen.fileName || `tipo_pista_${Date.now()}.jpg`,
             type: imagen.mimeType || 'image/jpeg',
           } as any,
         );
-        // Keep DTO validation happy when it expects imagen as string.
-        formData.append('imagen', imagen.fileName || `tipo_pista_${Date.now()}.jpg`);
+        formData.append('image', imagen.fileName || `tipo_pista_${Date.now()}.jpg`);
       }
-    } else if (tipoPistaAEditar?.imagen) {
-      // If no new file is selected (edit mode), keep imagen as string for DTO validation.
-      formData.append('imagen', tipoPistaAEditar.imagen);
+    } else if (tipoPistaAEditar?.image) {
+      formData.append('image', tipoPistaAEditar.image);
     }
 
     try {
       if (tipoPistaAEditar) {
-        await api.put(`/tipo_court/${tipoPistaAEditar.tipo_pista_id}`, formData, {
+        await api.put(`/court-types/${tipoPistaAEditar.id}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       } else {
-        await api.post('/tipo_court', formData, {
+        await api.post('/court-types', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       }
@@ -265,25 +262,26 @@ export function useAdminCourtTypes() {
     }
   };
 
-  const handleDelete = (item: TipoPista) => {
-    const hasPistas = item.pistas && item.pistas.length > 0;
+  const handleDelete = (item: CourtType) => {
+    const courtsCount = item.courts?.length ?? 0;
+    const hasPistas = courtsCount > 0;
     setDeleteModal({
       visible: true,
       item,
       canDelete: !hasPistas,
       message: hasPistas
         ? t('adminTypeDeleteBlocked', {
-            name: item.nombre,
-            count: item.pistas.length,
+            name: item.name,
+            count: courtsCount,
           })
-        : t('adminTypeDeleteConfirm', { name: item.nombre }),
+        : t('adminTypeDeleteConfirm', { name: item.name }),
     });
   };
 
   const confirmDelete = async () => {
     if (!deleteModal.item || !deleteModal.canDelete) return;
     try {
-      await api.delete(`/tipo_court/${deleteModal.item.tipo_pista_id}`);
+      await api.delete(`/court-types/${deleteModal.item.id}`);
       setDeleteModal({ visible: false, item: null, message: '', canDelete: false });
       fetchTiposPista();
     } catch {

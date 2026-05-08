@@ -1,40 +1,56 @@
-﻿import React from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../context/ThemeContext';
-import { CourtType } from '../../../types/types';
+import { Court, CourtType, Reservation } from '../../../types/types';
 import { GlassTextButton } from '../../login/glassTextButton';
 import { GlassTextInput } from '../../login/glassTextInput';
-import { useTranslation } from 'react-i18next';
-
-type FilterEstado = 'DISPONIBLE' | 'MANTENIMIENTO' | 'INACTIVA' | null;
 
 type Props = {
   visible: boolean;
   onClose: () => void;
-  tiposPista: CourtType[];
-  filterTipoPistaId: number | null;
-  setFilterTipoPistaId: (value: number | null) => void;
-  filterEstado: FilterEstado;
-  setFilterEstado: (value: FilterEstado) => void;
-  filterPrecioMax: string;
-  setFilterPrecioMax: (value: string) => void;
+  courts: Court[];
+  courtTypes: CourtType[];
+  dateFromFilter: string;
+  setDateFromFilter: (value: string) => void;
+  dateToFilter: string;
+  setDateToFilter: (value: string) => void;
+  statusFilter: 'ALL' | Reservation['status'];
+  setStatusFilter: (value: 'ALL' | Reservation['status']) => void;
+  courtFilter: string;
+  setCourtFilter: (value: string) => void;
+  courtTypeFilter: string;
+  setCourtTypeFilter: (value: string) => void;
+  clearFilters: () => void;
 };
 
-export function CourtsFiltersModal({
+const STATUS_OPTIONS: Array<'ALL' | Reservation['status']> = [
+  'ALL',
+  'PENDIENTE',
+  'CONFIRMADA',
+  'FINALIZADA',
+  'CANCELADA',
+];
+
+export function BookingsFiltersModal({
   visible,
   onClose,
-  tiposPista,
-  filterTipoPistaId,
-  setFilterTipoPistaId,
-  filterEstado,
-  setFilterEstado,
-  filterPrecioMax,
-  setFilterPrecioMax,
+  courts,
+  courtTypes,
+  dateFromFilter,
+  setDateFromFilter,
+  dateToFilter,
+  setDateToFilter,
+  statusFilter,
+  setStatusFilter,
+  courtFilter,
+  setCourtFilter,
+  courtTypeFilter,
+  setCourtTypeFilter,
+  clearFilters,
 }: Props) {
   const { theme, isDarkMode } = useAppTheme();
-  const { t } = useTranslation();
 
   const overlayColor = isDarkMode ? theme.overlayDark : 'rgba(0,0,0,0.42)';
   const cardBackground = isDarkMode
@@ -76,7 +92,7 @@ export function CourtsFiltersModal({
             maxWidth: 560,
             alignSelf: 'center',
             borderRadius: 22,
-            maxHeight: '80%',
+            maxHeight: '82%',
             overflow: 'hidden',
             shadowColor: '#000',
             shadowOpacity: 0.22,
@@ -138,7 +154,83 @@ export function CourtsFiltersModal({
                   marginBottom: 8,
                 }}
               >
-                {t('adminCourtTypeLabel')}
+                Rango de fechas
+              </Text>
+              <View style={{ marginBottom: 2 }}>
+                <GlassTextInput
+                  value={dateFromFilter}
+                  onChangeText={setDateFromFilter}
+                  placeholder="Desde (YYYY-MM-DD)"
+                />
+              </View>
+              <View style={{ marginBottom: 14 }}>
+                <GlassTextInput
+                  value={dateToFilter}
+                  onChangeText={setDateToFilter}
+                  placeholder="Hasta (YYYY-MM-DD)"
+                />
+              </View>
+
+              <Text
+                style={{
+                  color: theme.textTitle,
+                  fontSize: 13,
+                  fontWeight: '600',
+                  marginBottom: 8,
+                }}
+              >
+                Estado
+              </Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
+                  gap: 8,
+                  marginBottom: 14,
+                }}
+              >
+                {STATUS_OPTIONS.map((status) => {
+                  const selected = statusFilter === status;
+                  return (
+                    <TouchableOpacity
+                      key={status}
+                      onPress={() => setStatusFilter(status)}
+                      style={{
+                        paddingHorizontal: 13,
+                        paddingVertical: 7,
+                        borderRadius: 20,
+                        borderWidth: 1,
+                        borderColor: selected
+                          ? pillActiveBorder
+                          : pillInactiveBorder,
+                        backgroundColor: selected
+                          ? pillActiveBg
+                          : pillInactiveBg,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: selected ? pillActiveText : pillInactiveText,
+                          fontWeight: selected ? '700' : '500',
+                          fontSize: 13,
+                        }}
+                      >
+                        {status === 'ALL' ? 'Todos' : status}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              <Text
+                style={{
+                  color: theme.textTitle,
+                  fontSize: 13,
+                  fontWeight: '600',
+                  marginBottom: 8,
+                }}
+              >
+                Pista
               </Text>
               <View
                 style={{
@@ -149,42 +241,40 @@ export function CourtsFiltersModal({
                 }}
               >
                 <TouchableOpacity
-                  onPress={() => setFilterTipoPistaId(null)}
+                  onPress={() => setCourtFilter('ALL')}
                   style={{
                     paddingHorizontal: 13,
                     paddingVertical: 7,
                     borderRadius: 20,
                     borderWidth: 1,
                     borderColor:
-                      filterTipoPistaId === null
+                      courtFilter === 'ALL'
                         ? pillActiveBorder
                         : pillInactiveBorder,
                     backgroundColor:
-                      filterTipoPistaId === null
-                        ? pillActiveBg
-                        : pillInactiveBg,
+                      courtFilter === 'ALL' ? pillActiveBg : pillInactiveBg,
                   }}
                 >
                   <Text
                     style={{
                       color:
-                        filterTipoPistaId === null
+                        courtFilter === 'ALL'
                           ? pillActiveText
                           : pillInactiveText,
-                      fontWeight: filterTipoPistaId === null ? '700' : '500',
+                      fontWeight: courtFilter === 'ALL' ? '700' : '500',
                       fontSize: 13,
                     }}
                   >
-                    {t('adminAll')}
+                    Todas
                   </Text>
                 </TouchableOpacity>
-                {tiposPista.map((tipo) => {
-                  const selected = filterTipoPistaId === tipo.id;
+                {courts.map((court) => {
+                  const selected = courtFilter === String(court.id);
                   return (
                     <TouchableOpacity
-                      key={tipo.id}
+                      key={court.id}
                       onPress={() =>
-                        setFilterTipoPistaId(selected ? null : tipo.id)
+                        setCourtFilter(selected ? 'ALL' : String(court.id))
                       }
                       style={{
                         paddingHorizontal: 13,
@@ -206,7 +296,7 @@ export function CourtsFiltersModal({
                           fontSize: 13,
                         }}
                       >
-                        {tipo.name}
+                        {court.name}
                       </Text>
                     </TouchableOpacity>
                   );
@@ -221,49 +311,54 @@ export function CourtsFiltersModal({
                   marginBottom: 8,
                 }}
               >
-                {t('adminStatus')}
+                Tipo de pista
               </Text>
               <View
                 style={{
                   flexDirection: 'row',
+                  flexWrap: 'wrap',
                   gap: 8,
-                  marginBottom: 14,
+                  marginBottom: 8,
                 }}
               >
                 <TouchableOpacity
-                  onPress={() => setFilterEstado(null)}
+                  onPress={() => setCourtTypeFilter('ALL')}
                   style={{
                     paddingHorizontal: 13,
                     paddingVertical: 7,
                     borderRadius: 20,
                     borderWidth: 1,
                     borderColor:
-                      filterEstado === null
+                      courtTypeFilter === 'ALL'
                         ? pillActiveBorder
                         : pillInactiveBorder,
                     backgroundColor:
-                      filterEstado === null ? pillActiveBg : pillInactiveBg,
+                      courtTypeFilter === 'ALL' ? pillActiveBg : pillInactiveBg,
                   }}
                 >
                   <Text
                     style={{
                       color:
-                        filterEstado === null
+                        courtTypeFilter === 'ALL'
                           ? pillActiveText
                           : pillInactiveText,
-                      fontWeight: filterEstado === null ? '700' : '500',
+                      fontWeight: courtTypeFilter === 'ALL' ? '700' : '500',
                       fontSize: 13,
                     }}
                   >
-                    {t('adminAll')}
+                    Todos
                   </Text>
                 </TouchableOpacity>
-                {(['DISPONIBLE', 'MANTENIMIENTO'] as const).map((estado) => {
-                  const selected = filterEstado === estado;
+                {courtTypes.map((courtType) => {
+                  const selected = courtTypeFilter === String(courtType.id);
                   return (
                     <TouchableOpacity
-                      key={estado}
-                      onPress={() => setFilterEstado(selected ? null : estado)}
+                      key={courtType.id}
+                      onPress={() =>
+                        setCourtTypeFilter(
+                          selected ? 'ALL' : String(courtType.id),
+                        )
+                      }
                       style={{
                         paddingHorizontal: 13,
                         paddingVertical: 7,
@@ -284,32 +379,11 @@ export function CourtsFiltersModal({
                           fontSize: 13,
                         }}
                       >
-                        {estado === 'DISPONIBLE'
-                          ? t('pistasStatusAvailable')
-                          : t('adminSetMaintenance')}
+                        {courtType.name}
                       </Text>
                     </TouchableOpacity>
                   );
                 })}
-              </View>
-
-              <Text
-                style={{
-                  color: theme.textTitle,
-                  fontSize: 13,
-                  fontWeight: '600',
-                  marginBottom: 8,
-                }}
-              >
-                {t('adminMaxPrice')}
-              </Text>
-              <View style={{ marginBottom: 8 }}>
-                <GlassTextInput
-                  value={filterPrecioMax}
-                  onChangeText={setFilterPrecioMax}
-                  placeholder={t('adminExamplePrice')}
-                  keyboardType="decimal-pad"
-                />
               </View>
             </ScrollView>
 
@@ -325,12 +399,8 @@ export function CourtsFiltersModal({
             >
               <View style={{ flex: 1 }}>
                 <GlassTextButton
-                  text={t('adminClear')}
-                  onPress={() => {
-                    setFilterTipoPistaId(null);
-                    setFilterEstado(null);
-                    setFilterPrecioMax('');
-                  }}
+                  text="Limpiar"
+                  onPress={clearFilters}
                   textColor={theme.textBody}
                   color={theme.inputBackground}
                   borderColor={theme.borderInput}
@@ -340,7 +410,7 @@ export function CourtsFiltersModal({
               </View>
               <View style={{ flex: 1 }}>
                 <GlassTextButton
-                  text={t('adminApply')}
+                  text="Aplicar"
                   onPress={onClose}
                   textColor={theme.onPrimary}
                   color={theme.primaryButton}

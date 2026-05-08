@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import api from '../services/api';
-import { Membresia, User } from '../types/types';
+import { Membership, User } from '../types/types';
 import { UserFormData } from '../components/admin/users/UserFormModal';
 import axios from 'axios';
 
 type AdminUser = User & {
-  membresia?: Membresia | null;
+  membership?: Membership | null;
 };
 
 type ViewMode = 'cards' | 'list';
@@ -43,7 +43,7 @@ const getApiErrorMessage = (error: unknown, fallback: string) => {
 
 export function useAdminUsers() {
   const [users, setUsers] = useState<AdminUser[]>([]);
-  const [memberships, setMemberships] = useState<Membresia[]>([]);
+  const [memberships, setMemberships] = useState<Membership[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('cards');
@@ -72,7 +72,7 @@ export function useAdminUsers() {
       setLoading(true);
       const [usersRes, membershipsRes] = await Promise.all([
         api.get<AdminUser[]>('/users'),
-        api.get('/membership'),
+        api.get('/memberships'),
       ]);
 
       setUsers(Array.isArray(usersRes.data) ? usersRes.data : []);
@@ -104,7 +104,7 @@ export function useAdminUsers() {
         user.email,
         user.phone,
         user.role,
-        user.membresia?.nombre || '',
+        user.membership?.name || '',
       ]
         .join(' ')
         .toLowerCase();
@@ -129,10 +129,10 @@ export function useAdminUsers() {
       phone: user.phone || '',
       password: '',
       role: user.role === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 'CLIENTE',
-      isActive: Boolean(user.isActive),
-      fecha_nacimiento: normalizeDateOnly(user.fecha_nacimiento),
-      direccion: user.direccion || '',
-      membresia_id: user.membresia_id ? String(user.membresia_id) : '',
+      isActive: Boolean(user.is_active),
+      fecha_nacimiento: normalizeDateOnly(user.date_of_birth),
+      direccion: user.address || '',
+      membresia_id: user.membership_id ? String(user.membership_id) : '',
     });
     setModalVisible(true);
   };
@@ -171,12 +171,12 @@ export function useAdminUsers() {
           ? Number(formData.membresia_id)
           : null;
         const currentMembresiaId =
-          userToEdit.membresia_id === undefined || userToEdit.membresia_id === null
+          userToEdit.membership_id === undefined || userToEdit.membership_id === null
             ? null
-            : Number(userToEdit.membresia_id);
+            : Number(userToEdit.membership_id);
         const currentRole =
           userToEdit.role === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 'CLIENTE';
-        const currentFechaNacimiento = (userToEdit.fecha_nacimiento || '').slice(0, 10);
+        const currentFechaNacimiento = (userToEdit.date_of_birth || '').slice(0, 10);
 
         if (username !== (userToEdit.username || '')) payload.username = username;
         if (name !== (userToEdit.name || '')) payload.name = name;
@@ -184,19 +184,19 @@ export function useAdminUsers() {
         if (email !== (userToEdit.email || '')) payload.email = email;
         if (phone !== (userToEdit.phone || '')) payload.phone = phone;
         if (fechaNacimiento !== currentFechaNacimiento) {
-          payload.fecha_nacimiento = fechaNacimiento;
+          payload.date_of_birth = fechaNacimiento;
         }
-        if (direccion !== (userToEdit.direccion || '')) payload.direccion = direccion;
+        if (direccion !== (userToEdit.address || '')) payload.address = direccion;
         if (membresiaId !== currentMembresiaId) {
-          payload.membresia_id = membresiaId;
+          payload.membership_id = membresiaId;
         }
         if (formData.role !== currentRole) payload.role = formData.role;
-        if (formData.isActive !== Boolean(userToEdit.isActive)) {
-          payload.isActive = formData.isActive;
+        if (formData.isActive !== Boolean(userToEdit.is_active)) {
+          payload.is_active = formData.isActive;
         }
 
         if (Object.keys(payload).length > 0) {
-          const updateUrl = `/users/${userToEdit.usuario_id}`;
+          const updateUrl = `/users/${userToEdit.id}`;
           const res = await api.put(updateUrl, payload);  
         }
       } else {
@@ -237,10 +237,10 @@ export function useAdminUsers() {
     setPendingUser(user);
     setConfirmModal({
       visible: true,
-      title: user.isActive ? 'Desactivar usuario' : 'Activar usuario',
-      message: user.isActive
-        ? `Seguro que quieres desactivar a \"${user.username}\"?`
-        : `Seguro que quieres activar a \"${user.username}\"?`,
+      title: user.is_active ? 'Desactivar usuario' : 'Activar usuario',
+      message: user.is_active
+        ? `Seguro que quieres desactivar a "${user.username}"?`
+        : `Seguro que quieres activar a "${user.username}"?`,
       onConfirmType: 'toggle-active',
     });
   };
@@ -249,9 +249,9 @@ export function useAdminUsers() {
     if (confirmModal.onConfirmType !== 'toggle-active' || !pendingUser) return;
 
     try {
-      const updateUrl = `/users/${pendingUser.usuario_id}`;
+      const updateUrl = `/users/${pendingUser.id}`;
       const payload = {
-        isActive: !pendingUser.isActive,
+        is_active: !pendingUser.is_active,
       };
 
       await api.put(updateUrl, payload);

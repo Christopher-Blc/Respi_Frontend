@@ -17,7 +17,7 @@ import { useAdminMemberships } from '../../../../hooks/useAdminMemberships';
 import { MembershipCard } from '../../../../components/admin/memberships/MembershipCard';
 import { MembershipFormModal } from '../../../../components/admin/memberships/MembershipFormModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
-import { Membresia } from '../../../../types/types';
+import { Membership } from '../../../../types/types';
 
 export default function AdminMembresias() {
   const { theme } = useAppTheme();
@@ -48,7 +48,7 @@ export default function AdminMembresias() {
     setErrorModal,
   } = useAdminMemberships();
 
-  const renderCard = ({ item }: { item: Membresia }) => {
+  const renderCard = ({ item }: { item: Membership }) => {
     const cardWidthStyle =
       cardsColumns === 1
         ? { width: '100%' as const }
@@ -132,13 +132,19 @@ export default function AdminMembresias() {
           color={theme.primary}
           style={{ marginTop: 50 }}
         />
+      ) : filteredMemberships.length === 0 ? (
+        <View style={{ paddingHorizontal: 20, paddingTop: 40 }}>
+          <Text style={{ color: theme.textBody, textAlign: 'center' }}>
+            No hay membresias.
+          </Text>
+        </View>
       ) : viewMode === 'cards' ? (
         <FlatList
           key={`memberships-cards-${cardsColumns}`}
           data={filteredMemberships}
           renderItem={renderCard}
           numColumns={cardsColumns}
-          keyExtractor={(item) => item.membresia_id.toString()}
+          keyExtractor={(item) => item.id.toString()}
           columnWrapperStyle={cardsColumns > 1 ? styles.gridRow : undefined}
           contentContainerStyle={[
             styles.gridContent,
@@ -207,7 +213,7 @@ export default function AdminMembresias() {
           </View>
           <FlatList
             data={filteredMemberships}
-            keyExtractor={(item) => item.membresia_id.toString()}
+            keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
             renderItem={({ item }) => (
               <View
@@ -222,16 +228,16 @@ export default function AdminMembresias() {
                     { color: theme.textTitle, fontWeight: '600' },
                   ]}
                 >
-                  {item.nombre}
+                  {item.name}
                 </Text>
                 <Text style={[styles.colRange, { color: theme.textBody }]}>
-                  #{item.rango}
+                  #{item.level}
                 </Text>
                 <Text style={[styles.colDiscount, { color: theme.textBody }]}>
-                  {item.descuento}%
+                  {item.discount}%
                 </Text>
                 <Text style={[styles.colBookings, { color: theme.textBody }]}>
-                  {item.reservas_requeridas}
+                  {item.required_reservations}
                 </Text>
                 <View style={styles.colActions}>
                   <View style={{ flexDirection: 'row', gap: 10 }}>

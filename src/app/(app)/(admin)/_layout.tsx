@@ -69,7 +69,7 @@ export default function AdminTabLayout() {
         },
         {
           label: t('tabsBookings'),
-          route: '/(app)/(admin)/reservas-global',
+          route: '/(app)/(admin)/(management)/reservas-global',
           icon: 'calendar',
           pathMatch: 'reservas-global',
         },
