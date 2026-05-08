@@ -1,6 +1,12 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { StatusBar, StyleSheet, useWindowDimensions, View } from 'react-native';
+import {
+  Platform,
+  StatusBar,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import Octicons from '@expo/vector-icons/Octicons';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
@@ -10,6 +16,9 @@ import { useAppTheme } from '../../../context/ThemeContext';
 import WebSidebar, {
   SidebarSection,
 } from '../../../components/general/WebSidebar';
+import WebBurgerMenu, {
+  BurgerNavItem,
+} from '../../../components/general/WebBurgerMenu';
 import WebProfileBadge from '../../../components/general/WebProfileBadge';
 import { useTranslation } from 'react-i18next';
 import { RESPONSIVE_NAVIGATION_BREAKPOINT } from '../../../constants';
@@ -20,6 +29,7 @@ export default function tabLayout() {
   const router = useRouter();
   const segments = useSegments();
   const { width } = useWindowDimensions();
+  const isWeb = Platform.OS === 'web';
   const isWideScreen = width >= RESPONSIVE_NAVIGATION_BREAKPOINT;
 
   const webSidebarSections: SidebarSection[] = [
@@ -54,6 +64,33 @@ export default function tabLayout() {
     },
   ];
 
+  const webBurgerNavItems: BurgerNavItem[] = [
+    {
+      label: t('tabsHome'),
+      route: '/(app)/(tabs)',
+      icon: 'home',
+      segment: 'index',
+    },
+    {
+      label: t('tabsCourts'),
+      route: '/(app)/(tabs)/courts',
+      icon: 'location',
+      segment: 'courts',
+    },
+    {
+      label: t('tabsBookings'),
+      route: '/(app)/(tabs)/bookings',
+      icon: 'calendar',
+      segment: 'bookings',
+    },
+    {
+      label: t('tabsProfile'),
+      route: '/(app)/(tabs)/profile',
+      icon: 'person',
+      segment: 'profile',
+    },
+  ];
+
   const bookingsSegmentIndex = segments.lastIndexOf('bookings');
   const isReservasNestedScreen =
     bookingsSegmentIndex !== -1 && segments.length > bookingsSegmentIndex + 1;
@@ -72,6 +109,9 @@ export default function tabLayout() {
         headerShown: true,
         headerTitleAlign: isWideScreen ? 'left' : 'center',
         headerTintColor: theme.headerText,
+        headerLeft: isWeb
+          ? () => <WebBurgerMenu navItems={webBurgerNavItems} />
+          : undefined,
         headerTransparent: true,
         headerBackground: () => (
           <BlurView
@@ -84,7 +124,7 @@ export default function tabLayout() {
         tabBarActiveTintColor: theme.tabActive,
         tabBarInactiveTintColor: theme.tabInactive,
         tabBarLabelPosition: 'below-icon',
-        tabBarStyle: isWideScreen
+        tabBarStyle: isWeb || isWideScreen
           ? { display: 'none' }
           : {
               position: 'absolute',
@@ -133,6 +173,10 @@ export default function tabLayout() {
         options={{
           title: t('tabsBookings'),
           headerLeft: () => {
+            if (isWeb) {
+              return <WebBurgerMenu navItems={webBurgerNavItems} />;
+            }
+
             if (!isReservasNestedScreen) {
               return null;
             }

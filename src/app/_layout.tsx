@@ -1,6 +1,6 @@
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Platform, View } from 'react-native';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import { ThemeProvider, useAppTheme } from '../context/ThemeContext';
 import { PaperProvider } from 'react-native-paper';
@@ -15,10 +15,54 @@ import {
   setupNotificationChannelAndroid,
 } from '../services/notificationsService';
 import api from '../services/api';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+/**
+ * Este componente se encarga de que la web se vea como una App nativa.
+ * Inyecta el CSS necesario y configura el viewport para iOS/Android.
+ */
+function WebStyleHandler() {
+  const { theme, isDarkMode } = useAppTheme(); // Sacamos isDarkMode para forzar el update
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+
+    // 1. Actualizar el color de la barra de estado del sistema (iOS/Android)
+    let themeColorMeta = document.querySelector('meta[name="theme-color"]');
+    if (!themeColorMeta) {
+      themeColorMeta = document.createElement('meta');
+      themeColorMeta.setAttribute('name', 'theme-color');
+      document.head.appendChild(themeColorMeta);
+    }
+    // Esto cambia el color de la interfaz del navegador al vuelo
+    themeColorMeta.setAttribute('content', theme.backgroundMain);
+
+    // 2. Inyección de CSS (Ahora con dependencia real)
+    let styleTag = document.getElementById('respi-web-root-reset');
+    if (!styleTag) {
+      styleTag = document.createElement('style');
+      styleTag.id = 'respi-web-root-reset';
+      document.head.appendChild(styleTag);
+    }
+
+    styleTag.textContent = `
+      html, body, #root {
+        background-color: ${theme.backgroundMain} !important; 
+        transition: background-color 0.3s ease-in-out; /* Suaviza el cambio de color */
+      }
+      /* Forzar que el fondo del documento sea el del tema */
+      :root {
+        color-scheme: ${isDarkMode ? 'dark' : 'light'};
+      }
+    `;
+  }, [theme.backgroundMain, isDarkMode]); // <--- CRUCIAL: Escucha estos cambios
+
+  return null;
+}
 
 function AuthNavigation() {
   const { userToken, isLoading, role } = useAuth();
-  const { theme, isThemeReady, isDarkMode } = useAppTheme();
+  const { theme, isThemeReady } = useAppTheme();
   const segments = useSegments() as string[];
   const router = useRouter();
   const hasRegisteredPushTokenRef = useRef(false);
@@ -30,19 +74,14 @@ function AuthNavigation() {
   }, [userToken]);
 
   useEffect(() => {
-    if (!userToken || hasRegisteredPushTokenRef.current) {
-      return;
-    }
+    if (!userToken || hasRegisteredPushTokenRef.current) return;
 
     hasRegisteredPushTokenRef.current = true;
 
     const registerPushToken = async () => {
       try {
         const result = await requestPushPermissionsAndToken();
-
-        if (!result.granted || !result.token) {
-          return;
-        }
+        if (!result.granted || !result.token) return;
 
         try {
           await api.patch('/users/push-token', { expoPushToken: result.token });
@@ -51,7 +90,6 @@ function AuthNavigation() {
         }
       } catch (error) {
         console.log('error al hacer push/patch del notification token', error);
-        // Silent fail to avoid interrupting user experience.
       }
     };
 
@@ -60,18 +98,13 @@ function AuthNavigation() {
 
   useEffect(() => {
     if (isLoading) return;
-
     const inAuthGroup = segments[0] === '(auth)';
 
-    //si no hay login lo mandamos al login
     if (!userToken) {
-      if (!inAuthGroup) {
-        router.replace('/(auth)/login');
-      }
+      if (!inAuthGroup) router.replace('/(auth)/login');
       return;
     }
 
-    //si hay token se mira el rol y segun rol o se va a admin o a tabs que es el panel de clientes
     if (userToken) {
       if (inAuthGroup || segments.length === 0 || segments[0] === 'index') {
         const dest =
@@ -80,8 +113,6 @@ function AuthNavigation() {
         return;
       }
 
-      // 3. PROTECCIÓN DE ROL (Aquí evitamos el error de segments[1])
-      // Usamos segments.includes() para que no importe la posición y siempre verifique si tiene acceso a esa pantalla o no
       if (role === 'SUPER_ADMIN' && !segments.includes('(admin)')) {
         router.replace('/(app)/(admin)');
       } else if (role === 'CLIENTE' && !segments.includes('(tabs)')) {
@@ -106,11 +137,13 @@ function AuthNavigation() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(auth)" />
-      <Stack.Screen name="(app)" />
-      <Stack.Screen name="index" />
-    </Stack>
+    <View style={{ flex: 1, backgroundColor: theme.backgroundMain }}>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(app)" />
+        <Stack.Screen name="index" />
+      </Stack>
+    </View>
   );
 }
 
@@ -126,48 +159,28 @@ function AppProviders() {
 
   useEffect(() => {
     let mounted = true;
-
     setupI18n()
-      .catch((error) => {
-        console.error('Error initializing i18n', error);
-      })
+      .catch((error) => console.error('Error initializing i18n', error))
       .finally(() => {
-        if (mounted) {
-          setIsI18nReady(true);
-        }
+        if (mounted) setIsI18nReady(true);
       });
-
     return () => {
       mounted = false;
     };
   }, []);
 
   useEffect(() => {
-    setupNotificationChannelAndroid().catch((error) => {
-      console.error('Error configuring notification channel', error);
-    });
+    setupNotificationChannelAndroid().catch(console.error);
 
-    notificationListener.current = addNotificationReceivedListener(
-      (notification) => {
-        console.log('Notification received', notification.request.identifier);
-      },
-    );
-
+    notificationListener.current = addNotificationReceivedListener(() => {});
     responseListener.current = addNotificationResponseListener((response) => {
-      console.log(
-        'Notification response',
-        response.notification.request.identifier,
-      );
-
       const data = response.notification.request.content.data as
         | { screen?: string }
         | undefined;
-
       if (typeof data?.screen === 'string' && data.screen.length > 0) {
         router.push(data.screen as any);
         return;
       }
-
       router.push('/(app)/(admin)/notificaciones');
     });
 
@@ -179,13 +192,7 @@ function AppProviders() {
 
   if (!isI18nReady) {
     return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color={paperTheme.colors.primary} />
       </View>
     );
@@ -203,7 +210,10 @@ function AppProviders() {
 export default function RootLayout() {
   return (
     <ThemeProvider>
-      <AppProviders />
+      <WebStyleHandler />
+      <SafeAreaProvider>
+        <AppProviders />
+      </SafeAreaProvider>
     </ThemeProvider>
   );
 }

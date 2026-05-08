@@ -1,12 +1,21 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { StatusBar, StyleSheet, useWindowDimensions, View } from 'react-native';
+import {
+  Platform,
+  StatusBar,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import Octicons from '@expo/vector-icons/Octicons';
 import { BlurView } from 'expo-blur';
 import { useAppTheme } from '../../../context/ThemeContext';
 import WebSidebar, {
   SidebarSection,
 } from '../../../components/general/WebSidebar';
+import WebBurgerMenu, {
+  BurgerNavItem,
+} from '../../../components/general/WebBurgerMenu';
 import WebProfileBadge from '../../../components/general/WebProfileBadge';
 import { useTranslation } from 'react-i18next';
 import { RESPONSIVE_NAVIGATION_BREAKPOINT } from '../../../constants';
@@ -17,6 +26,7 @@ export default function AdminTabLayout() {
   const { isDarkMode, theme } = useAppTheme();
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
+  const isWeb = Platform.OS === 'web';
   const isWideScreen = width >= RESPONSIVE_NAVIGATION_BREAKPOINT;
 
   const adminSidebarSections: SidebarSection[] = [
@@ -104,6 +114,81 @@ export default function AdminTabLayout() {
     },
   ];
 
+  const adminBurgerNavItems: BurgerNavItem[] = [
+    {
+      label: 'Home',
+      route: '/(app)/(admin)/index',
+      icon: 'home',
+      segment: 'index',
+    },
+    {
+      label: t('adminInfo'),
+      route: '/(app)/(admin)/info',
+      icon: 'graph',
+      segment: 'info',
+    },
+    {
+      label: t('tabsProfile'),
+      route: '/(app)/(admin)/profile',
+      icon: 'person',
+      segment: 'profile',
+    },
+    {
+      label: t('tabsCourts'),
+      route: '/(app)/(admin)/(management)/courts',
+      icon: 'project',
+      segment: 'courts',
+    },
+    {
+      label: t('adminInstallations'),
+      route: '/(app)/(admin)/(management)/installations',
+      icon: 'organization',
+      segment: 'installations',
+    },
+    {
+      label: t('adminCourtTypes'),
+      route: '/(app)/(admin)/(management)/court-types',
+      icon: 'tag',
+      segment: 'court-types',
+    },
+    {
+      label: t('adminUsers'),
+      route: '/(app)/(admin)/(management)/usuarios',
+      icon: 'people',
+      segment: 'usuarios',
+    },
+    {
+      label: t('tabsBookings'),
+      route: '/(app)/(admin)/(management)/reservas-global',
+      icon: 'calendar',
+      segment: 'reservas-global',
+    },
+    {
+      label: t('adminPayments'),
+      route: '/(app)/(admin)/pagos',
+      icon: 'credit-card',
+      segment: 'pagos',
+    },
+    {
+      label: t('adminMemberships'),
+      route: '/(app)/(admin)/membresias',
+      icon: 'gift',
+      segment: 'membresias',
+    },
+    {
+      label: t('adminReviews'),
+      route: '/(app)/(admin)/resenyas',
+      icon: 'star',
+      segment: 'resenyas',
+    },
+    {
+      label: 'Notificaciones',
+      route: '/(app)/(admin)/notificaciones',
+      icon: 'bell',
+      segment: 'notificaciones',
+    },
+  ];
+
   const tabs = (
     <Tabs
       screenOptions={{
@@ -128,6 +213,9 @@ export default function AdminTabLayout() {
         headerShown: true,
         headerTitleAlign: isWideScreen ? 'left' : 'center',
         headerTintColor: theme.headerText,
+        headerLeft: isWeb
+          ? () => <WebBurgerMenu navItems={adminBurgerNavItems} />
+          : undefined,
         headerTransparent: true,
         headerBackground: () => (
           <BlurView
@@ -140,7 +228,7 @@ export default function AdminTabLayout() {
         tabBarActiveTintColor: theme.tabActive,
         tabBarInactiveTintColor: theme.tabInactive,
         tabBarLabelPosition: 'below-icon',
-        tabBarStyle: isWideScreen
+        tabBarStyle: isWeb || isWideScreen
           ? { display: 'none' }
           : {
               position: 'absolute',
