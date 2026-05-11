@@ -3,7 +3,7 @@
     "name": "ResPi",
     "slug": "ResPi",
     "version": "1.0.0",
-    "scheme": "ResPi",
+    "scheme": ["respi-app", "ResPi"],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -27,8 +27,34 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.respiteam.ResPi",
-      "googleServicesFile": "./google-services.json"
+      "package": "com.respi.app",
+      "googleServicesFile": "./google-services.json",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ],
+          "data": [
+            {
+              "scheme": "respi-app",
+              "host": "verify-email"
+            },
+            {
+              "scheme": "https",
+              "host": "respi.es",
+              "pathPrefix": "/verify-email"
+            },
+            {
+              "scheme": "https",
+              "host": "www.respi.es",
+              "pathPrefix": "/verify-email"
+            }
+          ]
+        }
+      ]
     },
     "web": {
       "bundler": "metro",
