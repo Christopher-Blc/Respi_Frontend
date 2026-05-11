@@ -65,16 +65,7 @@ const extractApiErrorMessage = (error: unknown) => {
 };
 
 const verifyEmailToken = async (token: string) => {
-  try {
-    await axios.get(`${VERIFY_EMAIL_ENDPOINT}`, {
-      params: { token },
-    });
-    return;
-  } catch {
-    await axios.post(`${VERIFY_EMAIL_ENDPOINT}`, {
-      token,
-    });
-  }
+  return await axios.post(`${VERIFY_EMAIL_ENDPOINT}`, { token });
 };
 
 export default function VerificationScreen() {
