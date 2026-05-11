@@ -8,12 +8,12 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Linking from 'expo-linking';
-import axios from 'axios';
 import { useAppTheme } from '../../context/ThemeContext';
+import api from '../../services/api';
 
 type VerificationStatus = 'loading' | 'success' | 'error';
 
-const VERIFY_EMAIL_ENDPOINT = '/auth/verify-email';
+const VERIFY_EMAIL_ENDPOINT = '/api/auth/verify-email';
 
 const normalizeToken = (value?: string | null) => {
   if (!value) return null;
@@ -47,10 +47,10 @@ const getTokenFromUrl = (url?: string | null): string | null => {
 };
 
 const extractApiErrorMessage = (error: unknown) => {
-  if (axios.isAxiosError(error)) {
-    const data = error.response?.data as
-      | { message?: string | string[] }
-      | undefined;
+  if ((error as { isAxiosError?: boolean })?.isAxiosError) {
+    const data = (
+      error as { response?: { data?: { message?: string | string[] } } }
+    )?.response?.data;
 
     if (Array.isArray(data?.message)) {
       return data.message[0] || 'No se pudo verificar el email.';
@@ -65,7 +65,7 @@ const extractApiErrorMessage = (error: unknown) => {
 };
 
 const verifyEmailToken = async (token: string) => {
-  return await axios.post(`${VERIFY_EMAIL_ENDPOINT}`, { token });
+  return await api.post(VERIFY_EMAIL_ENDPOINT, { token });
 };
 
 export default function VerificationScreen() {
