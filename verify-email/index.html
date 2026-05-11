@@ -137,52 +137,30 @@
 
             async function verifyToken() {
                 try {
-                    var getUrl =
-                        BACKEND_BASE_URL + VERIFY_PATH + "?token=" + encodeURIComponent(token);
-
-                    var response = await fetch(getUrl, {
-                        method: "GET",
+                    // Solo POST, directo a la API
+                    const response = await fetch(`${BACKEND_BASE_URL}${VERIFY_PATH}`, {
+                        method: "POST",
                         headers: {
-                            Accept: "application/json",
+                            "Content-Type": "application/json",
+                            "Accept": "application/json",
                         },
+                        body: JSON.stringify({ token: token }),
                     });
 
-                    if (!response.ok) {
-                        var postResponse = await fetch(BACKEND_BASE_URL + VERIFY_PATH, {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                Accept: "application/json",
-                            },
-                            body: JSON.stringify({ token: token }),
-                        });
+                    const data = await response.json();
 
-                        if (!postResponse.ok) {
-                            var errorText = "No se pudo verificar tu email.";
-                            try {
-                                var errorJson = await postResponse.json();
-                                if (errorJson && errorJson.message) {
-                                    errorText = Array.isArray(errorJson.message)
-                                        ? errorJson.message[0]
-                                        : errorJson.message;
-                                }
-                            } catch (_error) {
-                                // Ignore JSON parse issues and keep fallback message.
-                            }
-                            throw new Error(errorText);
-                        }
+                    if (response.ok) {
+                        statusEl.textContent = "Email verificado correctamente. Ya puedes volver a la App.";
+                        statusEl.classList.add("ok");
+                        showOpenAppButton();
+                    } else {
+                        // Si el back responde error (ej: token caducado), lo mostramos
+                        throw new Error(data.message || "No se pudo verificar el email.");
                     }
-
-                    statusEl.textContent =
-                        "Email verificado correctamente. Pulsa para volver a ResPi.";
-                    statusEl.classList.add("ok");
-                    showOpenAppButton();
                 } catch (error) {
-                    statusEl.textContent =
-                        (error && error.message) ||
-                        "Error verificando el email. Intentalo de nuevo en unos minutos.";
+                    statusEl.textContent = error.message;
                     statusEl.classList.add("error");
-                    showOpenAppButton();
+                    // En caso de error real, no mostramos el botón de éxito
                 }
             }
 
