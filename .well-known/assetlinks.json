@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.respi.app",
+      "sha256_cert_fingerprints": [
+        "92:F1:88:4D:78:80:2A:C0:8E:96:47:5A:58:7C:16:FF:FC:40:1F:8C:2C:02:94:50:F6:AE:E1:F6:7A:35:BF:CC"
+      ]
+    }
+  }
+]
