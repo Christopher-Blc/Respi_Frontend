@@ -43,7 +43,7 @@ export function BookingCard({
       <View style={styles.cardHeader}>
         <View style={{ flex: 1 }}>
           <Text style={[styles.cardTitle, { color: theme.textTitle }]}>
-            Reserva #{item.id}
+            Reserva {item.id}
           </Text>
           <Text style={[styles.cardSubtitle, { color: theme.textBody }]}>
             {item.reservation_date} · {String(item.start_time).slice(0, 5)}-

@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   FlatList,
+  ScrollView,
   ActivityIndicator,
   TouchableOpacity,
   useWindowDimensions,
@@ -21,6 +22,7 @@ import { TipoCourtFormModal } from '../../../../components/admin/courtTypes/Cour
 import { SessionExpiredModal } from '../../../../components/alert.modal';
 import { useTranslation } from 'react-i18next';
 import { API_PUBLIC_URL } from '../../../../constants';
+import { addSoftBreaks } from '../../../../utils/addSoftBreaks';
 
 const getImageUri = (
   imagePath: string | null | undefined,
@@ -35,6 +37,8 @@ export default function AdminTiposPista() {
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
+  const tableMinWidth = 680;
+  const useHorizontalTableScroll = width < tableMinWidth + 32;
   const cardsColumns = width >= 1280 ? 3 : width >= 780 ? 2 : 1;
   const [viewMode, setViewMode] = React.useState<'cards' | 'list'>('cards');
 
@@ -157,116 +161,129 @@ export default function AdminTiposPista() {
           ]}
         />
       ) : (
-        <View
-          style={[
-            styles.tableWrap,
-            {
-              borderColor: theme.primarySoft,
-              backgroundColor: theme.backgroundCard,
-            },
-          ]}
+        <ScrollView
+          horizontal={useHorizontalTableScroll}
+          showsHorizontalScrollIndicator={useHorizontalTableScroll}
+          bounces={false}
+          contentContainerStyle={
+            useHorizontalTableScroll ? { paddingHorizontal: 16 } : undefined
+          }
         >
           <View
             style={[
-              styles.tableHeader,
+              styles.tableWrap,
               {
-                borderBottomColor: theme.primarySoft,
-                backgroundColor: theme.primary + '10',
+                borderColor: theme.primarySoft,
+                backgroundColor: theme.backgroundCard,
               },
+              useHorizontalTableScroll
+                ? { minWidth: tableMinWidth, marginHorizontal: 0 }
+                : undefined,
             ]}
           >
-            <Text
+            <View
               style={[
-                styles.colName,
-                { color: theme.textTitle, fontWeight: '700' },
+                styles.tableHeader,
+                {
+                  borderBottomColor: theme.primarySoft,
+                  backgroundColor: theme.primary + '10',
+                },
               ]}
             >
-              Nombre
-            </Text>
-            <View style={styles.colImage}>
-              <Text style={{ color: theme.textTitle, fontWeight: '700' }}>
-                Imagen
-              </Text>
-            </View>
-            <View style={styles.colCount}>
-              <Text style={{ color: theme.textTitle, fontWeight: '700' }}>
-                Pistas
-              </Text>
-            </View>
-            <View style={styles.colActions}>
-              <Text style={{ color: theme.textTitle, fontWeight: '700' }}>
-                Acciones
-              </Text>
-            </View>
-          </View>
-          <FlatList
-            data={filteredTiposPista}
-            keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
-            renderItem={({ item }) => (
-              <View
+              <Text
                 style={[
-                  styles.tableRow,
-                  { borderBottomColor: theme.primarySoft },
+                  styles.colName,
+                  { color: theme.textTitle, fontWeight: '700' },
                 ]}
               >
-                <Text
-                  style={[
-                    styles.colName,
-                    { color: theme.textTitle, fontWeight: '600' },
-                  ]}
-                >
-                  {item.name}
+                Nombre
+              </Text>
+              <View style={styles.colImage}>
+                <Text style={{ color: theme.textTitle, fontWeight: '700' }}>
+                  Imagen
                 </Text>
+              </View>
+              <View style={styles.colCount}>
+                <Text style={{ color: theme.textTitle, fontWeight: '700' }}>
+                  Pistas
+                </Text>
+              </View>
+              <View style={styles.colActions}>
+                <Text style={{ color: theme.textTitle, fontWeight: '700' }}>
+                  Acciones
+                </Text>
+              </View>
+            </View>
+            <FlatList
+              data={filteredTiposPista}
+              keyExtractor={(item) => item.id.toString()}
+              nestedScrollEnabled
+              contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+              renderItem={({ item }) => (
                 <View
                   style={[
-                    styles.colImage,
-                    { justifyContent: 'center', alignItems: 'center' },
+                    styles.tableRow,
+                    { borderBottomColor: theme.primarySoft },
                   ]}
                 >
-                  {item.image ? (
-                    <Image
-                      source={{ uri: getImageUri(item.image) }}
-                      style={{
-                        width: 72,
-                        height: 40,
-                        borderRadius: 6,
-                        borderWidth: 1,
-                        borderColor: theme.primarySoft,
-                      }}
-                      resizeMode="cover"
-                    />
-                  ) : (
-                    <Text style={{ color: theme.textBody }}>-</Text>
-                  )}
-                </View>
-                <View style={styles.colCount}>
-                  <Text style={{ color: theme.textBody }}>
-                    {item.courts?.length ?? 0}
+                  <Text
+                    style={[
+                      styles.colName,
+                      { color: theme.textTitle, fontWeight: '600' },
+                    ]}
+                  >
+                    {addSoftBreaks(item.name)}
                   </Text>
-                </View>
-                <View style={styles.colActions}>
-                  <View style={{ flexDirection: 'row', gap: 10 }}>
-                    <TouchableOpacity onPress={() => openEditModal(item)}>
-                      <Ionicons
-                        name="create-outline"
-                        size={18}
-                        color={theme.textBody}
+                  <View
+                    style={[
+                      styles.colImage,
+                      { justifyContent: 'center', alignItems: 'center' },
+                    ]}
+                  >
+                    {item.image ? (
+                      <Image
+                        source={{ uri: getImageUri(item.image) }}
+                        style={{
+                          width: 72,
+                          height: 40,
+                          borderRadius: 6,
+                          borderWidth: 1,
+                          borderColor: theme.primarySoft,
+                        }}
+                        resizeMode="cover"
                       />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleDelete(item)}>
-                      <Ionicons
-                        name="trash-outline"
-                        size={18}
-                        color={theme.textBody}
-                      />
-                    </TouchableOpacity>
+                    ) : (
+                      <Text style={{ color: theme.textBody }}>-</Text>
+                    )}
+                  </View>
+                  <View style={styles.colCount}>
+                    <Text style={{ color: theme.textBody }}>
+                      {item.courts?.length ?? 0}
+                    </Text>
+                  </View>
+                  <View style={styles.colActions}>
+                    <View style={{ flexDirection: 'row', gap: 10 }}>
+                      <TouchableOpacity onPress={() => openEditModal(item)}>
+                        <Ionicons
+                          name="create-outline"
+                          size={18}
+                          color={theme.textBody}
+                        />
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => handleDelete(item)}>
+                        <Ionicons
+                          name="trash-outline"
+                          size={18}
+                          color={theme.textBody}
+                        />
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
-              </View>
-            )}
-          />
-        </View>
+              )}
+            />
+          </View>
+        </ScrollView>
       )}
 
       <TipoCourtFormModal
