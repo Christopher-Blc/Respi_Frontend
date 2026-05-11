@@ -9,8 +9,7 @@ export const linking = {
   prefixes: [
     Linking.createURL('/'),
     'respi-app://',
-    'https://respi.es',
-    'https://www.respi.es',
+    'https://respi.es/api',
   ],
   config: {
     screens: {
