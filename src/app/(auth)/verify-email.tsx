@@ -13,7 +13,6 @@ import { useAppTheme } from '../../context/ThemeContext';
 
 type VerificationStatus = 'loading' | 'success' | 'error';
 
-const LOCAL_API_BASE_URL = 'http://192.168.10.158:3000/api';
 const VERIFY_EMAIL_ENDPOINT = '/auth/verify-email';
 
 const normalizeToken = (value?: string | null) => {
@@ -67,12 +66,12 @@ const extractApiErrorMessage = (error: unknown) => {
 
 const verifyEmailToken = async (token: string) => {
   try {
-    await axios.get(`${LOCAL_API_BASE_URL}${VERIFY_EMAIL_ENDPOINT}`, {
+    await axios.get(`${VERIFY_EMAIL_ENDPOINT}`, {
       params: { token },
     });
     return;
   } catch {
-    await axios.post(`${LOCAL_API_BASE_URL}${VERIFY_EMAIL_ENDPOINT}`, {
+    await axios.post(`${VERIFY_EMAIL_ENDPOINT}`, {
       token,
     });
   }
