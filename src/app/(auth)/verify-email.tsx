@@ -13,7 +13,7 @@ import api from '../../services/api';
 
 type VerificationStatus = 'loading' | 'success' | 'error';
 
-const VERIFY_EMAIL_ENDPOINT = '/api/auth/verify-email';
+const VERIFY_EMAIL_ENDPOINT = '/auth/verify-email';
 
 const normalizeToken = (value?: string | null) => {
   if (!value) return null;
@@ -65,6 +65,8 @@ const extractApiErrorMessage = (error: unknown) => {
 };
 
 const verifyEmailToken = async (token: string) => {
+  console.log('Verifying token:', token);
+  console.log('ruta:', VERIFY_EMAIL_ENDPOINT);
   return await api.post(VERIFY_EMAIL_ENDPOINT, { token });
 };
 
