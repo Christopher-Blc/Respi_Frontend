@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -18,6 +19,7 @@ import { UserCard } from '../../../../components/admin/users/UserCard';
 import { UserFormModal } from '../../../../components/admin/users/UserFormModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
 import { useAdminUsers } from '../../../../hooks/useAdminUsers';
+import { addSoftBreaks } from '../../../../utils/addSoftBreaks';
 
 type AdminUser = User & {
   membership?: Membership | null;
@@ -28,6 +30,8 @@ export default function AdminUsuarios() {
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
+  const tableMinWidth = 760;
+  const useHorizontalTableScroll = width < tableMinWidth + 32;
   const cardsColumns = width >= 1280 ? 3 : width >= 780 ? 2 : 1;
   const [searchReadOnly, setSearchReadOnly] = useState(true);
   const {
@@ -155,127 +159,144 @@ export default function AdminUsuarios() {
           ]}
         />
       ) : (
-        <View
-          style={[
-            styles.tableWrap,
-            {
-              borderColor: theme.primarySoft,
-              backgroundColor: theme.backgroundCard,
-            },
-          ]}
+        <ScrollView
+          horizontal={useHorizontalTableScroll}
+          showsHorizontalScrollIndicator={useHorizontalTableScroll}
+          bounces={false}
+          contentContainerStyle={
+            useHorizontalTableScroll ? { paddingHorizontal: 16 } : undefined
+          }
         >
           <View
             style={[
-              styles.tableHeader,
+              styles.tableWrap,
               {
-                borderBottomColor: theme.primarySoft,
-                backgroundColor: theme.primary + '10',
+                borderColor: theme.primarySoft,
+                backgroundColor: theme.backgroundCard,
               },
+              useHorizontalTableScroll
+                ? { minWidth: tableMinWidth, marginHorizontal: 0 }
+                : undefined,
             ]}
           >
-            <Text
+            <View
               style={[
-                styles.colName,
-                { color: theme.textTitle, fontWeight: '700' },
+                styles.tableHeader,
+                {
+                  borderBottomColor: theme.primarySoft,
+                  backgroundColor: theme.primary + '10',
+                },
               ]}
             >
-              Usuario
-            </Text>
-            <Text
-              style={[
-                styles.colRole,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Rol
-            </Text>
-            <Text
-              style={[
-                styles.colMembership,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Membresia
-            </Text>
-            <Text
-              style={[
-                styles.colStatus,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Estado
-            </Text>
-            <Text
-              style={[
-                styles.colActions,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Acciones
-            </Text>
-          </View>
-          <FlatList
-            data={filteredUsers}
-            keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
-            renderItem={({ item }) => (
-              <View
+              <Text
                 style={[
-                  styles.tableRow,
-                  { borderBottomColor: theme.primarySoft },
+                  styles.colName,
+                  { color: theme.textTitle, fontWeight: '700' },
                 ]}
               >
-                <View style={styles.colName}>
-                  <Text style={{ color: theme.textTitle, fontWeight: '600' }}>
-                    {item.username}
-                  </Text>
-                  <Text style={{ color: theme.textBody, fontSize: 12 }}>
-                    {item.email}
-                  </Text>
-                </View>
-                <Text style={[styles.colRole, { color: theme.textBody }]}>
-                  {item.role}
-                </Text>
-                <Text style={[styles.colMembership, { color: theme.textBody }]}>
-                  {item.membership?.name || 'Sin membresia'}
-                </Text>
-                <Text
+                Usuario
+              </Text>
+              <Text
+                style={[
+                  styles.colRole,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Rol
+              </Text>
+              <Text
+                style={[
+                  styles.colMembership,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Membresia
+              </Text>
+              <Text
+                style={[
+                  styles.colStatus,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Estado
+              </Text>
+              <Text
+                style={[
+                  styles.colActions,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Acciones
+              </Text>
+            </View>
+            <FlatList
+              data={filteredUsers}
+              keyExtractor={(item) => item.id.toString()}
+              nestedScrollEnabled
+              contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+              renderItem={({ item }) => (
+                <View
                   style={[
-                    styles.colStatus,
-                    {
-                      color: item.is_active ? '#4CAF50' : '#F44336',
-                      fontWeight: '700',
-                    },
+                    styles.tableRow,
+                    { borderBottomColor: theme.primarySoft },
                   ]}
                 >
-                  {item.is_active ? 'Activa' : 'Inactiva'}
-                </Text>
-                <View style={styles.colActions}>
-                  <View style={{ flexDirection: 'row', gap: 10 }}>
-                    <TouchableOpacity onPress={() => openEditModal(item)}>
-                      <Ionicons
-                        name="create-outline"
-                        size={18}
-                        color={theme.textBody}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleToggleActive(item)}>
-                      <Ionicons
-                        name={
-                          item.is_active
-                            ? 'pause-circle-outline'
-                            : 'checkmark-circle-outline'
-                        }
-                        size={18}
-                        color={theme.textBody}
-                      />
-                    </TouchableOpacity>
+                  <View style={styles.colName}>
+                    <Text style={{ color: theme.textTitle, fontWeight: '600' }}>
+                      {addSoftBreaks(item.username)}
+                    </Text>
+                    <Text style={{ color: theme.textBody, fontSize: 12 }}>
+                      {addSoftBreaks(item.email)}
+                    </Text>
+                  </View>
+                  <Text style={[styles.colRole, { color: theme.textBody }]}>
+                    {item.role}
+                  </Text>
+                  <Text
+                    style={[styles.colMembership, { color: theme.textBody }]}
+                  >
+                    {addSoftBreaks(item.membership?.name || 'Sin membresia')}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.colStatus,
+                      {
+                        color: item.is_active ? '#4CAF50' : '#F44336',
+                        fontWeight: '700',
+                      },
+                    ]}
+                  >
+                    {item.is_active ? 'Activa' : 'Inactiva'}
+                  </Text>
+                  <View style={styles.colActions}>
+                    <View style={{ flexDirection: 'row', gap: 10 }}>
+                      <TouchableOpacity onPress={() => openEditModal(item)}>
+                        <Ionicons
+                          name="create-outline"
+                          size={18}
+                          color={theme.textBody}
+                        />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => handleToggleActive(item)}
+                      >
+                        <Ionicons
+                          name={
+                            item.is_active
+                              ? 'pause-circle-outline'
+                              : 'checkmark-circle-outline'
+                          }
+                          size={18}
+                          color={theme.textBody}
+                        />
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
-              </View>
-            )}
-          />
-        </View>
+              )}
+            />
+          </View>
+        </ScrollView>
       )}
 
       <UserFormModal

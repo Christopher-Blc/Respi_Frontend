@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   FlatList,
+  ScrollView,
   ActivityIndicator,
   TouchableOpacity,
   useWindowDimensions,
@@ -27,12 +28,23 @@ const statusColorMap: Record<string, string> = {
   FINALIZADA: '#43A047',
 };
 
+const addSoftBreaks = (value: string, chunkSize = 12) => {
+  if (!value || value.length <= chunkSize || /\s/.test(value)) {
+    return value;
+  }
+
+  return (
+    value.match(new RegExp(`.{1,${chunkSize}}`, 'g'))?.join('\u200B') ?? value
+  );
+};
+
 export default function AdminReservasGlobal() {
   const { theme } = useAppTheme();
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const gridGap = 12;
+  const tableMinWidth = 760;
   const [gridWidth, setGridWidth] = useState(0);
   const gridHorizontalPadding = 32;
   const minCardWidth = width >= 1440 ? 360 : width >= 1100 ? 320 : 280;
@@ -52,6 +64,7 @@ export default function AdminReservasGlobal() {
     cardsColumns === 1
       ? availableGridWidth
       : (availableGridWidth - gridGap * (cardsColumns - 1)) / cardsColumns;
+  const useHorizontalTableScroll = width < tableMinWidth + 32;
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const {
@@ -224,154 +237,180 @@ export default function AdminReservasGlobal() {
           ]}
         />
       ) : (
-        <View
-          style={[
-            styles.tableWrap,
-            {
-              borderColor: theme.primarySoft,
-              backgroundColor: theme.backgroundCard,
-            },
-          ]}
+        <ScrollView
+          horizontal={useHorizontalTableScroll}
+          showsHorizontalScrollIndicator={useHorizontalTableScroll}
+          bounces={false}
+          contentContainerStyle={
+            useHorizontalTableScroll ? { paddingHorizontal: 16 } : undefined
+          }
         >
           <View
             style={[
-              styles.tableHeader,
+              styles.tableWrap,
               {
-                borderBottomColor: theme.primarySoft,
-                backgroundColor: theme.primary + '10',
+                borderColor: theme.primarySoft,
+                backgroundColor: theme.backgroundCard,
               },
+              useHorizontalTableScroll
+                ? { minWidth: tableMinWidth, marginHorizontal: 0 }
+                : undefined,
             ]}
           >
-            <Text
+            <View
               style={[
-                styles.colId,
-                { color: theme.textTitle, fontWeight: '700' },
+                styles.tableHeader,
+                {
+                  borderBottomColor: theme.primarySoft,
+                  backgroundColor: theme.primary + '10',
+                },
               ]}
             >
-              ID
-            </Text>
-            <Text
-              style={[
-                styles.colUser,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Usuario
-            </Text>
-            <Text
-              style={[
-                styles.colCourt,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Pista
-            </Text>
-            <Text
-              style={[
-                styles.colDate,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Fecha
-            </Text>
-            <Text
-              style={[
-                styles.colStatus,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Estado
-            </Text>
-            <Text
-              style={[
-                styles.colActions,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Acciones
-            </Text>
-          </View>
+              <Text
+                style={[
+                  styles.colId,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                ID
+              </Text>
+              <Text
+                style={[
+                  styles.colUser,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Usuario
+              </Text>
+              <Text
+                style={[
+                  styles.colCourt,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Pista
+              </Text>
+              <Text
+                style={[
+                  styles.colDate,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Fecha
+              </Text>
+              <Text
+                style={[
+                  styles.colStatus,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Estado
+              </Text>
+              <Text
+                style={[
+                  styles.colActions,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Acciones
+              </Text>
+            </View>
 
-          <FlatList
-            data={filteredReservations}
-            keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
-            renderItem={({ item }) => {
-              const statusColor = statusColorMap[item.status] || theme.textBody;
-              const canCancel =
-                item.status !== 'FINALIZADA' && item.status !== 'CANCELADA';
+            <FlatList
+              data={filteredReservations}
+              keyExtractor={(item) => item.id.toString()}
+              nestedScrollEnabled
+              contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+              renderItem={({ item }) => {
+                const statusColor =
+                  statusColorMap[item.status] || theme.textBody;
+                const canCancel =
+                  item.status !== 'FINALIZADA' && item.status !== 'CANCELADA';
 
-              return (
-                <View
-                  style={[
-                    styles.tableRow,
-                    { borderBottomColor: theme.primarySoft },
-                  ]}
-                >
-                  <Text
+                return (
+                  <View
                     style={[
-                      styles.colId,
-                      { color: theme.textBody, fontWeight: '600' },
+                      styles.tableRow,
+                      { borderBottomColor: theme.primarySoft },
                     ]}
                   >
-                    #{item.id}
-                  </Text>
-                  <Text style={[styles.colUser, { color: theme.textBody }]}>
-                    {item.user?.username || item.user_id}
-                  </Text>
-                  <Text style={[styles.colCourt, { color: theme.textBody }]}>
-                    {item.court?.name || item.court_id}
-                  </Text>
-                  <Text style={[styles.colDate, { color: theme.textBody }]}>
-                    {item.reservation_date}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.colStatus,
-                      {
-                        color: statusColor,
-                        fontWeight: '700',
-                      },
-                    ]}
-                  >
-                    {item.status}
-                  </Text>
-                  <View style={styles.colActions}>
-                    <View style={{ flexDirection: 'row', gap: 10 }}>
-                      <TouchableOpacity onPress={() => openEditModal(item)}>
-                        <Ionicons
-                          name="create-outline"
-                          size={18}
-                          color={theme.textBody}
-                        />
-                      </TouchableOpacity>
-                      {canCancel && (
-                        <TouchableOpacity
-                          onPress={() => handleCancelReservation(item)}
-                        >
+                    <Text
+                      style={[
+                        styles.colId,
+                        { color: theme.textBody, fontWeight: '600' },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {item.id}
+                    </Text>
+                    <Text style={[styles.colUser, { color: theme.textBody }]}>
+                      {addSoftBreaks(
+                        String(item.user?.username || item.user_id),
+                      )}
+                    </Text>
+                    <Text
+                      style={[styles.colCourt, { color: theme.textBody }]}
+                      numberOfLines={2}
+                      ellipsizeMode="tail"
+                    >
+                      {item.court?.name || item.court_id}
+                    </Text>
+                    <Text
+                      style={[styles.colDate, { color: theme.textBody }]}
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                    >
+                      {item.reservation_date}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.colStatus,
+                        {
+                          color: statusColor,
+                          fontWeight: '700',
+                        },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {item.status}
+                    </Text>
+                    <View style={styles.colActions}>
+                      <View style={{ flexDirection: 'row', gap: 10 }}>
+                        <TouchableOpacity onPress={() => openEditModal(item)}>
                           <Ionicons
-                            name="close-circle-outline"
+                            name="create-outline"
                             size={18}
                             color={theme.textBody}
                           />
                         </TouchableOpacity>
-                      )}
-                      <TouchableOpacity
-                        onPress={() => handleDeleteReservation(item)}
-                      >
-                        <Ionicons
-                          name="trash-outline"
-                          size={18}
-                          color={theme.textBody}
-                        />
-                      </TouchableOpacity>
+                        {canCancel && (
+                          <TouchableOpacity
+                            onPress={() => handleCancelReservation(item)}
+                          >
+                            <Ionicons
+                              name="close-circle-outline"
+                              size={18}
+                              color={theme.textBody}
+                            />
+                          </TouchableOpacity>
+                        )}
+                        <TouchableOpacity
+                          onPress={() => handleDeleteReservation(item)}
+                        >
+                          <Ionicons
+                            name="trash-outline"
+                            size={18}
+                            color={theme.textBody}
+                          />
+                        </TouchableOpacity>
+                      </View>
                     </View>
                   </View>
-                </View>
-              );
-            }}
-          />
-        </View>
+                );
+              }}
+            />
+          </View>
+        </ScrollView>
       )}
 
       <BookingFormModal

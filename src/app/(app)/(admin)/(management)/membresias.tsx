@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   FlatList,
+  ScrollView,
   ActivityIndicator,
   TouchableOpacity,
   useWindowDimensions,
@@ -18,12 +19,15 @@ import { MembershipCard } from '../../../../components/admin/memberships/Members
 import { MembershipFormModal } from '../../../../components/admin/memberships/MembershipFormModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
 import { Membership } from '../../../../types/types';
+import { addSoftBreaks } from '../../../../utils/addSoftBreaks';
 
 export default function AdminMembresias() {
   const { theme } = useAppTheme();
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
+  const tableMinWidth = 700;
+  const useHorizontalTableScroll = width < tableMinWidth + 32;
   const cardsColumns = width >= 1280 ? 3 : width >= 780 ? 2 : 1;
   const [viewMode, setViewMode] = React.useState<'cards' | 'list'>('cards');
 
@@ -152,115 +156,128 @@ export default function AdminMembresias() {
           ]}
         />
       ) : (
-        <View
-          style={[
-            styles.tableWrap,
-            {
-              borderColor: theme.primarySoft,
-              backgroundColor: theme.backgroundCard,
-            },
-          ]}
+        <ScrollView
+          horizontal={useHorizontalTableScroll}
+          showsHorizontalScrollIndicator={useHorizontalTableScroll}
+          bounces={false}
+          contentContainerStyle={
+            useHorizontalTableScroll ? { paddingHorizontal: 16 } : undefined
+          }
         >
           <View
             style={[
-              styles.tableHeader,
+              styles.tableWrap,
               {
-                borderBottomColor: theme.primarySoft,
-                backgroundColor: theme.primary + '10',
+                borderColor: theme.primarySoft,
+                backgroundColor: theme.backgroundCard,
               },
+              useHorizontalTableScroll
+                ? { minWidth: tableMinWidth, marginHorizontal: 0 }
+                : undefined,
             ]}
           >
-            <Text
+            <View
               style={[
-                styles.colType,
-                { color: theme.textTitle, fontWeight: '700' },
+                styles.tableHeader,
+                {
+                  borderBottomColor: theme.primarySoft,
+                  backgroundColor: theme.primary + '10',
+                },
               ]}
             >
-              Tipo
-            </Text>
-            <Text
-              style={[
-                styles.colRange,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Rango
-            </Text>
-            <Text
-              style={[
-                styles.colDiscount,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Dto
-            </Text>
-            <Text
-              style={[
-                styles.colBookings,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Reservas
-            </Text>
-            <Text
-              style={[
-                styles.colActions,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Acciones
-            </Text>
-          </View>
-          <FlatList
-            data={filteredMemberships}
-            keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
-            renderItem={({ item }) => (
-              <View
+              <Text
                 style={[
-                  styles.tableRow,
-                  { borderBottomColor: theme.primarySoft },
+                  styles.colType,
+                  { color: theme.textTitle, fontWeight: '700' },
                 ]}
               >
-                <Text
+                Tipo
+              </Text>
+              <Text
+                style={[
+                  styles.colRange,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Rango
+              </Text>
+              <Text
+                style={[
+                  styles.colDiscount,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Dto
+              </Text>
+              <Text
+                style={[
+                  styles.colBookings,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Reservas
+              </Text>
+              <Text
+                style={[
+                  styles.colActions,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Acciones
+              </Text>
+            </View>
+            <FlatList
+              data={filteredMemberships}
+              keyExtractor={(item) => item.id.toString()}
+              nestedScrollEnabled
+              contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+              renderItem={({ item }) => (
+                <View
                   style={[
-                    styles.colType,
-                    { color: theme.textTitle, fontWeight: '600' },
+                    styles.tableRow,
+                    { borderBottomColor: theme.primarySoft },
                   ]}
                 >
-                  {item.name}
-                </Text>
-                <Text style={[styles.colRange, { color: theme.textBody }]}>
-                  #{item.level}
-                </Text>
-                <Text style={[styles.colDiscount, { color: theme.textBody }]}>
-                  {item.discount}%
-                </Text>
-                <Text style={[styles.colBookings, { color: theme.textBody }]}>
-                  {item.required_reservations}
-                </Text>
-                <View style={styles.colActions}>
-                  <View style={{ flexDirection: 'row', gap: 10 }}>
-                    <TouchableOpacity onPress={() => openEditModal(item)}>
-                      <Ionicons
-                        name="create-outline"
-                        size={18}
-                        color={theme.textBody}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleDelete(item)}>
-                      <Ionicons
-                        name="trash-outline"
-                        size={18}
-                        color={theme.textBody}
-                      />
-                    </TouchableOpacity>
+                  <Text
+                    style={[
+                      styles.colType,
+                      { color: theme.textTitle, fontWeight: '600' },
+                    ]}
+                  >
+                    {addSoftBreaks(item.name)}
+                  </Text>
+                  <Text style={[styles.colRange, { color: theme.textBody }]}>
+                    #{item.level}
+                  </Text>
+                  <Text style={[styles.colDiscount, { color: theme.textBody }]}>
+                    {item.discount}%
+                  </Text>
+                  <Text style={[styles.colBookings, { color: theme.textBody }]}>
+                    {item.required_reservations}
+                  </Text>
+                  <View style={styles.colActions}>
+                    <View style={{ flexDirection: 'row', gap: 10 }}>
+                      <TouchableOpacity onPress={() => openEditModal(item)}>
+                        <Ionicons
+                          name="create-outline"
+                          size={18}
+                          color={theme.textBody}
+                        />
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => handleDelete(item)}>
+                        <Ionicons
+                          name="trash-outline"
+                          size={18}
+                          color={theme.textBody}
+                        />
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
-              </View>
-            )}
-          />
-        </View>
+              )}
+            />
+          </View>
+        </ScrollView>
       )}
 
       <MembershipFormModal

@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   FlatList,
+  ScrollView,
   ActivityIndicator,
   TouchableOpacity,
   useWindowDimensions,
@@ -22,6 +23,7 @@ import { MaintenanceDateModal } from '../../../../components/admin/courts/Mainte
 import { CourtCard } from '../../../../components/admin/courts/CourtCard';
 import { Tabs } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { addSoftBreaks } from '../../../../utils/addSoftBreaks';
 
 export default function AdminPistas() {
   <Tabs.Screen
@@ -34,6 +36,8 @@ export default function AdminPistas() {
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
+  const tableMinWidth = 760;
+  const useHorizontalTableScroll = width < tableMinWidth + 32;
   const cardsColumns = width >= 1280 ? 3 : width >= 780 ? 2 : 1;
 
   const {
@@ -195,133 +199,151 @@ export default function AdminPistas() {
           ]}
         />
       ) : (
-        <View
-          style={[
-            styles.tableWrap,
-            {
-              borderColor: theme.primarySoft,
-              backgroundColor: theme.backgroundCard,
-            },
-          ]}
+        <ScrollView
+          horizontal={useHorizontalTableScroll}
+          showsHorizontalScrollIndicator={useHorizontalTableScroll}
+          bounces={false}
+          contentContainerStyle={
+            useHorizontalTableScroll ? { paddingHorizontal: 16 } : undefined
+          }
         >
           <View
             style={[
-              styles.tableHeader,
+              styles.tableWrap,
               {
-                borderBottomColor: theme.primarySoft,
-                backgroundColor: theme.primary + '10',
+                borderColor: theme.primarySoft,
+                backgroundColor: theme.backgroundCard,
               },
+              useHorizontalTableScroll
+                ? { minWidth: tableMinWidth, marginHorizontal: 0 }
+                : undefined,
             ]}
           >
-            <Text
+            <View
               style={[
-                styles.colName,
-                { color: theme.textTitle, fontWeight: '700' },
+                styles.tableHeader,
+                {
+                  borderBottomColor: theme.primarySoft,
+                  backgroundColor: theme.primary + '10',
+                },
               ]}
             >
-              Pista
-            </Text>
-            <Text
-              style={[
-                styles.colType,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Tipo
-            </Text>
-            <Text
-              style={[
-                styles.colPrice,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Precio
-            </Text>
-            <Text
-              style={[
-                styles.colStatus,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Estado
-            </Text>
-            <Text
-              style={[
-                styles.colActions,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Acciones
-            </Text>
-          </View>
-          <FlatList
-            data={filteredPistas}
-            keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
-            renderItem={({ item }) => (
-              <View
+              <Text
                 style={[
-                  styles.tableRow,
-                  { borderBottomColor: theme.primarySoft },
+                  styles.colName,
+                  { color: theme.textTitle, fontWeight: '700' },
                 ]}
               >
-                <View style={styles.colName}>
-                  <Text style={{ color: theme.textTitle, fontWeight: '600' }}>
-                    {item.name}
-                  </Text>
-                  <Text style={{ color: theme.textBody, fontSize: 12 }}>
-                    {item.installation?.name || '-'}
-                  </Text>
-                </View>
-                <Text style={[styles.colType, { color: theme.textBody }]}>
-                  {tiposPista.find(
-                    (tipo) => String(tipo.id) === String(item.court_type_id),
-                  )?.name || '-'}
-                </Text>
-                <Text style={[styles.colPrice, { color: theme.textBody }]}>
-                  {item.price_per_hour}€/h
-                </Text>
-                <Text
+                Pista
+              </Text>
+              <Text
+                style={[
+                  styles.colType,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Tipo
+              </Text>
+              <Text
+                style={[
+                  styles.colPrice,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Precio
+              </Text>
+              <Text
+                style={[
+                  styles.colStatus,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Estado
+              </Text>
+              <Text
+                style={[
+                  styles.colActions,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Acciones
+              </Text>
+            </View>
+            <FlatList
+              data={filteredPistas}
+              keyExtractor={(item) => item.id.toString()}
+              nestedScrollEnabled
+              contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+              renderItem={({ item }) => (
+                <View
                   style={[
-                    styles.colStatus,
-                    {
-                      color:
-                        item.status === 'DISPONIBLE' ? '#4CAF50' : '#F44336',
-                      fontWeight: '700',
-                    },
+                    styles.tableRow,
+                    { borderBottomColor: theme.primarySoft },
                   ]}
                 >
-                  {item.status}
-                </Text>
-                <View style={styles.colActions}>
-                  <View style={{ flexDirection: 'row', gap: 10 }}>
-                    <TouchableOpacity onPress={() => openModal(item)}>
-                      <Ionicons
-                        name="create-outline"
-                        size={18}
-                        color={theme.textBody}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleMantenimiento(item)}>
-                      <Ionicons
-                        name="construct-outline"
-                        size={18}
-                        color={theme.textBody}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleDelete(item)}>
-                      <Ionicons
-                        name="trash-outline"
-                        size={18}
-                        color={theme.textBody}
-                      />
-                    </TouchableOpacity>
+                  <View style={styles.colName}>
+                    <Text style={{ color: theme.textTitle, fontWeight: '600' }}>
+                      {addSoftBreaks(item.name)}
+                    </Text>
+                    <Text style={{ color: theme.textBody, fontSize: 12 }}>
+                      {addSoftBreaks(item.installation?.name || '-')}
+                    </Text>
+                  </View>
+                  <Text style={[styles.colType, { color: theme.textBody }]}>
+                    {addSoftBreaks(
+                      tiposPista.find(
+                        (tipo) =>
+                          String(tipo.id) === String(item.court_type_id),
+                      )?.name || '-',
+                    )}
+                  </Text>
+                  <Text style={[styles.colPrice, { color: theme.textBody }]}>
+                    {item.price_per_hour}€/h
+                  </Text>
+                  <Text
+                    style={[
+                      styles.colStatus,
+                      {
+                        color:
+                          item.status === 'DISPONIBLE' ? '#4CAF50' : '#F44336',
+                        fontWeight: '700',
+                      },
+                    ]}
+                  >
+                    {item.status}
+                  </Text>
+                  <View style={styles.colActions}>
+                    <View style={{ flexDirection: 'row', gap: 10 }}>
+                      <TouchableOpacity onPress={() => openModal(item)}>
+                        <Ionicons
+                          name="create-outline"
+                          size={18}
+                          color={theme.textBody}
+                        />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => handleMantenimiento(item)}
+                      >
+                        <Ionicons
+                          name="construct-outline"
+                          size={18}
+                          color={theme.textBody}
+                        />
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => handleDelete(item)}>
+                        <Ionicons
+                          name="trash-outline"
+                          size={18}
+                          color={theme.textBody}
+                        />
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
-              </View>
-            )}
-          />
-        </View>
+              )}
+            />
+          </View>
+        </ScrollView>
       )}
 
       <CourtFormModal

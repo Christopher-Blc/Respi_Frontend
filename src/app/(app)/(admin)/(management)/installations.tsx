@@ -2,6 +2,7 @@ import React from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -18,12 +19,15 @@ import { useAdminInstallations } from '../../../../hooks/useAdminInstallations';
 import { InstallationCard } from '../../../../components/admin/installations/InstallationCard';
 import { InstallationFormModal } from '../../../../components/admin/installations/InstallationFormModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
+import { addSoftBreaks } from '../../../../utils/addSoftBreaks';
 
 export default function AdminInstallations() {
   const { theme } = useAppTheme();
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
+  const tableMinWidth = 700;
+  const useHorizontalTableScroll = width < tableMinWidth + 32;
   const cardsColumns = width >= 1280 ? 3 : width >= 780 ? 2 : 1;
   const [viewMode, setViewMode] = React.useState<'cards' | 'list'>('cards');
 
@@ -146,104 +150,117 @@ export default function AdminInstallations() {
           ]}
         />
       ) : (
-        <View
-          style={[
-            styles.tableWrap,
-            {
-              borderColor: theme.primarySoft,
-              backgroundColor: theme.backgroundCard,
-            },
-          ]}
+        <ScrollView
+          horizontal={useHorizontalTableScroll}
+          showsHorizontalScrollIndicator={useHorizontalTableScroll}
+          bounces={false}
+          contentContainerStyle={
+            useHorizontalTableScroll ? { paddingHorizontal: 16 } : undefined
+          }
         >
           <View
             style={[
-              styles.tableHeader,
+              styles.tableWrap,
               {
-                borderBottomColor: theme.primarySoft,
-                backgroundColor: theme.primary + '10',
+                borderColor: theme.primarySoft,
+                backgroundColor: theme.backgroundCard,
               },
+              useHorizontalTableScroll
+                ? { minWidth: tableMinWidth, marginHorizontal: 0 }
+                : undefined,
             ]}
           >
-            <Text
+            <View
               style={[
-                styles.colType,
-                { color: theme.textTitle, fontWeight: '700' },
+                styles.tableHeader,
+                {
+                  borderBottomColor: theme.primarySoft,
+                  backgroundColor: theme.primary + '10',
+                },
               ]}
             >
-              Nombre
-            </Text>
-            <Text
-              style={[
-                styles.colBookings,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Telefono
-            </Text>
-            <Text
-              style={[
-                styles.colDiscount,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Estado
-            </Text>
-            <Text
-              style={[
-                styles.colActions,
-                { color: theme.textTitle, fontWeight: '700' },
-              ]}
-            >
-              Acciones
-            </Text>
-          </View>
-          <FlatList
-            data={filteredInstallations}
-            keyExtractor={(item) => String(item.id)}
-            contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
-            renderItem={({ item }) => (
-              <View
+              <Text
                 style={[
-                  styles.tableRow,
-                  { borderBottomColor: theme.primarySoft },
+                  styles.colType,
+                  { color: theme.textTitle, fontWeight: '700' },
                 ]}
               >
-                <View style={styles.colType}>
-                  <Text style={{ color: theme.textTitle, fontWeight: '600' }}>
-                    {item.name}
+                Nombre
+              </Text>
+              <Text
+                style={[
+                  styles.colBookings,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Telefono
+              </Text>
+              <Text
+                style={[
+                  styles.colDiscount,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Estado
+              </Text>
+              <Text
+                style={[
+                  styles.colActions,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Acciones
+              </Text>
+            </View>
+            <FlatList
+              data={filteredInstallations}
+              keyExtractor={(item) => String(item.id)}
+              nestedScrollEnabled
+              contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+              renderItem={({ item }) => (
+                <View
+                  style={[
+                    styles.tableRow,
+                    { borderBottomColor: theme.primarySoft },
+                  ]}
+                >
+                  <View style={styles.colType}>
+                    <Text style={{ color: theme.textTitle, fontWeight: '600' }}>
+                      {addSoftBreaks(item.name)}
+                    </Text>
+                    <Text style={{ color: theme.textBody, fontSize: 12 }}>
+                      {addSoftBreaks(item.address || '-')}
+                    </Text>
+                  </View>
+                  <Text style={[styles.colBookings, { color: theme.textBody }]}>
+                    {addSoftBreaks(item.phone || '-')}
                   </Text>
-                  <Text style={{ color: theme.textBody, fontSize: 12 }}>
-                    {item.address || '-'}
+                  <Text style={[styles.colDiscount, { color: theme.textBody }]}>
+                    {item.status || 'activa'}
                   </Text>
-                </View>
-                <Text style={[styles.colBookings, { color: theme.textBody }]}>
-                  {item.phone || '-'}
-                </Text>
-                <Text style={[styles.colDiscount, { color: theme.textBody }]}>
-                  {item.status || 'activa'}
-                </Text>
-                <View style={styles.colActions}>
-                  <View style={{ flexDirection: 'row', gap: 10 }}>
-                    <TouchableOpacity onPress={() => openEditModal(item)}>
-                      <Ionicons
-                        name="create-outline"
-                        size={18}
-                        color={theme.textBody}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleDelete(item)}>
-                      <Ionicons
-                        name="trash-outline"
-                        size={18}
-                        color={theme.textBody}
-                      />
-                    </TouchableOpacity>
+                  <View style={styles.colActions}>
+                    <View style={{ flexDirection: 'row', gap: 10 }}>
+                      <TouchableOpacity onPress={() => openEditModal(item)}>
+                        <Ionicons
+                          name="create-outline"
+                          size={18}
+                          color={theme.textBody}
+                        />
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => handleDelete(item)}>
+                        <Ionicons
+                          name="trash-outline"
+                          size={18}
+                          color={theme.textBody}
+                        />
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
-              </View>
-            )}
-          />
-        </View>
+              )}
+            />
+          </View>
+        </ScrollView>
       )}
 
       <InstallationFormModal
