@@ -7,6 +7,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
+  Linking,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -110,7 +111,6 @@ const Register: React.FC = () => {
     try {
       setError('');
 
-      //hacemos la llamada pasando los datos
       const response = await api.post('/auth/register', {
         username: username,
         name: name,
@@ -122,15 +122,34 @@ const Register: React.FC = () => {
         address: location,
       });
 
-      //si ha cinseguido una respuesta valida , lo avisamos y guardamos el token en securestorage
-      if (response.status === 201 || response.data.access_token) {
-        const token = response.data.access_token;
-        const refreshToken = response.data.refresh_token;
-        alert(t('authRegisterSuccess'));
-        signIn(token, refreshToken); //el signin ya se encarga de guardar el token y todo
+      // 1. Verificamos que el registro ha ido bien (Status 201)
+      if (response.status === 201) {
+        // 2. EXTRA: Si estamos en desarrollo, el back nos pasa la 'verification_url'
+        const devVerificationUrl = response.data.verification_url;
+
+        if (devVerificationUrl) {
+          console.log(
+            'Abriendo verificación automática (Modo Desarrollo):',
+            devVerificationUrl,
+          );
+
+          // Abrimos el navegador automáticamente con el link de verificación
+          await Linking.openURL(devVerificationUrl);
+
+          // Avisamos al usuario que verifique y luego haga login
+          alert(
+            'Registro casi listo. Se ha abierto el navegador para verificar tu email. Después, inicia sesión.',
+          );
+        } else {
+          // Flujo normal de producción (ir al correo)
+          alert(t('authRegisterSuccess'));
+        }
+
+        // 3. MANDATORIO: Enviamos al usuario al Login
+        // No llamamos a signIn() porque no tenemos tokens todavía
+        router.replace('/(auth)/login');
       }
     } catch (err: any) {
-      //si ha habido un error lo enseñamos
       const message = err.response?.data?.message || t('authConnectionError');
       console.log('Error en registro:', err.response?.data || err.message);
       setError(Array.isArray(message) ? message[0] : message);
