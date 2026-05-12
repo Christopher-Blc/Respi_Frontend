@@ -21,6 +21,7 @@ export default function AuthLayout() {
   const { t, i18n } = useTranslation();
   const { width, height } = useWindowDimensions();
   const [showLanguagePicker, setShowLanguagePicker] = useState(false);
+  const isSmallWeb = Platform.OS === 'web' && width <= 520;
   const isCompactControls =
     Platform.OS !== 'web' || width <= 520 || height <= 820;
 
@@ -55,6 +56,7 @@ export default function AuthLayout() {
         style={[
           styles.controlsWrap,
           isCompactControls && styles.controlsWrapCompact,
+          isSmallWeb && styles.controlsWrapSmallWeb,
           { borderColor: theme.textSubtle },
         ]}
       >
@@ -134,6 +136,14 @@ const styles = StyleSheet.create({
   controlsWrapCompact: {
     width: 64,
     alignItems: 'center',
+  },
+  controlsWrapSmallWeb: {
+    top: 12,
+    left: 12,
+    right: undefined,
+    width: 'auto',
+    flexDirection: 'row',
+    gap: 8,
   },
   controlButton: {
     width: '100%',
