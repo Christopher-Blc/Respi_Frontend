@@ -67,6 +67,43 @@ const Register: React.FC = () => {
     return `${year}-${month}-${day}`;
   };
 
+  const parseBirthDate = (value: string) => {
+    const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!match) {
+      return null;
+    }
+
+    const day = Number(match[1]);
+    const month = Number(match[2]);
+    const year = Number(match[3]);
+
+    if (month < 1 || month > 12 || day < 1 || day > 31) {
+      return null;
+    }
+
+    const parsed = createLocalDate(year, month - 1, day);
+
+    // Validate calendar correctness (e.g. rejects 31/02/2020)
+    if (
+      parsed.getFullYear() !== year ||
+      parsed.getMonth() !== month - 1 ||
+      parsed.getDate() !== day
+    ) {
+      return null;
+    }
+
+    return parsed;
+  };
+
+  const getYesterday = () => {
+    const today = new Date();
+    return createLocalDate(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() - 1,
+    );
+  };
+
   // Cosas para el date,  añade las "/" solo cuando el user escribe la fecha en vez de seleccionarla
   const handleTextChange = (text: string) => {
     let cleaned = text.replace(/\D/g, ''); // Solo números
@@ -106,6 +143,7 @@ const Register: React.FC = () => {
   //Accion cuando se pulsa registrar
   const handleSubmit = async () => {
     const sanitizedPhone = normalizePhone(phone);
+    const parsedBirthDate = parseBirthDate(birthDate);
 
     //comprobar campos vacios
     if (
@@ -122,6 +160,17 @@ const Register: React.FC = () => {
       return;
     }
 
+    if (!parsedBirthDate) {
+      setError('Introduce una fecha valida en formato DD/MM/YYYY');
+      return;
+    }
+
+    const yesterday = getYesterday();
+    if (parsedBirthDate.getTime() > yesterday.getTime()) {
+      setError('La fecha de nacimiento debe ser anterior a hoy');
+      return;
+    }
+
     //tr catch dnd haremos la llamada a api
     try {
       setError('');
@@ -133,7 +182,7 @@ const Register: React.FC = () => {
         email: email.toLowerCase(),
         phone: `${selectedCountry.code}${sanitizedPhone}`,
         password: password,
-        date_of_birth: formatLocalDateForApi(date),
+        date_of_birth: formatLocalDateForApi(parsedBirthDate),
         address: location,
       });
 
@@ -433,6 +482,7 @@ const Register: React.FC = () => {
               <input
                 id="webDatePicker"
                 type="date"
+                max={formatLocalDateForApi(getYesterday())}
                 style={{
                   position: 'absolute',
                   opacity: 0,
@@ -465,7 +515,7 @@ const Register: React.FC = () => {
               display="spinner"
               onChange={onDateChange}
               minimumDate={createLocalDate(1900, 0, 1)}
-              maximumDate={new Date()}
+              maximumDate={getYesterday()}
               textColor={theme.textPrimary}
             />
           )}
