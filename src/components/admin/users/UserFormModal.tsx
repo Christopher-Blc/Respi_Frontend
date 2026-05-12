@@ -21,7 +21,7 @@ export type UserFormData = {
   password: string;
   role: 'SUPER_ADMIN' | 'CLIENTE';
   isActive: boolean;
-  isVerified: boolean;
+  email_verified: boolean;
   fecha_nacimiento: string;
   direccion: string;
   membresia_id: string;
@@ -225,12 +225,12 @@ export function UserFormModal({
                 { label: 'Verificado', value: true },
                 { label: 'No verificado', value: false },
               ].map((state) => {
-                const selected = formData.isVerified === state.value;
+                const selected = formData.email_verified === state.value;
                 return (
                   <TouchableOpacity
                     key={state.label}
                     onPress={() =>
-                      setFormData({ ...formData, isVerified: state.value })
+                      setFormData({ ...formData, email_verified: state.value })
                     }
                     style={[
                       styles.segment,

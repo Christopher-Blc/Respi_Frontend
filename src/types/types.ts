@@ -40,6 +40,7 @@ export interface Court {
   reservations_made?: number;
   maintenance_from?: string | null;
   maintenance_until?: string | null;
+  email_verified?: boolean;
   // Relations
   installation?: Installation;
   courtType?: CourtType;
@@ -61,7 +62,7 @@ export interface User {
   phone: string;
   role: 'SUPER_ADMIN' | 'ADMIN' | 'USER' | 'CLIENTE';
   is_active: boolean;
-  is_verified?: boolean;
+  email_verified?: boolean;
   registration_date: string;
   last_login_date: string;
   date_of_birth: string;
