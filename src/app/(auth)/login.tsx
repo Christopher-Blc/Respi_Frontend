@@ -189,6 +189,21 @@ const Login: React.FC = () => {
           </Text>
         </Text>
 
+        <Text
+          style={{
+            color: theme.primary,
+            fontWeight: 'bold',
+          }}
+          onPress={() =>
+            router.push({
+              pathname: '/reset-password',
+              params: { email },
+            })
+          }
+        >
+          test
+        </Text>
+
         {!!error && <Text style={styles.error}>{error}</Text>}
       </BlurView>
     );
