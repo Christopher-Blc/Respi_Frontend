@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Text,
   View,
@@ -16,189 +16,55 @@ import { IconButton } from 'react-native-paper';
 import { GlassTextButton } from '../../components/login/glassTextButton';
 import { GlassTextInputPassword } from '../../components/login/glassTextInputPassword';
 import { GlassTextInput } from '../../components/login/glassTextInput';
-import {
-  CountryPickerModal,
-  type Country,
-} from '../../components/login/countryPickerModal';
+import { CountryPickerModal } from '../../components/login/countryPickerModal';
 import { PasswordStrengthIndicator } from '../../components/login/passwordStrengthIndicator';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
-import api from '../../services/api';
 import createRegisterStyles from '../../style/register.styles';
 import RespiLogo from '../../components/login/respiLogo';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
+import { useRegister } from '../../hooks/useRegister';
 
 const Register: React.FC = () => {
-  const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
-  const [surname, setSurname] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [birthDate, setBirthDate] = useState(''); // Formato visual DD/MM/YYYY
-  const [date, setDate] = useState(new Date(2000, 0, 1)); // Fecha objeto para el picker
-  const [location, setLocation] = useState('');
-  const [showPicker, setShowPicker] = useState(false);
-  const [isPhoneFocused, setIsPhoneFocused] = useState(false);
-  const [showCountryPicker, setShowCountryPicker] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState<Country>({
-    code: '+34',
-    flag: '🇪🇸',
-    name: 'España',
-  });
-
-  const [error, setError] = useState('');
-  const router = useRouter();
   const { t } = useTranslation();
+  const router = useRouter();
+  const {
+    name,
+    setName,
+    username,
+    setUsername,
+    surname,
+    setSurname,
+    email,
+    setEmail,
+    phone,
+    handlePhoneChange,
+    password,
+    setPassword,
+    birthDate,
+    date,
+    location,
+    setLocation,
+    showPicker,
+    setShowPicker,
+    isPhoneFocused,
+    setIsPhoneFocused,
+    showCountryPicker,
+    setShowCountryPicker,
+    selectedCountry,
+    setSelectedCountry,
+    minBirthDate,
+    maxBirthDate,
+    maxBirthDateForApi,
+    parseWebDateInput,
+    error,
+    handleTextChange,
+    onDateChange,
+    handleSubmit,
+  } = useRegister();
 
   const { isDarkMode, theme } = useAppTheme();
   const styles = React.useMemo(() => createRegisterStyles(theme), [theme]);
-
-  const normalizePhone = (value: string) => value.replace(/\s+/g, '');
-
-  const createLocalDate = (year: number, month: number, day: number) => {
-    return new Date(year, month, day, 12, 0, 0, 0);
-  };
-
-  const formatLocalDateForApi = (value: Date) => {
-    const year = value.getFullYear();
-    const month = String(value.getMonth() + 1).padStart(2, '0');
-    const day = String(value.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-
-  const parseBirthDate = (value: string) => {
-    const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-    if (!match) {
-      return null;
-    }
-
-    const day = Number(match[1]);
-    const month = Number(match[2]);
-    const year = Number(match[3]);
-
-    if (month < 1 || month > 12 || day < 1 || day > 31) {
-      return null;
-    }
-
-    const parsed = createLocalDate(year, month - 1, day);
-
-    // Validate calendar correctness (e.g. rejects 31/02/2020)
-    if (
-      parsed.getFullYear() !== year ||
-      parsed.getMonth() !== month - 1 ||
-      parsed.getDate() !== day
-    ) {
-      return null;
-    }
-
-    return parsed;
-  };
-
-  const getYesterday = () => {
-    const today = new Date();
-    return createLocalDate(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate() - 1,
-    );
-  };
-
-  // Cosas para el date,  añade las "/" solo cuando el user escribe la fecha en vez de seleccionarla
-  const handleTextChange = (text: string) => {
-    let cleaned = text.replace(/\D/g, ''); // Solo números
-    let formatted = cleaned;
-
-    if (cleaned.length > 2) {
-      formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2)}`;
-    }
-    if (cleaned.length > 4) {
-      formatted = `${formatted.slice(0, 5)}/${cleaned.slice(4, 8)}`;
-    }
-
-    setBirthDate(formatted.slice(0, 10)); // Límite de 10 caracteres
-  };
-
-  const onDateChange = (event: any, selectedDate?: Date) => {
-    // En Web o Android, cerramos despues de haber eligido la fecha
-    if (Platform.OS !== 'ios') {
-      setShowPicker(false);
-    }
-
-    if (selectedDate) {
-      const day = String(selectedDate.getDate()).padStart(2, '0');
-      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-      const year = selectedDate.getFullYear();
-      const normalizedDate = createLocalDate(
-        year,
-        selectedDate.getMonth(),
-        selectedDate.getDate(),
-      );
-
-      setBirthDate(`${day}/${month}/${year}`);
-      setDate(normalizedDate);
-    }
-  };
-
-  //Accion cuando se pulsa registrar
-  const handleSubmit = async () => {
-    const sanitizedPhone = normalizePhone(phone);
-    const parsedBirthDate = parseBirthDate(birthDate);
-
-    //comprobar campos vacios
-    if (
-      !email ||
-      !password ||
-      !name ||
-      !surname ||
-      !username ||
-      !sanitizedPhone ||
-      !birthDate ||
-      !location
-    ) {
-      setError(t('authLoginEmptyFields'));
-      return;
-    }
-
-    if (!parsedBirthDate) {
-      setError('Introduce una fecha valida en formato DD/MM/YYYY');
-      return;
-    }
-
-    const yesterday = getYesterday();
-    if (parsedBirthDate.getTime() > yesterday.getTime()) {
-      setError('La fecha de nacimiento debe ser anterior a hoy');
-      return;
-    }
-
-    //tr catch dnd haremos la llamada a api
-    try {
-      setError('');
-
-      const response = await api.post('/auth/register', {
-        username: username,
-        name: name,
-        surname: surname,
-        email: email.toLowerCase(),
-        phone: `${selectedCountry.code}${sanitizedPhone}`,
-        password: password,
-        date_of_birth: formatLocalDateForApi(parsedBirthDate),
-        address: location,
-      });
-
-      // 1. Verificamos que el registro ha ido bien (Status 201)
-      if (response.status === 201) {
-        router.push({
-          pathname: '/confirm-email',
-          params: { email: email.toLowerCase() },
-        });
-      }
-    } catch (err: any) {
-      const message = err.response?.data?.message || t('authConnectionError');
-      console.log('Error en registro:', err.response?.data || err.message);
-      setError(Array.isArray(message) ? message[0] : message);
-    }
-  };
 
   //Igual que en el login , hacemos una funcion de renderform para que devuelva el formulario principal
   //y en el return normal , tenemos el control si es web o mobil
@@ -396,7 +262,7 @@ const Register: React.FC = () => {
                 autoComplete="tel"
                 keyboardType="phone-pad"
                 value={phone}
-                onChangeText={(value) => setPhone(normalizePhone(value))}
+                onChangeText={handlePhoneChange}
                 onFocus={() => setIsPhoneFocused(true)}
                 onBlur={() => setIsPhoneFocused(false)}
                 placeholder={isPhoneFocused ? '' : t('authRegisterPhone')}
@@ -482,7 +348,7 @@ const Register: React.FC = () => {
               <input
                 id="webDatePicker"
                 type="date"
-                max={formatLocalDateForApi(getYesterday())}
+                max={maxBirthDateForApi}
                 style={{
                   position: 'absolute',
                   opacity: 0,
@@ -493,13 +359,8 @@ const Register: React.FC = () => {
                 }}
                 onChange={(e) => {
                   const val = e.target.value; // Formato YYYY-MM-DD
-                  if (val) {
-                    const [y, m, d] = val.split('-');
-                    const selected = new Date(
-                      parseInt(y),
-                      parseInt(m) - 1,
-                      parseInt(d),
-                    );
+                  const selected = parseWebDateInput(val);
+                  if (selected) {
                     onDateChange({}, selected);
                   }
                 }}
@@ -514,8 +375,8 @@ const Register: React.FC = () => {
               mode="date"
               display="spinner"
               onChange={onDateChange}
-              minimumDate={createLocalDate(1900, 0, 1)}
-              maximumDate={getYesterday()}
+              minimumDate={minBirthDate}
+              maximumDate={maxBirthDate}
               textColor={theme.textPrimary}
             />
           )}
