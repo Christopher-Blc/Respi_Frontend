@@ -7,6 +7,8 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
+  TextInput as RNTextInput,
+  Pressable,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -14,6 +16,10 @@ import { IconButton } from 'react-native-paper';
 import { GlassTextButton } from '../../components/login/glassTextButton';
 import { GlassTextInputPassword } from '../../components/login/glassTextInputPassword';
 import { GlassTextInput } from '../../components/login/glassTextInput';
+import {
+  CountryPickerModal,
+  type Country,
+} from '../../components/login/countryPickerModal';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import api from '../../services/api';
 import createRegisterStyles from '../../style/register.styles';
@@ -32,6 +38,13 @@ const Register: React.FC = () => {
   const [date, setDate] = useState(new Date(2000, 0, 1)); // Fecha objeto para el picker
   const [location, setLocation] = useState('');
   const [showPicker, setShowPicker] = useState(false);
+  const [isPhoneFocused, setIsPhoneFocused] = useState(false);
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<Country>({
+    code: '+34',
+    flag: '🇪🇸',
+    name: 'España',
+  });
 
   const [error, setError] = useState('');
   const router = useRouter();
@@ -39,6 +52,8 @@ const Register: React.FC = () => {
 
   const { isDarkMode, theme } = useAppTheme();
   const styles = React.useMemo(() => createRegisterStyles(theme), [theme]);
+
+  const normalizePhone = (value: string) => value.replace(/\s+/g, '');
 
   const createLocalDate = (year: number, month: number, day: number) => {
     return new Date(year, month, day, 12, 0, 0, 0);
@@ -89,6 +104,8 @@ const Register: React.FC = () => {
 
   //Accion cuando se pulsa registrar
   const handleSubmit = async () => {
+    const sanitizedPhone = normalizePhone(phone);
+
     //comprobar campos vacios
     if (
       !email ||
@@ -96,7 +113,7 @@ const Register: React.FC = () => {
       !name ||
       !surname ||
       !username ||
-      !phone ||
+      !sanitizedPhone ||
       !birthDate ||
       !location
     ) {
@@ -113,7 +130,7 @@ const Register: React.FC = () => {
         name: name,
         surname: surname,
         email: email.toLowerCase(),
-        phone: phone,
+        phone: `${selectedCountry.code}${sanitizedPhone}`,
         password: password,
         date_of_birth: formatLocalDateForApi(date),
         address: location,
@@ -282,13 +299,80 @@ const Register: React.FC = () => {
           >
             {t('authRegisterPhone')}:
           </Text>
-          <GlassTextInput
-            autoComplete="tel"
-            keyboardType="phone-pad"
-            placeholder={t('authRegisterPhone')}
-            value={phone}
-            onChangeText={setPhone}
-          />
+          <View style={{ width: '100%', marginBottom: 12 }}>
+            <View
+              style={{
+                width: '100%',
+                height: 50,
+                borderRadius: 12,
+                flexDirection: 'row',
+                alignItems: 'center',
+                overflow: 'hidden',
+                backgroundColor: theme.inputBackground,
+                borderColor: isPhoneFocused
+                  ? theme.inputFocus
+                  : theme.borderInput,
+                borderWidth: isPhoneFocused ? 1.5 : 1,
+              }}
+            >
+              <Pressable
+                onPress={() => setShowCountryPicker(true)}
+                style={{
+                  width: 50,
+                  height: '100%',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 4,
+                  borderRightWidth: 1,
+                  borderRightColor: theme.borderInput,
+                  backgroundColor: theme.inputBackground,
+                }}
+              >
+                <Text
+                  style={{
+                    color: isPhoneFocused
+                      ? theme.inputFocus
+                      : theme.grayLabelText,
+                    fontWeight: '700',
+                    fontSize: 13,
+                  }}
+                >
+                  {selectedCountry.code}
+                </Text>
+              </Pressable>
+
+              <RNTextInput
+                autoComplete="tel"
+                keyboardType="phone-pad"
+                value={phone}
+                onChangeText={(value) => setPhone(normalizePhone(value))}
+                onFocus={() => setIsPhoneFocused(true)}
+                onBlur={() => setIsPhoneFocused(false)}
+                placeholder={isPhoneFocused ? '' : t('authRegisterPhone')}
+                placeholderTextColor={theme.inputPlaceholder}
+                selectionColor={theme.inputFocus}
+                style={{
+                  flex: 1,
+                  height: '100%',
+                  paddingHorizontal: 12,
+                  color: theme.textInput,
+                  fontSize: 15,
+                  borderWidth: 0,
+                  ...(Platform.OS === 'web'
+                    ? ({ outline: 'none' } as any)
+                    : {}),
+                }}
+              />
+            </View>
+
+            <CountryPickerModal
+              visible={showCountryPicker}
+              selected={selectedCountry}
+              onSelect={setSelectedCountry}
+              onClose={() => setShowCountryPicker(false)}
+            />
+          </View>
 
           <Text
             style={[
