@@ -142,12 +142,13 @@ const Login: React.FC = () => {
           color={theme.primaryButton}
         />
 
-        <View style={{ height: 28 }} />
+        <View style={{ height: 20 }} />
 
         <Text
           style={{
             color: theme.textBody,
             textAlign: 'center',
+            fontSize: 14,
           }}
         >
           {t('authLoginNoAccount')}{' '}
@@ -159,6 +160,32 @@ const Login: React.FC = () => {
             onPress={() => router.replace('register')}
           >
             {t('authLoginRegister')}
+          </Text>
+        </Text>
+
+        <View style={{ height: 14 }} />
+
+        <Text
+          style={{
+            color: theme.textBody,
+            textAlign: 'center',
+            fontSize: 14,
+          }}
+        >
+          Olvidaste tu contraseña?{' '}
+          <Text
+            style={{
+              color: theme.primary,
+              fontWeight: 'bold',
+            }}
+            onPress={() =>
+              router.push({
+                pathname: '/forgot-password',
+                params: { email },
+              })
+            }
+          >
+            Recuperar
           </Text>
         </Text>
 
