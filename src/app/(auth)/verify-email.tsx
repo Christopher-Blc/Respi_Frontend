@@ -1,15 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Linking from 'expo-linking';
+import { BlurView } from 'expo-blur';
 import { useAppTheme } from '../../context/ThemeContext';
 import api from '../../services/api';
+import RespiLogo from '../../components/login/respiLogo';
+import { GlassTextButton } from '../../components/login/glassTextButton';
 
 type VerificationStatus = 'loading' | 'success' | 'error';
 
@@ -72,7 +69,7 @@ const verifyEmailToken = async (token: string) => {
 
 export default function VerificationScreen() {
   const router = useRouter();
-  const { theme } = useAppTheme();
+  const { theme, isDarkMode } = useAppTheme();
   const { token: tokenParam } = useLocalSearchParams<{
     token?: string | string[];
   }>();
@@ -80,6 +77,7 @@ export default function VerificationScreen() {
   const [status, setStatus] = useState<VerificationStatus>('loading');
   const [message, setMessage] = useState('Validando tu email...');
   const [token, setToken] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -141,7 +139,7 @@ export default function VerificationScreen() {
     return () => {
       isMounted = false;
     };
-  }, [token]);
+  }, [token, retryCount]);
 
   const statusColor = useMemo(() => {
     if (status === 'success') return '#2ed573';
@@ -151,42 +149,65 @@ export default function VerificationScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.backgroundMain }]}>
-      <View style={[styles.glow, { backgroundColor: `${statusColor}22` }]} />
+      <View
+        style={[styles.glow, { backgroundColor: `${theme.primaryButton}22` }]}
+      />
 
-      <View style={[styles.card, { backgroundColor: theme.cardBackground }]}>
-        <Text style={[styles.title, { color: theme.textTitle }]}>
-          Verificacion
+      <BlurView
+        tint={isDarkMode ? 'dark' : 'light'}
+        intensity={20}
+        style={[
+          styles.card,
+          {
+            borderColor: theme.textSubtle,
+          },
+        ]}
+      >
+        <RespiLogo />
+
+        <Text style={[styles.title, { color: theme.textTitle }]}>Respi</Text>
+        <Text style={[styles.subtitle, { color: theme.textBody }]}>
+          Verificacion de email
         </Text>
 
-        {status === 'loading' ? (
-          <View style={styles.centeredBlock}>
+        <View style={styles.centeredBlock}>
+          {status === 'loading' && (
             <ActivityIndicator size="large" color={statusColor} />
-            <Text style={[styles.message, { color: theme.textBody }]}>
-              {message}
-            </Text>
-          </View>
-        ) : (
-          <View style={styles.centeredBlock}>
-            <Text style={[styles.statusBadge, { color: statusColor }]}>
-              {status === 'success'
-                ? 'Verificacion completada'
-                : 'Error de verificacion'}
-            </Text>
-            <Text style={[styles.message, { color: theme.textBody }]}>
-              {message}
-            </Text>
-          </View>
+          )}
+
+          <Text style={[styles.statusBadge, { color: statusColor }]}>
+            {status === 'loading'
+              ? 'Validando enlace'
+              : status === 'success'
+                ? 'Cuenta activada'
+                : 'No se pudo verificar'}
+          </Text>
+
+          <Text style={[styles.message, { color: theme.textBody }]}>
+            {message}
+          </Text>
+        </View>
+
+        {status === 'error' && token && (
+          <GlassTextButton
+            text="Reintentar"
+            textColor={theme.onPrimary}
+            color={theme.primaryButton}
+            onPress={() => setRetryCount((value) => value + 1)}
+            style={styles.actionButton}
+          />
         )}
 
         {status !== 'loading' && (
-          <Pressable
-            style={[styles.button, { backgroundColor: statusColor }]}
+          <GlassTextButton
+            text="Ir al Login"
+            textColor={theme.onPrimary}
+            color={status === 'success' ? theme.primaryButton : theme.primary}
             onPress={() => router.replace('/(auth)/login')}
-          >
-            <Text style={styles.buttonText}>Ir al Login</Text>
-          </Pressable>
+            style={styles.actionButton}
+          />
         )}
-      </View>
+      </BlurView>
     </View>
   );
 }
@@ -209,27 +230,34 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '100%',
-    maxWidth: 460,
-    borderRadius: 22,
-    paddingVertical: 26,
-    paddingHorizontal: 20,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 10,
+    maxWidth: 360,
+    borderRadius: 30,
+    paddingVertical: 28,
+    paddingHorizontal: 22,
+    borderWidth: 0.8,
+    overflow: 'hidden',
+    alignItems: 'center',
   },
   title: {
     fontSize: 28,
     fontWeight: '700',
     textAlign: 'center',
-    marginBottom: 20,
+    marginTop: 6,
+  },
+  subtitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: 2,
+    marginBottom: 16,
   },
   centeredBlock: {
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 14,
-    minHeight: 140,
+    gap: 12,
+    minHeight: 120,
+    marginBottom: 10,
   },
   statusBadge: {
     fontSize: 17,
@@ -241,16 +269,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
   },
-  button: {
-    marginTop: 24,
-    borderRadius: 12,
-    paddingVertical: 13,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '700',
+  actionButton: {
+    width: '100%',
+    marginTop: 10,
   },
 });

@@ -7,7 +7,6 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
-  Linking,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -17,7 +16,6 @@ import { GlassTextInputPassword } from '../../components/login/glassTextInputPas
 import { GlassTextInput } from '../../components/login/glassTextInput';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import api from '../../services/api';
-import { useAuth } from '../../context/AuthContext';
 import createRegisterStyles from '../../style/register.styles';
 import RespiLogo from '../../components/login/respiLogo';
 import { useAppTheme } from '../../context/ThemeContext';
@@ -90,7 +88,6 @@ const Register: React.FC = () => {
   };
 
   //Accion cuando se pulsa registrar
-  const { signIn } = useAuth();
   const handleSubmit = async () => {
     //comprobar campos vacios
     if (
@@ -124,30 +121,10 @@ const Register: React.FC = () => {
 
       // 1. Verificamos que el registro ha ido bien (Status 201)
       if (response.status === 201) {
-        // 2. EXTRA: Si estamos en desarrollo, el back nos pasa la 'verification_url'
-        const devVerificationUrl = response.data.verification_url;
-
-        if (devVerificationUrl) {
-          console.log(
-            'Abriendo verificación automática (Modo Desarrollo):',
-            devVerificationUrl,
-          );
-
-          // Abrimos el navegador automáticamente con el link de verificación
-          await Linking.openURL(devVerificationUrl);
-
-          // Avisamos al usuario que verifique y luego haga login
-          alert(
-            'Registro casi listo. Se ha abierto el navegador para verificar tu email. Después, inicia sesión.',
-          );
-        } else {
-          // Flujo normal de producción (ir al correo)
-          alert(t('authRegisterSuccess'));
-        }
-
-        // 3. MANDATORIO: Enviamos al usuario al Login
-        // No llamamos a signIn() porque no tenemos tokens todavía
-        router.replace('/(auth)/login');
+        router.push({
+          pathname: '/confirm-email',
+          params: { email: email.toLowerCase() },
+        });
       }
     } catch (err: any) {
       const message = err.response?.data?.message || t('authConnectionError');
