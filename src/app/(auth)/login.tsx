@@ -24,6 +24,7 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [pepeEnabled, setPepeEnabled] = useState(false);
   const router = useRouter();
   const { t } = useTranslation();
   const { isDarkMode, theme } = useAppTheme();
@@ -76,6 +77,15 @@ const Login: React.FC = () => {
             {renderForm()}
           </View>
         </TouchableWithoutFeedback>
+      )}
+      {pepeEnabled && (
+        <GlassTextButton
+          text="Pepe"
+          textColor={theme.onPrimary}
+          onPress={() => router.replace('easterEggPep')}
+          color={theme.primaryButton}
+          style={{ marginTop: 20, width: 320 }}
+        />
       )}
     </KeyboardAvoidingView>
   );
@@ -186,6 +196,27 @@ const Login: React.FC = () => {
             }
           >
             Recuperar
+          </Text>
+        </Text>
+
+        <View style={{ height: 14 }} />
+
+        <Text
+          style={{
+            color: theme.textBody,
+            textAlign: 'center',
+            fontSize: 14,
+          }}
+        >
+          Acaso eres Pepe?{' '}
+          <Text
+            style={{
+              color: theme.primary,
+              fontWeight: 'bold',
+            }}
+            onPress={() => setPepeEnabled(!pepeEnabled)}
+          >
+            SI?
           </Text>
         </Text>
 

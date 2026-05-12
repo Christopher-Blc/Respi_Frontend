@@ -78,9 +78,7 @@ export const LanguagePickerModal: React.FC<Props> = ({
                       style={[
                         styles.languageName,
                         {
-                          color: isActive
-                            ? theme.primaryButton
-                            : theme.textBody,
+                          color: isActive ? theme.inputFocus : theme.textBody,
                           fontWeight: isActive ? '700' : '400',
                         },
                       ]}
@@ -92,7 +90,7 @@ export const LanguagePickerModal: React.FC<Props> = ({
                         styles.code,
                         {
                           color: isActive
-                            ? theme.primaryButton
+                            ? theme.inputFocus
                             : theme.grayLabelText,
                           fontWeight: isActive ? '700' : '500',
                         },
