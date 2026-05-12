@@ -65,6 +65,7 @@ export default function AuthLayout() {
           style={[
             styles.controlButton,
             isCompactControls && styles.controlButtonCompact,
+            isSmallWeb && styles.controlButtonSmallWeb,
             {
               borderColor: theme.borderInput,
               backgroundColor: theme.inputBackground,
@@ -89,6 +90,7 @@ export default function AuthLayout() {
           style={[
             styles.controlButton,
             isCompactControls && styles.controlButtonCompact,
+            isSmallWeb && styles.controlButtonSmallWeb,
             {
               borderColor: theme.borderInput,
               backgroundColor: theme.inputBackground,
@@ -137,13 +139,26 @@ const styles = StyleSheet.create({
     width: 64,
     alignItems: 'center',
   },
+  // ESTO ES LO QUE HEMOS CAMBIADO:
   controlsWrapSmallWeb: {
     top: 12,
-    left: 12,
-    right: undefined,
-    width: 'auto',
+    right: 12,
+    left: 'auto',
     flexDirection: 'row',
-    gap: 8,
+    width: 110,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    padding: 4,
+  },
+  controlButtonSmallWeb: {
+    width: 44, // Un pelín más compactos para que queden bien arriba
+    height: 44,
+    minHeight: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingRight: 0,
   },
   controlButton: {
     width: '100%',
