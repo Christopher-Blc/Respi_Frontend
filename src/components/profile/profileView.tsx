@@ -31,6 +31,7 @@ import {
   scheduleLocalNotification,
 } from '../../services/notificationsService';
 import { transparent } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
+import api from '../../services/api';
 
 export default function ProfileView() {
   const { t, i18n } = useTranslation();
@@ -48,8 +49,14 @@ export default function ProfileView() {
   } = useAppTheme();
 
   // Estados y lógica de Datos centralizados en el Hook
-  const { user, totalReservas, loading, avatarInitials, userMembershipLabel } =
-    useProfile();
+  const {
+    user,
+    totalReservas,
+    loading,
+    avatarInitials,
+    userMembershipLabel,
+    refreshProfile,
+  } = useProfile();
 
   //styles
   const styles = React.useMemo(() => createProfileStyles(theme), [theme]);
@@ -113,6 +120,7 @@ export default function ProfileView() {
   const handleLogout = async () => {
     try {
       await signOut();
+      await api.post('/auth/logout');
     } catch (error) {
       console.error('Error al cerrar sesión', error);
     }
@@ -230,22 +238,19 @@ export default function ProfileView() {
           },
         ]}
       >
-        {/* SECCIÓN AVATAR */}
+        {/*Header*/}
         <View style={styles.header}>
-          <View style={styles.avatarWrapper}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarInitials}>{avatarInitials}</Text>
-            </View>
-            <TouchableOpacity style={styles.editBadge}>
-              <Ionicons name="camera" size={16} color={theme.onPrimary} />
-            </TouchableOpacity>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarInitials}>{avatarInitials}</Text>
           </View>
-          <Text style={styles.userName}>
+
+          {/* <Text style={styles.userName}>
             {user?.username || t('profileUserFallback')}
           </Text>
           <Text style={styles.userEmail}>
             {user?.email || t('profileEmailFallback')}
-          </Text>
+          </Text> */}
+          <View style={{ height: 15 }} />
 
           {role !== 'SUPER_ADMIN' && (
             <View style={styles.reservasCountCard}>
@@ -269,7 +274,6 @@ export default function ProfileView() {
               icon="person-outline"
               title={t('profileUsername')}
               value={user?.username || t('profileUserFallback')}
-              isLast={undefined}
               onPress={() => {
                 setModalEditUserNameVisible(true);
               }}
@@ -278,13 +282,19 @@ export default function ProfileView() {
               icon="mail-outline"
               title={t('authLoginEmail')}
               value={user?.email || t('profileEmailFallback')}
-              isLast={undefined}
+            />
+            <MenuOption
+              icon="key-outline"
+              title="Contraseña"
+              //value={user?.username || t('profileUserFallback')} //isLast={undefined}
+              onPress={() => {
+                setModalEditUserNameVisible(true);
+              }}
             />
             <MenuOption
               icon="language-outline"
               title={t('profileLanguage')}
               value={currentLanguageLabelByCode[currentLanguage]}
-              isLast={undefined}
               onPress={() => setModalIdiomaVisible(true)}
             />
             <MenuOption
@@ -389,6 +399,8 @@ export default function ProfileView() {
 
       <EditUserNameModal
         visible={modalEditUserNameVisible}
+        currentUsername={user?.username || ''}
+        onUpdated={refreshProfile}
         onClose={() => setModalEditUserNameVisible(false)}
       />
     </View>
