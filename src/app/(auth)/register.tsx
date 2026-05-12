@@ -20,6 +20,7 @@ import {
   CountryPickerModal,
   type Country,
 } from '../../components/login/countryPickerModal';
+import { PasswordStrengthIndicator } from '../../components/login/passwordStrengthIndicator';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import api from '../../services/api';
 import createRegisterStyles from '../../style/register.styles';
@@ -390,6 +391,7 @@ const Register: React.FC = () => {
             value={password}
             onChangeText={setPassword}
           />
+          <PasswordStrengthIndicator password={password} />
 
           <Text
             style={[
