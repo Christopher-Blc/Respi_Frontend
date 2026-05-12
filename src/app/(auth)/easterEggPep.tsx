@@ -9,8 +9,12 @@ import {
   Easing,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
+import { GlassTextButton } from '../../components/login/glassTextButton';
+import { router } from 'expo-router';
+import { useAppTheme } from '../../context/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
+const { theme } = useAppTheme();
 
 const CONFETTI_COLORS = [
   '#FF4D6D',
@@ -231,6 +235,13 @@ const PepeBirthdayScreen = () => {
 
         <SignaturePulse />
       </BlurView>
+      <GlassTextButton
+        text="Back"
+        textColor={theme.onPrimary}
+        onPress={() => router.replace('/login')}
+        color={theme.primaryButton}
+        style={{ marginTop: 20, width: 320 }}
+      />
     </View>
   );
 };

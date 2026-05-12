@@ -67,19 +67,19 @@ export function UserCard({ item, theme, onEdit, onToggleActive }: Props) {
           style={[
             styles.pill,
             {
-              backgroundColor: item.is_verified ? '#2196F320' : '#FF980020',
-              borderColor: item.is_verified ? '#2196F3' : '#FF9800',
+              backgroundColor: item.email_verified ? '#4CAF5020' : '#F4433620',
+              borderColor: item.email_verified ? '#4CAF50' : '#F44336',
               marginLeft: 6,
             },
           ]}
         >
           <Text
             style={{
-              color: item.is_verified ? '#2196F3' : '#FF9800',
+              color: item.email_verified ? '#4CAF50' : '#F44336',
               fontWeight: '700',
             }}
           >
-            {item.is_verified ? 'Verificado' : 'Sin verificar'}
+            {item.email_verified ? 'Verificado' : 'Sin verificar'}
           </Text>
         </View>
       </View>

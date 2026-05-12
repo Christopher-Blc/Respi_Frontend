@@ -18,17 +18,19 @@ import { getAppLanguage, setAppLanguage } from '../../i18n';
 import { LanguagePickerModal } from '../../components/login/languagePickerModal';
 import { GlassTextButton } from '../../components/login/glassTextButton';
 
+const SMALL_WEB_BREAKPOINT = 900;
+
 export default function AuthLayout() {
   const { isDarkMode, toggleTheme, theme } = useAppTheme();
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { width, height } = useWindowDimensions();
+  const { width } = useWindowDimensions();
   const [showLanguagePicker, setShowLanguagePicker] = useState(false);
   const isMobile = Platform.OS !== 'web';
-  const isSmallWeb = Platform.OS === 'web' && width <= 520;
+  const isSmallWeb = Platform.OS === 'web' && width <= SMALL_WEB_BREAKPOINT;
+  const isLargeWeb = Platform.OS === 'web' && width > SMALL_WEB_BREAKPOINT;
   const isCornerHorizontalControls = isMobile || isSmallWeb;
-  const isCompactControls =
-    Platform.OS !== 'web' || width <= 520 || height <= 820;
+  const isCompactControls = isMobile || isSmallWeb;
 
   const currentLanguage = getAppLanguage(
     i18n.resolvedLanguage || i18n.language,
@@ -62,6 +64,7 @@ export default function AuthLayout() {
           styles.controlsWrap,
           isCompactControls && styles.controlsWrapCompact,
           isCornerHorizontalControls && styles.controlsWrapSmallWeb,
+          isLargeWeb && styles.controlsWrapLargeWeb,
           isMobile && { top: Math.max(insets.top + 8, 12) },
           { borderColor: theme.textSubtle },
         ]}
@@ -155,6 +158,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
     padding: 4,
+  },
+  controlsWrapLargeWeb: {
+    width: 230,
+    padding: 10,
+    gap: 10,
   },
   controlButtonSmallWeb: {
     width: 44,
