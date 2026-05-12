@@ -12,16 +12,21 @@ import { Slot } from 'expo-router';
 import { IconButton } from 'react-native-paper';
 import { BlurView } from 'expo-blur';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
 import { getAppLanguage, setAppLanguage } from '../../i18n';
 import { LanguagePickerModal } from '../../components/login/languagePickerModal';
+import { GlassTextButton } from '../../components/login/glassTextButton';
 
 export default function AuthLayout() {
   const { isDarkMode, toggleTheme, theme } = useAppTheme();
   const { t, i18n } = useTranslation();
+  const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const [showLanguagePicker, setShowLanguagePicker] = useState(false);
+  const isMobile = Platform.OS !== 'web';
   const isSmallWeb = Platform.OS === 'web' && width <= 520;
+  const isCornerHorizontalControls = isMobile || isSmallWeb;
   const isCompactControls =
     Platform.OS !== 'web' || width <= 520 || height <= 820;
 
@@ -56,7 +61,8 @@ export default function AuthLayout() {
         style={[
           styles.controlsWrap,
           isCompactControls && styles.controlsWrapCompact,
-          isSmallWeb && styles.controlsWrapSmallWeb,
+          isCornerHorizontalControls && styles.controlsWrapSmallWeb,
+          isMobile && { top: Math.max(insets.top + 8, 12) },
           { borderColor: theme.textSubtle },
         ]}
       >
@@ -65,7 +71,7 @@ export default function AuthLayout() {
           style={[
             styles.controlButton,
             isCompactControls && styles.controlButtonCompact,
-            isSmallWeb && styles.controlButtonSmallWeb,
+            isCornerHorizontalControls && styles.controlButtonSmallWeb,
             {
               borderColor: theme.borderInput,
               backgroundColor: theme.inputBackground,
@@ -90,7 +96,7 @@ export default function AuthLayout() {
           style={[
             styles.controlButton,
             isCompactControls && styles.controlButtonCompact,
-            isSmallWeb && styles.controlButtonSmallWeb,
+            isCornerHorizontalControls && styles.controlButtonSmallWeb,
             {
               borderColor: theme.borderInput,
               backgroundColor: theme.inputBackground,
@@ -139,7 +145,6 @@ const styles = StyleSheet.create({
     width: 64,
     alignItems: 'center',
   },
-  // ESTO ES LO QUE HEMOS CAMBIADO:
   controlsWrapSmallWeb: {
     top: 12,
     right: 12,
@@ -152,7 +157,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   controlButtonSmallWeb: {
-    width: 44, // Un pelín más compactos para que queden bien arriba
+    width: 44,
     height: 44,
     minHeight: 44,
     borderRadius: 22,

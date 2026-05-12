@@ -21,6 +21,7 @@ export type UserFormData = {
   password: string;
   role: 'SUPER_ADMIN' | 'CLIENTE';
   isActive: boolean;
+  isVerified: boolean;
   fecha_nacimiento: string;
   direccion: string;
   membresia_id: string;
@@ -195,6 +196,41 @@ export function UserFormModal({
                     key={state.label}
                     onPress={() =>
                       setFormData({ ...formData, isActive: state.value })
+                    }
+                    style={[
+                      styles.segment,
+                      segmentBase,
+                      selected && {
+                        backgroundColor: theme.primary + '20',
+                        borderColor: theme.primary,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={{
+                        color: selected ? theme.primary : theme.textBody,
+                        fontWeight: selected ? '700' : '500',
+                      }}
+                    >
+                      {state.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            <InputLabel label="Verificado" theme={theme} />
+            <View style={styles.segmentedRow}>
+              {[
+                { label: 'Verificado', value: true },
+                { label: 'No verificado', value: false },
+              ].map((state) => {
+                const selected = formData.isVerified === state.value;
+                return (
+                  <TouchableOpacity
+                    key={state.label}
+                    onPress={() =>
+                      setFormData({ ...formData, isVerified: state.value })
                     }
                     style={[
                       styles.segment,

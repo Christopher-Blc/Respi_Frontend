@@ -63,6 +63,25 @@ export function UserCard({ item, theme, onEdit, onToggleActive }: Props) {
             {item.is_active ? 'Activa' : 'Inactiva'}
           </Text>
         </View>
+        <View
+          style={[
+            styles.pill,
+            {
+              backgroundColor: item.is_verified ? '#2196F320' : '#FF980020',
+              borderColor: item.is_verified ? '#2196F3' : '#FF9800',
+              marginLeft: 6,
+            },
+          ]}
+        >
+          <Text
+            style={{
+              color: item.is_verified ? '#2196F3' : '#FF9800',
+              fontWeight: '700',
+            }}
+          >
+            {item.is_verified ? 'Verificado' : 'Sin verificar'}
+          </Text>
+        </View>
       </View>
 
       <View style={styles.rowWrap}>

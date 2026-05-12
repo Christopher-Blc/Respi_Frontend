@@ -19,6 +19,7 @@ const EMPTY_FORM: UserFormData = {
   password: '',
   role: 'CLIENTE',
   isActive: true,
+  isVerified: false,
   fecha_nacimiento: '',
   direccion: '',
   membresia_id: '',
@@ -130,6 +131,7 @@ export function useAdminUsers() {
       password: '',
       role: user.role === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 'CLIENTE',
       isActive: Boolean(user.is_active),
+      isVerified: Boolean(user.is_verified),
       fecha_nacimiento: normalizeDateOnly(user.date_of_birth),
       direccion: user.address || '',
       membresia_id: user.membership_id ? String(user.membership_id) : '',
@@ -193,6 +195,9 @@ export function useAdminUsers() {
         if (formData.role !== currentRole) payload.role = formData.role;
         if (formData.isActive !== Boolean(userToEdit.is_active)) {
           payload.is_active = formData.isActive;
+        }
+        if (formData.isVerified !== Boolean(userToEdit.is_verified)) {
+          payload.is_verified = formData.isVerified;
         }
 
         if (Object.keys(payload).length > 0) {

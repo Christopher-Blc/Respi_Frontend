@@ -61,6 +61,7 @@ export interface User {
   phone: string;
   role: 'SUPER_ADMIN' | 'ADMIN' | 'USER' | 'CLIENTE';
   is_active: boolean;
+  is_verified?: boolean;
   registration_date: string;
   last_login_date: string;
   date_of_birth: string;
