@@ -15,6 +15,12 @@
   "authLoginNoAccount": "No tienes cuenta todavia?",
   "authLoginRegister": "Regístrate",
   "authLoginEmptyFields": "Por favor, rellena todos los campos.",
+  "authLoginForgotPassword": "¿Has olvidado tu contraseña?",
+  "authLoginEmailSent": "Correo de verificación reenviado.",
+  "authResendError": "No se pudo reenviar el correo de verificación. Inténtalo de nuevo más tarde.",
+  "authEmailNotVerified": "Correo no verificado. Por favor, confirma tu correo antes de iniciar sesión.",
+  "authResendDisabled": "Reenviar en {{timer}}s",
+  "authResend": "Reenviar",
   "authConnectionError": "Error de conexion",
   "authRegisterTitle": "Crear una cuenta",
   "authRegisterName": "Nombre",
@@ -26,6 +32,17 @@
   "authRegisterButton": "Registrarse",
   "authRegisterSuccess": "Cuenta creada correctamente. Bienvenido.",
   "authRegisterHasAccount": "Ya tienes cuenta?",
+
+  "authRegisterPasswordLength": "Longitud: Entre 8 y 128 caracteres",
+  "authRegisterPasswordLowercase": "Minúscula: (a-z)",
+  "authRegisterPasswordUppercase": "Mayúscula: (A-Z)",
+  "authRegisterPasswordNumber": "Número: (0-9)",
+  "authRegisterPasswordSpecial": "Carácter especial: (!@#$%^&*)",
+
+
+
+
+
   "profileUserFallback": "Usuario Cliente",
   "profileEmailFallback": "cliente@ejemplo.com",
   "profileReservations": "Reservas",

@@ -69,6 +69,8 @@ const createLoginStyles = (theme: AppTheme) =>
       color: theme.errorText,
       marginTop: 10,
       fontWeight: 'bold',
+      marginBottom: 0 
+      
     },
   });
 

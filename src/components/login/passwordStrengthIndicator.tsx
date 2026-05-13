@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useAppTheme } from '../../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 type PasswordRequirement = {
   id: string;
@@ -42,6 +43,7 @@ type Props = {
 
 export const PasswordStrengthIndicator: React.FC<Props> = ({ password }) => {
   const { theme } = useAppTheme();
+  const { t } = useTranslation();
 
   const requirements = useMemo(() => {
     return REQUIREMENTS.map((req) => ({
