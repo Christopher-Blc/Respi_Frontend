@@ -197,7 +197,6 @@ export function useAdminCourtTypes() {
         }
 
         formData.append('image', fileToUpload, fileToUpload.name);
-        formData.append('image', fileToUpload.name);
       } else {
         const imageSizeBytes = getImageSizeBytes(imagen);
         if (imageSizeBytes > MAX_IMAGE_SIZE_BYTES) {
@@ -218,23 +217,19 @@ export function useAdminCourtTypes() {
             type: imagen.mimeType || 'image/jpeg',
           } as any,
         );
-        formData.append('image', imagen.fileName || `tipo_pista_${Date.now()}.jpg`);
       }
-    } else if (tipoPistaAEditar?.image) {
-      formData.append('image', tipoPistaAEditar.image);
     }
-
     try {
       if (tipoPistaAEditar) {
         await api.put(`/court-types/${tipoPistaAEditar.id}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
-        console.log('Tipo de pista actualizado:', formData);
+        console.log('Tipo de pista actualizado:', { name: formData.get('name'), hasImage: formData.has('image'), imageName: formData.get('image') instanceof File ? (formData.get('image') as File).name : 'N/A' });
       } else {
         await api.post('/court-types', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
-        console.log('Tipo de pista creado:', formData);
+        console.log('Tipo de pista creado:', { name: formData.get('name'), hasImage: formData.has('image'), imageName: formData.get('image') instanceof File ? (formData.get('image') as File).name : 'N/A' });
       }
 
       closeModal();
