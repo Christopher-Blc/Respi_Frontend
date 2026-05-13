@@ -25,7 +25,7 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [pepeEnabled, setPepeEnabled] = useState(false);
+  //const [pepeEnabled, setPepeEnabled] = useState(false);
   const [showResend, setShowResend] = useState(false);
 
   // Estados para el temporizador
@@ -59,7 +59,7 @@ const Login: React.FC = () => {
       await api.post('/auth/resend-verification', {
         email: email.toLowerCase(),
       });
-      setError('Correo de verificación reenviado.');
+      setError(t('authLoginEmailSent'));
       // Iniciar bloqueo y contador
       setIsResendDisabled(true);
       setTimer(30);
@@ -90,7 +90,7 @@ const Login: React.FC = () => {
     } catch (err: any) {
       let message = err.response?.data?.message || t('authConnectionError');
       if (message.includes('Email not verified')) {
-        message = 'Email not verified. Please confirm your email before login';
+        message = t('authEmailNotVerified');
         setShowResend(true);
       }
       setError(Array.isArray(message) ? message[0] : message);
@@ -131,6 +131,26 @@ const Login: React.FC = () => {
           onChangeText={setPassword}
         />
 
+        <Text
+          style={{
+            color: theme.textBody,
+            textAlign: 'left',
+            fontSize: 12,
+            left: 0,
+            alignSelf: 'stretch',
+            marginBottom: 15,
+            textDecorationLine: 'underline',
+          }}
+          onPress={() =>
+            router.push({
+              pathname: '/forgot-password',
+              params: { email },
+            })
+          }
+        >
+          {t('authLoginForgotPassword')}
+        </Text>
+
         <GlassTextButton
           text={t('authLoginButton')}
           textColor={theme.onPrimary}
@@ -153,42 +173,8 @@ const Login: React.FC = () => {
           </Text>
         </Text>
 
-        <View style={{ height: 14 }} />
+        <View style={{ height: 5 }} />
 
-        {/* Recuperar Contraseña */}
-        <Text
-          style={{ color: theme.textBody, textAlign: 'center', fontSize: 14 }}
-        >
-          Olvidaste tu contraseña?{' '}
-          <Text
-            style={{ color: theme.primary, fontWeight: 'bold' }}
-            onPress={() =>
-              router.push({
-                pathname: '/forgot-password',
-                params: { email },
-              })
-            }
-          >
-            Recuperar
-          </Text>
-        </Text>
-
-        <View style={{ height: 14 }} />
-
-        {/* Easter Egg Pepe */}
-        <Text
-          style={{ color: theme.textBody, textAlign: 'center', fontSize: 14 }}
-        >
-          Acaso eres Pepe?{' '}
-          <Text
-            style={{ color: theme.primary, fontWeight: 'bold' }}
-            onPress={() => setPepeEnabled(!pepeEnabled)}
-          >
-            SI?
-          </Text>
-        </Text>
-
-        {/* SECCIÓN DE ERROR Y REENVIAR ALINEADOS */}
         {!!error && (
           <View
             style={{
@@ -199,27 +185,30 @@ const Login: React.FC = () => {
               marginTop: 15,
             }}
           >
-            <Text style={[styles.error, { marginTop: 0, marginBottom: 0 }]}>
+            <Text style={[styles.error, { textAlign: 'center' }]}>
               {error}{' '}
-            </Text>
-
-            {showResend && (
-              <Pressable
-                onPress={handleResendEmail}
-                disabled={isResendDisabled}
-              >
-                <Text
-                  style={{
-                    color: isResendDisabled ? '#999' : theme.inputFocus,
-                    textDecorationLine: isResendDisabled ? 'none' : 'underline',
-                    fontWeight: 'bold',
-                    fontSize: 14,
-                  }}
+              {showResend && (
+                <Pressable
+                  onPress={handleResendEmail}
+                  disabled={isResendDisabled}
                 >
-                  {isResendDisabled ? `Reenviar en ${timer}s` : 'Reenviar'}
-                </Text>
-              </Pressable>
-            )}
+                  <Text
+                    style={{
+                      color: isResendDisabled ? '#999' : theme.inputFocus,
+                      textDecorationLine: isResendDisabled
+                        ? 'none'
+                        : 'underline',
+                      fontWeight: 'bold',
+                      fontSize: 14,
+                    }}
+                  >
+                    {isResendDisabled
+                      ? t('authResendDisabled', { timer })
+                      : t('authResend')}
+                  </Text>
+                </Pressable>
+              )}
+            </Text>
           </View>
         )}
       </BlurView>
@@ -246,16 +235,6 @@ const Login: React.FC = () => {
             {renderForm()}
           </View>
         </TouchableWithoutFeedback>
-      )}
-
-      {pepeEnabled && (
-        <GlassTextButton
-          text="Pepe"
-          textColor={theme.onPrimary}
-          onPress={() => router.replace('easterEggPep')}
-          color={theme.primaryButton}
-          style={{ marginTop: 20, width: 320 }}
-        />
       )}
     </KeyboardAvoidingView>
   );
