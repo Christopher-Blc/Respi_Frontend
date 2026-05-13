@@ -1,16 +1,28 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, View, Platform } from 'react-native';
+import {
+  TouchableOpacity,
+  StyleSheet,
+  View,
+  Platform,
+  useWindowDimensions,
+} from 'react-native';
 import Octicons from '@expo/vector-icons/Octicons';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { useAppTheme } from '../../../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
+import WebBurgerMenu, {
+  BurgerNavItem,
+} from '../../../../components/general/WebBurgerMenu';
+import { RESPONSIVE_NAVIGATION_BREAKPOINT } from '../../../../constants';
 
 export default function ManagementLayout() {
   const router = useRouter();
   const { isDarkMode, theme } = useAppTheme();
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const isWideScreen = width >= RESPONSIVE_NAVIGATION_BREAKPOINT;
 
   const handleBackPress = () => {
     router.replace('/(app)/(admin)/index');
@@ -47,7 +59,40 @@ export default function ManagementLayout() {
           </View>
         ),
         headerLeft: () => {
-          if (Platform.OS === 'web') return null;
+          if (Platform.OS === 'web') {
+            // On web small screens show the burger menu top-left; on wide screens keep null
+            const adminBurgerNavItems: BurgerNavItem[] = [
+              {
+                label: 'Home',
+                route: '/(app)/(admin)/index',
+                icon: 'home',
+                segment: 'index',
+              },
+              {
+                label: t('adminInfo'),
+                route: '/(app)/(admin)/info',
+                icon: 'graph',
+                segment: 'info',
+              },
+              {
+                label: t('tabsProfile'),
+                route: '/(app)/(admin)/profile',
+                icon: 'person',
+                segment: 'profile',
+              },
+              {
+                label: t('tabsCourts'),
+                route: '/(app)/(admin)/(management)/courts',
+                icon: 'project',
+                segment: 'courts',
+              },
+            ];
+
+            return isWideScreen ? null : (
+              <WebBurgerMenu navItems={adminBurgerNavItems} />
+            );
+          }
+
           return (
             <TouchableOpacity
               onPress={handleBackPress}
