@@ -84,7 +84,12 @@ export default function AdminTiposPista() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.backgroundMain }]}>
+    <View
+      style={[
+        styles.container,
+        { paddingTop: 10, backgroundColor: theme.backgroundMain },
+      ]}
+    >
       <View style={[styles.headerActions, { paddingTop: headerHeight + 10 }]}>
         <View
           style={[

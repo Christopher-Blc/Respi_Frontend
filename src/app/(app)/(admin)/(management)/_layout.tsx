@@ -16,6 +16,7 @@ import WebBurgerMenu, {
   BurgerNavItem,
 } from '../../../../components/general/WebBurgerMenu';
 import { RESPONSIVE_NAVIGATION_BREAKPOINT } from '../../../../constants';
+import { WEB_ADMIN_HEADER_HEIGHT } from '../_layout';
 
 export default function ManagementLayout() {
   const router = useRouter();
@@ -44,6 +45,7 @@ export default function ManagementLayout() {
             style={[
               StyleSheet.absoluteFill,
               {
+                height: WEB_ADMIN_HEADER_HEIGHT,
                 backgroundColor: theme.primaryHeader,
                 borderBottomColor: theme.primarySoft,
                 borderBottomWidth: 1,
