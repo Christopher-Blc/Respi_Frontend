@@ -27,9 +27,14 @@ export const usersAdminStyles = StyleSheet.create({
   },
   listContent: { paddingHorizontal: 16 },
   gridContent: { paddingHorizontal: 16, gap: 12 },
-  gridRow: { gap: 12, justifyContent: 'flex-start' },
-  cardColumn: { flex: 1 },
-  card: { borderRadius: 18, padding: 16, marginBottom: 12, borderWidth: 1 },
+  gridRow: { gap: 12, justifyContent: 'flex-start', alignItems: 'stretch' },
+  cardColumn: { flexGrow: 0, flexShrink: 0, alignSelf: 'stretch' },
+  card: {
+    borderRadius: 18,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+  },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -38,12 +43,24 @@ export const usersAdminStyles = StyleSheet.create({
   },
   cardTitle: { fontSize: 18, fontWeight: 'bold' },
   cardSubtitle: { fontSize: 13, opacity: 0.75 },
-  rowWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 },
+  rowWrap: {
+    marginBottom: 12,
+  },
+  pillsScrollContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 4,
+  },
   pill: {
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 999,
     borderWidth: 1,
+    maxWidth: '100%',
+  },
+  metaPill: {
+    marginRight: 8,
+    maxWidth: 220,
   },
   actionsRow: {
     flexDirection: 'row',

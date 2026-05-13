@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Membership, User } from '../../../types/types';
 import { AppTheme } from '../../../theme';
@@ -32,8 +32,12 @@ export function UserCard({ item, theme, onEdit, onToggleActive }: Props) {
       ]}
     >
       <View style={styles.cardHeader}>
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.cardTitle, { color: theme.textTitle }]}>
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Text
+            style={[styles.cardTitle, { color: theme.textTitle }]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
             {item.username}
           </Text>
           <Text
@@ -41,6 +45,8 @@ export function UserCard({ item, theme, onEdit, onToggleActive }: Props) {
               styles.cardSubtitle,
               { color: theme.textBody, fontSize: 12 },
             ]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
           >
             {item.email}
           </Text>
@@ -59,6 +65,8 @@ export function UserCard({ item, theme, onEdit, onToggleActive }: Props) {
               color: item.is_active ? '#4CAF50' : '#F44336',
               fontWeight: '700',
             }}
+            numberOfLines={1}
+            ellipsizeMode="tail"
           >
             {item.is_active ? 'Activa' : 'Inactiva'}
           </Text>
@@ -78,17 +86,24 @@ export function UserCard({ item, theme, onEdit, onToggleActive }: Props) {
               color: item.email_verified ? '#4CAF50' : '#F44336',
               fontWeight: '700',
             }}
+            numberOfLines={1}
+            ellipsizeMode="tail"
           >
             {item.email_verified ? 'Verificado' : 'Sin verificar'}
           </Text>
         </View>
       </View>
 
-      <View style={styles.rowWrap}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.pillsScrollContent}
+        style={styles.rowWrap}
+      >
         <MetaPill label={item.role} theme={theme} />
         <MetaPill label={membershipLabel} theme={theme} />
         <MetaPill label={item.phone || 'Sin telefono'} theme={theme} />
-      </View>
+      </ScrollView>
 
       <View style={styles.actionsRow}>
         <TouchableOpacity
@@ -145,13 +160,18 @@ function MetaPill({ label, theme }: { label: string; theme: AppTheme }) {
     <View
       style={[
         styles.pill,
+        styles.metaPill,
         {
           backgroundColor: theme.primary + '10',
           borderColor: theme.primarySoft,
         },
       ]}
     >
-      <Text style={{ color: theme.textBody, fontSize: 12, fontWeight: '600' }}>
+      <Text
+        style={{ color: theme.textBody, fontSize: 12, fontWeight: '600' }}
+        numberOfLines={1}
+        ellipsizeMode="tail"
+      >
         {label}
       </Text>
     </View>

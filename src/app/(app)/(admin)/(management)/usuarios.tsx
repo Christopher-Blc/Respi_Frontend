@@ -33,6 +33,17 @@ export default function AdminUsuarios() {
   const tableMinWidth = 760;
   const useHorizontalTableScroll = width < tableMinWidth + 32;
   const cardsColumns = width >= 1280 ? 3 : width >= 780 ? 2 : 1;
+  const [cardsContainerWidth, setCardsContainerWidth] = useState(0);
+  const gridHorizontalPadding = 32;
+  const gridGap = 12;
+  const availableGridWidth = cardsContainerWidth || width;
+  const computedCardWidth =
+    cardsColumns === 1
+      ? availableGridWidth - gridHorizontalPadding
+      : (availableGridWidth -
+          gridHorizontalPadding -
+          gridGap * (cardsColumns - 1)) /
+        cardsColumns;
   const [searchReadOnly, setSearchReadOnly] = useState(true);
   const {
     filteredUsers,
@@ -59,10 +70,11 @@ export default function AdminUsuarios() {
   } = useAdminUsers();
 
   const renderCard = ({ item }: { item: AdminUser }) => {
-    const cardWidthStyle =
-      cardsColumns === 1
-        ? { width: '100%' as const }
-        : { maxWidth: cardsColumns === 2 ? 560 : 440 };
+    const normalizedCardWidth = Math.max(280, Math.floor(computedCardWidth));
+    const cardWidthStyle = {
+      width: normalizedCardWidth,
+      maxWidth: normalizedCardWidth,
+    };
 
     return (
       <View style={[styles.cardColumn, cardWidthStyle]}>
@@ -146,18 +158,28 @@ export default function AdminUsuarios() {
           style={{ marginTop: 50 }}
         />
       ) : viewMode === 'cards' ? (
-        <FlatList
-          key={`users-cards-${cardsColumns}`}
-          data={filteredUsers}
-          renderItem={renderCard}
-          numColumns={cardsColumns}
-          keyExtractor={(item) => item.id.toString()}
-          columnWrapperStyle={cardsColumns > 1 ? styles.gridRow : undefined}
-          contentContainerStyle={[
-            styles.gridContent,
-            { paddingBottom: insets.bottom + 100 },
-          ]}
-        />
+        <View
+          style={{ flex: 1 }}
+          onLayout={(event) => {
+            const nextWidth = Math.floor(event.nativeEvent.layout.width);
+            if (nextWidth > 0 && nextWidth !== cardsContainerWidth) {
+              setCardsContainerWidth(nextWidth);
+            }
+          }}
+        >
+          <FlatList
+            key={`users-cards-${cardsColumns}`}
+            data={filteredUsers}
+            renderItem={renderCard}
+            numColumns={cardsColumns}
+            keyExtractor={(item) => item.id.toString()}
+            columnWrapperStyle={cardsColumns > 1 ? styles.gridRow : undefined}
+            contentContainerStyle={[
+              styles.gridContent,
+              { paddingBottom: insets.bottom + 100 },
+            ]}
+          />
+        </View>
       ) : (
         <ScrollView
           horizontal={useHorizontalTableScroll}
