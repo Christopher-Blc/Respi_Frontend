@@ -20,7 +20,7 @@ import WebProfileBadge from '../../../components/general/WebProfileBadge';
 import { useTranslation } from 'react-i18next';
 import { RESPONSIVE_NAVIGATION_BREAKPOINT } from '../../../constants';
 
-const WEB_ADMIN_HEADER_HEIGHT = 73;
+export const WEB_ADMIN_HEADER_HEIGHT = 73;
 
 export default function AdminTabLayout() {
   const { isDarkMode, theme } = useAppTheme();
@@ -213,9 +213,10 @@ export default function AdminTabLayout() {
         headerShown: true,
         headerTitleAlign: isWideScreen ? 'left' : 'center',
         headerTintColor: theme.headerText,
-        headerLeft: isWeb
-          ? () => <WebBurgerMenu navItems={adminBurgerNavItems} />
-          : undefined,
+        headerLeft:
+          isWeb && !isWideScreen
+            ? () => <WebBurgerMenu navItems={adminBurgerNavItems} />
+            : undefined,
         headerTransparent: true,
         headerBackground: () => (
           <BlurView

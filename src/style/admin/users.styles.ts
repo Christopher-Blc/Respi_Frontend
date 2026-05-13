@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 
 export const usersAdminStyles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1 , paddingTop: 10},
   headerActions: {
     paddingHorizontal: 16,
     flexDirection: 'row',

@@ -109,9 +109,10 @@ export default function tabLayout() {
         headerShown: true,
         headerTitleAlign: isWideScreen ? 'left' : 'center',
         headerTintColor: theme.headerText,
-        headerLeft: isWeb
-          ? () => <WebBurgerMenu navItems={webBurgerNavItems} />
-          : undefined,
+        headerLeft:
+          isWeb && !isWideScreen
+            ? () => <WebBurgerMenu navItems={webBurgerNavItems} />
+            : undefined,
         headerTransparent: true,
         headerBackground: () => (
           <BlurView
