@@ -224,19 +224,16 @@ export function useAdminCourtTypes() {
         await api.put(`/court-types/${tipoPistaAEditar.id}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
-        console.log('Tipo de pista actualizado:', { name: formData.get('name'), hasImage: formData.has('image'), imageName: formData.get('image') instanceof File ? (formData.get('image') as File).name : 'N/A' });
       } else {
         await api.post('/court-types', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
-        console.log('Tipo de pista creado:', { name: formData.get('name'), hasImage: formData.has('image'), imageName: formData.get('image') instanceof File ? (formData.get('image') as File).name : 'N/A' });
       }
 
       closeModal();
       fetchTiposPista();
     } catch (error) {
       console.log('Error al hacer put/posta court-type:', error);
-      console.log('Objeto enviado:', { name: formData.get('name'), hasImage: formData.has('image'), imageName: formData.get('image') instanceof File ? (formData.get('image') as File).name : 'N/A' });
 
       if (axios.isAxiosError(error)) {
         console.log('Error creating/updating tipo_pista:', error.response?.data);
