@@ -236,7 +236,7 @@ export function useAdminCourtTypes() {
       fetchTiposPista();
     } catch (error) {
       console.log('Error al hacer put/posta court-type:', error);
-      console.log('Objeto enviado:', formData);
+      console.log('Objeto enviado:', { name: formData.get('name'), hasImage: formData.has('image'), imageName: formData.get('image') instanceof File ? (formData.get('image') as File).name : 'N/A' });
 
       if (axios.isAxiosError(error)) {
         console.log('Error creating/updating tipo_pista:', error.response?.data);
