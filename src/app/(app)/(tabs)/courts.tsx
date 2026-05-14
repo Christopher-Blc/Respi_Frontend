@@ -70,6 +70,53 @@ export default function PistasTab() {
 
   const cardBasis = getResponsiveCardBasis();
   const isWideScreen = width >= 768;
+  const sportCardWidth = Math.min(cardBasis, 460);
+
+  const renderStars = (rating: number, reviews: number) => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 4,
+          backgroundColor: 'rgba(21, 26, 38, 0.46)',
+          paddingHorizontal: 8,
+          paddingVertical: 4,
+          borderRadius: 999,
+          borderWidth: 1,
+          borderColor: 'rgba(199, 207, 221, 0.55)',
+          alignSelf: 'flex-start',
+        }}
+      >
+        <View style={{ flexDirection: 'row', gap: 1 }}>
+          {/* Full stars */}
+          {Array.from({ length: fullStars }).map((_, i) => (
+            <Ionicons key={`full-${i}`} name="star" size={14} color="#FFD700" />
+          ))}
+          {/* Half star */}
+          {hasHalfStar && (
+            <Ionicons name="star-half" size={14} color="#FFD700" />
+          )}
+          {/* Empty stars */}
+          {Array.from({ length: emptyStars }).map((_, i) => (
+            <Ionicons
+              key={`empty-${i}`}
+              name="star-outline"
+              size={14}
+              color="rgba(255,255,255,0.5)"
+            />
+          ))}
+        </View>
+        <Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: '600' }}>
+          ({reviews})
+        </Text>
+      </View>
+    );
+  };
 
   const renderModel = (item: Court) => (
     <TouchableOpacity
@@ -135,15 +182,34 @@ export default function PistasTab() {
     const pistaId = String(pista.id ?? '');
     const reservasHoy = pista.current_reservations?.length || 0;
     const pistaImage = getTipoPistaImage(pista);
+    const canBook = Boolean(pistaId);
+
+    const handleCourtPress = () => {
+      if (!canBook) return;
+
+      router.push({
+        pathname: '/(app)/(tabs)/bookings/createBooking',
+        params: {
+          pistaId,
+          pistaNombre: pista.name || 'Pista',
+          fecha: formattedDate,
+        },
+      });
+    };
 
     return (
-      <View
+      <TouchableOpacity
         key={pistaId || pista.name}
+        activeOpacity={0.92}
+        disabled={!canBook}
+        onPress={handleCourtPress}
         style={[
           localStyles.sportCard,
           {
-            flexBasis: isWideScreen ? cardBasis : '100%',
-            flexGrow: 1,
+            flexBasis: isWideScreen ? sportCardWidth : '100%',
+            width: isWideScreen ? sportCardWidth : '100%',
+            maxWidth: sportCardWidth,
+            flexGrow: 0,
           },
         ]}
       >
@@ -152,68 +218,89 @@ export default function PistasTab() {
           style={localStyles.sportCardImage}
           imageStyle={localStyles.sportCardImageStyle}
         >
-          <View style={localStyles.sportCardOverlay}>
+          <LinearGradient
+            colors={[
+              'rgba(8, 12, 20, 0.16)',
+              'rgba(8, 12, 20, 0.72)',
+              'rgba(8, 12, 20, 0.92)',
+            ]}
+            style={localStyles.sportCardOverlay}
+          >
             <View style={localStyles.sportCardHeader}>
-              <Text style={localStyles.sportCardTitle}>
+              {renderStars(
+                Number(pista.average_rating || 0),
+                pista.total_reviews || 0,
+              )}
+              <View style={localStyles.pricePill}>
+                <Text style={localStyles.pricePillText}>
+                  {pista.price_per_hour
+                    ? `${formatPrice(Number(pista.price_per_hour), locale)}/h`
+                    : t('pistasPriceFallback')}
+                </Text>
+              </View>
+            </View>
+
+            <View>
+              <Text style={localStyles.sportCardTitle} numberOfLines={1}>
                 {pista.name || t('bookingCreateCourtFallback')}
               </Text>
-              <Text style={localStyles.sportCardPrice}>
-                {pista.price_per_hour
-                  ? `${formatPrice(Number(pista.price_per_hour), locale)}/h`
-                  : t('pistasPriceFallback')}
-              </Text>
-            </View>
 
-            {!!pista.description && (
-              <Text style={localStyles.sportCardDescription}>
-                {pista.description}
-              </Text>
-            )}
+              {!!pista.description && (
+                <Text
+                  style={localStyles.sportCardDescription}
+                  numberOfLines={2}
+                >
+                  {pista.description}
+                </Text>
+              )}
 
-            <View style={localStyles.sportChipsWrap}>
-              <View style={localStyles.sportChip}>
-                <Text style={localStyles.sportChipText}>
-                  {t('pistasCovered', {
-                    value: pista.is_covered ? t('commonYes') : t('commonNo'),
-                  })}
-                </Text>
-              </View>
-              <View style={localStyles.sportChip}>
-                <Text style={localStyles.sportChipText}>
-                  {t('pistasLighting', {
-                    value: pista.has_lighting ? t('commonYes') : t('commonNo'),
-                  })}
-                </Text>
-              </View>
-              <View style={localStyles.sportChip}>
-                <Text style={localStyles.sportChipText}>
-                  {t('pistasBookingsToday', { count: reservasHoy })}
-                </Text>
+              <View style={localStyles.sportChipsWrap}>
+                <View style={localStyles.sportChip}>
+                  <Text style={localStyles.sportChipText}>
+                    {t('pistasCovered', {
+                      value: pista.is_covered ? t('commonYes') : t('commonNo'),
+                    })}
+                  </Text>
+                </View>
+                <View style={localStyles.sportChip}>
+                  <Text style={localStyles.sportChipText}>
+                    {t('pistasLighting', {
+                      value: pista.has_lighting
+                        ? t('commonYes')
+                        : t('commonNo'),
+                    })}
+                  </Text>
+                </View>
+                <View style={localStyles.sportChip}>
+                  <Text style={localStyles.sportChipText}>
+                    {t('pistasBookingsToday', { count: reservasHoy })}
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
+          </LinearGradient>
         </ImageBackground>
 
-        {!!pistaId && (
-          <TouchableOpacity
-            style={localStyles.reserveButton}
-            onPress={() =>
-              router.push({
-                pathname: '/(app)/(tabs)/bookings/createBooking',
-                params: {
-                  pistaId,
-                  pistaNombre: pista.name || 'Pista',
-                  fecha: formattedDate,
-                },
-              })
-            }
+        <View
+          style={[
+            localStyles.reserveButton,
+            {
+              backgroundColor: theme.surface,
+            },
+          ]}
+        >
+          <Text
+            style={[
+              localStyles.reserveButtonText,
+              {
+                color: theme.textTitle,
+              },
+            ]}
           >
-            <Text style={localStyles.reserveButtonText}>
-              {t('pistasReserveThisCourt')}
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
+            {t('pistasReserveThisCourt')}
+          </Text>
+        </View>
+      </TouchableOpacity>
     );
   };
 

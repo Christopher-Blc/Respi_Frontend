@@ -124,7 +124,7 @@ export function useCourtsTab() {
         setSportError(null);
 
         const [disponibilidadRes, pistasRes] = await Promise.allSettled([
-          api.get(`/court/disponibilidad?fecha=${formattedDate}`),
+          api.get(`/courts/availability?date=${formattedDate}`),
           api.get('/courts'),
         ]);
 

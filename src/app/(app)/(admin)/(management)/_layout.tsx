@@ -88,6 +88,12 @@ export default function ManagementLayout() {
                 icon: 'project',
                 segment: 'courts',
               },
+              {
+                label: t('adminReviews'),
+                route: '/(app)/(admin)/(management)/resenyas',
+                icon: 'star',
+                segment: 'resenyas',
+              },
             ];
 
             return isWideScreen ? null : (
@@ -136,6 +142,7 @@ export default function ManagementLayout() {
           title: t('adminCourtTypes'),
         }}
       />
+      <Stack.Screen name="resenyas" options={{ title: t('adminReviews') }} />
       <Stack.Screen name="usuarios" options={{ title: t('adminUsers') }} />
       <Stack.Screen
         name="membresias"
