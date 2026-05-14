@@ -51,9 +51,10 @@ export const reviewsStyles = StyleSheet.create({
   },
   listContent: { paddingHorizontal: 16 },
   gridContent: { paddingHorizontal: 16, gap: 12 },
-  gridRow: { gap: 12, justifyContent: 'flex-start', alignItems: 'stretch' },
-  cardColumn: { flexGrow: 0, flexShrink: 0, alignSelf: 'stretch' },
+  gridRow: { justifyContent: 'flex-start' },
+  cardColumn: { padding: 6,alignSelf: 'stretch' },
   card: {
+    flex: 1,
     borderRadius: 18,
     padding: 16,
     marginBottom: 12,

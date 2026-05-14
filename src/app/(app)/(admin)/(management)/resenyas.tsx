@@ -37,6 +37,7 @@ export default function AdminReviewsScreen() {
   const [showFiltersModal, setShowFiltersModal] = useState(false);
 
   const {
+    courts,
     courtFilterOptions,
     filteredReviews,
     loading,
@@ -68,10 +69,14 @@ export default function AdminReviewsScreen() {
     replyFilter !== 'all';
 
   const renderCard = ({ item }: { item: AdminReview }) => {
+    // Definimos el estilo con casting para evitar errores de tipo
     const cardWidthStyle =
       cardsColumns === 1
-        ? { width: '100%' as const }
-        : { maxWidth: cardsColumns === 2 ? 560 : 420 };
+        ? ({ width: '100%' } as const)
+        : ({
+            width: `${100 / cardsColumns}%`,
+            maxWidth: `${100 / cardsColumns}%`,
+          } as const);
 
     return (
       <View style={[styles.cardColumn, cardWidthStyle]}>
