@@ -95,12 +95,6 @@ export function BookingCard({
         </View>
       </View>
 
-      {!!item.note && (
-        <Text style={{ color: theme.textBody, marginBottom: 12 }}>
-          {item.note}
-        </Text>
-      )}
-
       <View style={styles.actionsRow}>
         <TouchableOpacity
           style={[
