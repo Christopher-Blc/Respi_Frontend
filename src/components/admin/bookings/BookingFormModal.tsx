@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   Modal,
   ScrollView,
   Pressable,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../context/ThemeContext';
@@ -58,6 +59,24 @@ export function BookingFormModal({
 }: Props) {
   const { theme } = useAppTheme();
   const [showCourtPicker, setShowCourtPicker] = useState(false);
+  const [showUserPicker, setShowUserPicker] = useState(false);
+  const overlayOpacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (visible) {
+      Animated.timing(overlayOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    } else {
+      Animated.timing(overlayOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: false,
+      }).start();
+    }
+  }, [visible, overlayOpacity]);
 
   const selectedCourt = useMemo(
     () =>
@@ -65,13 +84,33 @@ export function BookingFormModal({
     [courts, formData.court_id],
   );
 
+  const selectedUser = useMemo(
+    () => users.find((user) => String(user.id) === String(formData.user_id)),
+    [users, formData.user_id],
+  );
+
+  // Eliminar duplicados de pistas por nombre
+  const uniqueCourts = useMemo(() => {
+    const seen = new Set<string>();
+    return courts.filter((court) => {
+      if (seen.has(court.name)) return false;
+      seen.add(court.name);
+      return true;
+    });
+  }, [courts]);
+
   const isStatusLocked =
     isEditing &&
     (reservationStatus === 'FINALIZADA' || reservationStatus === 'CANCELADA');
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
-      <View style={styles.modalOverlay}>
+      <Animated.View
+        style={[
+          styles.modalOverlay,
+          { opacity: overlayOpacity },
+        ]}
+      >
         <View
           style={[
             styles.modalContent,
@@ -90,18 +129,36 @@ export function BookingFormModal({
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={styles.twoColumnsRow}>
               <View style={styles.column}>
-                <InputLabel label="ID usuario" theme={theme} />
-                <TextInput
+                <InputLabel label="Usuario" theme={theme} />
+                <TouchableOpacity
                   style={[
-                    styles.input,
-                    { color: theme.textTitle, borderColor: theme.primarySoft },
+                    styles.selectButton,
+                    {
+                      backgroundColor: theme.backgroundMain,
+                      borderColor: theme.primarySoft,
+                    },
                   ]}
-                  keyboardType="numeric"
-                  value={formData.user_id}
-                  onChangeText={(v) => setFormData({ ...formData, user_id: v })}
-                  placeholder={users[0] ? String(users[0].id) : 'Ej: 1'}
-                  placeholderTextColor={theme.textBody + '70'}
-                />
+                  onPress={() => setShowUserPicker(true)}
+                >
+                  <Text
+                    style={[
+                      styles.selectButtonText,
+                      {
+                        color: selectedUser ? theme.textTitle : theme.textBody,
+                      },
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {selectedUser
+                      ? selectedUser.username
+                      : 'Selecciona un usuario'}
+                  </Text>
+                  <Ionicons
+                    name="chevron-down"
+                    size={18}
+                    color={theme.textBody}
+                  />
+                </TouchableOpacity>
               </View>
 
               <View style={styles.column}>
@@ -126,7 +183,7 @@ export function BookingFormModal({
                     numberOfLines={1}
                   >
                     {selectedCourt
-                      ? `${selectedCourt.name} · ID ${selectedCourt.id}`
+                      ? selectedCourt.name
                       : 'Selecciona una pista'}
                   </Text>
                   <Ionicons
@@ -286,7 +343,7 @@ export function BookingFormModal({
             </TouchableOpacity>
           </ScrollView>
         </View>
-      </View>
+      </Animated.View>
 
       <Modal
         visible={showCourtPicker}
@@ -312,7 +369,7 @@ export function BookingFormModal({
               Selecciona una pista
             </Text>
             <ScrollView style={styles.dropdownList}>
-              {courts.map((court) => {
+              {uniqueCourts.map((court) => {
                 const selected = String(court.id) === String(formData.court_id);
                 return (
                   <TouchableOpacity
@@ -344,6 +401,70 @@ export function BookingFormModal({
                     >
                       {court.name}
                     </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      <Modal
+        visible={showUserPicker}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowUserPicker(false)}
+      >
+        <Pressable
+          style={styles.dropdownBackdrop}
+          onPress={() => setShowUserPicker(false)}
+        >
+          <Pressable
+            onPress={() => {}}
+            style={[
+              styles.dropdownCard,
+              {
+                backgroundColor: theme.backgroundCard,
+                borderColor: theme.primarySoft,
+              },
+            ]}
+          >
+            <Text style={[styles.dropdownTitle, { color: theme.textTitle }]}>
+              Selecciona un usuario
+            </Text>
+            <ScrollView style={styles.dropdownList}>
+              {users.map((user) => {
+                const selected = String(user.id) === String(formData.user_id);
+                return (
+                  <TouchableOpacity
+                    key={user.id}
+                    style={[
+                      styles.dropdownOption,
+                      {
+                        backgroundColor: selected
+                          ? theme.primary + '12'
+                          : theme.backgroundMain,
+                        borderColor: selected
+                          ? theme.primary
+                          : theme.primarySoft,
+                      },
+                      selected && styles.dropdownOptionSelected,
+                    ]}
+                    onPress={() => {
+                      setFormData({ ...formData, user_id: String(user.id) });
+                      setShowUserPicker(false);
+                    }}
+                  >
+                    <Text
+                      style={[
+                        selected
+                          ? styles.dropdownOptionTextSelected
+                          : styles.dropdownOptionText,
+                        { color: selected ? theme.primary : theme.textTitle },
+                      ]}
+                    >
+                      {user.username}
+                    </Text>
                     <Text
                       style={{
                         color: theme.textBody,
@@ -351,7 +472,7 @@ export function BookingFormModal({
                         marginTop: 4,
                       }}
                     >
-                      ID {court.id} · {court.status}
+                      {user.email}
                     </Text>
                   </TouchableOpacity>
                 );

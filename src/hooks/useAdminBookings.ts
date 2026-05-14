@@ -208,6 +208,40 @@ export function useAdminBookings() {
     setModalVisible(true);
   };
 
+  const getChangedFields = (original: Reservation, updated: ReservationFormData) => {
+    const changes: Record<string, any> = {};
+
+    if (String(original.user_id ?? '') !== updated.user_id) {
+      changes.user_id = Number(updated.user_id);
+    }
+
+    if (String(original.court_id ?? '') !== updated.court_id) {
+      changes.court_id = Number(updated.court_id);
+    }
+
+    if (normalizeDate(original.reservation_date) !== updated.reservation_date) {
+      changes.reservation_date = updated.reservation_date;
+    }
+
+    if (normalizeTime(original.start_time) !== updated.start_time) {
+      changes.start_time = updated.start_time;
+    }
+
+    if (normalizeTime(original.end_time) !== updated.end_time) {
+      changes.end_time = updated.end_time;
+    }
+
+    if ((original.status || 'PENDIENTE') !== updated.status) {
+      changes.status = updated.status;
+    }
+
+    if ((original.note || '') !== updated.note.trim()) {
+      changes.note = updated.note.trim();
+    }
+
+    return changes;
+  };
+
   const validateForm = () => {
     const userId = Number(formData.user_id);
     const courtId = Number(formData.court_id);
@@ -259,15 +293,15 @@ export function useAdminBookings() {
 
     try {
       if (reservationToEdit) {
-        const updatePayload = {
-          ...basePayload,
-          status: formData.status,
-        };
+        const updatePayload = getChangedFields(reservationToEdit, formData);
 
-        try {
-          await api.put(`/reservations/${reservationToEdit.id}`, updatePayload);
-        } catch {
-          await api.patch(`/reservations/${reservationToEdit.id}`, updatePayload);
+        // Solo enviar si hay cambios
+        if (Object.keys(updatePayload).length > 0) {
+          try {
+            await api.put(`/reservations/${reservationToEdit.id}`, updatePayload);
+          } catch {
+            console.log('PUT failed', updatePayload);
+          }
         }
       } else {
         await api.post('/reservations', basePayload);
@@ -326,11 +360,16 @@ export function useAdminBookings() {
     try {
       if (confirmModal.actionType === 'cancel') {
         const payload = { status: 'CANCELADA' };
+
         try {
-          await api.patch(`/reservations/${pendingReservation.id}`, payload);
-        } catch {
           await api.put(`/reservations/${pendingReservation.id}`, payload);
+        } catch (error) {
+          
+          console.log('PUT failed', payload);
+           console.log('PUT Error:', error);
         }
+         
+        
       }
 
       if (confirmModal.actionType === 'delete') {

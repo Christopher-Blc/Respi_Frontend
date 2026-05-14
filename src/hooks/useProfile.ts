@@ -14,22 +14,13 @@ export const useProfile = () => {
     try {
       const response = await api.get('/users/profile/me');
       setUser(response.data);
+      setTotalReservas(response.data?.total_reservations || 0);
       return response.data; // Para encadenar si hace falta
     } catch (error) {
       console.error('Error fetching profile:', error);
     }
   };
 
-  // 2. Cargar Reservas
-  const fetchTotalReservas = async () => {
-    try {
-      const response = await api.get('/reservations/my-reservations');
-      const responseFiltrado = reservasActivasFilter(response);
-      setTotalReservas(responseFiltrado.length);
-    } catch (error) {
-      console.error('Error fetching bookings:', error);
-    }
-  };
 
   // 3. Cargar Detalles de Membresía
   const fetchMembershipById = async (id: number | null | undefined) => {
@@ -69,14 +60,21 @@ export const useProfile = () => {
     const loadAll = async () => {
       setLoading(true);
       const userData = await fetchUserProfile();
-      await fetchTotalReservas();
-      if (userData?.membership_id) {
+       if (userData?.membership_id) {
         await fetchMembershipById(userData.membership_id);
       }
       setLoading(false);
     };
     loadAll();
   }, []);
+
+  // Función para refrescar todos los datos
+  const refreshProfile = async () => {
+    const userData = await fetchUserProfile();
+    if (userData?.membership_id) {
+      await fetchMembershipById(userData.membership_id);
+    }
+  };
 
   return {
     user,
@@ -85,6 +83,6 @@ export const useProfile = () => {
     loading,
     avatarInitials,
     userMembershipLabel,
-    refreshProfile: fetchUserProfile, // Por si quieres un "Pull to refresh"
+    refreshProfile,
   };
 };

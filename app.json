@@ -11,18 +11,23 @@
     "splash": {
       "image": "./assets/icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#ffffff",
+      "textColor": "#000000"
+    },
+    "notification":{
+         "icon":"./assets/icon.png"
     },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.respiteam.ResPi",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "icon": "./assets/icon.png"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
@@ -62,7 +67,7 @@
       "meta": {
         "viewport": "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content"
       },
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/icon.png"
     },
     "plugins": [
       "expo-router",
@@ -84,5 +89,6 @@
       "url": "https://u.expo.dev/0fda7759-726c-4a3b-a748-28fbbbb1493c"
     },
     "owner": "respiteam"
+    
   }
 }
