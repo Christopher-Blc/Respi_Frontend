@@ -3,15 +3,16 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
   ActivityIndicator,
   Platform,
   Alert,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 import { GlassTextButton } from '../../components/login/glassTextButton';
 import createProfileStyles from '../../style/profile.styles';
@@ -35,6 +36,7 @@ import api from '../../services/api';
 
 export default function ProfileView() {
   const { t, i18n } = useTranslation();
+  const router = useRouter();
   const { signOut, role } = useAuth();
   const {
     isDarkMode,
@@ -225,13 +227,16 @@ export default function ProfileView() {
 
   return loading ? (
     <View style={[{ flex: 1, justifyContent: 'center', alignItems: 'center' }]}>
-      <ActivityIndicator size={36} color={theme.primaryButton} />
+      <Image
+        source={require('../../../assets/animacionCarga.gif')}
+        style={{ width: 80, height: 80 }}
+      />
     </View>
   ) : (
-    <View style={{ flex: 1 }}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[
+    <>
+      <View
+        style={[
+          { flex: 1 },
           {
             paddingTop: headerHeight + 10,
             paddingBottom: insets.bottom + (Platform.OS === 'web' ? 100 : 120),
@@ -334,7 +339,7 @@ export default function ProfileView() {
               title={t('profileNotifications')}
               value={notificationStatus}
               isLast={undefined}
-              onPress={handleEnableNotifications}
+              onPress={() => router.push('/(app)/(tabs)/notifications-history')}
             />
             <MenuOption
               icon="paper-plane-outline"
@@ -368,13 +373,17 @@ export default function ProfileView() {
 
         <Text style={styles.RespiText}>ResPi®</Text>
         <Text style={styles.versionText}>{t('profileVersion')} 1.0.0</Text>
-      </ScrollView>
 
-      {loading && (
-        <View style={styles.loadingOverlayList} pointerEvents="none">
-          <ActivityIndicator size={36} color={theme.primaryButton} />
-        </View>
-      )}
+        {loading && (
+          <View style={styles.loadingOverlayList} pointerEvents="none">
+            <Image
+              source={require('../../../assets/animacionCarga.gif')}
+              style={{ width: 80, height: 80 }}
+            />
+          </View>
+        )}
+      </View>
+
       <MembresiaModal
         visible={modalMembresiaVisible}
         onClose={() => setModalMembresiaVisible(false)}
@@ -403,6 +412,6 @@ export default function ProfileView() {
         onUpdated={refreshProfile}
         onClose={() => setModalEditUserNameVisible(false)}
       />
-    </View>
+    </>
   );
 }

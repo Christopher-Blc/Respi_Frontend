@@ -2,10 +2,10 @@ import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import { addNotificationToHistory } from './notificationHistoryService';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
     shouldShowBanner: true,
     shouldShowList: true,
     shouldPlaySound: true,
@@ -27,6 +27,7 @@ export const setupNotificationChannelAndroid = async () => {
     importance: Notifications.AndroidImportance.MAX,
     vibrationPattern: [0, 250, 250, 250],
     lightColor: '#FF231F7C',
+    
   });
 };
 
@@ -94,7 +95,19 @@ export const scheduleLocalNotification = async (
 
 export const addNotificationReceivedListener = (
   listener: (event: Notifications.Notification) => void,
-) => Notifications.addNotificationReceivedListener(listener);
+) => {
+  return Notifications.addNotificationReceivedListener((event) => {
+    // Save to history
+    if (event.request.content.title || event.request.content.body) {
+      addNotificationToHistory(
+        event.request.content.title || 'ResPi',
+        event.request.content.body || '',
+      ).catch(console.error);
+    }
+    // Call the provided listener
+    listener(event);
+  });
+};
 
 export const addNotificationResponseListener = (
   listener: (event: Notifications.NotificationResponse) => void,

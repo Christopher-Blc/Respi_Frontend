@@ -70,7 +70,7 @@ export interface User {
   refresh_token_hash?: string;
   expoPushToken?: string | null;
   membership?: Membership | null;
-  reservations_count?: number;
+  total_reservations?: number;
 }
 
 // ─── Membership (/memberships) ───────────────────────────────────
