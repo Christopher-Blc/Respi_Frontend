@@ -105,12 +105,7 @@ export function BookingFormModal({
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
-      <Animated.View
-        style={[
-          styles.modalOverlay,
-          { opacity: overlayOpacity },
-        ]}
-      >
+      <Animated.View style={[styles.modalOverlay, { opacity: overlayOpacity }]}>
         <View
           style={[
             styles.modalContent,
