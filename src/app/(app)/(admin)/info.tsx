@@ -9,6 +9,8 @@ import { adminInfoStyles as styles } from '../../../style/admin/info.styles';
 import { InfoHeroCard } from '../../../components/admin/info/InfoHeroCard';
 import { InfoPieChartCard } from '../../../components/admin/info/InfoPieChartCard';
 import { InfoLineChartCard } from '../../../components/admin/info/InfoLineChartCard';
+import { useAdminReviews } from '../../../hooks/useAdminReviews';
+import { CourtsAverageRatingChart } from '../../../components/admin/reviews/CourtsAverageRatingChart';
 
 export default function InfoAdmin() {
   const { theme } = useAppTheme();
@@ -32,6 +34,8 @@ export default function InfoAdmin() {
     totalReservas,
     visiblePieData,
   } = useAdminInfo(theme);
+
+  const { courts, filteredReviews } = useAdminReviews();
 
   const horizontalPadding = width >= 1280 ? 40 : width >= 768 ? 28 : 20;
   const maxPaddingWidth = 1400;
@@ -88,6 +92,16 @@ export default function InfoAdmin() {
             rangeOptions={rangeOptions}
             onRangeChange={setLineChartRange}
             barChartData={barChartData}
+          />
+        </View>
+
+        <View style={[styles.chartsRow, { marginTop: 16 }]}>
+          <CourtsAverageRatingChart
+            courts={courts}
+            reviews={filteredReviews}
+            theme={theme}
+            // IMPORTANTE: Pásale el ancho calculado para que el gráfico no se colapse
+            cardWidth={isWide ? cardWidth : availableGridWidth}
           />
         </View>
       </ScrollView>

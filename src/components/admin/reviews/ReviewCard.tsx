@@ -117,6 +117,8 @@ export function ReviewCard({ item, theme, onAnswer }: Props) {
         </Text>
       </View>
 
+      <View style={{ flex: 1 }} />
+
       <View style={styles.actionsRow}>
         <TouchableOpacity
           style={[

@@ -176,7 +176,7 @@ export type Review = {
     rating: number;
     comment_date: string;
     is_visible: boolean;
-  admin_answer?: string | null;
+    admin_answer?: string | null;
     //--relaciones--
     user: User;
     court: Court;

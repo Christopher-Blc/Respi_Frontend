@@ -252,6 +252,7 @@ export function useAdminReviews() {
   };
 
   return {
+    courts,
     courtFilterOptions,
     filteredReviews,
     loading,
