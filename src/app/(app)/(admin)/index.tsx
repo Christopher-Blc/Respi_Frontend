@@ -102,7 +102,7 @@ export default function AdminManagementScreen() {
       title: t('adminHomeReviewsTitle'),
       subtitle: t('adminHomeReviewsSubtitle'),
       icon: 'star-circle',
-      route: '/(admin)/(management)/resenyas',
+      route: '/(app)/(admin)/(management)/resenyas',
       color: '#FBC02D',
       cta: t('adminHomeReviewsCta'),
     },

@@ -100,7 +100,7 @@ export default function AdminTabLayout() {
         },
         {
           label: t('adminReviews'),
-          route: '/(app)/(admin)/resenyas',
+          route: '/(app)/(admin)/(management)/resenyas',
           icon: 'star',
           pathMatch: 'resenyas',
         },
@@ -177,7 +177,7 @@ export default function AdminTabLayout() {
     },
     {
       label: t('adminReviews'),
-      route: '/(app)/(admin)/resenyas',
+      route: '/(app)/(admin)/(management)/resenyas',
       icon: 'star',
       segment: 'resenyas',
     },

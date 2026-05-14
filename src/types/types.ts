@@ -41,6 +41,8 @@ export interface Court {
   maintenance_from?: string | null;
   maintenance_until?: string | null;
   email_verified?: boolean;
+  total_reviews?: number;
+  average_rating?: string;
   // Relations
   installation?: Installation;
   courtType?: CourtType;
@@ -163,3 +165,20 @@ export type CourtFormData = {
   installation_id: string;
   court_type_id: string;
 };
+
+
+export type Review = {
+    id: number;
+    user_id: number;
+    court_id: number;
+    title: string;
+    text: string;
+    rating: number;
+    comment_date: string;
+    is_visible: boolean;
+  admin_answer?: string | null;
+    //--relaciones--
+    user: User;
+    court: Court;
+}
+
