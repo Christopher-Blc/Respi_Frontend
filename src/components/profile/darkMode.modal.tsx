@@ -6,6 +6,7 @@ import {
   Switch,
   TouchableOpacity,
   Image,
+  ScrollView,
 } from 'react-native';
 import { Platform } from 'react-native';
 import { useAppTheme } from '../../context/ThemeContext';
@@ -148,117 +149,120 @@ export default function DarkModeModal({
           </TouchableOpacity>
         </View>
       </View>
-
-      <View style={styles.previewSection}>
-        <View style={styles.previewRow}>
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => handlePreviewChange(false)}
-            disabled={localSystemValue}
-            style={[
-              styles.previewCard,
-              isLightSelected ? styles.previewCardSelected : null,
-              localSystemValue ? styles.disabledPreview : null,
-            ]}
-          >
-            <Image
-              source={lightModeExample}
-              style={styles.previewImage}
-              resizeMode="contain"
-            />
-            <Text style={styles.previewLabel}>{t('profileThemeLight')}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => handlePreviewChange(true)}
-            disabled={localSystemValue}
-            style={[
-              styles.previewCard,
-              isDarkSelected ? styles.previewCardSelected : null,
-              localSystemValue ? styles.disabledPreview : null,
-            ]}
-          >
-            <Image
-              source={darkModeExample}
-              style={styles.previewImage}
-              resizeMode="contain"
-            />
-            <Text style={styles.previewLabel}>{t('profileThemeDark')}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={styles.settingsSection}>
-        <View style={styles.settingsCard}>
-          <Text style={styles.title}>{t('profileDarkMode')}</Text>
-
-          <Text style={styles.description}>
-            {t('profileDarkModeDescription')}
-          </Text>
-
-          <View style={styles.toggleGroup}>
-            <View style={styles.toggleRow}>
-              <Text style={styles.toggleLabel}>{t('profileSystem')}</Text>
-              <Switch
-                value={localSystemValue}
-                onValueChange={handleSystemChange}
-                ios_backgroundColor={switchTrackOff}
-                thumbColor={localSystemValue ? switchThumbOn : switchThumbOff}
-                trackColor={{
-                  false: switchTrackOff,
-                  true: switchTrackOn,
-                }}
+      <ScrollView style={styles.previewSection}>
+        <View style={styles.previewSection}>
+          <View style={styles.previewRow}>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={() => handlePreviewChange(false)}
+              disabled={localSystemValue}
+              style={[
+                styles.previewCard,
+                isLightSelected ? styles.previewCardSelected : null,
+                localSystemValue ? styles.disabledPreview : null,
+              ]}
+            >
+              <Image
+                source={lightModeExample}
+                style={styles.previewImage}
+                resizeMode="contain"
               />
-            </View>
+              <Text style={styles.previewLabel}>{t('profileThemeLight')}</Text>
+            </TouchableOpacity>
 
-            <View style={styles.toggleRow}>
-              <Text style={styles.toggleLabel}>
-                {localValue ? t('profileEnabled') : t('profileDisabled')}
-              </Text>
-              <Switch
-                value={localValue}
-                onValueChange={handlePreviewChange}
-                disabled={localSystemValue}
-                ios_backgroundColor={switchTrackOff}
-                thumbColor={localValue ? switchThumbOn : switchThumbOff}
-                trackColor={{
-                  false: switchTrackOff,
-                  true: switchTrackOn,
-                }}
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={() => handlePreviewChange(true)}
+              disabled={localSystemValue}
+              style={[
+                styles.previewCard,
+                isDarkSelected ? styles.previewCardSelected : null,
+                localSystemValue ? styles.disabledPreview : null,
+              ]}
+            >
+              <Image
+                source={darkModeExample}
+                style={styles.previewImage}
+                resizeMode="contain"
               />
-            </View>
+              <Text style={styles.previewLabel}>{t('profileThemeDark')}</Text>
+            </TouchableOpacity>
           </View>
+        </View>
 
-          <View style={styles.paletteSection}>
-            <Text style={styles.paletteTitle}>{themeColorLabel}</Text>
-            <View style={styles.paletteRow}>
-              {paletteOptions.map((palette) => {
-                const isSelected = localThemePalette === palette.value;
+        <View style={styles.settingsSection}>
+          <View style={styles.settingsCard}>
+            <Text style={styles.title}>{t('profileDarkMode')}</Text>
 
-                return (
-                  <TouchableOpacity
-                    key={palette.value}
-                    style={[
-                      styles.paletteChip,
-                      isSelected ? styles.paletteChipSelected : null,
-                    ]}
-                    onPress={() => handlePaletteChange(palette.value)}
-                  >
-                    <View
+            <Text style={styles.description}>
+              {t('profileDarkModeDescription')}
+            </Text>
+
+            <View style={styles.toggleGroup}>
+              <View style={styles.toggleRow}>
+                <Text style={styles.toggleLabel}>{t('profileSystem')}</Text>
+                <Switch
+                  value={localSystemValue}
+                  onValueChange={handleSystemChange}
+                  ios_backgroundColor={switchTrackOff}
+                  thumbColor={localSystemValue ? switchThumbOn : switchThumbOff}
+                  trackColor={{
+                    false: switchTrackOff,
+                    true: switchTrackOn,
+                  }}
+                />
+              </View>
+
+              <View style={styles.toggleRow}>
+                <Text style={styles.toggleLabel}>
+                  {localValue ? t('profileEnabled') : t('profileDisabled')}
+                </Text>
+                <Switch
+                  value={localValue}
+                  onValueChange={handlePreviewChange}
+                  disabled={localSystemValue}
+                  ios_backgroundColor={switchTrackOff}
+                  thumbColor={localValue ? switchThumbOn : switchThumbOff}
+                  trackColor={{
+                    false: switchTrackOff,
+                    true: switchTrackOn,
+                  }}
+                />
+              </View>
+            </View>
+
+            <View style={styles.paletteSection}>
+              <Text style={styles.paletteTitle}>{themeColorLabel}</Text>
+              <View style={styles.paletteRow}>
+                {paletteOptions.map((palette) => {
+                  const isSelected = localThemePalette === palette.value;
+
+                  return (
+                    <TouchableOpacity
+                      key={palette.value}
                       style={[
-                        styles.paletteDot,
-                        { backgroundColor: palette.color },
+                        styles.paletteChip,
+                        isSelected ? styles.paletteChipSelected : null,
                       ]}
-                    />
-                    <Text style={styles.paletteChipLabel}>{palette.label}</Text>
-                  </TouchableOpacity>
-                );
-              })}
+                      onPress={() => handlePaletteChange(palette.value)}
+                    >
+                      <View
+                        style={[
+                          styles.paletteDot,
+                          { backgroundColor: palette.color },
+                        ]}
+                      />
+                      <Text style={styles.paletteChipLabel}>
+                        {palette.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
           </View>
         </View>
-      </View>
+      </ScrollView>
     </Modal>
   );
 }

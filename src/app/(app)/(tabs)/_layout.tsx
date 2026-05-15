@@ -105,6 +105,7 @@ export default function tabLayout() {
           backgroundColor: theme.primaryHeader,
           borderBottomColor: theme.primarySoft,
           borderBottomWidth: 1,
+          height: 73,
         },
         headerShown: true,
         headerTitleAlign: isWideScreen ? 'left' : 'center',
