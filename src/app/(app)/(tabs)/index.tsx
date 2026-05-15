@@ -185,7 +185,7 @@ export default function HomeScreen() {
           <View style={localStyles.actionsRow}>
             <TouchableOpacity
               style={[localStyles.actionCard, localStyles.actionPrimary]}
-              onPress={() => null}
+              onPress={() => router.push('/(app)/(tabs)/bookings/courtTypes')}
             >
               <Ionicons name="calendar" size={18} color={theme.onPrimary} />
               <Text style={localStyles.actionPrimaryText}>
