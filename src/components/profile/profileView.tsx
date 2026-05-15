@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 import { GlassTextButton } from '../../components/login/glassTextButton';
@@ -32,7 +31,6 @@ import {
   requestPushPermissionsAndToken,
   scheduleLocalNotification,
 } from '../../services/notificationsService';
-import { transparent } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 import api from '../../services/api';
 
 export default function ProfileView() {
