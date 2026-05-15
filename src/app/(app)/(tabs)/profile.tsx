@@ -22,28 +22,28 @@ export default function ProfileClientes() {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={{ flexGrow: 1 }}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={handleRefresh}
-          tintColor={theme.primaryButton}
-          colors={[theme.primaryButton]}
-          progressBackgroundColor="#fff"
-        />
-      }
+    <LinearGradient
+      colors={[
+        theme.profileGradientStart,
+        theme.profileGradientMiddle,
+        theme.profileGradientEnd,
+      ]}
+      style={{ flex: 1 }}
     >
-      <LinearGradient
-        colors={[
-          theme.profileGradientStart,
-          theme.profileGradientMiddle,
-          theme.profileGradientEnd,
-        ]}
-        style={{ flex: 1 }}
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={theme.primaryButton}
+            colors={[theme.primaryButton]}
+            progressBackgroundColor="#fff"
+          />
+        }
       >
         <ProfileView></ProfileView>
-      </LinearGradient>
-    </ScrollView>
+      </ScrollView>
+    </LinearGradient>
   );
 }
