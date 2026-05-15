@@ -75,6 +75,12 @@ export interface User {
   total_reservations?: number;
 }
 
+// ─── Profile DTOs ────────────────────────────────────────────────
+export interface ChangePasswordDto {
+  current_password: string;
+  new_password: string;
+}
+
 // ─── Membership (/memberships) ───────────────────────────────────
 export interface Membership {
   id: number;

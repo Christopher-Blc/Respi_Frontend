@@ -3,7 +3,7 @@
     "name": "ResPi",
     "slug": "ResPi",
     "version": "1.0.0",
-    "scheme": ["respi-app", "ResPi"],
+    "scheme": "respi-app",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -14,8 +14,8 @@
       "backgroundColor": "#ffffff",
       "textColor": "#000000"
     },
-    "notification":{
-         "icon":"./assets/icon.png"
+    "notification": {
+      "icon": "./assets/icon.png"
     },
     "ios": {
       "supportsTablet": true,
@@ -72,7 +72,15 @@
     "plugins": [
       "expo-router",
       "expo-notifications",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-font",
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.respiteam.ResPi",
+          "enableGooglePay": false
+        }
+      ]
     ],
     "extra": {
       "router": {
@@ -89,6 +97,5 @@
       "url": "https://u.expo.dev/0fda7759-726c-4a3b-a748-28fbbbb1493c"
     },
     "owner": "respiteam"
-    
   }
 }

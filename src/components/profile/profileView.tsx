@@ -20,6 +20,7 @@ import MenuOption from '../../components/profile/menuOptions';
 import DarkModeModal from '../../components/profile/darkMode.modal';
 import IdiomaModal from '../../components/profile/language.modal';
 import EditUserNameModal from '../../components/profile/editUserName.modal';
+import EditPasswordModal from '../../components/profile/editPassword.modal';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import MembresiaModal from '../../components/profile/membership.modal';
@@ -70,6 +71,8 @@ export default function ProfileView() {
   const [modalIdiomaVisible, setModalIdiomaVisible] = useState(false);
   const [modalDarkmodeVisible, setModalDarkmodeVisible] = useState(false);
   const [modalEditUserNameVisible, setModalEditUserNameVisible] =
+    useState(false);
+  const [modalEditPasswordVisible, setModalEditPasswordVisible] =
     useState(false);
   const [notificationStatus, setNotificationStatus] = useState(
     t('profileDisabled', { defaultValue: 'Desactivado' }),
@@ -290,11 +293,8 @@ export default function ProfileView() {
             />
             <MenuOption
               icon="key-outline"
-              title="Contraseña"
-              //value={user?.username || t('profileUserFallback')} //isLast={undefined}
-              onPress={() => {
-                setModalEditUserNameVisible(true);
-              }}
+              title={t('authLoginPassword', { defaultValue: 'Contraseña' })}
+              onPress={() => setModalEditPasswordVisible(true)}
             />
             <MenuOption
               icon="language-outline"
@@ -411,6 +411,11 @@ export default function ProfileView() {
         currentUsername={user?.username || ''}
         onUpdated={refreshProfile}
         onClose={() => setModalEditUserNameVisible(false)}
+      />
+
+      <EditPasswordModal
+        visible={modalEditPasswordVisible}
+        onClose={() => setModalEditPasswordVisible(false)}
       />
     </>
   );
