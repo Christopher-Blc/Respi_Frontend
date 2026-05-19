@@ -21,18 +21,23 @@ import { useTranslation } from 'react-i18next';
 import { RESPONSIVE_NAVIGATION_BREAKPOINT } from '../../../constants';
 import { useAdminRoleCheck } from '../../../hooks/useAdminRoleCheck';
 import { SessionExpiredModal } from '../../../components/alert.modal';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const WEB_ADMIN_HEADER_HEIGHT = 73;
 
 export default function AdminTabLayout() {
   const { isDarkMode, theme } = useAppTheme();
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
   const isWideScreen = width >= RESPONSIVE_NAVIGATION_BREAKPOINT;
 
   // Verificar periódicamente si el usuario sigue siendo admin
   const { showExpiredModal, setShowExpiredModal } = useAdminRoleCheck();
+
+  const TAB_BAR_BASE_HEIGHT = 56;
+  const tabBarHeight = TAB_BAR_BASE_HEIGHT + insets.bottom;
 
   const adminSidebarSections: SidebarSection[] = [
     {
@@ -239,9 +244,9 @@ export default function AdminTabLayout() {
             ? { display: 'none' }
             : {
                 position: 'absolute',
-                height: 90,
+                height: tabBarHeight,
                 paddingTop: 6,
-                paddingBottom: 6,
+                paddingBottom: insets.bottom + 4,
                 backgroundColor: theme.primaryHeader,
                 elevation: 0,
                 borderColor: theme.primarySoft,
