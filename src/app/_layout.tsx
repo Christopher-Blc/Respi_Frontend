@@ -16,6 +16,7 @@ import {
 } from '../services/notificationsService';
 import api from '../services/api';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { StripeProvider } from '@stripe/stripe-react-native';
 
 /**
  * Este componente se encarga de que la web se vea como una App nativa.
@@ -209,11 +210,16 @@ function AppProviders() {
 
 export default function RootLayout() {
   return (
-    <ThemeProvider>
-      <WebStyleHandler />
-      <SafeAreaProvider>
-        <AppProviders />
-      </SafeAreaProvider>
-    </ThemeProvider>
+    <StripeProvider
+      publishableKey={process.env.EXPO_PUBLIC_STRIPE_KEY ?? ''}
+      merchantIdentifier="merchant.es.respi"
+    >
+      <ThemeProvider>
+        <WebStyleHandler />
+        <SafeAreaProvider>
+          <AppProviders />
+        </SafeAreaProvider>
+      </ThemeProvider>
+    </StripeProvider>
   );
 }
