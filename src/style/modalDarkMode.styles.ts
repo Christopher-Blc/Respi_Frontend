@@ -6,15 +6,17 @@ const createModalDarkModeStyles = (theme: AppTheme, isWeb: boolean) => {
 
   return StyleSheet.create({
     headerContainer: {
-      width: '100%',
-      backgroundColor: theme.backgroundCard,
-      paddingTop: 24,
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 100,
+      backgroundColor: 'transparent',
+      paddingTop: 20,
+      paddingHorizontal: 20,
       paddingBottom: 8,
     },
     headerRow: {
-      width: '88%',
-      maxWidth: 410,
-      alignSelf: 'center',
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
@@ -31,6 +33,7 @@ const createModalDarkModeStyles = (theme: AppTheme, isWeb: boolean) => {
     previewSection: {
       width: '100%',
       backgroundColor: theme.backgroundCard,
+      paddingTop: 70,
     },
     previewRow: {
       flexDirection: 'row',
