@@ -9,15 +9,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Button } from 'react-native-paper';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
-import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { GlassTextInputPassword } from '../login/glassTextInputPassword';
 import { PasswordStrengthIndicator } from '../login/passwordStrengthIndicator';
 import { SessionExpiredModal } from '../alert.modal';
 import { useChangePassword } from '../../hooks/useChangePassword';
+import createModalCommonStyles from '../../style/modalCommon.styles';
 
 interface Props {
   visible: boolean;
@@ -27,6 +26,7 @@ interface Props {
 export default function EditPasswordModal({ visible, onClose }: Props) {
   const { theme } = useAppTheme();
   const { t } = useTranslation();
+  const styles = React.useMemo(() => createModalCommonStyles(theme), [theme]);
 
   const {
     currentPassword,
@@ -69,44 +69,18 @@ export default function EditPasswordModal({ visible, onClose }: Props) {
       animationType="slide"
       presentationStyle="pageSheet"
     >
-      {/* Barra superior Cancel / Save */}
-      <View
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 10,
-          flexDirection: 'row',
-          paddingTop: 20,
-          paddingBottom: 8,
-          justifyContent: 'space-between',
-          backgroundColor: theme.backgroundMain,
-        }}
-      >
-        <View style={{ paddingLeft: 20 }}>
+      <View style={styles.headerContainer}>
+        <View style={styles.headerRow}>
           <TouchableOpacity onPress={onClose}>
-            <Text
-              style={{
-                fontSize: 20,
-                fontFamily: 'Segoe UI',
-                fontWeight: '500',
-                color: theme.textTitle,
-              }}
-            >
-              {t('commonCancel')}
-            </Text>
+            <Text style={styles.headerText}>{t('commonCancel')}</Text>
           </TouchableOpacity>
-        </View>
-        <View style={{ paddingRight: 20 }}>
+
           <TouchableOpacity onPress={handleSave} disabled={!saveActive}>
             <Text
-              style={{
-                fontSize: 20,
-                fontFamily: 'Segoe UI',
-                fontWeight: '500',
-                color: saveActive ? theme.textTitle : theme.grayPlaceholder,
-              }}
+              style={[
+                styles.headerText,
+                saveActive ? styles.saveText : undefined,
+              ]}
             >
               {t('commonSave')}
             </Text>
@@ -115,7 +89,7 @@ export default function EditPasswordModal({ visible, onClose }: Props) {
       </View>
 
       <KeyboardAvoidingView
-        style={{ flex: 1, backgroundColor: theme.backgroundMain }}
+        style={{ flex: 1, backgroundColor: theme.backgroundCard }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
@@ -131,52 +105,14 @@ export default function EditPasswordModal({ visible, onClose }: Props) {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View style={{ width: '100%', maxWidth: 420 }}>
-            {/* Blob decorativo de fondo */}
-            <View
-              style={{
-                position: 'absolute',
-                width: 280,
-                height: 280,
-                borderRadius: 140,
-                top: '10%',
-                alignSelf: 'center',
-                opacity: 0.9,
-                backgroundColor: `${theme.primaryButton}22`,
-              }}
-            />
-
-            <BlurView
-              tint={theme.backgroundMain === '#FFFFFF' ? 'light' : 'dark'}
-              intensity={20}
-              style={{
-                borderRadius: 24,
-                borderWidth: 1,
-                borderColor: theme.surface,
-                overflow: 'hidden',
-                paddingHorizontal: 18,
-                paddingVertical: 18,
-                backgroundColor: `${theme.surfaceMuted}CC`,
-              }}
-            >
-              {/* Cabecera del card */}
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginBottom: 16,
-                }}
-              >
+          <View style={{ width: '100%', maxWidth: 410 }}>
+            <View style={styles.settingsCard}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View
-                  style={{
-                    width: 42,
-                    height: 42,
-                    borderRadius: 21,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    backgroundColor: `${theme.primaryButton}22`,
-                    marginRight: 10,
-                  }}
+                  style={[
+                    styles.titleIcon,
+                    { backgroundColor: `${theme.primaryButton}22` },
+                  ]}
                 >
                   <Ionicons
                     name="lock-closed-outline"
@@ -184,28 +120,24 @@ export default function EditPasswordModal({ visible, onClose }: Props) {
                     color={theme.primaryButton}
                   />
                 </View>
-                <Text
-                  style={{
-                    fontSize: 19,
-                    color: theme.textTitle,
-                    fontFamily: 'Segoe UI',
-                    fontWeight: '700',
-                  }}
-                >
-                  {t('editPasswordTitle', { defaultValue: 'Cambiar contraseña' })}
+                <Text style={styles.titleText}>
+                  {t('profileChangePassword', {
+                    defaultValue: 'Cambiar contraseña',
+                  })}
                 </Text>
               </View>
 
-              {/* Campo: contraseña actual */}
-              <Text
-                style={{
-                  color: theme.textBody,
-                  fontSize: 13,
-                  lineHeight: 19,
-                  marginBottom: 8,
-                }}
-              >
-                {t('profileCurrentPassword', { defaultValue: 'Contraseña actual' })}
+              <Text style={styles.description}>
+                {t('profileChangePasswordDescription', {
+                  defaultValue:
+                    'Ingresa tu contraseña actual y establece una nueva contraseña segura.',
+                })}
+              </Text>
+
+              <Text style={styles.inputLabel}>
+                {t('profileCurrentPassword', {
+                  defaultValue: 'Contraseña actual',
+                })}
               </Text>
               <GlassTextInputPassword
                 value={currentPassword}
@@ -214,18 +146,11 @@ export default function EditPasswordModal({ visible, onClose }: Props) {
                 autoComplete="current-password"
               />
 
-              {/* Bloque animado: nueva contraseña + confirmar */}
               <Animated.View style={newSectionStyle}>
-                <Text
-                  style={{
-                    color: theme.textBody,
-                    fontSize: 13,
-                    lineHeight: 19,
-                    marginBottom: 8,
-                    marginTop: 4,
-                  }}
-                >
-                  {t('profileNewPassword', { defaultValue: 'Nueva contraseña' })}
+                <Text style={[styles.inputLabel, { marginTop: 16 }]}>
+                  {t('profileNewPassword', {
+                    defaultValue: 'Nueva contraseña',
+                  })}
                 </Text>
                 <GlassTextInputPassword
                   value={newPassword}
@@ -236,14 +161,7 @@ export default function EditPasswordModal({ visible, onClose }: Props) {
 
                 <PasswordStrengthIndicator password={newPassword} />
 
-                <Text
-                  style={{
-                    color: theme.textBody,
-                    fontSize: 13,
-                    lineHeight: 19,
-                    marginBottom: 8,
-                  }}
-                >
+                <Text style={[styles.inputLabel, { marginTop: 16 }]}>
                   {t('profileConfirmPassword', {
                     defaultValue: 'Confirmar nueva contraseña',
                   })}
@@ -255,35 +173,21 @@ export default function EditPasswordModal({ visible, onClose }: Props) {
                   autoComplete="new-password"
                 />
 
-                {/* Indicador de coincidencia */}
-                {confirmPassword.length > 0 && (
+                {confirmPassword.length > 0 && !passwordsMatch && (
                   <Text
                     style={{
-                      fontSize: 13,
-                      fontWeight: '600',
-                      textAlign: 'center',
-                      marginBottom: 10,
-                      color: passwordsMatch ? theme.primaryButton : theme.danger,
+                      color: theme.errorText,
+                      fontSize: 12,
+                      marginTop: 4,
                     }}
                   >
-                    {passwordsMatch
-                      ? `✓ ${t('profilePasswordMatch', { defaultValue: 'Las contraseñas coinciden' })}`
-                      : `✗ ${t('profilePasswordNoMatch', { defaultValue: 'Las contraseñas no coinciden' })}`}
+                    {t('profilePasswordsMismatch', {
+                      defaultValue: 'Las contraseñas no coinciden.',
+                    })}
                   </Text>
                 )}
               </Animated.View>
-
-              <Button
-                mode="contained"
-                onPress={handleSave}
-                disabled={!saveActive}
-                loading={isSaving}
-                style={{ borderRadius: 12 }}
-                contentStyle={{ paddingVertical: 4 }}
-              >
-                <Text style={{ color: '#FFFFFF' }}>{t('commonSave')}</Text>
-              </Button>
-            </BlurView>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
