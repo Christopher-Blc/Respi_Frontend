@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { useStripe } from '@stripe/stripe-react-native';
-import api from '../services/api';
+// ¡OJO! No importamos nada de @stripe/stripe-react-native aquí para evitar que rompa la web
 
 interface UseStripePaymentResult {
   initAndPay: (reservationId: number, merchantName?: string) => Promise<boolean>;
@@ -9,7 +8,6 @@ interface UseStripePaymentResult {
 }
 
 export function useStripePayment(): UseStripePaymentResult {
-  const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,45 +19,13 @@ export function useStripePayment(): UseStripePaymentResult {
     setError(null);
 
     try {
-      // 1. Pedir el clientSecret al backend
-      const response = await api.post<{ clientSecret: string }>(
-        '/stripe/create-payment-intent',
-        { reservationId },
-      );
-      const { clientSecret } = response.data;
-
-      if (!clientSecret) {
-        throw new Error('No se recibió clientSecret del servidor');
-      }
-
-      // 2. Inicializar el PaymentSheet de Stripe con el clientSecret
-      const { error: initError } = await initPaymentSheet({
-        paymentIntentClientSecret: clientSecret,
-        merchantDisplayName: merchantName,
-        defaultBillingDetails: { name: '' },
-        allowsDelayedPaymentMethods: false,
-      });
-
-      if (initError) {
-        throw new Error(initError.message);
-      }
-
-      // 3. Presentar el PaymentSheet al usuario
-      const { error: presentError } = await presentPaymentSheet();
-
-      if (presentError) {
-        // El usuario canceló (Canceled) no es un error crítico
-        if (presentError.code === 'Canceled') {
-          return false;
-        }
-        throw new Error(presentError.message);
-      }
-
-      return true;
+      // Opción A: Puedes redirigir a una pasarela web de Stripe si la tienes programada.
+      // Opción B (La más común si los pagos solo se hacen en la App): Mostrar un aviso amigable.
+      alert('Para realizar pagos de forma segura en las pistas, descarga nuestra App Oficial de Respi.');
+      
+      return false;
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Error procesando el pago';
-      setError(message);
+      setError('No disponible en versión Web');
       return false;
     } finally {
       setLoading(false);
