@@ -18,7 +18,7 @@ import { useAuth } from '../../../../context/AuthContext';
 import createConfirmacionReservaStyles from '../../../../style/bookingConfirmation.styles';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../../i18n';
-import { useStripePayment } from '../../../../hooks/useStripePayment';
+import { useStripePayment } from '../../../../hooks/useStripePayment.andriod';
 
 export default function ConfirmacionReserva() {
   const { t, i18n } = useTranslation();
