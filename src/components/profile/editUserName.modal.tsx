@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, Modal, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import api from '../../services/api';
@@ -23,6 +24,7 @@ export default function EditUserNameModal({
 }: Props) {
   const { theme } = useAppTheme();
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const styles = React.useMemo(() => createModalCommonStyles(theme), [theme]);
   const [username, setUsername] = useState(currentUsername || '');
   const [isSaving, setIsSaving] = useState(false);
@@ -102,7 +104,7 @@ export default function EditUserNameModal({
       animationType="slide"
       presentationStyle="pageSheet"
     >
-      <View style={styles.headerContainer}>
+      <View style={[styles.headerContainer, { paddingTop: insets.top + 12 }]}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={onClose}>
             <Text style={styles.headerText}>{t('commonCancel')}</Text>
