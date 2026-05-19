@@ -19,6 +19,7 @@ import WebBurgerMenu, {
 import WebProfileBadge from '../../../components/general/WebProfileBadge';
 import { useTranslation } from 'react-i18next';
 import { RESPONSIVE_NAVIGATION_BREAKPOINT } from '../../../constants';
+import { useAdminRoleCheck } from '../../../hooks/useAdminRoleCheck';
 
 export const WEB_ADMIN_HEADER_HEIGHT = 73;
 
@@ -28,6 +29,9 @@ export default function AdminTabLayout() {
   const { width } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
   const isWideScreen = width >= RESPONSIVE_NAVIGATION_BREAKPOINT;
+
+  // Verificar periódicamente si el usuario sigue siendo admin
+  useAdminRoleCheck();
 
   const adminSidebarSections: SidebarSection[] = [
     {
