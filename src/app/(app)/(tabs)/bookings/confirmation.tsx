@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import { useAuth } from '../../../../context/AuthContext';
 import createConfirmacionReservaStyles from '../../../../style/bookingConfirmation.styles';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../../i18n';
+import { useStripePayment } from '../../../../hooks/useStripePayment';
 
 export default function ConfirmacionReserva() {
   const { t, i18n } = useTranslation();
@@ -44,6 +45,15 @@ export default function ConfirmacionReserva() {
   const [confirming, setConfirming] = useState(false);
   const [notes, setNotes] = useState('');
   const durationMinutes = Number(duracionValue || 60);
+
+  const { initAndPay, loading: stripeLoading, error: stripeError } = useStripePayment();
+
+  // Mostrar error de Stripe si ocurre fuera del flujo de pago
+  useEffect(() => {
+    if (stripeError) {
+      Alert.alert(t('bookingConfirmErrorTitle'), stripeError);
+    }
+  }, [stripeError]);
 
   useEffect(() => {
     if (!pistaIdValue) {
@@ -77,7 +87,7 @@ export default function ConfirmacionReserva() {
     try {
       setConfirming(true);
 
-      // Crear la hora de fin segun la duracion elegida
+      // 1. Calcular hora de fin según la duración elegida
       const [hourStr, minStr] = horaValue.split(':');
       const startMinutes = parseInt(hourStr) * 60 + parseInt(minStr);
       const endMinutes = startMinutes + durationMinutes;
@@ -93,9 +103,19 @@ export default function ConfirmacionReserva() {
         note: notes,
       };
 
+      // 2. Crear la reserva en el backend (queda en estado PENDIENTE)
       const response = await api.post('/reservations', payload);
+      const reservationId: number = response.data?.id;
 
-      if (response.status === 201 || response.data?.id) {
+      if (!reservationId) {
+        throw new Error('El servidor no devolvió el ID de la reserva');
+      }
+
+      // 3. Iniciar flujo de pago con Stripe
+      const paid = await initAndPay(reservationId, 'ResPi');
+
+      if (paid) {
+        // El webhook de Stripe confirmará la reserva en el backend de forma asíncrona
         Alert.alert(
           t('bookingConfirmSuccessTitle'),
           t('bookingConfirmSuccessMessage'),
@@ -107,9 +127,11 @@ export default function ConfirmacionReserva() {
           ],
         );
       }
+      // Si paid === false, el usuario canceló el pago — la reserva queda PENDIENTE
+      // No mostramos error: el usuario volvió atrás voluntariamente
     } catch (error: any) {
       const message =
-        error.response?.data?.message || t('bookingConfirmErrorMessage');
+        error.response?.data?.message || error.message || t('bookingConfirmErrorMessage');
       Alert.alert(t('bookingConfirmErrorTitle'), message);
       console.error('Error:', error);
     } finally {
@@ -120,6 +142,8 @@ export default function ConfirmacionReserva() {
   const handleCancel = () => {
     router.back();
   };
+
+  const isProcessing = confirming || stripeLoading;
 
   if (loading) {
     return (
@@ -140,7 +164,7 @@ export default function ConfirmacionReserva() {
   const endMinutes = startMinutes + durationMinutes;
   const endHourLabel = `${String(Math.floor(endMinutes / 60)).padStart(2, '0')}:${String(
     endMinutes % 60,
-  ).padStart(2, '0')}`;
+  ).padStart(2, '00')}`;
 
   return (
     <View style={styles.container}>
@@ -293,12 +317,22 @@ export default function ConfirmacionReserva() {
           />
         </View>
 
-        {/* Action Buttons */}
+        {/* Aviso de pago */}
+        <View style={[styles.notesCard, { marginTop: 0 }]}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Ionicons name="lock-closed-outline" size={16} color={theme.primary} />
+            <Text style={[styles.infoLabel, { flex: 1 }]}>
+              Pago seguro procesado por Stripe
+            </Text>
+          </View>
+        </View>
+
+        {/* Botones de acción */}
         <View style={styles.actionContainer}>
           <TouchableOpacity
             style={[styles.button, styles.cancelButton]}
             onPress={handleCancel}
-            disabled={confirming}
+            disabled={isProcessing}
           >
             <Text style={styles.cancelButtonText}>
               {t('bookingConfirmCancel')}
@@ -308,19 +342,19 @@ export default function ConfirmacionReserva() {
           <TouchableOpacity
             style={[styles.button, styles.confirmButton]}
             onPress={handleConfirm}
-            disabled={confirming}
+            disabled={isProcessing}
           >
-            {confirming ? (
+            {isProcessing ? (
               <ActivityIndicator size="small" color={theme.onPrimary} />
             ) : (
               <>
                 <Ionicons
-                  name="checkmark-done-outline"
+                  name="card-outline"
                   size={18}
                   color={theme.onPrimary}
                 />
                 <Text style={styles.confirmButtonText}>
-                  {t('bookingConfirmButton')}
+                  Pagar €{precioEstimado}
                 </Text>
               </>
             )}
