@@ -1,39 +1,63 @@
-import { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Platform } from 'react-native';
+import MockPaymentSheet from '../components/MockPaymentSheet';
 
-// No se importa nada de @stripe/stripe-react-native aqui para evitar que rompa la web
 export interface UseStripePaymentResult {
-  initAndPay: (reservationId: number, merchantName?: string) => Promise<boolean>;
+  initAndPay: (reservationId: number, merchantName?: string, amount?: string) => Promise<boolean>;
   loading: boolean;
   error: string | null;
+  PaymentModal: React.ReactElement | null;
 }
 
-function useMockStripePayment(): UseStripePaymentResult {
+export function useStripePayment(): UseStripePaymentResult {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error] = useState<string | null>(null);
+  const [visible, setVisible] = useState(false);
+  const [modalAmount, setModalAmount] = useState('0.00');
+  const [modalMerchant, setModalMerchant] = useState('ResPi');
+  const resolveRef = useRef<((paid: boolean) => void) | null>(null);
 
-  const initAndPay = async (_reservationId: number): Promise<boolean> => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      if (Platform.OS === 'web') {
-        alert('Para realizar pagos de forma segura en las pistas, descarga nuestra App Oficial de Respi.');
-        return false;
-      }
-
-      await new Promise<void>((r) => setTimeout(r, 800));
-      console.log('[DEV] Pago simulado en iOS Expo Go — reservationId:', _reservationId);
-      return true;
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error procesando el pago');
-      return false;
-    } finally {
-      setLoading(false);
+  const initAndPay = (
+    _reservationId: number,
+    merchantName = 'ResPi',
+    amount = '0.00',
+  ): Promise<boolean> => {
+    if (Platform.OS === 'web') {
+      alert('Para realizar pagos de forma segura, descarga nuestra App Oficial de Respi.');
+      return Promise.resolve(false);
     }
+    setModalMerchant(merchantName);
+    setModalAmount(amount);
+    setVisible(true);
+    return new Promise((resolve) => {
+      resolveRef.current = resolve;
+    });
   };
 
-  return { initAndPay, loading, error };
-}
+  const handlePay = async () => {
+    setLoading(true);
+    await new Promise<void>((r) => setTimeout(r, 1200));
+    setLoading(false);
+    setVisible(false);
+    resolveRef.current?.(true);
+    resolveRef.current = null;
+    console.log('[DEV] Pago simulado completado');
+  };
 
-export const useStripePayment = useMockStripePayment;
+  const handleCancel = () => {
+    setVisible(false);
+    resolveRef.current?.(false);
+    resolveRef.current = null;
+  };
+
+  const PaymentModal = React.createElement(MockPaymentSheet, {
+    visible,
+    amount: modalAmount,
+    merchantName: modalMerchant,
+    loading,
+    onPay: handlePay,
+    onCancel: handleCancel,
+  });
+
+  return { initAndPay, loading, error, PaymentModal };
+}
