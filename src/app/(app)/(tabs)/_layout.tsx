@@ -7,6 +7,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Octicons from '@expo/vector-icons/Octicons';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
@@ -29,8 +30,13 @@ export default function tabLayout() {
   const router = useRouter();
   const segments = useSegments();
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const isWeb = Platform.OS === 'web';
   const isWideScreen = width >= RESPONSIVE_NAVIGATION_BREAKPOINT;
+
+  // Altura base del tab bar + safe area inferior (barra de navegación Android/iOS)
+  const TAB_BAR_BASE_HEIGHT = 56;
+  const tabBarHeight = TAB_BAR_BASE_HEIGHT + insets.bottom;
 
   const webSidebarSections: SidebarSection[] = [
     {
@@ -105,7 +111,6 @@ export default function tabLayout() {
           backgroundColor: theme.primaryHeader,
           borderBottomColor: theme.primarySoft,
           borderBottomWidth: 1,
-          height: 73,
         },
         headerShown: true,
         headerTitleAlign: isWideScreen ? 'left' : 'center',
@@ -131,9 +136,9 @@ export default function tabLayout() {
             ? { display: 'none' }
             : {
                 position: 'absolute',
-                height: 90,
+                height: tabBarHeight,
                 paddingTop: 6,
-                paddingBottom: 6,
+                paddingBottom: insets.bottom + 4,
                 backgroundColor: theme.primaryHeader,
                 elevation: 0,
                 borderColor: theme.primarySoft,
