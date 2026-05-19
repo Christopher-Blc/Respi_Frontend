@@ -209,17 +209,23 @@ function AppProviders() {
 }
 
 export default function RootLayout() {
+  const content = (
+    <ThemeProvider>
+      <WebStyleHandler />
+      <SafeAreaProvider>
+        <AppProviders />
+      </SafeAreaProvider>
+    </ThemeProvider>
+  );
+
+  if (Platform.OS !== 'android') return content;
+
   return (
     <StripeProvider
       publishableKey={process.env.EXPO_PUBLIC_STRIPE_KEY ?? ''}
-      merchantIdentifier="merchant.es.respi"
+      merchantIdentifier="merchant.com.respiteam.ResPi"
     >
-      <ThemeProvider>
-        <WebStyleHandler />
-        <SafeAreaProvider>
-          <AppProviders />
-        </SafeAreaProvider>
-      </ThemeProvider>
+      {content}
     </StripeProvider>
   );
 }
