@@ -1,18 +1,17 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { router } from 'expo-router';
 import api from '../services/api';
-import { JWTPayload } from '../types/types';
-import { jwtDecode } from 'jwt-decode';
 
 /**
  * Hook que verifica periódicamente si el usuario actual sigue siendo admin.
- * Si el rol cambia a CLIENTE (otro admin lo cambió), lo redirije fuera del área admin.
+ * Si el rol cambia a CLIENTE (otro admin lo cambió), invalida la sesión y lo envía al login.
+ * Retorna el estado del modal y el componente a renderizar.
  */
 export const useAdminRoleCheck = () => {
-  const { role, userToken } = useAuth();
+  const { role, signOut } = useAuth();
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const lastRoleRef = useRef<string | null>(null);
+  const [showExpiredModal, setShowExpiredModal] = useState(false);
 
   useEffect(() => {
     // Solo verificar si estamos en la pantalla admin y el usuario es admin
@@ -23,12 +22,18 @@ export const useAdminRoleCheck = () => {
         const response = await api.get('/users/profile/me');
         const userData = response.data;
 
-        // Si el usuario ya no es admin, redirigir
+        // Si el usuario ya no es admin, invalidar sesión
         if (userData?.role !== 'SUPER_ADMIN') {
           console.warn(
-            'Admin role removed while in admin screen, redirecting...',
+            'Admin role removed while in admin screen, logging out...',
           );
-          router.replace('/(app)/(tabs)/');
+          setShowExpiredModal(true);
+
+          // Hacer logout después de mostrar el modal
+          setTimeout(async () => {
+            await signOut();
+            router.replace('/(auth)/login');
+          }, 1500);
         }
       } catch (error) {
         // Silent fail: no interrumpir la experiencia si la verificación falla
@@ -47,5 +52,7 @@ export const useAdminRoleCheck = () => {
         clearInterval(intervalRef.current);
       }
     };
-  }, [role]);
+  }, [role, signOut]);
+
+  return { showExpiredModal, setShowExpiredModal };
 };
