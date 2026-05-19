@@ -50,6 +50,7 @@ export default function ConfirmacionReserva() {
     initAndPay,
     loading: stripeLoading,
     error: stripeError,
+    PaymentModal,
   } = useStripePayment();
 
   // Mostrar error de Stripe si ocurre fuera del flujo de pago
@@ -116,7 +117,7 @@ export default function ConfirmacionReserva() {
       }
 
       // 3. Iniciar flujo de pago con Stripe
-      const paid = await initAndPay(reservationId, 'ResPi');
+      const paid = await initAndPay(reservationId, 'ResPi', precioEstimado);
 
       if (paid) {
         // El webhook de Stripe confirmará la reserva en el backend de forma asíncrona
@@ -174,6 +175,7 @@ export default function ConfirmacionReserva() {
 
   return (
     <View style={styles.container}>
+      {PaymentModal}
       <ScrollView
         contentContainerStyle={{
           paddingTop: headerHeight + 16,

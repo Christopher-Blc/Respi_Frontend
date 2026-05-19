@@ -1,29 +1,61 @@
-import { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useStripe } from '@stripe/stripe-react-native';
 import Constants from 'expo-constants';
 import api from '../services/api';
+import MockPaymentSheet from '../components/MockPaymentSheet';
+import type { UseStripePaymentResult } from './useStripePayment';
 
-export interface UseStripePaymentResult {
-  initAndPay: (reservationId: number, merchantName?: string) => Promise<boolean>;
-  loading: boolean;
-  error: string | null;
-}
+export type { UseStripePaymentResult };
 
 const isExpoGo = Constants.appOwnership === 'expo';
 
 function useMockStripePayment(): UseStripePaymentResult {
   const [loading, setLoading] = useState(false);
   const [error] = useState<string | null>(null);
+  const [visible, setVisible] = useState(false);
+  const [modalAmount, setModalAmount] = useState('0.00');
+  const [modalMerchant, setModalMerchant] = useState('ResPi');
+  const resolveRef = useRef<((paid: boolean) => void) | null>(null);
 
-  const initAndPay = async (_reservationId: number): Promise<boolean> => {
-    setLoading(true);
-    await new Promise<void>((r) => setTimeout(r, 800));
-    setLoading(false);
-    console.log('[DEV] Pago simulado en Expo Go Android — reservationId:', _reservationId);
-    return true;
+  const initAndPay = (
+    _reservationId: number,
+    merchantName = 'ResPi',
+    amount = '0.00',
+  ): Promise<boolean> => {
+    setModalMerchant(merchantName);
+    setModalAmount(amount);
+    setVisible(true);
+    return new Promise((resolve) => {
+      resolveRef.current = resolve;
+    });
   };
 
-  return { initAndPay, loading, error };
+  const handlePay = async () => {
+    setLoading(true);
+    await new Promise<void>((r) => setTimeout(r, 1200));
+    setLoading(false);
+    setVisible(false);
+    resolveRef.current?.(true);
+    resolveRef.current = null;
+    console.log('[DEV] Pago simulado en Android Expo Go completado');
+  };
+
+  const handleCancel = () => {
+    setVisible(false);
+    resolveRef.current?.(false);
+    resolveRef.current = null;
+  };
+
+  const PaymentModal = React.createElement(MockPaymentSheet, {
+    visible,
+    amount: modalAmount,
+    merchantName: modalMerchant,
+    loading,
+    onPay: handlePay,
+    onCancel: handleCancel,
+  });
+
+  return { initAndPay, loading, error, PaymentModal };
 }
 
 function useRealStripePayment(): UseStripePaymentResult {
@@ -80,7 +112,7 @@ function useRealStripePayment(): UseStripePaymentResult {
     }
   };
 
-  return { initAndPay, loading, error };
+  return { initAndPay, loading, error, PaymentModal: null };
 }
 
 export const useStripePayment = isExpoGo ? useMockStripePayment : useRealStripePayment;
