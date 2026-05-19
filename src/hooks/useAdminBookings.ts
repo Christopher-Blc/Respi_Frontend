@@ -149,7 +149,8 @@ export function useAdminBookings() {
       const matchesStatus =
         statusFilter === 'ALL' || reservation.status === statusFilter;
       const matchesCourt =
-        courtFilter === 'ALL' || String(reservation.court_id) === courtFilter;
+        courtFilter === 'ALL' ||
+        courtFilter.split(',').includes(String(reservation.court_id));
       const matchesCourtType =
         courtTypeFilter === 'ALL' || resolvedCourtTypeId === courtTypeFilter;
 
