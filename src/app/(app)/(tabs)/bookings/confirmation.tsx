@@ -46,7 +46,11 @@ export default function ConfirmacionReserva() {
   const [notes, setNotes] = useState('');
   const durationMinutes = Number(duracionValue || 60);
 
-  const { initAndPay, loading: stripeLoading, error: stripeError } = useStripePayment();
+  const {
+    initAndPay,
+    loading: stripeLoading,
+    error: stripeError,
+  } = useStripePayment();
 
   // Mostrar error de Stripe si ocurre fuera del flujo de pago
   useEffect(() => {
@@ -131,7 +135,9 @@ export default function ConfirmacionReserva() {
       // No mostramos error: el usuario volvió atrás voluntariamente
     } catch (error: any) {
       const message =
-        error.response?.data?.message || error.message || t('bookingConfirmErrorMessage');
+        error.response?.data?.message ||
+        error.message ||
+        t('bookingConfirmErrorMessage');
       Alert.alert(t('bookingConfirmErrorTitle'), message);
       console.error('Error:', error);
     } finally {
@@ -320,7 +326,11 @@ export default function ConfirmacionReserva() {
         {/* Aviso de pago */}
         <View style={[styles.notesCard, { marginTop: 0 }]}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Ionicons name="lock-closed-outline" size={16} color={theme.primary} />
+            <Ionicons
+              name="lock-closed-outline"
+              size={16}
+              color={theme.primary}
+            />
             <Text style={[styles.infoLabel, { flex: 1 }]}>
               Pago seguro procesado por Stripe
             </Text>

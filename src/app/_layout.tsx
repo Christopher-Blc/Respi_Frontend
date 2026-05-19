@@ -16,29 +16,28 @@ import {
 } from '../services/notificationsService';
 import api from '../services/api';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { StripeProvider } from '@stripe/stripe-react-native';
+
+// Importamos el Wrapper inteligente en lugar del StripeProvider nativo
+import StripeWrapper from '../components/StripeWrapper';
 
 /**
  * Este componente se encarga de que la web se vea como una App nativa.
  * Inyecta el CSS necesario y configura el viewport para iOS/Android.
  */
 function WebStyleHandler() {
-  const { theme, isDarkMode } = useAppTheme(); // Sacamos isDarkMode para forzar el update
+  const { theme, isDarkMode } = useAppTheme();
 
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof document === 'undefined') return;
 
-    // 1. Actualizar el color de la barra de estado del sistema (iOS/Android)
     let themeColorMeta = document.querySelector('meta[name="theme-color"]');
     if (!themeColorMeta) {
       themeColorMeta = document.createElement('meta');
       themeColorMeta.setAttribute('name', 'theme-color');
       document.head.appendChild(themeColorMeta);
     }
-    // Esto cambia el color de la interfaz del navegador al vuelo
     themeColorMeta.setAttribute('content', theme.backgroundMain);
 
-    // 2. Inyección de CSS (Ahora con dependencia real)
     let styleTag = document.getElementById('respi-web-root-reset');
     if (!styleTag) {
       styleTag = document.createElement('style');
@@ -49,14 +48,13 @@ function WebStyleHandler() {
     styleTag.textContent = `
       html, body, #root {
         background-color: ${theme.backgroundMain} !important; 
-        transition: background-color 0.3s ease-in-out; /* Suaviza el cambio de color */
+        transition: background-color 0.3s ease-in-out;
       }
-      /* Forzar que el fondo del documento sea el del tema */
       :root {
         color-scheme: ${isDarkMode ? 'dark' : 'light'};
       }
     `;
-  }, [theme.backgroundMain, isDarkMode]); // <--- CRUCIAL: Escucha estos cambios
+  }, [theme.backgroundMain, isDarkMode]);
 
   return null;
 }
@@ -218,14 +216,9 @@ export default function RootLayout() {
     </ThemeProvider>
   );
 
-  if (Platform.OS !== 'android') return content;
-
   return (
-    <StripeProvider
-      publishableKey={process.env.EXPO_PUBLIC_STRIPE_KEY ?? ''}
-      merchantIdentifier="merchant.com.respiteam.ResPi"
-    >
+    <StripeWrapper publishableKey={process.env.EXPO_PUBLIC_STRIPE_KEY ?? ''}>
       {content}
-    </StripeProvider>
+    </StripeWrapper>
   );
 }

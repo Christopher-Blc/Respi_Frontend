@@ -220,6 +220,13 @@ export default function tabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="notifications-history"
+        options={{
+          href: null,
+          headerShown: false,
+        }}
+      />
     </Tabs>
   );
 

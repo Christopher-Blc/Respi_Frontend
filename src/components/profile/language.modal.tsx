@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, Modal, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { getAppLanguage, LANGUAGE_OPTIONS, setAppLanguage } from '../../i18n';
@@ -14,6 +15,7 @@ interface Props {
 export default function IdiomaModal({ visible, onClose }: Props) {
   const { theme } = useAppTheme();
   const { t, i18n } = useTranslation();
+  const insets = useSafeAreaInsets();
   const styles = React.useMemo(() => createModalCommonStyles(theme), [theme]);
   const currentLanguage = getAppLanguage(
     i18n.resolvedLanguage || i18n.language,
@@ -48,7 +50,7 @@ export default function IdiomaModal({ visible, onClose }: Props) {
       animationType="slide"
       presentationStyle="pageSheet"
     >
-      <View style={styles.headerContainer}>
+      <View style={[styles.headerContainer, { paddingTop: insets.top + 12 }]}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={onClose}>
             <Text style={styles.headerText}>{t('commonCancel')}</Text>

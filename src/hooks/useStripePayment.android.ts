@@ -56,12 +56,16 @@ function useRealStripePayment(): UseStripePaymentResult {
         allowsDelayedPaymentMethods: false,
       });
 
-      if (initError) throw new Error(initError.message);
+      if (initError) {
+        throw new Error(initError.message);
+      }
 
       const { error: presentError } = await presentPaymentSheet();
 
       if (presentError) {
-        if (presentError.code === 'Canceled') return false;
+        if (presentError.code === 'Canceled') {
+          return false;
+        }
         throw new Error(presentError.message);
       }
 
