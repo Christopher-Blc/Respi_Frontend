@@ -20,6 +20,7 @@ import WebProfileBadge from '../../../components/general/WebProfileBadge';
 import { useTranslation } from 'react-i18next';
 import { RESPONSIVE_NAVIGATION_BREAKPOINT } from '../../../constants';
 import { useAdminRoleCheck } from '../../../hooks/useAdminRoleCheck';
+import { SessionExpiredModal } from '../../../components/alert.modal';
 
 export const WEB_ADMIN_HEADER_HEIGHT = 73;
 
@@ -31,7 +32,7 @@ export default function AdminTabLayout() {
   const isWideScreen = width >= RESPONSIVE_NAVIGATION_BREAKPOINT;
 
   // Verificar periódicamente si el usuario sigue siendo admin
-  useAdminRoleCheck();
+  const { showExpiredModal, setShowExpiredModal } = useAdminRoleCheck();
 
   const adminSidebarSections: SidebarSection[] = [
     {
@@ -333,6 +334,13 @@ export default function AdminTabLayout() {
       ) : (
         tabs
       )}
+      <SessionExpiredModal
+        visible={showExpiredModal}
+        title="Acceso revocado"
+        message="Tu rol de administrador ha sido removido. Por favor inicia sesión nuevamente."
+        confirmText="Entendido"
+        onConfirm={() => setShowExpiredModal(false)}
+      />
     </React.Fragment>
   );
 }
