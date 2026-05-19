@@ -130,11 +130,7 @@ export default function EditUserNameModal({
                 { backgroundColor: `${theme.primaryButton}22` },
               ]}
             >
-              <Ionicons
-                name="person-outline"
-                size={22}
-                color={theme.primaryButton}
-              />
+              <Ionicons name="person-outline" size={22} color={theme.surface} />
             </View>
             <Text style={styles.titleText}>{t('editUsernameTitle')}</Text>
           </View>

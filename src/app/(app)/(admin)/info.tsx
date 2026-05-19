@@ -10,7 +10,7 @@ import { InfoHeroCard } from '../../../components/admin/info/InfoHeroCard';
 import { InfoPieChartCard } from '../../../components/admin/info/InfoPieChartCard';
 import { InfoLineChartCard } from '../../../components/admin/info/InfoLineChartCard';
 import { useAdminReviews } from '../../../hooks/useAdminReviews';
-import { CourtsAverageRatingChart } from '../../../components/admin/reviews/CourtsAverageRatingChart';
+import { CourtsAverageRatingChart } from '../../../components/admin/info/CourtsAverageRatingChart';
 
 export default function InfoAdmin() {
   const { theme } = useAppTheme();

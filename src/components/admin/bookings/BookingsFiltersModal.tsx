@@ -268,39 +268,47 @@ export function BookingsFiltersModal({
                     Todas
                   </Text>
                 </TouchableOpacity>
-                {courts.map((court) => {
-                  const selected = courtFilter === String(court.id);
-                  return (
-                    <TouchableOpacity
-                      key={court.id}
-                      onPress={() =>
-                        setCourtFilter(selected ? 'ALL' : String(court.id))
-                      }
-                      style={{
-                        paddingHorizontal: 13,
-                        paddingVertical: 7,
-                        borderRadius: 20,
-                        borderWidth: 1,
-                        borderColor: selected
-                          ? pillActiveBorder
-                          : pillInactiveBorder,
-                        backgroundColor: selected
-                          ? pillActiveBg
-                          : pillInactiveBg,
-                      }}
-                    >
-                      <Text
+                {Array.from(new Set(courts.map((c) => c.name))).map(
+                  (uniqueName) => {
+                    const courtsWithName = courts.filter(
+                      (c) => c.name === uniqueName,
+                    );
+                    const courtIds = courtsWithName
+                      .map((c) => String(c.id))
+                      .join(',');
+                    const selected = courtFilter === courtIds;
+                    return (
+                      <TouchableOpacity
+                        key={courtIds}
+                        onPress={() =>
+                          setCourtFilter(selected ? 'ALL' : courtIds)
+                        }
                         style={{
-                          color: selected ? pillActiveText : pillInactiveText,
-                          fontWeight: selected ? '700' : '500',
-                          fontSize: 13,
+                          paddingHorizontal: 13,
+                          paddingVertical: 7,
+                          borderRadius: 20,
+                          borderWidth: 1,
+                          borderColor: selected
+                            ? pillActiveBorder
+                            : pillInactiveBorder,
+                          backgroundColor: selected
+                            ? pillActiveBg
+                            : pillInactiveBg,
                         }}
                       >
-                        {court.name}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
+                        <Text
+                          style={{
+                            color: selected ? pillActiveText : pillInactiveText,
+                            fontWeight: selected ? '700' : '500',
+                            fontSize: 13,
+                          }}
+                        >
+                          {uniqueName}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  },
+                )}
               </View>
 
               <Text
