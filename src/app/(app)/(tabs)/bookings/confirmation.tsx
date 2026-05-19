@@ -68,7 +68,7 @@ export default function ConfirmacionReserva() {
 
     const fetchPista = async () => {
       try {
-        const response = await api.get(`/Court/${pistaIdValue}`);
+        const response = await api.get(`/courts/${pistaIdValue}`);
         setPista(response.data);
       } catch (error) {
         console.error('Error loading court:', error);
@@ -98,26 +98,31 @@ export default function ConfirmacionReserva() {
       const endMinutes = startMinutes + durationMinutes;
       const endHour = String(Math.floor(endMinutes / 60)).padStart(2, '0');
       const endMin = String(endMinutes % 60).padStart(2, '0');
-      const endTime = `${endHour}:${endMin}:00`;
+      const endTime = `${endHour}:${endMin}`;
 
       const payload = {
         court_id: parseInt(pistaIdValue),
         reservation_date: fechaValue,
-        start_time: `${horaValue}:00`,
+        start_time: horaValue,
         end_time: endTime,
         note: notes,
       };
 
+      console.log('[DEBUG] Enviando reserva:', JSON.stringify(payload));
+
       // 2. Crear la reserva en el backend (queda en estado PENDIENTE)
       const response = await api.post('/reservations', payload);
+      console.log('[DEBUG] Reserva creada:', JSON.stringify(response.data));
       const reservationId: number = response.data?.id;
 
       if (!reservationId) {
         throw new Error('El servidor no devolvió el ID de la reserva');
       }
 
+      console.log('[DEBUG] Abriendo payment sheet para reserva', reservationId);
       // 3. Iniciar flujo de pago con Stripe
       const paid = await initAndPay(reservationId, 'ResPi', precioEstimado);
+      console.log('[DEBUG] paid =', paid);
 
       if (paid) {
         // El webhook de Stripe confirmará la reserva en el backend de forma asíncrona
@@ -139,8 +144,9 @@ export default function ConfirmacionReserva() {
         error.response?.data?.message ||
         error.message ||
         t('bookingConfirmErrorMessage');
+      console.error('[DEBUG] ERROR en handleConfirm:', message);
+      console.error('[DEBUG] Error completo:', JSON.stringify(error?.response?.data));
       Alert.alert(t('bookingConfirmErrorTitle'), message);
-      console.error('Error:', error);
     } finally {
       setConfirming(false);
     }
