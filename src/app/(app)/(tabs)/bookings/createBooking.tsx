@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   Modal,
   ScrollView,
   Text,
@@ -14,10 +13,10 @@ import { Snackbar } from 'react-native-paper';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useAppTheme } from '../../../../context/ThemeContext';
 import { createCreateBookingStyles } from '../../../../style/create-booking.styles';
-import api from '../../../../services/api';
 import { useTranslation } from 'react-i18next';
+import api from '../../../../services/api';
 import { getDateLocale } from '../../../../i18n';
-import { CourtAvailability, Membership, User } from '../../../../types/types';
+import { CourtAvailability } from '../../../../types/types';
 
 type ReservaActual = CourtAvailability['current_reservations'][number];
 
@@ -100,7 +99,6 @@ export default function CreateBooking() {
   const [horaInicioMin, setHoraInicioMin] = useState<number | null>(null);
   const [showStartDropdown, setShowStartDropdown] = useState(false);
   const [nota, setNota] = useState('');
-  const [submitting, setSubmitting] = useState(false);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [membershipName, setMembershipName] = useState('');
@@ -247,7 +245,7 @@ export default function CreateBooking() {
     setSnackbarVisible(true);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!pistaId || !fechaReserva) {
       showError(t('bookingCreateMissingData'));
       return;
@@ -258,36 +256,15 @@ export default function CreateBooking() {
       return;
     }
 
-    try {
-      setSubmitting(true);
-
-      const membershipNote = hasMembershipDiscount
-        ? `Descuento membresia ${membershipName || 'activa'}: -${membershipDiscountPct}% (ahorro ${discountAmount.toFixed(2)} EUR, total ${totalFinal.toFixed(2)} EUR)`
-        : '';
-
-      const payload = {
-        court_id: Number(pistaId),
-        reservation_date: fechaReserva,
-        start_time: horaInicio,
-        end_time: horaFin,
-        note: [nota.trim(), membershipNote].filter(Boolean).join(' | '),
-      };
-
-      await api.post('/reservations', payload);
-
-      setSnackbarMessage(
-        hasMembershipDiscount
-          ? `Reserva creada. Se aplico ${membershipDiscountPct}% de descuento por tu membresia.`
-          : t('bookingCreateSuccess'),
-      );
-      setSnackbarVisible(true);
-      setTimeout(() => router.replace('/(app)/(tabs)/bookings'), 700);
-    } catch (error: any) {
-      const message = error?.response?.data?.message || t('bookingCreateError');
-      showError(message);
-    } finally {
-      setSubmitting(false);
-    }
+    router.push({
+      pathname: '/(app)/(tabs)/bookings/confirmation',
+      params: {
+        pistaId: pistaId,
+        fecha: fechaReserva,
+        hora: horaInicio,
+        duracion: String(duration),
+      },
+    });
   };
 
   return (
@@ -479,15 +456,11 @@ export default function CreateBooking() {
           </View>
 
           <TouchableOpacity
-            style={[styles.submit, submitting && styles.submitDisabled]}
+            style={[styles.submit, availableStarts.length === 0 && styles.submitDisabled]}
             onPress={handleSubmit}
-            disabled={submitting || availableStarts.length === 0}
+            disabled={availableStarts.length === 0}
           >
-            {submitting ? (
-              <ActivityIndicator size="small" color={theme.onPrimary} />
-            ) : (
-              <Text style={styles.submitText}>{t('bookingCreateSubmit')}</Text>
-            )}
+            <Text style={styles.submitText}>{t('bookingCreateSubmit')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
