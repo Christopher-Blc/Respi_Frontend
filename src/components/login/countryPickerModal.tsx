@@ -7,7 +7,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { BlurViewCompat } from '../general/BlurViewCompat';
 import { useAppTheme } from '../../context/ThemeContext';
 import { GlassTextInput } from './glassTextInput';
 import { Country, EUROPEAN_COUNTRIES } from '../../types/utilsTypes';
@@ -57,7 +57,7 @@ export const CountryPickerModal: React.FC<Props> = ({
       <Pressable style={styles.backdrop} onPress={handleClose}>
         {/* Inner Pressable stops tap propagation so the card doesn't close */}
         <Pressable onPress={() => {}}>
-          <BlurView
+          <BlurViewCompat
             tint={isDarkMode ? 'dark' : 'light'}
             intensity={50}
             style={[styles.card, { borderColor: theme.textSubtle }]}
@@ -135,7 +135,7 @@ export const CountryPickerModal: React.FC<Props> = ({
                 );
               }}
             />
-          </BlurView>
+          </BlurViewCompat>
         </Pressable>
       </Pressable>
     </Modal>

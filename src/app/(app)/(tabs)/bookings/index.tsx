@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
+import { BlurViewCompat } from '../../../../components/general/BlurViewCompat';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import createReservationsStyles from '../../../../style/reservations.styles';
@@ -269,7 +269,7 @@ export default function ReservasTab() {
 
   const renderDateSelector = () => (
     <>
-      <BlurView
+      <BlurViewCompat
         intensity={50}
         tint={isDarkMode ? 'dark' : 'light'}
         style={[

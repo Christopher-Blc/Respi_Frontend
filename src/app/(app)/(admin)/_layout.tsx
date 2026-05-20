@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import Octicons from '@expo/vector-icons/Octicons';
-import { BlurView } from 'expo-blur';
+import { BlurViewCompat } from '../../../components/general/BlurViewCompat';
 import { useAppTheme } from '../../../context/ThemeContext';
 import WebSidebar, {
   SidebarSection,
@@ -229,7 +229,7 @@ export default function AdminTabLayout() {
             : undefined,
         headerTransparent: true,
         headerBackground: () => (
-          <BlurView
+          <BlurViewCompat
             intensity={50}
             tint={isDarkMode ? 'dark' : 'light'}
             style={StyleSheet.absoluteFill}
@@ -256,7 +256,7 @@ export default function AdminTabLayout() {
           ? () => <WebProfileBadge profileRoute="/(app)/(admin)/profile" />
           : undefined,
         tabBarBackground: () => (
-          <BlurView
+          <BlurViewCompat
             intensity={80}
             tint={isDarkMode ? 'dark' : 'light'}
             style={StyleSheet.absoluteFill}

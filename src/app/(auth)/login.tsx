@@ -10,7 +10,7 @@ import {
   Pressable,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { BlurView } from 'expo-blur';
+import { BlurViewCompat } from '../../components/general/BlurViewCompat';
 import { GlassTextButton } from '../../components/login/glassTextButton';
 import { GlassTextInputPassword } from '../../components/login/glassTextInputPassword';
 import { GlassTextInput } from '../../components/login/glassTextInput';
@@ -99,7 +99,7 @@ const Login: React.FC = () => {
 
   function renderForm() {
     return (
-      <BlurView
+      <BlurViewCompat
         tint={isDarkMode ? 'dark' : 'light'}
         style={styles.glass}
         intensity={20}
@@ -211,7 +211,7 @@ const Login: React.FC = () => {
             </Text>
           </View>
         )}
-      </BlurView>
+      </BlurViewCompat>
     );
   }
 

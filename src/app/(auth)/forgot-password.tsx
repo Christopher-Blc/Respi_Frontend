@@ -8,7 +8,7 @@ import {
   View,
   Keyboard,
 } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { BlurViewCompat } from '../../components/general/BlurViewCompat';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '../../context/ThemeContext';
@@ -126,7 +126,7 @@ export default function ForgotPasswordScreen() {
         style={[styles.glow, { backgroundColor: `${theme.primaryButton}22` }]}
       />
 
-      <BlurView
+      <BlurViewCompat
         tint={isDarkMode ? 'dark' : 'light'}
         intensity={20}
         style={[
@@ -192,7 +192,7 @@ export default function ForgotPasswordScreen() {
           onPress={handleBackToLogin}
           style={styles.backButton}
         />
-      </BlurView>
+      </BlurViewCompat>
     </View>
   );
 }

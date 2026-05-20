@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Octicons from '@expo/vector-icons/Octicons';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { BlurViewCompat } from '../../../components/general/BlurViewCompat';
 import { useRouter, useSegments } from 'expo-router';
 import { useAppTheme } from '../../../context/ThemeContext';
 import WebSidebar, {
@@ -121,7 +121,7 @@ export default function tabLayout() {
             : undefined,
         headerTransparent: true,
         headerBackground: () => (
-          <BlurView
+          <BlurViewCompat
             intensity={50}
             tint={isDarkMode ? 'dark' : 'light'}
             style={StyleSheet.absoluteFill}
@@ -146,7 +146,7 @@ export default function tabLayout() {
               },
         headerRight: isWideScreen ? () => <WebProfileBadge /> : undefined,
         tabBarBackground: () => (
-          <BlurView
+          <BlurViewCompat
             intensity={80}
             tint={isDarkMode ? 'dark' : 'light'}
             style={StyleSheet.absoluteFill}
