@@ -1,8 +1,17 @@
 import React from 'react';
-import { ScrollView, View, useWindowDimensions } from 'react-native';
+import {
+  ScrollView,
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+  useWindowDimensions,
+} from 'react-native';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { useAdminInfo } from '../../../hooks/useAdminInfo';
 import { adminInfoStyles as styles } from '../../../style/admin/info.styles';
@@ -11,6 +20,8 @@ import { InfoPieChartCard } from '../../../components/admin/info/InfoPieChartCar
 import { InfoLineChartCard } from '../../../components/admin/info/InfoLineChartCard';
 import { useAdminReviews } from '../../../hooks/useAdminReviews';
 import { CourtsAverageRatingChart } from '../../../components/admin/info/CourtsAverageRatingChart';
+import { useAdminReports } from '../../../hooks/useAdminReports';
+import { ReportType } from '../../../services/reportsService';
 
 export default function InfoAdmin() {
   const { theme } = useAppTheme();
@@ -36,6 +47,39 @@ export default function InfoAdmin() {
   } = useAdminInfo(theme);
 
   const { courts, filteredReviews } = useAdminReviews();
+  const {
+    loading: reportLoading,
+    error: reportError,
+    handleGenerate,
+  } = useAdminReports();
+
+  const ORANGE = theme.primary;
+
+  const reportOptions: {
+    type: ReportType;
+    labelKey: string;
+    descKey: string;
+    icon: string;
+  }[] = [
+    {
+      type: 'reservations',
+      labelKey: 'adminReportsBookingsLabel',
+      descKey: 'adminReportsBookingsDesc',
+      icon: 'calendar-text',
+    },
+    {
+      type: 'users',
+      labelKey: 'adminReportsUsersLabel',
+      descKey: 'adminReportsUsersDesc',
+      icon: 'account-group',
+    },
+    {
+      type: 'revenue',
+      labelKey: 'adminReportsRevenueLabel',
+      descKey: 'adminReportsRevenueDesc',
+      icon: 'chart-bar',
+    },
+  ];
 
   const horizontalPadding = width >= 1280 ? 40 : width >= 768 ? 28 : 20;
   const maxPaddingWidth = 1400;
@@ -103,6 +147,137 @@ export default function InfoAdmin() {
             // IMPORTANTE: Pásale el ancho calculado para que el gráfico no se colapse
             cardWidth={isWide ? cardWidth : availableGridWidth}
           />
+        </View>
+
+        {/* ─── Informes PDF ──────────────────────────────────────────────── */}
+        <View
+          style={{
+            marginTop: 28,
+            borderRadius: 20,
+            borderWidth: 1,
+            borderColor: ORANGE + '40',
+            backgroundColor: ORANGE + '08',
+            padding: 20,
+          }}
+        >
+          {/* Capçalera amb logo */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginBottom: 16,
+              gap: 14,
+            }}
+          >
+            <Image
+              source={require('../../../../assets/icon.png')}
+              style={{ width: 48, height: 48, borderRadius: 12 }}
+              resizeMode="contain"
+            />
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 18, fontWeight: '900', color: ORANGE }}>
+                {t('adminReportsSectionTitle')}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: theme.textSubtitle,
+                  marginTop: 2,
+                  lineHeight: 17,
+                }}
+              >
+                {t('adminReportsSectionSubtitle')}
+              </Text>
+            </View>
+          </View>
+
+          {/* Botons d'informe */}
+          {reportOptions.map((item) => {
+            const isLoading = reportLoading[item.type];
+            return (
+              <TouchableOpacity
+                key={item.type}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: theme.cardBackground,
+                  borderRadius: 14,
+                  borderWidth: 1,
+                  borderColor: ORANGE + '30',
+                  padding: 14,
+                  marginBottom: 10,
+                  opacity: isLoading ? 0.7 : 1,
+                }}
+                activeOpacity={0.85}
+                disabled={isLoading}
+                onPress={() => handleGenerate(item.type)}
+              >
+                <View
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 12,
+                    backgroundColor: ORANGE + '18',
+                    borderWidth: 1,
+                    borderColor: ORANGE + '35',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginRight: 14,
+                  }}
+                >
+                  {isLoading ? (
+                    <ActivityIndicator size="small" color={ORANGE} />
+                  ) : (
+                    <MaterialCommunityIcons
+                      name={item.icon as any}
+                      size={22}
+                      color={ORANGE}
+                    />
+                  )}
+                </View>
+
+                <View style={{ flex: 1 }}>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      fontWeight: '800',
+                      color: theme.textTitle,
+                    }}
+                  >
+                    {t(item.labelKey)}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      color: theme.textSubtitle,
+                      marginTop: 2,
+                    }}
+                  >
+                    {t(item.descKey)}
+                  </Text>
+                </View>
+
+                <MaterialCommunityIcons
+                  name="file-download-outline"
+                  size={22}
+                  color={ORANGE}
+                />
+              </TouchableOpacity>
+            );
+          })}
+
+          {!!reportError && (
+            <Text
+              style={{
+                color: theme.danger,
+                fontSize: 12,
+                marginTop: 4,
+                textAlign: 'center',
+              }}
+            >
+              {t('adminReportsError')}
+            </Text>
+          )}
         </View>
       </ScrollView>
     </View>
