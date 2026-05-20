@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  ImageBackground,
+  Animated,
+  Image,
   View,
   StyleSheet,
   Pressable,
@@ -43,16 +44,38 @@ export default function AuthLayout() {
     setShowLanguagePicker(false);
   };
 
-  const bgImage = isDarkMode
-    ? require('../../../assets/login-bg-dark.png')
-    : require('../../../assets/login-bg-light.png');
+  const bgDark = require('../../../assets/login-bg-dark.png');
+  const bgLight = require('../../../assets/login-bg-light.png');
+
+  // Precarrega ambdues imatges i fa crossfade animat entre elles
+  // evita el flash/delay quan canvia el tema o s'arrenca l'app
+  const darkOpacity = useRef(new Animated.Value(isDarkMode ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.timing(darkOpacity, {
+      toValue: isDarkMode ? 1 : 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [isDarkMode]);
 
   return (
-    <ImageBackground
-      source={bgImage}
-      style={styles.background}
-      imageStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
-    >
+    <View style={styles.background}>
+      {/* Ambdues imatges sempre en memòria — crossfade animat entre elles */}
+      <Image
+        source={bgLight}
+        style={[StyleSheet.absoluteFill, { width: '100%', height: '100%' }]}
+        resizeMode="cover"
+      />
+      <Animated.Image
+        source={bgDark}
+        style={[
+          StyleSheet.absoluteFill,
+          { width: '100%', height: '100%', opacity: darkOpacity },
+        ]}
+        resizeMode="cover"
+      />
+
       <View style={styles.container}>
         <Slot />
       </View>
@@ -126,7 +149,7 @@ export default function AuthLayout() {
         onSelect={handleSelectLanguage}
         onClose={() => setShowLanguagePicker(false)}
       />
-    </ImageBackground>
+    </View>
   );
 }
 

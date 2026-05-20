@@ -15,6 +15,7 @@ import {
   setupNotificationChannelAndroid,
 } from '../services/notificationsService';
 import api from '../services/api';
+import { registerBackgroundSync } from '../services/backgroundSyncService';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // Importamos el Wrapper inteligente en lugar del StripeProvider nativo
@@ -170,6 +171,9 @@ function AppProviders() {
 
   useEffect(() => {
     setupNotificationChannelAndroid().catch(console.error);
+
+    // RA4 — Fils d'execució: registra el thread de background al sistema operatiu
+    registerBackgroundSync().catch(console.error);
 
     notificationListener.current = addNotificationReceivedListener(() => {});
     responseListener.current = addNotificationResponseListener((response) => {
