@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useState } from 'react';
+﻿import React, { useMemo, useState, useEffect } from 'react';
 import {
   ActivityIndicator,
   ImageBackground,
@@ -46,6 +46,17 @@ export default function HomeScreen() {
     nextReservationDate,
     uniqueSportsCount,
   } = useHome();
+
+  const [currentPage, setCurrentPage] = useState(1);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [reservations.length]);
+  const PAGE_SIZE = 10;
+  const totalPages = Math.ceil(reservations.length / PAGE_SIZE) || 1;
+  const pagedReservations = reservations.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
 
   const normalize = (value: string) =>
     String(value || '')
@@ -235,7 +246,7 @@ export default function HomeScreen() {
             </View>
           ) : (
             <View style={localStyles.gridContainer}>
-              {reservations.map((item) => (
+              {pagedReservations.map((item) => (
                 <View
                   key={item.id}
                   style={{
@@ -246,6 +257,60 @@ export default function HomeScreen() {
                   {renderReservation(item)}
                 </View>
               ))}
+            </View>
+          )}
+          {!loading && totalPages > 1 && (
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingVertical: 10,
+                paddingHorizontal: 16,
+                gap: 16,
+                backgroundColor: theme.backgroundCard,
+                borderTopWidth: 1,
+                borderTopColor: theme.primarySoft,
+                marginTop: 8,
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                <Ionicons
+                  name="chevron-back"
+                  size={22}
+                  color={
+                    currentPage === 1 ? theme.textBody + '40' : theme.primary
+                  }
+                />
+              </TouchableOpacity>
+              <Text
+                style={{
+                  color: theme.textTitle,
+                  fontWeight: '700',
+                  fontSize: 14,
+                }}
+              >
+                {currentPage} / {totalPages}
+              </Text>
+              <TouchableOpacity
+                onPress={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
+                disabled={currentPage === totalPages}
+              >
+                <Ionicons
+                  name="chevron-forward"
+                  size={22}
+                  color={
+                    currentPage === totalPages
+                      ? theme.textBody + '40'
+                      : theme.primary
+                  }
+                />
+              </TouchableOpacity>
             </View>
           )}
         </ScrollView>

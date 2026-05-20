@@ -107,8 +107,10 @@ export default function tabLayout() {
         headerTitleContainerStyle: {
           paddingBottom: 10,
         },
+        // 1. CORRECCIÓN CLAVE: El contenedor del fondo DEBE ser transparente en Android
         headerBackgroundContainerStyle: {
-          backgroundColor: theme.primaryHeader,
+          backgroundColor:
+            Platform.OS === 'android' ? 'transparent' : theme.primaryHeader,
           borderBottomColor: theme.primarySoft,
           borderBottomWidth: 1,
         },
@@ -120,14 +122,20 @@ export default function tabLayout() {
             ? () => <WebBurgerMenu navItems={webBurgerNavItems} />
             : undefined,
         headerTransparent: true,
+
+        // 2. CORRECCIÓN CLAVE: Pasamos el color de respaldo directamente al wrapper limpio
         headerBackground: () => (
           <BlurViewCompat
             intensity={50}
             tint={isDarkMode ? 'dark' : 'light'}
             style={StyleSheet.absoluteFill}
-            experimentalBlurMethod="none"
+            // Dejamos que el componente decida internamente, quitamos el "none" forzado
+            androidBackgroundColor={
+              isDarkMode ? 'rgba(18, 18, 18, 0.8)' : 'rgba(255, 255, 255, 0.85)'
+            }
           />
         ),
+
         tabBarActiveTintColor: theme.tabActive,
         tabBarInactiveTintColor: theme.tabInactive,
         tabBarLabelPosition: 'below-icon',
@@ -139,17 +147,26 @@ export default function tabLayout() {
                 height: tabBarHeight,
                 paddingTop: 6,
                 paddingBottom: insets.bottom + 4,
-                backgroundColor: theme.primaryHeader,
+                // 3. CORRECCIÓN CLAVE: Si usas Blur en el TabBar, su fondo base debe ser transparente
+                backgroundColor:
+                  Platform.OS === 'android'
+                    ? 'transparent'
+                    : theme.primaryHeader,
                 elevation: 0,
                 borderColor: theme.primarySoft,
                 borderTopWidth: 1,
               },
         headerRight: isWideScreen ? () => <WebProfileBadge /> : undefined,
+
+        // 4. CORRECCIÓN CLAVE: Optimizamos también el TabBar inferior
         tabBarBackground: () => (
           <BlurViewCompat
             intensity={80}
             tint={isDarkMode ? 'dark' : 'light'}
             style={StyleSheet.absoluteFill}
+            androidBackgroundColor={
+              isDarkMode ? 'rgba(18, 18, 18, 0.9)' : 'rgba(255, 255, 255, 0.92)'
+            }
           />
         ),
         tabBarLabelStyle: {

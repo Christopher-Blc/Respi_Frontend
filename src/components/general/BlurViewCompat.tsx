@@ -1,43 +1,49 @@
 import React from 'react';
-import { Platform, View } from 'react-native';
+import { Platform, View, StyleSheet } from 'react-native';
 import { BlurView, BlurViewProps } from 'expo-blur';
 
 type BlurViewCompatProps = BlurViewProps & {
-  /** Override the Android fallback background color (default: auto from tint + intensity) */
   androidBackgroundColor?: string;
 };
 
-/**
- * Cross-platform BlurView wrapper.
- * - iOS / Web → native BlurView
- * - Android   → plain View with a semi-transparent background derived from
- *               `tint` and `intensity`, because expo-blur renders poorly on Android.
- */
 export function BlurViewCompat({
-  tint,
+  tint = 'light', // 1. Cambiado a 'light' por defecto para tu fondo claro
   intensity = 50,
   style,
   children,
   androidBackgroundColor,
   ...rest
 }: BlurViewCompatProps) {
+  const resolvedIntensity =
+    Platform.OS === 'android' ? Math.min(intensity ?? 50, 30) : intensity;
+
   if (Platform.OS === 'android') {
-    // Map intensity (0-100) to an alpha between 0.3 and 0.92
-    const alpha = Math.round(((intensity ?? 50) / 100) * 0.92 * 255)
-      .toString(16)
-      .padStart(2, '0');
-
-    const bgColor =
-      androidBackgroundColor ??
-      (tint === 'dark' ? `#000000${alpha}` : `#FFFFFF${alpha}`);
-
     return (
-      <View style={[{ backgroundColor: bgColor }, style]}>{children}</View>
+      <View
+        style={[
+          style,
+          {
+            // 2. Forzamos un fondo blanco semi-transparente de respaldo
+            backgroundColor:
+              androidBackgroundColor || 'rgba(255, 255, 255, 0.85)',
+            // 3. Quitamos cualquier borde extraño si lo hubiera
+            overflow: 'hidden',
+          },
+        ]}
+      >
+        <BlurView
+          tint="light" // Asegura el tint claro en Android
+          intensity={resolvedIntensity}
+          style={StyleSheet.absoluteFill}
+          {...rest}
+        />
+        {children}
+      </View>
     );
   }
 
   return (
-    <BlurView tint={tint} intensity={intensity} style={style} {...rest}>
+    <BlurView tint={tint} intensity={resolvedIntensity} style={style} {...rest}>
       {children}
     </BlurView>
   );
