@@ -80,7 +80,8 @@
           "merchantIdentifier": "merchant.com.respiteam.ResPi",
           "enableGooglePay": false
         }
-      ]
+      ],
+      "expo-background-task"
     ],
     "extra": {
       "router": {

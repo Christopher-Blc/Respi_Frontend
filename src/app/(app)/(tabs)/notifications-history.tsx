@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -22,7 +22,6 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { useRouter } from 'expo-router';
 import { StoredNotification } from '../../../services/notificationHistoryService';
 import { requestPushPermissionsAndToken } from '../../../services/notificationsService';
-import { useState, useEffect } from 'react';
 
 export default function NotificationsHistory() {
   const { t } = useTranslation();
@@ -31,6 +30,16 @@ export default function NotificationsHistory() {
   const insets = useSafeAreaInsets();
   const headerHeight = useHeaderHeight();
   const router = useRouter();
+  const [currentPage, setCurrentPage] = useState(1);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [notifications.length]);
+  const PAGE_SIZE = 10;
+  const totalPages = Math.ceil(notifications.length / PAGE_SIZE) || 1;
+  const pagedNotifications = notifications.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [togglingNotifications, setTogglingNotifications] = useState(false);
 
@@ -259,28 +268,85 @@ export default function NotificationsHistory() {
             <ActivityIndicator size={36} color={theme.primaryButton} />
           </View>
         ) : (
-          <FlatList
-            data={notifications}
-            renderItem={renderNotificationItem}
-            keyExtractor={(item) => item.id}
-            ListHeaderComponent={renderListHeader}
-            contentContainerStyle={[
-              styles.listContent,
-              {
-                paddingBottom:
-                  insets.bottom + (Platform.OS === 'web' ? 100 : 80),
-              },
-            ]}
-            ListEmptyComponent={!loading ? renderEmptyState : null}
-            refreshControl={
-              <RefreshControl
-                refreshing={loading}
-                onRefresh={refresh}
-                tintColor={theme.primaryButton}
-              />
-            }
-            scrollEnabled={notifications.length > 0}
-          />
+          <>
+            <FlatList
+              data={pagedNotifications}
+              renderItem={renderNotificationItem}
+              keyExtractor={(item) => item.id}
+              ListHeaderComponent={renderListHeader}
+              contentContainerStyle={[
+                styles.listContent,
+                {
+                  paddingBottom:
+                    insets.bottom + (Platform.OS === 'web' ? 100 : 80),
+                },
+              ]}
+              ListEmptyComponent={!loading ? renderEmptyState : null}
+              refreshControl={
+                <RefreshControl
+                  refreshing={loading}
+                  onRefresh={refresh}
+                  tintColor={theme.primaryButton}
+                />
+              }
+              scrollEnabled={notifications.length > 0}
+            />
+            {!loading && totalPages > 1 && (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingVertical: 10,
+                  paddingHorizontal: 16,
+                  gap: 16,
+                  backgroundColor: theme.backgroundCard,
+                  borderTopWidth: 1,
+                  borderTopColor: theme.primarySoft,
+                }}
+              >
+                <TouchableOpacity
+                  onPress={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <Ionicons
+                    name="chevron-back"
+                    size={22}
+                    color={
+                      currentPage === 1
+                        ? theme.textBody + '40'
+                        : theme.primaryButton
+                    }
+                  />
+                </TouchableOpacity>
+                <Text
+                  style={{
+                    color: theme.textTitle,
+                    fontWeight: '700',
+                    fontSize: 14,
+                  }}
+                >
+                  {currentPage} / {totalPages}
+                </Text>
+                <TouchableOpacity
+                  onPress={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                >
+                  <Ionicons
+                    name="chevron-forward"
+                    size={22}
+                    color={
+                      currentPage === totalPages
+                        ? theme.textBody + '40'
+                        : theme.primaryButton
+                    }
+                  />
+                </TouchableOpacity>
+              </View>
+            )}
+          </>
         )}
       </View>
     </LinearGradient>

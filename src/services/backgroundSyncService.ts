@@ -3,7 +3,7 @@
  *
  * RA4 — Fils d'execució (Threading)
  * Implementa una task de background que corre en un fil d'execució separat
- * del JS thread principal, usant expo-task-manager i expo-background-fetch.
+ * del JS thread principal, usant expo-task-manager i expo-background-task.
  *
  * Flux:
  *  1. El sistema operatiu desperta l'app en background (cada ~15 min aprox)
@@ -12,7 +12,7 @@
  *  4. Si detecta canvis, envia una notificació local a l'usuari
  */
 
-import * as BackgroundFetch from 'expo-background-fetch';
+import * as BackgroundTask from 'expo-background-task';
 import * as Notifications from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
 import { getToken } from './authStorage';
@@ -69,9 +69,9 @@ TaskManager.defineTask(BOOKING_SYNC_TASK, async () => {
       await sendSyncNotification(count);
     }
 
-    return BackgroundFetch.BackgroundFetchResult.NewData;
+    return BackgroundTask.BackgroundTaskResult.Success;
   } catch {
-    return BackgroundFetch.BackgroundFetchResult.Failed;
+    return BackgroundTask.BackgroundTaskResult.Failed;
   }
 });
 
@@ -80,10 +80,8 @@ export async function registerBackgroundSync(): Promise<void> {
   const isRegistered = await TaskManager.isTaskRegisteredAsync(BOOKING_SYNC_TASK);
   if (isRegistered) return;
 
-  await BackgroundFetch.registerTaskAsync(BOOKING_SYNC_TASK, {
-    minimumInterval: 15 * 60, // mínim 15 minuts (limitació SO)
-    stopOnTerminate: false,   // continua quan es tanca l'app
-    startOnBoot: true,        // s'inicia en arrencar el dispositiu
+  await BackgroundTask.registerTaskAsync(BOOKING_SYNC_TASK, {
+    minimumInterval: 15, // mínim 15 minuts (limitació SO) — en minuts
   });
 }
 
@@ -91,11 +89,11 @@ export async function registerBackgroundSync(): Promise<void> {
 export async function unregisterBackgroundSync(): Promise<void> {
   const isRegistered = await TaskManager.isTaskRegisteredAsync(BOOKING_SYNC_TASK);
   if (isRegistered) {
-    await BackgroundFetch.unregisterTaskAsync(BOOKING_SYNC_TASK);
+    await BackgroundTask.unregisterTaskAsync(BOOKING_SYNC_TASK);
   }
 }
 
 /** Retorna l'estat actual del fil de background */
-export async function getBackgroundSyncStatus(): Promise<BackgroundFetch.BackgroundFetchStatus | null> {
-  return BackgroundFetch.getStatusAsync();
+export async function getBackgroundSyncStatus(): Promise<BackgroundTask.BackgroundTaskStatus | null> {
+  return BackgroundTask.getStatusAsync();
 }

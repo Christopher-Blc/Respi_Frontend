@@ -6,7 +6,7 @@
  * Exposa l'estat del thread i permet activar/desactivar-lo manualment.
  */
 
-import * as BackgroundFetch from 'expo-background-fetch';
+import * as BackgroundTask from 'expo-background-task';
 import { useCallback, useEffect, useState } from 'react';
 import {
   getBackgroundSyncStatus,
@@ -18,7 +18,7 @@ export type BackgroundSyncState = {
   /** Indica si el fil de background està actiu */
   isActive: boolean;
   /** Estat retornat pel sistema operatiu del thread */
-  status: BackgroundFetch.BackgroundFetchStatus | null;
+  status: BackgroundTask.BackgroundTaskStatus | null;
   /** Indica si s'està processant una operació (registre/aturada) */
   isLoading: boolean;
   /** Activa el fil de background */
@@ -29,7 +29,7 @@ export type BackgroundSyncState = {
 
 export function useBackgroundSync(): BackgroundSyncState {
   const [isActive, setIsActive] = useState(false);
-  const [status, setStatus] = useState<BackgroundFetch.BackgroundFetchStatus | null>(null);
+  const [status, setStatus] = useState<BackgroundTask.BackgroundTaskStatus | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   /** Comprova l'estat inicial del fil en muntar el component */
@@ -38,7 +38,7 @@ export function useBackgroundSync(): BackgroundSyncState {
       const currentStatus = await getBackgroundSyncStatus();
       setStatus(currentStatus);
       setIsActive(
-        currentStatus === BackgroundFetch.BackgroundFetchStatus.Available,
+        currentStatus === BackgroundTask.BackgroundTaskStatus.Available,
       );
     })();
   }, []);
