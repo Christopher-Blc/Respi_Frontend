@@ -41,9 +41,7 @@ yarn-error.*
 /ios
 /android
 
-#firebase
+# firebase
 GoogleService-Info.plist
-
-
 respi-6a3d6-firebase-adminsdk-fbsvc-60bbfb283e.json
  

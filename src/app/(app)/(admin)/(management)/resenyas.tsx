@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -33,6 +33,17 @@ export default function AdminReviewsScreen() {
   const tableMinWidth = 920;
   const useHorizontalTableScroll = width < tableMinWidth + 32;
   const cardsColumns = width >= 1280 ? 3 : width >= 780 ? 2 : 1;
+  const [cardsContainerWidth, setCardsContainerWidth] = useState(0);
+  const gridHorizontalPadding = 32;
+  const gridGap = 12;
+  const availableGridWidth = cardsContainerWidth || width;
+  const computedCardWidth =
+    cardsColumns === 1
+      ? availableGridWidth - gridHorizontalPadding
+      : (availableGridWidth -
+          gridHorizontalPadding -
+          gridGap * (cardsColumns - 1)) /
+        cardsColumns;
   const [searchReadOnly, setSearchReadOnly] = useState(true);
   const [showFiltersModal, setShowFiltersModal] = useState(false);
 
@@ -63,20 +74,28 @@ export default function AdminReviewsScreen() {
     setErrorModal,
   } = useAdminReviews();
 
+  const [currentPage, setCurrentPage] = useState(1);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterRating, filterCourtName, replyFilter]);
+  const PAGE_SIZE = 10;
+  const totalPages = Math.ceil(filteredReviews.length / PAGE_SIZE) || 1;
+  const pagedReviews = filteredReviews.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
+
   const hasActiveFilters =
     filterRating !== 'all' ||
     filterCourtName !== 'all' ||
     replyFilter !== 'all';
 
   const renderCard = ({ item }: { item: AdminReview }) => {
-    // Definimos el estilo con casting para evitar errores de tipo
-    const cardWidthStyle =
-      cardsColumns === 1
-        ? ({ width: '100%' } as const)
-        : ({
-            width: `${100 / cardsColumns}%`,
-            maxWidth: `${100 / cardsColumns}%`,
-          } as const);
+    const normalizedCardWidth = Math.max(280, Math.floor(computedCardWidth));
+    const cardWidthStyle = {
+      width: normalizedCardWidth,
+      maxWidth: normalizedCardWidth,
+    };
 
     return (
       <View style={[styles.cardColumn, cardWidthStyle]}>
@@ -179,23 +198,33 @@ export default function AdminReviewsScreen() {
           style={{ marginTop: 50 }}
         />
       ) : viewMode === 'cards' ? (
-        <FlatList
-          key={`reviews-cards-${cardsColumns}`}
-          data={filteredReviews}
-          renderItem={renderCard}
-          numColumns={cardsColumns}
-          keyExtractor={(item) => item.id.toString()}
-          columnWrapperStyle={cardsColumns > 1 ? styles.gridRow : undefined}
-          contentContainerStyle={[
-            styles.gridContent,
-            { paddingBottom: insets.bottom + 100 },
-          ]}
-          ListEmptyComponent={
-            <Text style={{ color: theme.textBody, paddingHorizontal: 16 }}>
-              No hay reseñas para mostrar.
-            </Text>
-          }
-        />
+        <View
+          style={{ flex: 1 }}
+          onLayout={(event) => {
+            const nextWidth = Math.floor(event.nativeEvent.layout.width);
+            if (nextWidth > 0 && nextWidth !== cardsContainerWidth) {
+              setCardsContainerWidth(nextWidth);
+            }
+          }}
+        >
+          <FlatList
+            key={`reviews-cards-${cardsColumns}`}
+            data={pagedReviews}
+            renderItem={renderCard}
+            numColumns={cardsColumns}
+            keyExtractor={(item) => item.id.toString()}
+            columnWrapperStyle={cardsColumns > 1 ? styles.gridRow : undefined}
+            contentContainerStyle={[
+              styles.gridContent,
+              { paddingBottom: insets.bottom + 100 },
+            ]}
+            ListEmptyComponent={
+              <Text style={{ color: theme.textBody, paddingHorizontal: 16 }}>
+                No hay reseñas para mostrar.
+              </Text>
+            }
+          />
+        </View>
       ) : (
         <ScrollView
           horizontal={useHorizontalTableScroll}
@@ -273,14 +302,14 @@ export default function AdminReviewsScreen() {
               </Text>
             </View>
 
-            {filteredReviews.map((review, index) => (
+            {pagedReviews.map((review, index) => (
               <View
                 key={review.id}
                 style={[
                   styles.tableRow,
                   {
                     borderBottomColor:
-                      index === filteredReviews.length - 1
+                      index === pagedReviews.length - 1
                         ? 'transparent'
                         : theme.primarySoft,
                   },
@@ -335,6 +364,52 @@ export default function AdminReviewsScreen() {
         onClose={closeAnswerModal}
         onSave={handleSaveAnswer}
       />
+
+      {!loading && totalPages > 1 && (
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: 10,
+            paddingHorizontal: 16,
+            gap: 16,
+            backgroundColor: theme.backgroundCard,
+            borderTopWidth: 1,
+            borderTopColor: theme.primarySoft,
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
+            <Ionicons
+              name="chevron-back"
+              size={22}
+              color={currentPage === 1 ? theme.textBody + '40' : theme.primary}
+            />
+          </TouchableOpacity>
+          <Text
+            style={{ color: theme.textTitle, fontWeight: '700', fontSize: 14 }}
+          >
+            {currentPage} / {totalPages}
+          </Text>
+          <TouchableOpacity
+            onPress={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+          >
+            <Ionicons
+              name="chevron-forward"
+              size={22}
+              color={
+                currentPage === totalPages
+                  ? theme.textBody + '40'
+                  : theme.primary
+              }
+            />
+          </TouchableOpacity>
+        </View>
+      )}
 
       <ReviewsFiltersModal
         visible={showFiltersModal}

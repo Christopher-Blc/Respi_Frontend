@@ -35,7 +35,7 @@ export const membershipsStyles = StyleSheet.create({
   listContent: { paddingHorizontal: 16 },
   gridContent: { paddingHorizontal: 16, gap: 12 },
   gridRow: { gap: 12, justifyContent: 'flex-start' },
-  cardColumn: { flex: 1 },
+  cardColumn: { flexGrow: 0, flexShrink: 0, alignSelf: 'stretch' },
   card: { borderRadius: 18, padding: 16, marginBottom: 12, borderWidth: 1 },
   cardHeader: {
     flexDirection: 'row',

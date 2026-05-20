@@ -140,6 +140,10 @@ Todas las peticiones pasan por el cliente Axios (`src/services/api.ts`) con inte
 
 ---
 
+generar apk android: eas build --platform android --profile preview
+
+---
+
 ## Autores
 
 Proyecto realizado por **Javi**, **Mauro** y **Christopher**, como parte del **TFG**.
