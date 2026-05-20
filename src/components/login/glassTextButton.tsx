@@ -1,6 +1,6 @@
 import React from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { BlurViewCompat } from '../general/BlurViewCompat';
 import { useAppTheme } from '../../context/ThemeContext';
 
 type Props = {
@@ -52,17 +52,12 @@ export function GlassTextButton({
             },
           ]}
         >
-          <Text
-            style={[
-              styles.text,
-              { color: textColor || theme.onPrimary },
-            ]}
-          >
+          <Text style={[styles.text, { color: textColor || theme.onPrimary }]}>
             {text}
           </Text>
         </View>
       ) : (
-        <BlurView
+        <BlurViewCompat
           intensity={20}
           tint={isDarkMode ? 'dark' : 'light'}
           style={[
@@ -75,15 +70,10 @@ export function GlassTextButton({
             },
           ]}
         >
-          <Text
-            style={[
-              styles.text,
-              { color: textColor || theme.onPrimary },
-            ]}
-          >
+          <Text style={[styles.text, { color: textColor || theme.onPrimary }]}>
             {text}
           </Text>
-        </BlurView>
+        </BlurViewCompat>
       )}
     </Pressable>
   );

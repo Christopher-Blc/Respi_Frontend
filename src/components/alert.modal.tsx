@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { Modal, StyleSheet, Text, View } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { BlurViewCompat } from './general/BlurViewCompat';
 import { GlassTextButton } from './login/glassTextButton';
 import { useAppTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
@@ -54,7 +54,7 @@ export const SessionExpiredModal = ({
       onRequestClose={onConfirm}
     >
       <View style={[styles.overlay, { backgroundColor: overlayColor }]}>
-        <BlurView
+        <BlurViewCompat
           intensity={30}
           tint={isDarkMode ? 'dark' : 'light'}
           style={[
@@ -94,7 +94,7 @@ export const SessionExpiredModal = ({
               />
             )}
           </View>
-        </BlurView>
+        </BlurViewCompat>
       </View>
     </Modal>
   );

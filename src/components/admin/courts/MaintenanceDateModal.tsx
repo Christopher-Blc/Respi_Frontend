@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Modal } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { BlurViewCompat } from '../../general/BlurViewCompat';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { GlassTextButton } from '../../login/glassTextButton';
 import { GlassTextInput } from '../../login/glassTextInput';
@@ -68,7 +68,7 @@ export function MaintenanceDateModal({
             overflow: 'hidden',
           }}
         >
-          <BlurView
+          <BlurViewCompat
             intensity={30}
             tint={isDarkMode ? 'dark' : 'light'}
             style={{
@@ -171,7 +171,7 @@ export function MaintenanceDateModal({
                 />
               </View>
             </View>
-          </BlurView>
+          </BlurViewCompat>
         </TouchableOpacity>
       </TouchableOpacity>
     </Modal>

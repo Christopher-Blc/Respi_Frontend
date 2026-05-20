@@ -8,7 +8,7 @@ import {
   Animated,
   Easing,
 } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { BlurViewCompat } from '../../components/general/BlurViewCompat';
 import { GlassTextButton } from '../../components/login/glassTextButton';
 import { router } from 'expo-router';
 import { useAppTheme } from '../../context/ThemeContext';
@@ -212,7 +212,7 @@ const PepeBirthdayScreen = () => {
         <FloatingBall key={i} index={i} />
       ))}
 
-      <BlurView intensity={80} tint="light" style={styles.glassCard}>
+      <BlurViewCompat intensity={80} tint="light" style={styles.glassCard}>
         <View style={styles.photoFrame}>
           <Image
             source={
@@ -234,7 +234,7 @@ const PepeBirthdayScreen = () => {
         </View>
 
         <SignaturePulse />
-      </BlurView>
+      </BlurViewCompat>
       <GlassTextButton
         text="Back"
         textColor={theme.onPrimary}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { FlatList, Modal, Pressable, StyleSheet, Text } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { BlurViewCompat } from '../general/BlurViewCompat';
 import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '../../context/ThemeContext';
 import { AppLanguage, LANGUAGE_OPTIONS } from '../../i18n';
@@ -43,7 +43,7 @@ export const LanguagePickerModal: React.FC<Props> = ({
     >
       <Pressable style={styles.backdrop} onPress={handleClose}>
         <Pressable onPress={() => {}}>
-          <BlurView
+          <BlurViewCompat
             tint={isDarkMode ? 'dark' : 'light'}
             intensity={50}
             style={[styles.card, { borderColor: theme.textSubtle }]}
@@ -102,7 +102,7 @@ export const LanguagePickerModal: React.FC<Props> = ({
                 );
               }}
             />
-          </BlurView>
+          </BlurViewCompat>
         </Pressable>
       </Pressable>
     </Modal>

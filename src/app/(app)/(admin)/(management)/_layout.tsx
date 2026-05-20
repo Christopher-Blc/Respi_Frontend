@@ -7,7 +7,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import Octicons from '@expo/vector-icons/Octicons';
-import { BlurView } from 'expo-blur';
+import { BlurViewCompat } from '../../../../components/general/BlurViewCompat';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { useAppTheme } from '../../../../context/ThemeContext';
@@ -52,7 +52,7 @@ export default function ManagementLayout() {
               },
             ]}
           >
-            <BlurView
+            <BlurViewCompat
               intensity={50}
               tint={isDarkMode ? 'dark' : 'light'}
               style={StyleSheet.absoluteFill}

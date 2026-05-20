@@ -7,7 +7,7 @@ import {
   View,
   Platform,
 } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { BlurViewCompat } from '../components/general/BlurViewCompat';
 import { GlassTextButton } from '../components/login/glassTextButton'; // Usamos tu componente de botón
 import { useAppTheme } from '../context/ThemeContext';
 import { AppTheme } from '../theme';
@@ -32,7 +32,7 @@ export default function NotFoundScreen() {
         style={styles.background}
         imageStyle={{ width: '100%', height: '100%', objectFit: 'cover' }}
       >
-        <BlurView
+        <BlurViewCompat
           tint={isDarkMode ? 'dark' : 'light'}
           intensity={Platform.OS === 'web' ? 40 : 20}
           style={[
@@ -60,7 +60,7 @@ export default function NotFoundScreen() {
               color={theme.primarySoft}
             />
           </Link>
-        </BlurView>
+        </BlurViewCompat>
       </ImageBackground>
     </>
   );

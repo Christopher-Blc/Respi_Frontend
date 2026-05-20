@@ -7,7 +7,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { BlurViewCompat } from '../../components/general/BlurViewCompat';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAppTheme } from '../../context/ThemeContext';
 import RespiLogo from '../../components/login/respiLogo';
@@ -107,7 +107,7 @@ export default function ConfirmEmailScreen() {
         style={[styles.glow, { backgroundColor: `${theme.primaryButton}22` }]}
       />
 
-      <BlurView
+      <BlurViewCompat
         tint={isDarkMode ? 'dark' : 'light'}
         intensity={20}
         style={[
@@ -167,7 +167,7 @@ export default function ConfirmEmailScreen() {
           onPress={() => router.replace('/(auth)/login')}
           style={styles.actionButton}
         />
-      </BlurView>
+      </BlurViewCompat>
     </View>
   );
 }

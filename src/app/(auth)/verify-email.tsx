@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Linking from 'expo-linking';
-import { BlurView } from 'expo-blur';
+import { BlurViewCompat } from '../../components/general/BlurViewCompat';
 import { useAppTheme } from '../../context/ThemeContext';
 import api from '../../services/api';
 import RespiLogo from '../../components/login/respiLogo';
@@ -153,7 +153,7 @@ export default function VerificationScreen() {
         style={[styles.glow, { backgroundColor: `${theme.primaryButton}22` }]}
       />
 
-      <BlurView
+      <BlurViewCompat
         tint={isDarkMode ? 'dark' : 'light'}
         intensity={20}
         style={[
@@ -207,7 +207,7 @@ export default function VerificationScreen() {
             style={styles.actionButton}
           />
         )}
-      </BlurView>
+      </BlurViewCompat>
     </View>
   );
 }

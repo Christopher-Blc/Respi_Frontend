@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { BlurViewCompat } from '../../general/BlurViewCompat';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { GlassTextButton } from '../../login/glassTextButton';
@@ -93,7 +93,7 @@ export function ReviewsFiltersModal({
             elevation: 12,
           }}
         >
-          <BlurView
+          <BlurViewCompat
             intensity={30}
             tint={isDarkMode ? 'dark' : 'light'}
             style={{
@@ -353,7 +353,7 @@ export function ReviewsFiltersModal({
                 />
               </View>
             </View>
-          </BlurView>
+          </BlurViewCompat>
         </TouchableOpacity>
       </TouchableOpacity>
     </Modal>

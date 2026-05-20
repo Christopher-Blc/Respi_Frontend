@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Slot } from 'expo-router';
 import { IconButton } from 'react-native-paper';
-import { BlurView } from 'expo-blur';
+import { BlurViewCompat } from '../../components/general/BlurViewCompat';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
@@ -57,7 +57,7 @@ export default function AuthLayout() {
         <Slot />
       </View>
 
-      <BlurView
+      <BlurViewCompat
         tint={isDarkMode ? 'dark' : 'light'}
         intensity={35}
         style={[
@@ -118,7 +118,7 @@ export default function AuthLayout() {
             </Text>
           )}
         </Pressable>
-      </BlurView>
+      </BlurViewCompat>
 
       <LanguagePickerModal
         visible={showLanguagePicker}
