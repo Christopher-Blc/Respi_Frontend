@@ -3,7 +3,7 @@
     "name": "ResPi",
     "slug": "ResPi",
     "version": "1.0.0",
-    "scheme": "respi-app",
+    "scheme": "respi",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",

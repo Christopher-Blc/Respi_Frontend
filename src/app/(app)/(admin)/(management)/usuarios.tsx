@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -68,6 +68,17 @@ export default function AdminUsuarios() {
     errorModal,
     setErrorModal,
   } = useAdminUsers();
+
+  const [currentPage, setCurrentPage] = useState(1);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+  const PAGE_SIZE = 10;
+  const totalPages = Math.ceil(filteredUsers.length / PAGE_SIZE) || 1;
+  const pagedUsers = filteredUsers.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
 
   const renderCard = ({ item }: { item: AdminUser }) => {
     const normalizedCardWidth = Math.max(280, Math.floor(computedCardWidth));
@@ -169,7 +180,7 @@ export default function AdminUsuarios() {
         >
           <FlatList
             key={`users-cards-${cardsColumns}`}
-            data={filteredUsers}
+            data={pagedUsers}
             renderItem={renderCard}
             numColumns={cardsColumns}
             keyExtractor={(item) => item.id.toString()}
@@ -252,7 +263,7 @@ export default function AdminUsuarios() {
               </Text>
             </View>
             <FlatList
-              data={filteredUsers}
+              data={pagedUsers}
               keyExtractor={(item) => item.id.toString()}
               nestedScrollEnabled
               contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
@@ -319,6 +330,52 @@ export default function AdminUsuarios() {
             />
           </View>
         </ScrollView>
+      )}
+
+      {!loading && totalPages > 1 && (
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: 10,
+            paddingHorizontal: 16,
+            gap: 16,
+            backgroundColor: theme.backgroundCard,
+            borderTopWidth: 1,
+            borderTopColor: theme.primarySoft,
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
+            <Ionicons
+              name="chevron-back"
+              size={22}
+              color={currentPage === 1 ? theme.textBody + '40' : theme.primary}
+            />
+          </TouchableOpacity>
+          <Text
+            style={{ color: theme.textTitle, fontWeight: '700', fontSize: 14 }}
+          >
+            {currentPage} / {totalPages}
+          </Text>
+          <TouchableOpacity
+            onPress={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+          >
+            <Ionicons
+              name="chevron-forward"
+              size={22}
+              color={
+                currentPage === totalPages
+                  ? theme.textBody + '40'
+                  : theme.primary
+              }
+            />
+          </TouchableOpacity>
+        </View>
       )}
 
       <UserFormModal

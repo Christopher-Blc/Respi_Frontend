@@ -29,6 +29,17 @@ export default function AdminInstallations() {
   const tableMinWidth = 700;
   const useHorizontalTableScroll = width < tableMinWidth + 32;
   const cardsColumns = width >= 1280 ? 3 : width >= 780 ? 2 : 1;
+  const [cardsContainerWidth, setCardsContainerWidth] = React.useState(0);
+  const gridHorizontalPadding = 32;
+  const gridGap = 12;
+  const availableGridWidth = cardsContainerWidth || width;
+  const computedCardWidth =
+    cardsColumns === 1
+      ? availableGridWidth - gridHorizontalPadding
+      : (availableGridWidth -
+          gridHorizontalPadding -
+          gridGap * (cardsColumns - 1)) /
+        cardsColumns;
   const [viewMode, setViewMode] = React.useState<'cards' | 'list'>('cards');
 
   const {
@@ -52,11 +63,23 @@ export default function AdminInstallations() {
     setErrorModal,
   } = useAdminInstallations();
 
+  const [currentPage, setCurrentPage] = React.useState(1);
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+  const PAGE_SIZE = 10;
+  const totalPages = Math.ceil(filteredInstallations.length / PAGE_SIZE) || 1;
+  const pagedInstallations = filteredInstallations.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
+
   const renderCard = ({ item }: { item: Installation }) => {
-    const cardWidthStyle =
-      cardsColumns === 1
-        ? { width: '100%' as const }
-        : { maxWidth: cardsColumns === 2 ? 560 : 440 };
+    const normalizedCardWidth = Math.max(280, Math.floor(computedCardWidth));
+    const cardWidthStyle = {
+      width: normalizedCardWidth,
+      maxWidth: normalizedCardWidth,
+    };
 
     return (
       <View style={[styles.cardColumn, cardWidthStyle]}>
@@ -137,18 +160,28 @@ export default function AdminInstallations() {
           style={{ marginTop: 50 }}
         />
       ) : viewMode === 'cards' ? (
-        <FlatList
-          key={`installations-cards-${cardsColumns}`}
-          data={filteredInstallations}
-          renderItem={renderCard}
-          numColumns={cardsColumns}
-          keyExtractor={(item) => String(item.id)}
-          columnWrapperStyle={cardsColumns > 1 ? styles.gridRow : undefined}
-          contentContainerStyle={[
-            styles.gridContent,
-            { paddingBottom: insets.bottom + 100 },
-          ]}
-        />
+        <View
+          style={{ flex: 1 }}
+          onLayout={(event) => {
+            const nextWidth = Math.floor(event.nativeEvent.layout.width);
+            if (nextWidth > 0 && nextWidth !== cardsContainerWidth) {
+              setCardsContainerWidth(nextWidth);
+            }
+          }}
+        >
+          <FlatList
+            key={`installations-cards-${cardsColumns}`}
+            data={pagedInstallations}
+            renderItem={renderCard}
+            numColumns={cardsColumns}
+            keyExtractor={(item) => String(item.id)}
+            columnWrapperStyle={cardsColumns > 1 ? styles.gridRow : undefined}
+            contentContainerStyle={[
+              styles.gridContent,
+              { paddingBottom: insets.bottom + 100 },
+            ]}
+          />
+        </View>
       ) : (
         <ScrollView
           horizontal={useHorizontalTableScroll}
@@ -213,7 +246,7 @@ export default function AdminInstallations() {
               </Text>
             </View>
             <FlatList
-              data={filteredInstallations}
+              data={pagedInstallations}
               keyExtractor={(item) => String(item.id)}
               nestedScrollEnabled
               contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
@@ -261,6 +294,52 @@ export default function AdminInstallations() {
             />
           </View>
         </ScrollView>
+      )}
+
+      {!loading && totalPages > 1 && (
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: 10,
+            paddingHorizontal: 16,
+            gap: 16,
+            backgroundColor: theme.backgroundCard,
+            borderTopWidth: 1,
+            borderTopColor: theme.primarySoft,
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
+            <Ionicons
+              name="chevron-back"
+              size={22}
+              color={currentPage === 1 ? theme.textBody + '40' : theme.primary}
+            />
+          </TouchableOpacity>
+          <Text
+            style={{ color: theme.textTitle, fontWeight: '700', fontSize: 14 }}
+          >
+            {currentPage} / {totalPages}
+          </Text>
+          <TouchableOpacity
+            onPress={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+          >
+            <Ionicons
+              name="chevron-forward"
+              size={22}
+              color={
+                currentPage === totalPages
+                  ? theme.textBody + '40'
+                  : theme.primary
+              }
+            />
+          </TouchableOpacity>
+        </View>
       )}
 
       <InstallationFormModal
