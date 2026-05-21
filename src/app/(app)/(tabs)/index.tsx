@@ -22,7 +22,7 @@ import { createHomeStyles } from '../../../style/home.styles';
 import DateModal from '../../../components/bookings/date.modal';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../i18n';
-import { getTipoPistaImage } from '../../../utils/getImage';
+import { API_PUBLIC_URL } from '../../../constants';
 
 //pantalla home del cliente
 
@@ -66,7 +66,12 @@ export default function HomeScreen() {
 
   const renderReservation = (item: Reservation) => {
     const title = item.court?.name || t('homeReservationFallback');
-    const img = getTipoPistaImage(item);
+    const rawPath = item.court?.courtType?.image;
+    const img = rawPath
+      ? {
+          uri: API_PUBLIC_URL + '/' + String(rawPath),
+        }
+      : undefined;
     const cleanDate = new Date(item.reservation_date).toLocaleDateString(
       locale,
       {

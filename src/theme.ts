@@ -135,7 +135,7 @@ export const lightTheme: AppTheme = {
   warning: '#F59E0B',
   warningSoft: 'rgba(245, 158, 11, 0.15)',
   availabilityFree: 'rgba(209, 250, 229, 0.92)',
-  availabilityBusy: 'rgba(248, 113, 113, 0.55)',
+  availabilityBusy: 'rgba(113, 149, 248, 0.68)',
   logoutGlass: 'rgba(191, 4, 4, 0.4)',
   logoutBorder: '#FFB8B8',
 
@@ -216,8 +216,8 @@ export const darkTheme: AppTheme = {
   infoSoft: 'rgba(202, 142, 14, 0.2)',
   warning: '#F59E0B',
   warningSoft: 'rgba(245, 158, 11, 0.2)',
-  availabilityFree: 'rgba(16, 185, 129, 0.78)',
-  availabilityBusy: 'rgba(248, 113, 113, 0.68)',
+  availabilityFree: 'rgba(161, 187, 174, 0.92)',
+  availabilityBusy: 'rgba(113, 149, 248, 0.68)',
   logoutGlass: 'rgba(127, 35, 35, 0.45)',
   logoutBorder: '#e9313146',
 
