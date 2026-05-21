@@ -315,6 +315,8 @@ export default function PistasTab() {
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
+          nestedScrollEnabled={true} // 👈 this
+          keyboardShouldPersistTaps="handled" // 👈 and this
           contentContainerStyle={{
             paddingTop: headerHeight + 18,
             paddingBottom: Platform.OS === 'web' ? 96 : 140,

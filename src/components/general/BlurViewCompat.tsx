@@ -7,44 +7,39 @@ type BlurViewCompatProps = BlurViewProps & {
 };
 
 export function BlurViewCompat({
-  tint = 'light', // 1. Cambiado a 'light' por defecto para tu fondo claro
+  tint = 'light',
   intensity = 50,
   style,
   children,
   androidBackgroundColor,
   ...rest
 }: BlurViewCompatProps) {
-  const resolvedIntensity =
-    Platform.OS === 'android' ? Math.min(intensity ?? 50, 30) : intensity;
-
-  if (Platform.OS === 'android') {
+  if (Platform.OS !== 'android') {
     return (
-      <View
-        style={[
-          style,
-          {
-            // 2. Forzamos un fondo blanco semi-transparente de respaldo
-            backgroundColor:
-              androidBackgroundColor || 'rgba(255, 255, 255, 0.85)',
-            // 3. Quitamos cualquier borde extraño si lo hubiera
-            overflow: 'hidden',
-          },
-        ]}
-      >
-        <BlurView
-          tint="light" // Asegura el tint claro en Android
-          intensity={resolvedIntensity}
-          style={StyleSheet.absoluteFill}
-          {...rest}
-        />
+      <BlurView tint={tint} intensity={intensity} style={style} {...rest}>
         {children}
-      </View>
+      </BlurView>
     );
   }
+  const defaultBg =
+    tint === 'dark' ? 'rgba(18, 18, 18, 0.82)' : 'rgba(255, 255, 255, 0.84)';
+
+  const baseBg = androidBackgroundColor ?? defaultBg;
 
   return (
-    <BlurView tint={tint} intensity={resolvedIntensity} style={style} {...rest}>
+    <View style={[style, { overflow: 'hidden' }]}>
+      {/* Real blur in dev build (SDK 31+). Falls back gracefully in Expo Go. */}
+      <BlurView
+        tint={tint}
+        intensity={intensity}
+        // Use the faster SDK-31+ path on modern Android,
+        // full dimezis on older versions
+        experimentalBlurMethod="dimezisBlurView"
+        style={StyleSheet.absoluteFill}
+        {...rest}
+      />
+
       {children}
-    </BlurView>
+    </View>
   );
 }

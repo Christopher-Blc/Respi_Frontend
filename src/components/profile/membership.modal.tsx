@@ -9,7 +9,9 @@ import {
   StyleSheet,
   Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
+import createModalCommonStyles from '../../style/modalCommon.styles';
 import api from '../../services/api';
 import { Membership } from '../../types/types';
 import { useTranslation } from 'react-i18next';
@@ -109,6 +111,8 @@ const getMembershipPalette = (
 export default function MembresiaModal({ visible, onClose }: Props) {
   const { theme, isDarkMode } = useAppTheme();
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
+  const commonStyles = useMemo(() => createModalCommonStyles(theme), [theme]);
   const [membresias, setMembresias] = useState<Membership[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -152,16 +156,9 @@ export default function MembresiaModal({ visible, onClose }: Props) {
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-          paddingTop: 30,
-          paddingHorizontal: 24,
-          paddingBottom: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: theme.borderSoft,
-        },
-        headerAction: {
-          fontSize: 20,
-          fontWeight: '600',
-          color: theme.textTitle,
+          paddingHorizontal: 20,
+          paddingBottom: 8,
+          backgroundColor: theme.backgroundCard,
         },
         body: {
           paddingHorizontal: 18,
@@ -300,13 +297,23 @@ export default function MembresiaModal({ visible, onClose }: Props) {
       transparent={false}
     >
       <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onClose}>
-            <Text style={styles.headerAction}>{t('commonClose')}</Text>
-          </TouchableOpacity>
+        <View
+          style={[
+            commonStyles.headerContainer,
+            { paddingTop: insets.top + 12 },
+          ]}
+        >
+          <View style={commonStyles.headerRow}>
+            <TouchableOpacity onPress={onClose}>
+              <Text style={commonStyles.headerText}>{t('commonCancel')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onClose}>
+              <Text style={commonStyles.headerText}>{t('commonClose')}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
-        <ScrollView contentContainerStyle={styles.body}>
+        <ScrollView contentContainerStyle={[styles.body, { paddingTop: 70 }]}>
           <View style={styles.introCard}>
             <Text style={styles.introTitle}>
               {t('membershipProgressTitle')}
