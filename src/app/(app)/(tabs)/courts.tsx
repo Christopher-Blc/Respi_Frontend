@@ -1,6 +1,7 @@
-﻿import React, { useMemo } from 'react';
+﻿import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  FlatList,
   ImageBackground,
   Platform,
   ScrollView,
@@ -12,7 +13,6 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import createReservationsStyles from '../../../style/reservations.styles';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import createPistasTabStyles from '../../../style/courtsTab.styles';
@@ -21,188 +21,166 @@ import {
   formatPrice,
   useCourtsTab,
 } from '../../../hooks/useCourtsTab';
-import { CourtAvailability, Court } from '../../../types/types';
+import { CourtAvailability, CourtType } from '../../../types/types';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../i18n';
 import { getTipoPistaImage } from '../../../utils/getImage';
+import { API_PUBLIC_URL } from '../../../constants';
 
-const GRID_GAP = 16;
+const GAP = 12;
 
 export default function PistasTab() {
   const router = useRouter();
   const { theme } = useAppTheme();
   const { t, i18n } = useTranslation();
-  const styles = React.useMemo(() => createReservationsStyles(theme), [theme]);
   const localStyles = useMemo(() => createPistasTabStyles(theme), [theme]);
   const headerHeight = useHeaderHeight();
   const { width } = useWindowDimensions();
   const locale = getDateLocale(i18n.resolvedLanguage || i18n.language);
-  const horizontalPadding = width >= 1280 ? 20 : width >= 768 ? 16 : 8;
-  const availableGridWidth = Math.max(width - horizontalPadding * 2, 0);
+  const padding = width >= 768 ? 16 : 12;
+  const cols = width >= 1280 ? 3 : width >= 520 ? 2 : 1;
+  const [containerWidth, setContainerWidth] = useState(0);
+  const effective = containerWidth || width;
+  const cardWidth = Math.max(
+    160,
+    Math.floor((effective - padding * 2 - GAP * (cols - 1)) / cols),
+  );
+  const sportCardWidth = Math.min(cardWidth, 460);
+  const isWideScreen = width >= 520;
+
   const {
     loading,
-    displayedModelos,
+    tipos,
     selectedModel,
     setSelectedModel,
     selectedDate,
     setSelectedDate,
     loadingSportInfo,
     sportError,
-    sportType,
     sportPistas,
     availableDays,
     formattedDate,
     clearSportFilter,
   } = useCourtsTab();
 
-  let baseColumnsCount = 1;
-  if (width >= 1024) baseColumnsCount = 3;
-  else if (width >= 768) baseColumnsCount = 2;
-
-  const getResponsiveCardBasis = () => {
-    const columnsCount = baseColumnsCount;
-    const columnWidth =
-      (availableGridWidth - GRID_GAP * Math.max(columnsCount - 1, 0)) /
-      columnsCount;
-
-    return Math.max(columnWidth, 280);
+  const renderModel = ({ item }: { item: CourtType }) => {
+    const src = item.image
+      ? {
+          uri: `${API_PUBLIC_URL}${item.image.startsWith('/') ? '' : '/'}${item.image}`,
+        }
+      : undefined;
+    return (
+      <View
+        style={{
+          width: cardWidth,
+          flexGrow: 0,
+          flexShrink: 0,
+          alignSelf: 'stretch',
+        }}
+      >
+        <TouchableOpacity
+          style={localStyles.catalogCard}
+          activeOpacity={0.9}
+          onPress={() => setSelectedModel(item)}
+        >
+          <ImageBackground
+            source={src}
+            style={localStyles.catalogCardBg}
+            imageStyle={{ borderRadius: 18 }}
+          >
+            <LinearGradient
+              colors={[
+                theme.reservationsCardOverlayStart,
+                theme.reservationsCardOverlayEnd,
+              ]}
+              style={localStyles.catalogCardOverlay}
+            >
+              <View style={localStyles.catalogHeaderRow}>
+                <View>
+                  <Text style={localStyles.catalogTitle}>{item.name}</Text>
+                </View>
+                <View style={localStyles.statusBadge}>
+                  <Text style={localStyles.statusText}>
+                    {item.totalCourts} {t('pistasStatusAvailable')}
+                  </Text>
+                </View>
+              </View>
+              <View style={localStyles.catalogFooter}>
+                <Text style={localStyles.catalogCta}>
+                  {t('pistasChooseSport')}
+                </Text>
+                <Ionicons
+                  name="chevron-forward"
+                  size={18}
+                  color={theme.onPrimary}
+                />
+              </View>
+            </LinearGradient>
+          </ImageBackground>
+        </TouchableOpacity>
+      </View>
+    );
   };
 
-  const cardBasis = getResponsiveCardBasis();
-  const isWideScreen = width >= 768;
-  const sportCardWidth = Math.min(cardBasis, 460);
-
   const renderStars = (rating: number, reviews: number) => {
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-
+    const full = Math.floor(rating);
+    const half = rating % 1 >= 0.5;
+    const empty = 5 - full - (half ? 1 : 0);
     return (
       <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
           gap: 4,
-          backgroundColor: 'rgba(21, 26, 38, 0.46)',
+          backgroundColor: 'rgba(21,26,38,0.46)',
           paddingHorizontal: 8,
           paddingVertical: 4,
           borderRadius: 999,
           borderWidth: 1,
-          borderColor: 'rgba(199, 207, 221, 0.55)',
+          borderColor: 'rgba(199,207,221,0.55)',
           alignSelf: 'flex-start',
         }}
       >
         <View style={{ flexDirection: 'row', gap: 1 }}>
-          {/* Full stars */}
-          {Array.from({ length: fullStars }).map((_, i) => (
-            <Ionicons key={`full-${i}`} name="star" size={14} color="#FFD700" />
+          {Array.from({ length: full }).map((_, i) => (
+            <Ionicons key={`f${i}`} name="star" size={14} color="#FFD700" />
           ))}
-          {/* Half star */}
-          {hasHalfStar && (
-            <Ionicons name="star-half" size={14} color="#FFD700" />
-          )}
-          {/* Empty stars */}
-          {Array.from({ length: emptyStars }).map((_, i) => (
+          {half && <Ionicons name="star-half" size={14} color="#FFD700" />}
+          {Array.from({ length: empty }).map((_, i) => (
             <Ionicons
-              key={`empty-${i}`}
+              key={`e${i}`}
               name="star-outline"
               size={14}
               color="rgba(255,255,255,0.5)"
             />
           ))}
         </View>
-        <Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: '600' }}>
+        <Text style={{ color: '#fff', fontSize: 10, fontWeight: '600' }}>
           ({reviews})
         </Text>
       </View>
     );
   };
-
-  const renderModel = (item: Court) => (
-    <TouchableOpacity
-      key={item.id}
-      style={[
-        localStyles.catalogCard,
-        {
-          flexBasis: isWideScreen ? cardBasis : '100%',
-          flexGrow: 1,
-        },
-      ]}
-      activeOpacity={0.9}
-      onPress={() => setSelectedModel(item)}
-    >
-      <ImageBackground
-        source={getTipoPistaImage(item)}
-        style={localStyles.catalogCardBg}
-        imageStyle={{ borderRadius: 18 }}
-      >
-        <LinearGradient
-          colors={[
-            theme.reservationsCardOverlayStart,
-            theme.reservationsCardOverlayEnd,
-          ]}
-          style={localStyles.catalogCardOverlay}
-        >
-          <View style={localStyles.catalogHeaderRow}>
-            <View style={localStyles.statusBadge}>
-              <Text style={localStyles.statusText}>
-                {t('pistasStatusAvailable')}
-              </Text>
-            </View>
-          </View>
-
-          <View style={localStyles.catalogBottom}>
-            <View>
-              <Text style={localStyles.catalogTitle}>{item.name}</Text>
-              <Text style={localStyles.catalogMeta}>
-                {t('pistasReserveOnlineFast')}
-              </Text>
-            </View>
-            <View style={localStyles.pricePill}>
-              <Text style={localStyles.pricePillText}>
-                {formatPrice(Number(item.price_per_hour || 0), locale)}/h
-              </Text>
-            </View>
-          </View>
-
-          <View style={localStyles.catalogFooter}>
-            <Text style={localStyles.catalogCta}>{t('pistasChooseSport')}</Text>
-            <Ionicons
-              name="chevron-forward"
-              size={18}
-              color={theme.onPrimary}
-            />
-          </View>
-        </LinearGradient>
-      </ImageBackground>
-    </TouchableOpacity>
-  );
-
   const renderSportCourtCard = (pista: CourtAvailability) => {
     const pistaId = String(pista.id ?? '');
     const reservasHoy = pista.current_reservations?.length || 0;
-    const pistaImage = getTipoPistaImage(pista);
     const canBook = Boolean(pistaId);
-
-    const handleCourtPress = () => {
-      if (!canBook) return;
-
-      router.push({
-        pathname: '/(app)/(tabs)/bookings/createBooking',
-        params: {
-          pistaId,
-          pistaNombre: pista.name || 'Pista',
-          fecha: formattedDate,
-        },
-      });
-    };
-
     return (
       <TouchableOpacity
         key={pistaId || pista.name}
         activeOpacity={0.92}
         disabled={!canBook}
-        onPress={handleCourtPress}
+        onPress={() => {
+          if (!canBook) return;
+          router.push({
+            pathname: '/(app)/(tabs)/bookings/createBooking',
+            params: {
+              pistaId,
+              pistaNombre: pista.name || 'Pista',
+              fecha: formattedDate,
+            },
+          });
+        }}
         style={[
           localStyles.sportCard,
           {
@@ -214,15 +192,15 @@ export default function PistasTab() {
         ]}
       >
         <ImageBackground
-          source={pistaImage}
+          source={getTipoPistaImage(pista)}
           style={localStyles.sportCardImage}
           imageStyle={localStyles.sportCardImageStyle}
         >
           <LinearGradient
             colors={[
-              'rgba(8, 12, 20, 0.16)',
-              'rgba(8, 12, 20, 0.72)',
-              'rgba(8, 12, 20, 0.92)',
+              'rgba(8,12,20,0.16)',
+              'rgba(8,12,20,0.72)',
+              'rgba(8,12,20,0.92)',
             ]}
             style={localStyles.sportCardOverlay}
           >
@@ -239,12 +217,10 @@ export default function PistasTab() {
                 </Text>
               </View>
             </View>
-
             <View>
               <Text style={localStyles.sportCardTitle} numberOfLines={1}>
                 {pista.name || t('bookingCreateCourtFallback')}
               </Text>
-
               {!!pista.description && (
                 <Text
                   style={localStyles.sportCardDescription}
@@ -253,7 +229,6 @@ export default function PistasTab() {
                   {pista.description}
                 </Text>
               )}
-
               <View style={localStyles.sportChipsWrap}>
                 <View style={localStyles.sportChip}>
                   <Text style={localStyles.sportChipText}>
@@ -280,22 +255,14 @@ export default function PistasTab() {
             </View>
           </LinearGradient>
         </ImageBackground>
-
         <View
           style={[
             localStyles.reserveButton,
-            {
-              backgroundColor: theme.surface,
-            },
+            { backgroundColor: theme.surface },
           ]}
         >
           <Text
-            style={[
-              localStyles.reserveButtonText,
-              {
-                color: theme.textTitle,
-              },
-            ]}
+            style={[localStyles.reserveButtonText, { color: theme.textTitle }]}
           >
             {t('pistasReserveThisCourt')}
           </Text>
@@ -305,128 +272,129 @@ export default function PistasTab() {
   };
 
   return (
-    <View style={[styles.container, localStyles.pageContainer]}>
+    <View
+      style={{ flex: 1, backgroundColor: theme.background }}
+      onLayout={(e) => {
+        const w = Math.floor(e.nativeEvent.layout.width);
+        if (w > 0 && w !== containerWidth) setContainerWidth(w);
+      }}
+    >
       {loading ? (
         <ActivityIndicator
           size="large"
           color={theme.primary}
           style={{ marginTop: headerHeight + 16 }}
         />
-      ) : (
-        <ScrollView
+      ) : !selectedModel ? (
+        <FlatList
+          key={`tipos-${cols}`}
+          data={tipos}
+          numColumns={cols}
+          keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={false}
-          nestedScrollEnabled={true} // 👈 this
-          keyboardShouldPersistTaps="handled" // 👈 and this
+          columnWrapperStyle={
+            cols > 1
+              ? {
+                  gap: GAP,
+                  justifyContent: 'flex-start',
+                  alignItems: 'stretch',
+                }
+              : undefined
+          }
           contentContainerStyle={{
             paddingTop: headerHeight + 18,
             paddingBottom: Platform.OS === 'web' ? 96 : 140,
-            paddingHorizontal: horizontalPadding,
-            width: '100%',
+            paddingHorizontal: padding,
+            gap: GAP,
+          }}
+          ListHeaderComponent={
+            <View style={localStyles.sectionHeader}>
+              <Text style={localStyles.sectionTitle}>
+                {t('pistasSportsAvailable')}
+              </Text>
+              <Text style={localStyles.sectionSubtitle}>
+                {t('pistasSportsAvailableSubtitle')}
+              </Text>
+            </View>
+          }
+          renderItem={renderModel}
+        />
+      ) : (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{
+            paddingTop: headerHeight + 18,
+            paddingBottom: Platform.OS === 'web' ? 96 : 140,
+            paddingHorizontal: padding,
+            gap: GAP,
           }}
         >
-          <View style={localStyles.heroCard}>
-            <View style={localStyles.heroTag}>
-              <Text style={localStyles.heroTagText}>{t('tabsBookings')}</Text>
-            </View>
-            <Text style={localStyles.heroTitle}>
-              {selectedModel ? selectedModel.name : t('pistasHeroTitleDefault')}
-            </Text>
-            <Text style={localStyles.heroSubtitle}>
-              {selectedModel
-                ? t('pistasHeroSubtitleSelected')
-                : t('pistasHeroSubtitleDefault')}
-            </Text>
-
-            {selectedModel && (
-              <View style={localStyles.heroActionsRow}>
-                <TouchableOpacity
-                  style={localStyles.filterBadge}
-                  activeOpacity={0.9}
-                  onPress={clearSportFilter}
-                >
-                  <Ionicons
-                    name="close-circle-outline"
-                    size={16}
-                    color={theme.primary}
-                  />
-                  <Text style={localStyles.filterBadgeText}>
-                    {t('pistasRemoveFilter')}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            )}
+          <View style={localStyles.sectionHeader}>
+            <Text style={localStyles.sectionTitle}>{selectedModel.name}</Text>
+            <TouchableOpacity
+              onPress={clearSportFilter}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+            >
+              <Ionicons
+                name="close-circle-outline"
+                size={16}
+                color={theme.primary}
+              />
+              <Text
+                style={[localStyles.sectionSubtitle, { color: theme.primary }]}
+              >
+                {t('pistasRemoveFilter')}
+              </Text>
+            </TouchableOpacity>
           </View>
 
-          {!selectedModel ? (
-            <>
-              <View style={localStyles.sectionHeader}>
-                <Text style={localStyles.sectionTitle}>
-                  {t('pistasSportsAvailable')}
-                </Text>
-                <Text style={localStyles.sectionSubtitle}>
-                  {t('pistasSportsAvailableSubtitle')}
-                </Text>
-              </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={localStyles.dateChipsRow}
+          >
+            {availableDays.map((day) => {
+              const selected =
+                day.toDateString() === selectedDate.toDateString();
+              return (
+                <TouchableOpacity
+                  key={day.toISOString()}
+                  style={[
+                    localStyles.dateChip,
+                    selected && localStyles.dateChipActive,
+                  ]}
+                  onPress={() => setSelectedDate(day)}
+                >
+                  <Text
+                    style={[
+                      localStyles.dateChipText,
+                      selected && localStyles.dateChipTextActive,
+                    ]}
+                  >
+                    {formatDateDisplay(day, locale)}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
 
-              <View style={localStyles.gridContainer}>
-                {displayedModelos.map(renderModel)}
-              </View>
-            </>
+          {loadingSportInfo ? (
+            <ActivityIndicator
+              size="large"
+              color={theme.primary}
+              style={{ marginTop: 12 }}
+            />
+          ) : sportError ? (
+            <Text style={localStyles.feedbackText}>{sportError}</Text>
+          ) : sportPistas.length === 0 ? (
+            <Text style={localStyles.feedbackText}>
+              {t('pistasNoCourtsForSport')}
+            </Text>
           ) : (
-            <>
-              <View style={localStyles.dateChipsRow}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {availableDays.map((day) => {
-                    const selected =
-                      day.toDateString() === selectedDate.toDateString();
-                    return (
-                      <TouchableOpacity
-                        key={day.toISOString()}
-                        style={[
-                          localStyles.dateChip,
-                          selected && localStyles.dateChipActive,
-                        ]}
-                        onPress={() => setSelectedDate(day)}
-                      >
-                        <Text
-                          style={[
-                            localStyles.dateChipText,
-                            selected && localStyles.dateChipTextActive,
-                          ]}
-                        >
-                          {formatDateDisplay(day, locale)}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </ScrollView>
-              </View>
-
-              <View style={localStyles.sectionHeader}>
-                <Text style={localStyles.sectionTitle}>
-                  {t('pistasCourtsAvailable')}
-                </Text>
-                <Text style={localStyles.sectionSubtitle}>{formattedDate}</Text>
-              </View>
-
-              {loadingSportInfo ? (
-                <ActivityIndicator
-                  size="large"
-                  color={theme.primary}
-                  style={{ marginTop: 12 }}
-                />
-              ) : sportError ? (
-                <Text style={localStyles.feedbackText}>{sportError}</Text>
-              ) : sportPistas.length === 0 ? (
-                <Text style={localStyles.feedbackText}>
-                  {t('pistasNoCourtsForSport')}
-                </Text>
-              ) : (
-                <View style={localStyles.gridContainer}>
-                  {sportPistas.map(renderSportCourtCard)}
-                </View>
-              )}
-            </>
+            <View style={localStyles.gridContainer}>
+              {sportPistas.map(renderSportCourtCard)}
+            </View>
           )}
         </ScrollView>
       )}

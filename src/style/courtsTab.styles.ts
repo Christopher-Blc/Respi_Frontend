@@ -143,11 +143,13 @@ const createPistasTabStyles = (theme: AppTheme) =>
     },
     catalogHeaderRow: {
       flexDirection: 'row',
-      justifyContent: 'flex-end',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
     },
     statusBadge: {
+      alignSelf: 'flex-end',
       backgroundColor: 'rgba(255,255,255,0.2)',
-      paddingHorizontal: 12,
+      paddingHorizontal: 10,
       paddingVertical: 6,
       borderRadius: 999,
     },
@@ -157,12 +159,7 @@ const createPistasTabStyles = (theme: AppTheme) =>
       fontWeight: '800',
       letterSpacing: 0.5,
       textTransform: 'uppercase',
-    },
-    catalogBottom: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'flex-end',
-    },
+    }, 
     catalogTitle: {
       color: '#FFFFFF',
       fontSize: 22,

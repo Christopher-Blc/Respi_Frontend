@@ -19,6 +19,7 @@ export interface CourtType {
   id: number;
   name: string;
   image: string;
+  totalCourts?: number; 
   courts?: Court[];
 }
 

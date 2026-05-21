@@ -142,6 +142,8 @@ Todas las peticiones pasan por el cliente Axios (`src/services/api.ts`) con inte
 
 generar apk android: eas build --platform android --profile preview
 
+subir apk a server: scp ResPi_dev1.0.1.apk respi@respi.es:/home/respi/ProyectoApp_Acceso_A_Datos/public
+
 ---
 
 ## Autores
