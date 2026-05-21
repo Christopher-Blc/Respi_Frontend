@@ -59,7 +59,7 @@ export function useCourtsTab() {
   const [tipos, setTipos] = useState<CourtType[]>([]);
   const [pistas, setPistas] = useState<Court[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedModel, setSelectedModel] = useState<Court | null>(null);
+  const [selectedModel, setSelectedModel] = useState<CourtType | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [loadingSportInfo, setLoadingSportInfo] = useState(false);
   const [sportError, setSportError] = useState<string | null>(null);
@@ -140,11 +140,7 @@ export function useCourtsTab() {
             ? (pistasRes.value.data as Court[])
             : [];
 
-        const selectedType =
-          tipos.find(
-            (tipo) =>
-              String(tipo.id) === String(selectedModel.court_type_id),
-          ) ?? null;
+        const selectedType = selectedModel;
 
         const fullMap = new Map<string, Court>();
         for (const pista of pistasPayload) {
@@ -154,7 +150,7 @@ export function useCourtsTab() {
 
         const filtered = disponibilidadPayload.filter(
           (pista) =>
-            String(pista.court_type_id) === String(selectedModel.court_type_id),
+            String(pista.court_type_id) === String(selectedModel.id),
         );
 
         const merged = filtered.map((pista) => {
@@ -190,7 +186,7 @@ export function useCourtsTab() {
     return () => {
       mounted = false;
     };
-  }, [formattedDate, selectedModel, tipos, t]);
+  }, [formattedDate, selectedModel, t]);
 
   const clearSportFilter = () => {
     setSelectedModel(null);
@@ -199,8 +195,7 @@ export function useCourtsTab() {
 
   return {
     loading,
-    displayedModelos,
-    resolveModelImage: (pista: Court) => resolvePistaCardImage(pista, tipos),
+    tipos,
     selectedModel,
     setSelectedModel,
     selectedDate,

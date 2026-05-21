@@ -16,7 +16,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurViewCompat } from '../../../../components/general/BlurViewCompat';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import createReservationsStyles from '../../../../style/reservations.styles';
 import { useAppTheme } from '../../../../context/ThemeContext';
 import { useAvailableBookings } from '../../../../hooks/useAvailableBookings';
 import { CourtAvailability } from '../../../../types/types';
@@ -45,12 +44,6 @@ const sameDay = (left: Date, right: Date) =>
   left.getFullYear() === right.getFullYear() &&
   left.getMonth() === right.getMonth() &&
   left.getDate() === right.getDate();
-
-const addDays = (date: Date, days: number) => {
-  const next = new Date(date);
-  next.setDate(next.getDate() + days);
-  return next;
-};
 
 const addMonths = (date: Date, months: number) => {
   const next = new Date(date);
@@ -119,17 +112,23 @@ export default function ReservasTab() {
     modelId?: string | string[];
     modelTitle?: string | string[];
   }>();
-  const styles = useMemo(() => createReservationsStyles(theme), [theme]);
   const reservasTabStyles = useMemo(
     () => createReservasTabStyles(theme),
     [theme],
   );
   const headerHeight = useHeaderHeight();
   const { width } = useWindowDimensions();
-  const isWideScreen = width > 768;
   const locale = getDateLocale(i18n.resolvedLanguage || i18n.language);
   const dateScrollRef = useRef<ScrollView>(null);
   const dateScrollOffsetRef = useRef(0);
+  const cols = width >= 1280 ? 3 : width >= 520 ? 2 : 1;
+  const [containerWidth, setContainerWidth] = useState(0);
+  const padding = 8;
+  const effective = containerWidth || width;
+  const cardWidth = Math.max(
+    160,
+    Math.floor((effective - padding * 2 - 12 * (cols - 1)) / cols),
+  );
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showDateModal, setShowDateModal] = useState(false);
@@ -359,14 +358,13 @@ export default function ReservasTab() {
     </>
   );
 
-  const renderCourtCard = (pista: CourtAvailability) => (
+  const renderCourtCard = ({ item: pista }: { item: CourtAvailability }) => (
     <TouchableOpacity
       activeOpacity={0.9}
       onPress={() => openCreateBooking(pista)}
-      key={pista.id}
       style={[
         reservasTabStyles.pistaCard,
-        { flexBasis: isWideScreen ? '48%' : '100%', flexGrow: 1 },
+        { width: cardWidth, flexGrow: 0, flexShrink: 0, alignSelf: 'stretch' },
       ]}
     >
       <ImageBackground
@@ -421,7 +419,13 @@ export default function ReservasTab() {
   );
 
   return (
-    <View style={styles.container}>
+    <View
+      style={{ flex: 1, backgroundColor: theme.background }}
+      onLayout={(e) => {
+        const w = Math.floor(e.nativeEvent.layout.width);
+        if (w > 0 && w !== containerWidth) setContainerWidth(w);
+      }}
+    >
       <DateModal
         visible={showDateModal}
         onSave={handleSelectDate}
@@ -490,43 +494,51 @@ export default function ReservasTab() {
           </Text>
         </View>
       ) : (
-        <ScrollView
+        <FlatList
+          key={`bookings-${cols}`}
+          data={filteredPistas}
+          numColumns={cols}
+          keyExtractor={(item) => String(item.id)}
           showsVerticalScrollIndicator={false}
+          columnWrapperStyle={
+            cols > 1
+              ? { gap: 12, justifyContent: 'flex-start', alignItems: 'stretch' }
+              : undefined
+          }
           contentContainerStyle={{
             paddingTop: 14,
             paddingBottom: Platform.OS === 'web' ? 96 : 140,
-            paddingHorizontal: 8,
+            paddingHorizontal: padding,
+            gap: 12,
           }}
-        >
-          {!!selectedModelTitle && (
-            <View
-              style={{
-                marginBottom: 12,
-                borderRadius: 10,
-                paddingVertical: 8,
-                paddingHorizontal: 10,
-                backgroundColor: theme.primarySoft,
-                borderWidth: 1,
-                borderColor: theme.borderAccentSoft,
-              }}
-            >
-              <Text
+          ListHeaderComponent={
+            !!selectedModelTitle ? (
+              <View
                 style={{
-                  color: theme.textTitle,
-                  fontWeight: '700',
-                  fontSize: 13,
+                  borderRadius: 10,
+                  paddingVertical: 8,
+                  paddingHorizontal: 10,
+                  backgroundColor: theme.primarySoft,
+                  borderWidth: 1,
+                  borderColor: theme.borderAccentSoft,
                 }}
               >
-                {t('bookingTabShowingCourts', {
-                  sport: String(selectedModelTitle),
-                })}
-              </Text>
-            </View>
-          )}
-          <View style={reservasTabStyles.gridContainer}>
-            {filteredPistas.map(renderCourtCard)}
-          </View>
-        </ScrollView>
+                <Text
+                  style={{
+                    color: theme.textTitle,
+                    fontWeight: '700',
+                    fontSize: 13,
+                  }}
+                >
+                  {t('bookingTabShowingCourts', {
+                    sport: String(selectedModelTitle),
+                  })}
+                </Text>
+              </View>
+            ) : null
+          }
+          renderItem={renderCourtCard}
+        />
       )}
     </View>
   );
