@@ -155,7 +155,7 @@ export const createHomeStyles = (theme: AppTheme) =>
     },
     cardBg: {
       width: '100%',
-      height: 170,
+      height: 220,
       backgroundColor: theme.primarySoft,
     },
     cardImage: {
