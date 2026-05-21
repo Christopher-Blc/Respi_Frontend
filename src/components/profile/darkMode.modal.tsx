@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
 import createModalDarkModeStyles from '../../style/modalDarkMode.styles';
 import { useTranslation } from 'react-i18next';
@@ -46,6 +47,7 @@ export default function DarkModeModal({
 }: Props) {
   const { theme } = useAppTheme();
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const themeColorLabel = t('profileThemeColor', {
     defaultValue: 'Theme color',
   });
@@ -63,6 +65,8 @@ export default function DarkModeModal({
   const [localSystemValue, setLocalSystemValue] = useState(isSystemTheme);
   const [localThemePalette, setLocalThemePalette] =
     useState<ThemePalette>(themePalette);
+  // Capture the values when the modal opens, ignoring live preview prop changes
+  const initialRef = useRef({ isDarkMode, isSystemTheme, themePalette });
   const isLightSelected = !localValue;
   const isDarkSelected = localValue;
   const switchTrackOff = theme.borderAccentSoft;
@@ -119,11 +123,18 @@ export default function DarkModeModal({
 
   useEffect(() => {
     if (visible) {
+      initialRef.current = { isDarkMode, isSystemTheme, themePalette };
       setLocalValue(isDarkMode);
       setLocalSystemValue(isSystemTheme);
       setLocalThemePalette(themePalette);
     }
-  }, [visible, isDarkMode, isSystemTheme, themePalette]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible]);
+
+  const hasChanged =
+    localValue !== initialRef.current.isDarkMode ||
+    localSystemValue !== initialRef.current.isSystemTheme ||
+    localThemePalette !== initialRef.current.themePalette;
 
   return (
     <Modal
@@ -132,7 +143,7 @@ export default function DarkModeModal({
       animationType="slide"
       presentationStyle="pageSheet"
     >
-      <View style={styles.headerContainer}>
+      <View style={[styles.headerContainer, { paddingTop: insets.top + 12 }]}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={onClose}>
             <Text style={styles.headerText}>{t('commonCancel')}</Text>
@@ -142,8 +153,14 @@ export default function DarkModeModal({
             onPress={() =>
               onSave(localValue, localSystemValue, localThemePalette)
             }
+            disabled={!hasChanged}
           >
-            <Text style={[styles.headerText, styles.saveText]}>
+            <Text
+              style={[
+                styles.headerText,
+                hasChanged ? styles.saveText : undefined,
+              ]}
+            >
               {t('commonSave')}
             </Text>
           </TouchableOpacity>
