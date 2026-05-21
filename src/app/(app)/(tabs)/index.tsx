@@ -36,8 +36,14 @@ export default function HomeScreen() {
 
   const { width } = useWindowDimensions();
   const headerHeight = useHeaderHeight();
-  const isWideScreen = width > 768;
   const locale = getDateLocale(i18n.resolvedLanguage || i18n.language);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const cols = width >= 1280 ? 3 : width >= 520 ? 2 : 1;
+  const effective = containerWidth || width;
+  const cardWidth = Math.max(
+    160,
+    Math.floor((effective - 16 * 2 - 12 * (cols - 1)) / cols),
+  );
   const {
     reservations,
     loading,
@@ -141,7 +147,13 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={[styles.container, localStyles.page]}>
+    <View
+      style={[styles.container, localStyles.page]}
+      onLayout={(e) => {
+        const w = Math.floor(e.nativeEvent.layout.width);
+        if (w > 0 && w !== containerWidth) setContainerWidth(w);
+      }}
+    >
       {loading ? (
         <ActivityIndicator
           size="large"
@@ -254,10 +266,7 @@ export default function HomeScreen() {
               {pagedReservations.map((item) => (
                 <View
                   key={item.id}
-                  style={{
-                    flexBasis: isWideScreen ? 320 : '100%',
-                    flexGrow: 1,
-                  }}
+                  style={{ width: cardWidth, flexGrow: 0, flexShrink: 0 }}
                 >
                   {renderReservation(item)}
                 </View>
