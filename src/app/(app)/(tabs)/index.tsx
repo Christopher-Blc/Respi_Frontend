@@ -23,6 +23,7 @@ import DateModal from '../../../components/bookings/date.modal';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../i18n';
 import { API_PUBLIC_URL } from '../../../constants';
+import ReservationDetailModal from '../../../components/bookings/ReservationDetailModal';
 
 //pantalla home del cliente
 
@@ -53,6 +54,8 @@ export default function HomeScreen() {
     uniqueSportsCount,
   } = useHome();
 
+  const [selectedReservation, setSelectedReservation] =
+    useState<Reservation | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   useEffect(() => {
     setCurrentPage(1);
@@ -94,7 +97,7 @@ export default function HomeScreen() {
       <TouchableOpacity
         key={item.id}
         style={localStyles.card}
-        onPress={() => router.push(`/(app)/(tabs)/bookings/${item.id}`)}
+        onPress={() => setSelectedReservation(item)}
       >
         <ImageBackground
           source={img}
@@ -154,6 +157,10 @@ export default function HomeScreen() {
         if (w > 0 && w !== containerWidth) setContainerWidth(w);
       }}
     >
+      <ReservationDetailModal
+        reservation={selectedReservation}
+        onClose={() => setSelectedReservation(null)}
+      />
       {loading ? (
         <ActivityIndicator
           size="large"

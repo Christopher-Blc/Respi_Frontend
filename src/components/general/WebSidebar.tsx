@@ -4,8 +4,8 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
   Image,
+  ScrollView,
 } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import Octicons from '@expo/vector-icons/Octicons';
@@ -117,6 +117,14 @@ export default function WebSidebar({
           style={{ width: 32, height: 32 }}
           resizeMode="contain"
         />
+        <View style={{ flexDirection: 'column', marginLeft: 10 }}>
+          <Text style={[s.logoAppName, { color: theme.textTitle }]}>
+            {appName}
+          </Text>
+          {/* <Text style={[s.logoSubtitle, { color: theme.textSubtitle }]}>
+            {appSubtitle}
+          </Text> */}
+        </View>
       </View>
 
       <View style={[s.divider, { backgroundColor: theme.borderSoft }]} />
