@@ -27,6 +27,12 @@ export default function bookingLayout() {
         name="courtTypes"
         options={{ title: t('bookingLayoutCourtTypesTitle') }}
       />
+      <Stack.Screen
+        name="[id]"
+        options={{
+          title: t('bookingLayoutDetailTitle', { defaultValue: 'Detalle' }),
+        }}
+      />
     </Stack>
   );
 }
