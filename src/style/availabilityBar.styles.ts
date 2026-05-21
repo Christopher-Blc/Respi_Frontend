@@ -16,7 +16,7 @@ const createAvailabilityBarStyles = (theme: AppTheme) =>
     barContainer: {
       flexDirection: 'row',
       height: 20,
-      borderRadius: 999,
+      borderRadius: 6,
       overflow: 'hidden',
       borderWidth: 1,
       borderColor: theme.borderGlass,
