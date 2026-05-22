@@ -4,8 +4,8 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   TouchableWithoutFeedback,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -50,206 +50,208 @@ export default function ReservationDetailModal({
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
-      <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.backdrop}>
-          <TouchableWithoutFeedback>
-            <View
-              style={[
-                styles.card,
-                {
-                  backgroundColor: theme.background,
-                  borderColor: theme.borderSoft,
-                },
-              ]}
-            >
-              {/* Header */}
-              <View style={styles.header}>
-                <View style={{ flex: 1, gap: 2 }}>
-                  <Text style={[styles.courtName, { color: theme.textTitle }]}>
-                    {court?.name ?? '-'}
+      <View style={styles.backdrop}>
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={onClose}
+          style={styles.backdropTouchLayer}
+        />
+        <TouchableWithoutFeedback>
+          <View
+            style={[
+              styles.card,
+              {
+                backgroundColor: theme.background,
+                borderColor: theme.borderSoft,
+              },
+            ]}
+          >
+            {/* Header */}
+            <View style={styles.header}>
+              <View style={{ flex: 1, gap: 2 }}>
+                <Text style={[styles.courtName, { color: theme.textTitle }]}>
+                  {court?.name ?? '-'}
+                </Text>
+                <Text style={[styles.courtType, { color: theme.textMuted }]}>
+                  {court?.courtType?.name ?? '-'}
+                </Text>
+              </View>
+              <View style={{ gap: 6, alignItems: 'flex-end' }}>
+                <TouchableOpacity onPress={onClose}>
+                  <Ionicons
+                    name="close-circle"
+                    size={26}
+                    color={theme.textMuted}
+                  />
+                </TouchableOpacity>
+                <View
+                  style={[
+                    styles.badge,
+                    {
+                      backgroundColor: statusColor + '22',
+                      borderColor: statusColor,
+                    },
+                  ]}
+                >
+                  <Text style={[styles.badgeText, { color: statusColor }]}>
+                    {reservation.status}
                   </Text>
-                  <Text style={[styles.courtType, { color: theme.textMuted }]}>
-                    {court?.courtType?.name ?? '-'}
-                  </Text>
-                </View>
-                <View style={{ gap: 6, alignItems: 'flex-end' }}>
-                  <TouchableOpacity onPress={onClose}>
-                    <Ionicons
-                      name="close-circle"
-                      size={26}
-                      color={theme.textMuted}
-                    />
-                  </TouchableOpacity>
-                  <View
-                    style={[
-                      styles.badge,
-                      {
-                        backgroundColor: statusColor + '22',
-                        borderColor: statusColor,
-                      },
-                    ]}
-                  >
-                    <Text style={[styles.badgeText, { color: statusColor }]}>
-                      {reservation.status}
-                    </Text>
-                  </View>
                 </View>
               </View>
-
-              <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
-                {/* Reserva */}
-                <SectionLabel label="Reserva" theme={theme} />
-                <Row
-                  icon="calendar-outline"
-                  label="Fecha"
-                  value={date}
-                  theme={theme}
-                />
-                <Row
-                  icon="time-outline"
-                  label="Hora inicio"
-                  value={reservation.start_time.slice(0, 5)}
-                  theme={theme}
-                />
-                <Row
-                  icon="time-outline"
-                  label="Hora fin"
-                  value={reservation.end_time.slice(0, 5)}
-                  theme={theme}
-                />
-                <Row
-                  icon="cash-outline"
-                  label="Total"
-                  value={
-                    reservation.total_price
-                      ? reservation.total_price + ' €'
-                      : '-'
-                  }
-                  theme={theme}
-                />
-                {!!reservation.note && (
-                  <Row
-                    icon="document-text-outline"
-                    label="Nota"
-                    value={reservation.note}
-                    theme={theme}
-                  />
-                )}
-
-                {!!reservation.verification_code && (
-                  <View
-                    style={[
-                      styles.qrWrap,
-                      {
-                        borderColor: theme.borderSoft,
-                        backgroundColor: theme.backgroundAlt,
-                      },
-                    ]}
-                  >
-                    <Text style={[styles.qrTitle, { color: theme.textTitle }]}>
-                      Codigo de verificacion
-                    </Text>
-                    <View style={styles.qrCard}>
-                      <QRCode
-                        value={reservation.verification_code}
-                        size={150}
-                        backgroundColor="white"
-                        color="black"
-                      />
-                    </View>
-                    <Text
-                      style={[styles.qrCodeText, { color: theme.textTitle }]}
-                    >
-                      {reservation.verification_code.toUpperCase()}
-                    </Text>
-                  </View>
-                )}
-
-                {/* Detalles de la pista */}
-                {!!court && (
-                  <>
-                    <SectionLabel label="Detalles de la pista" theme={theme} />
-                    <Row
-                      icon={court.is_covered ? 'home-outline' : 'sunny-outline'}
-                      label="Cubierta"
-                      value={court.is_covered ? 'Sí' : 'No'}
-                      theme={theme}
-                    />
-                    <Row
-                      icon="flashlight-outline"
-                      label="Luz artificial"
-                      value={court.has_lighting ? 'Sí' : 'No'}
-                      theme={theme}
-                    />
-                    {!!court.capacity && (
-                      <Row
-                        icon="people-outline"
-                        label="Capacidad"
-                        value={String(court.capacity)}
-                        theme={theme}
-                      />
-                    )}
-                    {!!court.description && (
-                      <Row
-                        icon="information-circle-outline"
-                        label="Descripción"
-                        value={court.description}
-                        theme={theme}
-                      />
-                    )}
-                  </>
-                )}
-
-                {/* Pago */}
-                <SectionLabel label="Pago" theme={theme} />
-                <Row
-                  icon="card-outline"
-                  label="Método de pago"
-                  value={payment?.payment_method ?? 'No disponible'}
-                  theme={theme}
-                />
-                {!!payment?.payment_status && (
-                  <Row
-                    icon="checkmark-circle-outline"
-                    label="Estado del pago"
-                    value={payment.payment_status}
-                    theme={theme}
-                  />
-                )}
-
-                {/* Membresía */}
-                {!!membership && (
-                  <>
-                    <SectionLabel label="Membresía" theme={theme} />
-                    <Row
-                      icon="star-outline"
-                      label="Nivel"
-                      value={membership.name}
-                      theme={theme}
-                    />
-                    <Row
-                      icon="pricetag-outline"
-                      label="Descuento"
-                      value={membership.discount + '%'}
-                      theme={theme}
-                    />
-                    {!!membership.benefits && (
-                      <Row
-                        icon="ribbon-outline"
-                        label="Beneficios"
-                        value={membership.benefits}
-                        theme={theme}
-                      />
-                    )}
-                  </>
-                )}
-
-                <View style={{ height: 8 }} />
-              </ScrollView>
             </View>
-          </TouchableWithoutFeedback>
-        </View>
-      </TouchableWithoutFeedback>
+
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              bounces={false}
+              style={styles.contentScroll}
+              contentContainerStyle={styles.contentScrollContainer}
+            >
+              {/* Reserva */}
+              <SectionLabel label="Reserva" theme={theme} />
+              <Row
+                icon="calendar-outline"
+                label="Fecha"
+                value={date}
+                theme={theme}
+              />
+              <Row
+                icon="time-outline"
+                label="Hora inicio"
+                value={reservation.start_time.slice(0, 5)}
+                theme={theme}
+              />
+              <Row
+                icon="time-outline"
+                label="Hora fin"
+                value={reservation.end_time.slice(0, 5)}
+                theme={theme}
+              />
+              <Row
+                icon="cash-outline"
+                label="Total"
+                value={
+                  reservation.total_price ? reservation.total_price + ' €' : '-'
+                }
+                theme={theme}
+              />
+              {!!reservation.note && (
+                <Row
+                  icon="document-text-outline"
+                  label="Nota"
+                  value={reservation.note}
+                  theme={theme}
+                />
+              )}
+
+              {!!reservation.verification_code && (
+                <View
+                  style={[
+                    styles.qrWrap,
+                    {
+                      borderColor: theme.borderSoft,
+                      backgroundColor: theme.backgroundAlt,
+                    },
+                  ]}
+                >
+                  <Text style={[styles.qrTitle, { color: theme.textTitle }]}>
+                    Codigo de verificacion
+                  </Text>
+                  <View style={styles.qrCard}>
+                    <QRCode
+                      value={reservation.verification_code}
+                      size={150}
+                      backgroundColor="white"
+                      color="black"
+                    />
+                  </View>
+                  <Text style={[styles.qrCodeText, { color: theme.textTitle }]}>
+                    {reservation.verification_code.toUpperCase()}
+                  </Text>
+                </View>
+              )}
+
+              {/* Detalles de la pista */}
+              {!!court && (
+                <>
+                  <SectionLabel label="Detalles de la pista" theme={theme} />
+                  <Row
+                    icon={court.is_covered ? 'home-outline' : 'sunny-outline'}
+                    label="Cubierta"
+                    value={court.is_covered ? 'Sí' : 'No'}
+                    theme={theme}
+                  />
+                  <Row
+                    icon="flashlight-outline"
+                    label="Luz artificial"
+                    value={court.has_lighting ? 'Sí' : 'No'}
+                    theme={theme}
+                  />
+                  {!!court.capacity && (
+                    <Row
+                      icon="people-outline"
+                      label="Capacidad"
+                      value={String(court.capacity)}
+                      theme={theme}
+                    />
+                  )}
+                  {!!court.description && (
+                    <Row
+                      icon="information-circle-outline"
+                      label="Descripción"
+                      value={court.description}
+                      theme={theme}
+                    />
+                  )}
+                </>
+              )}
+
+              {/* Pago */}
+              <SectionLabel label="Pago" theme={theme} />
+              <Row
+                icon="card-outline"
+                label="Método de pago"
+                value={payment?.payment_method ?? 'No disponible'}
+                theme={theme}
+              />
+              {!!payment?.payment_status && (
+                <Row
+                  icon="checkmark-circle-outline"
+                  label="Estado del pago"
+                  value={payment.payment_status}
+                  theme={theme}
+                />
+              )}
+
+              {/* Membresía */}
+              {!!membership && (
+                <>
+                  <SectionLabel label="Membresía" theme={theme} />
+                  <Row
+                    icon="star-outline"
+                    label="Nivel"
+                    value={membership.name}
+                    theme={theme}
+                  />
+                  <Row
+                    icon="pricetag-outline"
+                    label="Descuento"
+                    value={membership.discount + '%'}
+                    theme={theme}
+                  />
+                  {!!membership.benefits && (
+                    <Row
+                      icon="ribbon-outline"
+                      label="Beneficios"
+                      value={membership.benefits}
+                      theme={theme}
+                    />
+                  )}
+                </>
+              )}
+            </ScrollView>
+          </View>
+        </TouchableWithoutFeedback>
+      </View>
     </Modal>
   );
 }
@@ -306,6 +308,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
+  backdropTouchLayer: {
+    ...StyleSheet.absoluteFillObject,
+  },
   card: {
     width: '100%',
     maxWidth: 420,
@@ -313,6 +318,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 20,
     maxHeight: '85%',
+  },
+  contentScroll: {
+    marginTop: 6,
+  },
+  contentScrollContainer: {
+    paddingBottom: 8,
   },
   header: {
     flexDirection: 'row',
