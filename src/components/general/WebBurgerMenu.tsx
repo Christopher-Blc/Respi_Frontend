@@ -20,9 +20,13 @@ export type BurgerNavItem = {
 
 type Props = {
   navItems: BurgerNavItem[];
+  navigationMode?: 'push' | 'replace';
 };
 
-export default function WebBurgerMenu({ navItems }: Props) {
+export default function WebBurgerMenu({
+  navItems,
+  navigationMode = 'push',
+}: Props) {
   const [open, setOpen] = useState(false);
   const { theme } = useAppTheme();
   const router = useRouter();
@@ -43,6 +47,10 @@ export default function WebBurgerMenu({ navItems }: Props) {
 
   const navigate = (route: string) => {
     setOpen(false);
+    if (navigationMode === 'replace') {
+      router.replace(route as any);
+      return;
+    }
     router.push(route as any);
   };
 

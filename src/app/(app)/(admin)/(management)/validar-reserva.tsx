@@ -9,13 +9,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import axios from 'axios';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useAppTheme } from '../../../../context/ThemeContext';
 import { Reservation } from '../../../../types/types';
-import ReservationQrScanner from '../../../../components/admin/bookings/ReservationQrScanner';
+import api from '../../../../services/api';
 
-const VALIDATION_BASE_URL = 'https://tuapi.com';
+const ReservationQrScanner =
+  require('../../../../components/admin/bookings/ReservationQrScanner').default;
 
 type ValidationResult =
   | {
@@ -32,18 +32,24 @@ type ValidationResult =
 const normalizeCode = (value: string) => value.trim().toUpperCase();
 
 const getValidationErrorMessage = (error: unknown) => {
-  if (!axios.isAxiosError(error))
-    return 'Error inesperado al validar la reserva.';
-
-  const backendMessage = error.response?.data?.message;
+  const maybeAxiosError = error as {
+    response?: {
+      status?: number;
+      data?: {
+        message?: string | string[];
+      };
+    };
+  };
+  const backendMessage = maybeAxiosError.response?.data?.message;
   if (Array.isArray(backendMessage)) return backendMessage.join(' | ');
   if (typeof backendMessage === 'string' && backendMessage.trim()) {
     return backendMessage;
   }
 
-  if (error.response?.status === 404) return 'Reserva no encontrada.';
-  if (error.response?.status === 403)
+  if (maybeAxiosError.response?.status === 404) return 'Reserva no encontrada.';
+  if (maybeAxiosError.response?.status === 403)
     return 'Reserva no valida para este acceso.';
+
   return 'No se pudo validar la reserva.';
 };
 
@@ -97,8 +103,8 @@ export default function AdminReservationValidationScreen() {
 
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${VALIDATION_BASE_URL}/reservations/validar/${encodeURIComponent(code)}`,
+      const response = await api.get(
+        `/reservations/validate/${encodeURIComponent(code)}`,
       );
       const reservation = extractReservation(response.data);
 
