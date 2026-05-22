@@ -17,8 +17,9 @@ import { Membership, User } from '../../../../types/types';
 import { usersAdminStyles as styles } from '../../../../style/admin/users.styles';
 import { UserCard } from '../../../../components/admin/users/UserCard';
 import { UserFormModal } from '../../../../components/admin/users/UserFormModal';
+import { UsersFiltersModal } from '../../../../components/admin/users/UsersFiltersModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
-import { useAdminUsers } from '../../../../hooks/useAdminUsers';
+import { useAdminUsers } from '../../../../hooks/admin/useAdminUsers';
 import { addSoftBreaks } from '../../../../utils/addSoftBreaks';
 
 type AdminUser = User & {
@@ -45,6 +46,7 @@ export default function AdminUsuarios() {
           gridGap * (cardsColumns - 1)) /
         cardsColumns;
   const [searchReadOnly, setSearchReadOnly] = useState(true);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const {
     filteredUsers,
     memberships,
@@ -53,6 +55,15 @@ export default function AdminUsuarios() {
     setSearchQuery,
     viewMode,
     setViewMode,
+    registrationFromFilter,
+    setRegistrationFromFilter,
+    registrationToFilter,
+    setRegistrationToFilter,
+    roleFilter,
+    setRoleFilter,
+    activeFilter,
+    setActiveFilter,
+    clearFilters,
     modalVisible,
     setModalVisible,
     userToEdit,
@@ -101,6 +112,19 @@ export default function AdminUsuarios() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.backgroundMain }]}>
+      <UsersFiltersModal
+        visible={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        registrationFromFilter={registrationFromFilter}
+        setRegistrationFromFilter={setRegistrationFromFilter}
+        registrationToFilter={registrationToFilter}
+        setRegistrationToFilter={setRegistrationToFilter}
+        roleFilter={roleFilter}
+        setRoleFilter={setRoleFilter}
+        activeFilter={activeFilter}
+        setActiveFilter={setActiveFilter}
+        clearFilters={clearFilters}
+      />
       <View style={[styles.headerActions, { paddingTop: headerHeight + 10 }]}>
         <View
           style={[
@@ -128,6 +152,27 @@ export default function AdminUsuarios() {
             </TouchableOpacity>
           )}
         </View>
+
+        <TouchableOpacity
+          style={[
+            styles.squareBtn,
+            {
+              backgroundColor:
+                filtersOpen ||
+                registrationFromFilter.trim().length > 0 ||
+                registrationToFilter.trim().length > 0 ||
+                roleFilter !== 'ALL' ||
+                activeFilter !== 'ALL'
+                  ? theme.primary + '18'
+                  : theme.inputBackground,
+              borderWidth: 1,
+              borderColor: theme.primarySoft,
+            },
+          ]}
+          onPress={() => setFiltersOpen(true)}
+        >
+          <Ionicons name="options-outline" size={22} color={theme.textBody} />
+        </TouchableOpacity>
 
         <TouchableOpacity
           style={[

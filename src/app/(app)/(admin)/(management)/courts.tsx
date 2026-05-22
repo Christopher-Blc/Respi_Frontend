@@ -14,7 +14,7 @@ import { useAppTheme } from '../../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Court } from '../../../../types/types';
-import { useAdminCourts } from '../../../../hooks/useAdminCourts';
+import { useAdminCourts } from '../../../../hooks/admin/useAdminCourts';
 import { pistasStyles as styles } from '../../../../style/admin/courts.styles';
 import { CourtFormModal } from '../../../../components/admin/courts/CourtFormModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';

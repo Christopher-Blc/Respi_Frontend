@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import QRCode from 'react-native-qrcode-svg';
 import { useAppTheme } from '../../context/ThemeContext';
 import { Reservation } from '../../types/types';
 
@@ -133,6 +134,35 @@ export default function ReservationDetailModal({
                     value={reservation.note}
                     theme={theme}
                   />
+                )}
+
+                {!!reservation.verification_code && (
+                  <View
+                    style={[
+                      styles.qrWrap,
+                      {
+                        borderColor: theme.borderSoft,
+                        backgroundColor: theme.backgroundAlt,
+                      },
+                    ]}
+                  >
+                    <Text style={[styles.qrTitle, { color: theme.textTitle }]}>
+                      Codigo de verificacion
+                    </Text>
+                    <View style={styles.qrCard}>
+                      <QRCode
+                        value={reservation.verification_code}
+                        size={150}
+                        backgroundColor="white"
+                        color="black"
+                      />
+                    </View>
+                    <Text
+                      style={[styles.qrCodeText, { color: theme.textTitle }]}
+                    >
+                      {reservation.verification_code.toUpperCase()}
+                    </Text>
+                  </View>
                 )}
 
                 {/* Detalles de la pista */}
@@ -328,5 +358,30 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     flexShrink: 1,
     marginLeft: 8,
+  },
+  qrWrap: {
+    marginTop: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    gap: 10,
+  },
+  qrTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
+  qrCard: {
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    padding: 10,
+  },
+  qrCodeText: {
+    fontSize: 16,
+    fontWeight: '800',
+    letterSpacing: 1.2,
   },
 });

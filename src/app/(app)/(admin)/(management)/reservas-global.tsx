@@ -19,7 +19,7 @@ import { BookingCard } from '../../../../components/admin/bookings/BookingCard';
 import { BookingFormModal } from '../../../../components/admin/bookings/BookingFormModal';
 import { BookingsFiltersModal } from '../../../../components/admin/bookings/BookingsFiltersModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
-import { useAdminBookings } from '../../../../hooks/useAdminBookings';
+import { useAdminBookings } from '../../../../hooks/admin/useAdminBookings';
 
 const statusColorMap: Record<string, string> = {
   CONFIRMADA: '#1E88E5',

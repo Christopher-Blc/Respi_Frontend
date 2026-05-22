@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
-import api from '../services/api';
-import { Court, Review, User } from '../types/types';
+import api from '../../services/api';
+import { Court, Review, User } from '../../types/types';
 
 export type AdminReview = Omit<Review, 'user' | 'court'> & {
   user?: User | null;

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import api from '../services/api';
-import { getDateLocale } from '../i18n';
-import { AppTheme } from '../theme';
-import { Reservation } from '../types/types';
+import api from '../../services/api';
+import { getDateLocale } from '../../i18n';
+import { AppTheme } from '../../theme';
+import { Reservation } from '../../types/types';
 
 export type LineChartRange = 'last30' | 'next30' | 'ytd' | 'next3m' | 'all';
 

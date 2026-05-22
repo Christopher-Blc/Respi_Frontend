@@ -156,6 +156,10 @@ export default function ManagementLayout() {
         name="reservas-global"
         options={{ title: t('tabsBookings') }}
       />
+      <Stack.Screen
+        name="validar-reserva"
+        options={{ title: 'Validar reserva' }}
+      />
     </Stack>
   );
 }

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import api from '../services/api';
-import { Membership, User } from '../types/types';
-import { UserFormData } from '../components/admin/users/UserFormModal';
+import api from '../../services/api';
+import { Membership, User } from '../../types/types';
+import { UserFormData } from '../../components/admin/users/UserFormModal';
 import axios from 'axios';
 
 type AdminUser = User & {
@@ -49,6 +49,11 @@ export function useAdminUsers() {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('cards');
 
+  const [registrationFromFilter, setRegistrationFromFilter] = useState('');
+  const [registrationToFilter, setRegistrationToFilter] = useState('');
+  const [roleFilter, setRoleFilter] = useState<'ALL' | User['role']>('ALL');
+  const [activeFilter, setActiveFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
+
   const [modalVisible, setModalVisible] = useState(false);
   const [userToEdit, setUserToEdit] = useState<AdminUser | null>(null);
   const [formData, setFormData] = useState<UserFormData>(EMPTY_FORM);
@@ -93,26 +98,44 @@ export function useAdminUsers() {
     fetchUsers();
   }, []);
 
+  const clearFilters = () => {
+    setRegistrationFromFilter('');
+    setRegistrationToFilter('');
+    setRoleFilter('ALL');
+    setActiveFilter('ALL');
+  };
+
   const filteredUsers = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    if (!q) return users;
 
     return users.filter((user) => {
-      const text = [
-        user.username,
-        user.name,
-        user.surname,
-        user.email,
-        user.phone,
-        user.role,
-        user.membership?.name || '',
-      ]
-        .join(' ')
-        .toLowerCase();
+      if (q) {
+        const text = [
+          user.username,
+          user.name,
+          user.surname,
+          user.email,
+          user.phone,
+          user.role,
+          user.membership?.name || '',
+        ]
+          .join(' ')
+          .toLowerCase();
+        if (!text.includes(q)) return false;
+      }
 
-      return text.includes(q);
+      const regDate = (user.registration_date || '').slice(0, 10);
+      if (registrationFromFilter && regDate < registrationFromFilter) return false;
+      if (registrationToFilter && regDate > registrationToFilter) return false;
+
+      if (roleFilter !== 'ALL' && user.role !== roleFilter) return false;
+
+      if (activeFilter === 'ACTIVE' && !user.is_active) return false;
+      if (activeFilter === 'INACTIVE' && user.is_active) return false;
+
+      return true;
     });
-  }, [users, searchQuery]);
+  }, [users, searchQuery, registrationFromFilter, registrationToFilter, roleFilter, activeFilter]);
 
   const openCreateModal = () => {
     setUserToEdit(null);
@@ -286,6 +309,15 @@ export function useAdminUsers() {
     setSearchQuery,
     viewMode,
     setViewMode,
+    registrationFromFilter,
+    setRegistrationFromFilter,
+    registrationToFilter,
+    setRegistrationToFilter,
+    roleFilter,
+    setRoleFilter,
+    activeFilter,
+    setActiveFilter,
+    clearFilters,
     modalVisible,
     setModalVisible,
     userToEdit,

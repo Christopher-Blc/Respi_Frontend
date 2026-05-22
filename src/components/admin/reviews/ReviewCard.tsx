@@ -3,7 +3,7 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AppTheme } from '../../../theme';
 import { reviewsStyles as styles } from '../../../style/admin/reviews.styles';
-import { AdminReview } from '../../../hooks/useAdminReviews';
+import { AdminReview } from '../../../hooks/admin/useAdminReviews';
 
 type Props = {
   item: AdminReview;

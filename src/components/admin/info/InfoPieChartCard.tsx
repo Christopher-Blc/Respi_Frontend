@@ -2,7 +2,7 @@ import React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { PieChart } from 'react-native-gifted-charts';
 import { AppTheme } from '../../../theme';
-import { PieSliceData } from '../../../hooks/useAdminInfo';
+import { PieSliceData } from '../../../hooks/admin/useAdminInfo';
 import { adminInfoStyles as styles } from '../../../style/admin/info.styles';
 
 type Props = {

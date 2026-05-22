@@ -14,7 +14,7 @@ import {
   LineChartRange,
   RangeOption,
   BarChartData,
-} from '../../../hooks/useAdminInfo';
+} from '../../../hooks/admin/useAdminInfo';
 import { adminInfoStyles as styles } from '../../../style/admin/info.styles';
 
 type Props = {

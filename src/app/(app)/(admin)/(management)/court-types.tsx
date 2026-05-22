@@ -15,7 +15,7 @@ import { useAppTheme } from '../../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CourtType } from '../../../../types/types';
-import { useAdminCourtTypes } from '../../../../hooks/useAdminCourtTypes';
+import { useAdminCourtTypes } from '../../../../hooks/admin/useAdminCourtTypes';
 import { tiposPistaStyles as styles } from '../../../../style/admin/courtTypes.styles';
 import { TipoCourtCard } from '../../../../components/admin/courtTypes/CourtTypeCard';
 import { TipoCourtFormModal } from '../../../../components/admin/courtTypes/CourtTypeFormModal';
