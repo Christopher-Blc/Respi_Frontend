@@ -13,10 +13,7 @@ import { useAppTheme } from '../../../../context/ThemeContext';
 import { useAvailableBookings } from '../../../../hooks/useAvailableBookings';
 import { CourtAvailability } from '../../../../types/types';
 import DateModal from '../../../../components/bookings/date.modal';
-import {
-  BloqueDisponibilidad,
-  crearBloquesDisponibilidad,
-} from '../../../../components/bookings/AvailabilityBar';
+import { crearBloquesDisponibilidad } from '../../../../components/bookings/AvailabilityBar';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
 import createReservasTabStyles from '../../../../style/bookingsTab.styles';
 import { useTranslation } from 'react-i18next';
