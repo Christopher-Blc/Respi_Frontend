@@ -174,6 +174,12 @@ export default function AdminTabLayout() {
       segment: 'reservas-global',
     },
     {
+      label: 'Validar reserva',
+      route: '/(app)/(admin)/(management)/validar-reserva',
+      icon: 'verified',
+      segment: 'validar-reserva',
+    },
+    {
       label: t('adminPayments'),
       route: '/(app)/(admin)/pagos',
       icon: 'credit-card',
@@ -181,7 +187,7 @@ export default function AdminTabLayout() {
     },
     {
       label: t('adminMemberships'),
-      route: '/(app)/(admin)/membresias',
+      route: '/(app)/(admin)/(management)/membresias',
       icon: 'gift',
       segment: 'membresias',
     },
@@ -193,7 +199,7 @@ export default function AdminTabLayout() {
     },
     {
       label: 'Notificaciones',
-      route: '/(app)/(admin)/notificaciones',
+      route: '/(app)/(admin)/(management)/notificaciones',
       icon: 'bell',
       segment: 'notificaciones',
     },

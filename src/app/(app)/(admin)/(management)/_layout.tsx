@@ -65,6 +65,24 @@ export default function ManagementLayout() {
             // On web small screens show the burger menu top-left; on wide screens keep null
             const adminBurgerNavItems: BurgerNavItem[] = [
               {
+                label: 'Home',
+                route: '/(app)/(admin)/index',
+                icon: 'home',
+                segment: 'index',
+              },
+              {
+                label: t('adminInfo'),
+                route: '/(app)/(admin)/info',
+                icon: 'graph',
+                segment: 'info',
+              },
+              {
+                label: t('tabsProfile'),
+                route: '/(app)/(admin)/profile',
+                icon: 'person',
+                segment: 'profile',
+              },
+              {
                 label: t('tabsCourts'),
                 route: '/(app)/(admin)/(management)/courts',
                 icon: 'project',
