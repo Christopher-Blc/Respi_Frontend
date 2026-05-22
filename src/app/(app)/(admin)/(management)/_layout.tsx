@@ -65,28 +65,46 @@ export default function ManagementLayout() {
             // On web small screens show the burger menu top-left; on wide screens keep null
             const adminBurgerNavItems: BurgerNavItem[] = [
               {
-                label: 'Home',
-                route: '/(app)/(admin)/index',
-                icon: 'home',
-                segment: 'index',
-              },
-              {
-                label: t('adminInfo'),
-                route: '/(app)/(admin)/info',
-                icon: 'graph',
-                segment: 'info',
-              },
-              {
-                label: t('tabsProfile'),
-                route: '/(app)/(admin)/profile',
-                icon: 'person',
-                segment: 'profile',
-              },
-              {
                 label: t('tabsCourts'),
                 route: '/(app)/(admin)/(management)/courts',
                 icon: 'project',
                 segment: 'courts',
+              },
+              {
+                label: t('adminInstallations'),
+                route: '/(app)/(admin)/(management)/installations',
+                icon: 'organization',
+                segment: 'installations',
+              },
+              {
+                label: t('adminCourtTypes'),
+                route: '/(app)/(admin)/(management)/court-types',
+                icon: 'tag',
+                segment: 'court-types',
+              },
+              {
+                label: t('adminUsers'),
+                route: '/(app)/(admin)/(management)/usuarios',
+                icon: 'people',
+                segment: 'usuarios',
+              },
+              {
+                label: t('tabsBookings'),
+                route: '/(app)/(admin)/(management)/reservas-global',
+                icon: 'calendar',
+                segment: 'reservas-global',
+              },
+              {
+                label: 'Validar reserva',
+                route: '/(app)/(admin)/(management)/validar-reserva',
+                icon: 'verified',
+                segment: 'validar-reserva',
+              },
+              {
+                label: t('adminMemberships'),
+                route: '/(app)/(admin)/(management)/membresias',
+                icon: 'gift',
+                segment: 'membresias',
               },
               {
                 label: t('adminReviews'),
@@ -94,10 +112,19 @@ export default function ManagementLayout() {
                 icon: 'star',
                 segment: 'resenyas',
               },
+              {
+                label: 'Notificaciones',
+                route: '/(app)/(admin)/(management)/notificaciones',
+                icon: 'bell',
+                segment: 'notificaciones',
+              },
             ];
 
             return isWideScreen ? null : (
-              <WebBurgerMenu navItems={adminBurgerNavItems} />
+              <WebBurgerMenu
+                navItems={adminBurgerNavItems}
+                navigationMode="replace"
+              />
             );
           }
 

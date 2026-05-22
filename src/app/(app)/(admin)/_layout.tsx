@@ -225,7 +225,12 @@ export default function AdminTabLayout() {
         headerTintColor: theme.headerText,
         headerLeft:
           isWeb && !isWideScreen
-            ? () => <WebBurgerMenu navItems={adminBurgerNavItems} />
+            ? () => (
+                <WebBurgerMenu
+                  navItems={adminBurgerNavItems}
+                  navigationMode="replace"
+                />
+              )
             : undefined,
         headerTransparent: true,
         headerBackground: () => (
