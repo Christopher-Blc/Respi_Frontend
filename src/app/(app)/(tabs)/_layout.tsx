@@ -198,7 +198,7 @@ export default function tabLayout() {
         options={{
           title: t('tabsBookings'),
           headerLeft: () => {
-            if (isWeb) {
+            if (isWeb && !isWideScreen) {
               return <WebBurgerMenu navItems={webBurgerNavItems} />;
             }
 
