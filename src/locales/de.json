@@ -381,5 +381,8 @@
   "adminSaveCourt": "Platz speichern",
   "bookingLayoutCreateTitle": "Neue Buchung",
   "bookingLayoutConfirmTitle": "Buchung bestatigen",
-  "bookingLayoutCourtTypesTitle": "Platztypen"
+  "bookingLayoutCourtTypesTitle": "Platzarten",
+  "bookingStepChooseCourt": "Platz wählen",
+  "bookingStepInfo": "Details",
+  "bookingStepConfirm": "Bestätigen"
 }

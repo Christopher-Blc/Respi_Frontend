@@ -381,5 +381,8 @@
   "adminSaveCourt": "Desar pista",
   "bookingLayoutCreateTitle": "Nova reserva",
   "bookingLayoutConfirmTitle": "Confirmar reserva",
-  "bookingLayoutCourtTypesTitle": "Tipus de pista"
+  "bookingLayoutCourtTypesTitle": "Tipus de pista",
+  "bookingStepChooseCourt": "Tria la pista",
+  "bookingStepInfo": "Informació",
+  "bookingStepConfirm": "Confirmació"
 }

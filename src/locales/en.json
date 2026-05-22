@@ -381,5 +381,8 @@
   "adminSaveCourt": "Save Court",
   "bookingLayoutCreateTitle": "New booking",
   "bookingLayoutConfirmTitle": "Confirm booking",
-  "bookingLayoutCourtTypesTitle": "Court types"
+  "bookingLayoutCourtTypesTitle": "Court types",
+  "bookingStepChooseCourt": "Choose court",
+  "bookingStepInfo": "Details",
+  "bookingStepConfirm": "Confirm"
 }

@@ -381,5 +381,8 @@
   "adminSaveCourt": "Enregistrer le terrain",
   "bookingLayoutCreateTitle": "Nouvelle reservation",
   "bookingLayoutConfirmTitle": "Confirmer la reservation",
-  "bookingLayoutCourtTypesTitle": "Types de terrain"
+  "bookingLayoutCourtTypesTitle": "Types de court",
+  "bookingStepChooseCourt": "Choisir le court",
+  "bookingStepInfo": "Détails",
+  "bookingStepConfirm": "Confirmer"
 }

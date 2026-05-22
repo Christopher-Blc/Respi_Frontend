@@ -392,5 +392,8 @@
   "adminSaveCourt": "Guardar Pista",
   "bookingLayoutCreateTitle": "Nueva reserva",
   "bookingLayoutConfirmTitle": "Confirmar reserva",
-  "bookingLayoutCourtTypesTitle": "Tipos de pista"
+  "bookingLayoutCourtTypesTitle": "Tipos de pista",
+  "bookingStepChooseCourt": "Elige la pista",
+  "bookingStepInfo": "Información",
+  "bookingStepConfirm": "Confirmación"
 }
