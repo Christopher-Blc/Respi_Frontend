@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 import api from '../../../../services/api';
 import { getDateLocale } from '../../../../i18n';
 import { CourtAvailability } from '../../../../types/types';
+import { BookingStepBar } from '../../../../components/bookings/BookingStepBar';
 
 type ReservaActual = CourtAvailability['current_reservations'][number];
 
@@ -277,6 +278,7 @@ export default function CreateBooking() {
         ]}
         showsVerticalScrollIndicator={false}
       >
+        <BookingStepBar currentStep={2} />
         <View style={styles.formCard}>
           <View style={styles.badgeRow}>
             <Ionicons name="calendar" size={16} color={theme.primary} />
@@ -456,7 +458,10 @@ export default function CreateBooking() {
           </View>
 
           <TouchableOpacity
-            style={[styles.submit, availableStarts.length === 0 && styles.submitDisabled]}
+            style={[
+              styles.submit,
+              availableStarts.length === 0 && styles.submitDisabled,
+            ]}
             onPress={handleSubmit}
             disabled={availableStarts.length === 0}
           >

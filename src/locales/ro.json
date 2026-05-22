@@ -381,5 +381,8 @@
   "adminSaveCourt": "Salveaza terenul",
   "bookingLayoutCreateTitle": "Rezervare noua",
   "bookingLayoutConfirmTitle": "Confirma rezervarea",
-  "bookingLayoutCourtTypesTitle": "Tipuri de teren"
+  "bookingLayoutCourtTypesTitle": "Tipuri de teren",
+  "bookingStepChooseCourt": "Alege terenul",
+  "bookingStepInfo": "Detalii",
+  "bookingStepConfirm": "Confirmare"
 }

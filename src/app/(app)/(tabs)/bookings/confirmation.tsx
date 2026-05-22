@@ -19,6 +19,7 @@ import createConfirmacionReservaStyles from '../../../../style/bookingConfirmati
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../../i18n';
 import { useStripePayment } from '../../../../hooks/useStripePayment';
+import { BookingStepBar } from '../../../../components/bookings/BookingStepBar';
 
 export default function ConfirmacionReserva() {
   const { t, i18n } = useTranslation();
@@ -145,7 +146,10 @@ export default function ConfirmacionReserva() {
         error.message ||
         t('bookingConfirmErrorMessage');
       console.error('[DEBUG] ERROR en handleConfirm:', message);
-      console.error('[DEBUG] Error completo:', JSON.stringify(error?.response?.data));
+      console.error(
+        '[DEBUG] Error completo:',
+        JSON.stringify(error?.response?.data),
+      );
       Alert.alert(t('bookingConfirmErrorTitle'), message);
     } finally {
       setConfirming(false);
@@ -189,6 +193,7 @@ export default function ConfirmacionReserva() {
         }}
         showsVerticalScrollIndicator={false}
       >
+        <BookingStepBar currentStep={3} />
         {/* Header Card */}
         <View style={styles.headerCard}>
           <View style={styles.headerTag}>

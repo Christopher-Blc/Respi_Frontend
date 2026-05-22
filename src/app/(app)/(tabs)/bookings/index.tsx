@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../../i18n';
 import BookingDateStrip from '../../../../components/bookings/BookingDateStrip';
 import BookingCourtCard from '../../../../components/bookings/BookingCourtCard';
+import { BookingStepBar } from '../../../../components/bookings/BookingStepBar';
 import {
   getNext7Days,
   sameDay,
@@ -249,6 +250,8 @@ export default function ReservasTab() {
         onSelectDate={setSelectedDate}
         onOpenCalendar={() => setShowDateModal(true)}
       />
+
+      <BookingStepBar currentStep={1} />
 
       {loading ? (
         <View style={reservasTabStyles.loadingContainer}>
