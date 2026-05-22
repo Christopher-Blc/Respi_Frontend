@@ -135,7 +135,7 @@ export function ReviewsFiltersModal({
               contentContainerStyle={{
                 paddingHorizontal: 18,
                 paddingTop: 14,
-                paddingBottom: 12,
+                paddingBottom: 18,
               }}
             >
               <Text
@@ -255,7 +255,7 @@ export function ReviewsFiltersModal({
                   flexDirection: 'row',
                   flexWrap: 'wrap',
                   gap: 8,
-                  marginBottom: 8,
+                  marginBottom: 18,
                 }}
               >
                 <TouchableOpacity
@@ -318,41 +318,40 @@ export function ReviewsFiltersModal({
                   );
                 })}
               </View>
-            </ScrollView>
 
-            <View
-              style={{
-                flexDirection: 'row',
-                gap: 10,
-                paddingHorizontal: 18,
-                paddingVertical: 14,
-                borderTopWidth: 1,
-                borderTopColor: theme.primarySoft,
-              }}
-            >
-              <View style={{ flex: 1 }}>
-                <GlassTextButton
-                  text="Limpiar"
-                  onPress={onClear}
-                  textColor={theme.textBody}
-                  color={theme.inputBackground}
-                  borderColor={theme.borderInput}
-                  borderWidth={1}
-                  height={46}
-                />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  gap: 10,
+                  paddingTop: 14,
+                  borderTopWidth: 1,
+                  borderTopColor: theme.primarySoft,
+                }}
+              >
+                <View style={{ flex: 1 }}>
+                  <GlassTextButton
+                    text="Limpiar"
+                    onPress={onClear}
+                    textColor={theme.textBody}
+                    color={theme.inputBackground}
+                    borderColor={theme.borderInput}
+                    borderWidth={1}
+                    height={46}
+                  />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <GlassTextButton
+                    text="Aplicar"
+                    onPress={onClose}
+                    textColor={theme.onPrimary}
+                    color={theme.primaryButton}
+                    borderColor={theme.primary}
+                    borderWidth={1}
+                    height={46}
+                  />
+                </View>
               </View>
-              <View style={{ flex: 1 }}>
-                <GlassTextButton
-                  text="Aplicar"
-                  onPress={onClose}
-                  textColor={theme.onPrimary}
-                  color={theme.primaryButton}
-                  borderColor={theme.primary}
-                  borderWidth={1}
-                  height={46}
-                />
-              </View>
-            </View>
+            </ScrollView>
           </BlurViewCompat>
         </TouchableOpacity>
       </TouchableOpacity>

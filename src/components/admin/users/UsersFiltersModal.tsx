@@ -38,6 +38,14 @@ const ACTIVE_OPTIONS: Array<{
   { value: 'INACTIVE', label: 'Inactivos' },
 ];
 
+const getTodayDateString = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export function UsersFiltersModal({
   visible,
   onClose,
@@ -66,6 +74,20 @@ export function UsersFiltersModal({
   const pillActiveBorder = theme.primary;
   const pillInactiveText = theme.textBody;
   const pillActiveText = theme.onPrimary;
+  const todayDate = getTodayDateString();
+  const todaySelected =
+    registrationFromFilter.trim() === todayDate &&
+    registrationToFilter.trim() === todayDate;
+
+  const toggleTodayRange = () => {
+    if (todaySelected) {
+      setRegistrationFromFilter('');
+      setRegistrationToFilter('');
+      return;
+    }
+    setRegistrationFromFilter(todayDate);
+    setRegistrationToFilter(todayDate);
+  };
 
   return (
     <Modal
@@ -144,7 +166,7 @@ export function UsersFiltersModal({
               contentContainerStyle={{
                 paddingHorizontal: 18,
                 paddingTop: 14,
-                paddingBottom: 12,
+                paddingBottom: 18,
               }}
             >
               {/* Registration date range */}
@@ -172,6 +194,30 @@ export function UsersFiltersModal({
                   placeholder="Hasta (YYYY-MM-DD)"
                 />
               </View>
+              <TouchableOpacity
+                onPress={toggleTodayRange}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 8,
+                  marginBottom: 14,
+                }}
+              >
+                <Ionicons
+                  name={todaySelected ? 'checkbox' : 'square-outline'}
+                  size={20}
+                  color={todaySelected ? theme.primary : theme.textBody}
+                />
+                <Text
+                  style={{
+                    color: theme.textTitle,
+                    fontSize: 13,
+                    fontWeight: '600',
+                  }}
+                >
+                  Hoy
+                </Text>
+              </TouchableOpacity>
 
               {/* Role filter */}
               <Text
@@ -241,7 +287,7 @@ export function UsersFiltersModal({
                   flexDirection: 'row',
                   flexWrap: 'wrap',
                   gap: 8,
-                  marginBottom: 20,
+                  marginBottom: 18,
                 }}
               >
                 {ACTIVE_OPTIONS.map(({ value, label }) => {
@@ -276,41 +322,40 @@ export function UsersFiltersModal({
                   );
                 })}
               </View>
-            </ScrollView>
 
-            <View
-              style={{
-                flexDirection: 'row',
-                gap: 10,
-                paddingHorizontal: 18,
-                paddingVertical: 14,
-                borderTopWidth: 1,
-                borderTopColor: theme.primarySoft,
-              }}
-            >
-              <View style={{ flex: 1 }}>
-                <GlassTextButton
-                  text="Limpiar"
-                  onPress={clearFilters}
-                  textColor={theme.textBody}
-                  color={theme.inputBackground}
-                  borderColor={theme.borderInput}
-                  borderWidth={1}
-                  height={46}
-                />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  gap: 10,
+                  paddingTop: 14,
+                  borderTopWidth: 1,
+                  borderTopColor: theme.primarySoft,
+                }}
+              >
+                <View style={{ flex: 1 }}>
+                  <GlassTextButton
+                    text="Limpiar"
+                    onPress={clearFilters}
+                    textColor={theme.textBody}
+                    color={theme.inputBackground}
+                    borderColor={theme.borderInput}
+                    borderWidth={1}
+                    height={46}
+                  />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <GlassTextButton
+                    text="Aplicar"
+                    onPress={onClose}
+                    textColor={theme.onPrimary}
+                    color={theme.primaryButton}
+                    borderColor={theme.primary}
+                    borderWidth={1}
+                    height={46}
+                  />
+                </View>
               </View>
-              <View style={{ flex: 1 }}>
-                <GlassTextButton
-                  text="Aplicar"
-                  onPress={onClose}
-                  textColor={theme.onPrimary}
-                  color={theme.primaryButton}
-                  borderColor={theme.primary}
-                  borderWidth={1}
-                  height={46}
-                />
-              </View>
-            </View>
+            </ScrollView>
           </BlurViewCompat>
         </TouchableOpacity>
       </TouchableOpacity>
