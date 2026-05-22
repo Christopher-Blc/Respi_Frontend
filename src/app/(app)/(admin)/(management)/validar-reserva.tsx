@@ -75,19 +75,27 @@ export default function AdminReservationValidationScreen() {
   const [scanEnabled, setScanEnabled] = useState(true);
   const [result, setResult] = useState<ValidationResult>(null);
 
-  const cardStyle = useMemo(() => {
+  const resultPalette = useMemo(() => {
     if (!result) return null;
 
     if (result.kind === 'success') {
       return {
-        borderColor: '#1fa15c',
-        backgroundColor: 'rgba(34, 197, 94, 0.14)',
+        borderColor: '#22c55e',
+        backgroundColor: 'rgba(34, 197, 94, 0.16)',
+        titleColor: '#bbf7d0',
+        rowLabelColor: '#dcfce7',
+        rowValueColor: '#f0fdf4',
+        errorTextColor: '#f0fdf4',
       };
     }
 
     return {
       borderColor: '#ef4444',
-      backgroundColor: 'rgba(239, 68, 68, 0.15)',
+      backgroundColor: 'rgba(239, 68, 68, 0.18)',
+      titleColor: '#fecaca',
+      rowLabelColor: '#fee2e2',
+      rowValueColor: '#fef2f2',
+      errorTextColor: '#fef2f2',
     };
   }, [result]);
 
@@ -213,12 +221,20 @@ export default function AdminReservationValidationScreen() {
         </View>
       </View>
 
-      {result && cardStyle && (
-        <View style={[styles.resultCard, cardStyle]}>
+      {result && resultPalette && (
+        <View
+          style={[
+            styles.resultCard,
+            {
+              borderColor: resultPalette.borderColor,
+              backgroundColor: resultPalette.backgroundColor,
+            },
+          ]}
+        >
           <Text
             style={[
               styles.resultTitle,
-              { color: result.kind === 'success' ? '#166534' : '#991b1b' },
+              { color: resultPalette.titleColor },
             ]}
           >
             {result.kind === 'success' ? 'RESERVA VALIDA' : 'RESERVA NO VALIDA'}
@@ -229,31 +245,58 @@ export default function AdminReservationValidationScreen() {
               <ResultRow
                 label="Cliente"
                 value={reservation.user?.name || '-'}
+                labelColor={resultPalette.rowLabelColor}
+                valueColor={resultPalette.rowValueColor}
               />
-              <ResultRow label="Email" value={reservation.user?.email || '-'} />
+              <ResultRow
+                label="Email"
+                value={reservation.user?.email || '-'}
+                labelColor={resultPalette.rowLabelColor}
+                valueColor={resultPalette.rowValueColor}
+              />
               <ResultRow
                 label="Telefono"
                 value={reservation.user?.phone || '-'}
+                labelColor={resultPalette.rowLabelColor}
+                valueColor={resultPalette.rowValueColor}
               />
-              <ResultRow label="Pista" value={reservation.court?.name || '-'} />
+              <ResultRow
+                label="Pista"
+                value={reservation.court?.name || '-'}
+                labelColor={resultPalette.rowLabelColor}
+                valueColor={resultPalette.rowValueColor}
+              />
               <ResultRow
                 label="Fecha"
                 value={reservation.reservation_date || '-'}
+                labelColor={resultPalette.rowLabelColor}
+                valueColor={resultPalette.rowValueColor}
               />
               <ResultRow
                 label="Hora"
                 value={`${String(reservation.start_time || '').slice(0, 5)} - ${String(reservation.end_time || '').slice(0, 5)}`}
+                labelColor={resultPalette.rowLabelColor}
+                valueColor={resultPalette.rowValueColor}
               />
-              <ResultRow label="Estado" value={reservation.status || '-'} />
+              <ResultRow
+                label="Estado"
+                value={reservation.status || '-'}
+                labelColor={resultPalette.rowLabelColor}
+                valueColor={resultPalette.rowValueColor}
+              />
               <ResultRow
                 label="Codigo"
                 value={String(
                   reservation.verification_code || '',
                 ).toUpperCase()}
+                labelColor={resultPalette.rowLabelColor}
+                valueColor={resultPalette.rowValueColor}
               />
             </View>
           ) : (
-            <Text style={[styles.errorMessage, { color: '#7f1d1d' }]}>
+            <Text
+              style={[styles.errorMessage, { color: resultPalette.errorTextColor }]}
+            >
               {result.message}
             </Text>
           )}
@@ -263,11 +306,21 @@ export default function AdminReservationValidationScreen() {
   );
 }
 
-function ResultRow({ label, value }: { label: string; value: string }) {
+function ResultRow({
+  label,
+  value,
+  labelColor,
+  valueColor,
+}: {
+  label: string;
+  value: string;
+  labelColor: string;
+  valueColor: string;
+}) {
   return (
     <View style={styles.resultRow}>
-      <Text style={styles.resultLabel}>{label}</Text>
-      <Text style={styles.resultValue}>{value}</Text>
+      <Text style={[styles.resultLabel, { color: labelColor }]}>{label}</Text>
+      <Text style={[styles.resultValue, { color: valueColor }]}>{value}</Text>
     </View>
   );
 }
@@ -335,13 +388,11 @@ const styles = StyleSheet.create({
   resultLabel: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#111827',
   },
   resultValue: {
     flex: 1,
     fontSize: 13,
     textAlign: 'right',
-    color: '#111827',
     fontWeight: '500',
   },
   errorMessage: {
