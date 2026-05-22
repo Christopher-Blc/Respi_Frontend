@@ -21,7 +21,10 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.respiteam.ResPi",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": [
+          "processing"
+        ]
       },
       "icon": "./assets/icon.png"
     },

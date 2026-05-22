@@ -7,6 +7,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { useSegments } from 'expo-router';
 import Octicons from '@expo/vector-icons/Octicons';
 import { BlurViewCompat } from '../../../components/general/BlurViewCompat';
 import { useAppTheme } from '../../../context/ThemeContext';
@@ -29,6 +30,7 @@ export default function AdminTabLayout() {
   const { isDarkMode, theme } = useAppTheme();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const segments = useSegments();
   const { width } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
   const isWideScreen = width >= RESPONSIVE_NAVIGATION_BREAKPOINT;
@@ -229,15 +231,14 @@ export default function AdminTabLayout() {
         headerShown: true,
         headerTitleAlign: isWideScreen ? 'left' : 'center',
         headerTintColor: theme.headerText,
-        headerLeft:
-          isWeb && !isWideScreen
-            ? () => (
-                <WebBurgerMenu
-                  navItems={adminBurgerNavItems}
-                  navigationMode="replace"
-                />
-              )
-            : undefined,
+        headerLeft: !isWideScreen
+          ? () => (
+              <WebBurgerMenu
+                navItems={adminBurgerNavItems}
+                navigationMode="replace"
+              />
+            )
+          : undefined,
         headerTransparent: true,
         headerBackground: () => (
           <BlurViewCompat
@@ -312,19 +313,18 @@ export default function AdminTabLayout() {
         }}
       />
 
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="notificaciones"
         options={{
           title: 'Notificaciones',
           href: null,
         }}
-      />
+      /> */}
 
       <Tabs.Screen
         name="(management)"
         options={{
           title: t('adminManagement'),
-          headerShown: false,
           href: null,
         }}
       />

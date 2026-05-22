@@ -80,24 +80,24 @@ export default function AdminReservationValidationScreen() {
 
     if (result.kind === 'success') {
       return {
-        borderColor: '#22c55e',
-        backgroundColor: 'rgba(34, 197, 94, 0.16)',
-        titleColor: '#bbf7d0',
-        rowLabelColor: '#dcfce7',
-        rowValueColor: '#f0fdf4',
-        errorTextColor: '#f0fdf4',
+        borderColor: theme.success,
+        backgroundColor: theme.successSoft,
+        titleColor: theme.success,
+        rowLabelColor: theme.textBody,
+        rowValueColor: theme.textTitle,
+        errorTextColor: theme.textTitle,
       };
     }
 
     return {
-      borderColor: '#ef4444',
-      backgroundColor: 'rgba(239, 68, 68, 0.18)',
-      titleColor: '#fecaca',
-      rowLabelColor: '#fee2e2',
-      rowValueColor: '#fef2f2',
-      errorTextColor: '#fef2f2',
+      borderColor: theme.danger,
+      backgroundColor: theme.dangerSoft,
+      titleColor: theme.danger,
+      rowLabelColor: theme.textBody,
+      rowValueColor: theme.textTitle,
+      errorTextColor: theme.errorText,
     };
-  }, [result]);
+  }, [result, theme]);
 
   const validateCode = async (rawCode: string) => {
     const code = normalizeCode(rawCode);
