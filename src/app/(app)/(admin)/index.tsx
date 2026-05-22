@@ -83,6 +83,14 @@ export default function AdminManagementScreen() {
       cta: t('adminHomeBookingsCta'),
     },
     {
+      title: 'Validar reserva',
+      subtitle: 'Escanea QR o introduce codigo para validar acceso.',
+      icon: 'qrcode-scan',
+      route: '/(app)/(admin)/(management)/validar-reserva',
+      color: '#16A34A',
+      cta: 'Abrir validador',
+    },
+    {
       title: t('adminHomePaymentsTitle'),
       subtitle: t('adminHomePaymentsSubtitle'),
       icon: 'currency-eur',
