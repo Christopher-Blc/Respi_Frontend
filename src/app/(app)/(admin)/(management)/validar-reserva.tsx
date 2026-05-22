@@ -232,10 +232,7 @@ export default function AdminReservationValidationScreen() {
           ]}
         >
           <Text
-            style={[
-              styles.resultTitle,
-              { color: resultPalette.titleColor },
-            ]}
+            style={[styles.resultTitle, { color: resultPalette.titleColor }]}
           >
             {result.kind === 'success' ? 'RESERVA VALIDA' : 'RESERVA NO VALIDA'}
           </Text>
@@ -295,7 +292,10 @@ export default function AdminReservationValidationScreen() {
             </View>
           ) : (
             <Text
-              style={[styles.errorMessage, { color: resultPalette.errorTextColor }]}
+              style={[
+                styles.errorMessage,
+                { color: resultPalette.errorTextColor },
+              ]}
             >
               {result.message}
             </Text>
