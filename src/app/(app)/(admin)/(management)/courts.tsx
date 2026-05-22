@@ -21,16 +21,10 @@ import { SessionExpiredModal } from '../../../../components/alert.modal';
 import { CourtsFiltersModal } from '../../../../components/admin/courts/CourtsFiltersModal';
 import { MaintenanceDateModal } from '../../../../components/admin/courts/MaintenanceDateModal';
 import { CourtCard } from '../../../../components/admin/courts/CourtCard';
-import { Tabs } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { addSoftBreaks } from '../../../../utils/addSoftBreaks';
 
 export default function AdminPistas() {
-  <Tabs.Screen
-    name="(management)/pistas"
-    options={{ title: 'Gestión de pistas' }}
-  />;
-
   const { theme } = useAppTheme();
   const { t } = useTranslation();
   const headerHeight = useHeaderHeight();

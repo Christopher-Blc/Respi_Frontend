@@ -15,11 +15,15 @@
 import * as BackgroundTask from 'expo-background-task';
 import * as Notifications from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
+import { Platform } from 'react-native';
 import { getToken } from './authStorage';
 
 export const BOOKING_SYNC_TASK = 'BOOKING_SYNC_TASK';
 
 const BASE_URL = 'https://respi.es/api';
+
+const IOS_BACKGROUND_MISCONFIG_REGEX =
+  /Background Task has not been configured|UIBackgroundModes|Info\.plist|process/i;
 
 /** Comprova reserves noves des del background thread */
 async function fetchReservationsInBackground(): Promise<number> {
@@ -77,12 +81,33 @@ TaskManager.defineTask(BOOKING_SYNC_TASK, async () => {
 
 /** Registra la task de background al sistema operatiu */
 export async function registerBackgroundSync(): Promise<void> {
-  const isRegistered = await TaskManager.isTaskRegisteredAsync(BOOKING_SYNC_TASK);
-  if (isRegistered) return;
+  if (Platform.OS === 'web') return;
 
-  await BackgroundTask.registerTaskAsync(BOOKING_SYNC_TASK, {
-    minimumInterval: 15, // mínim 15 minuts (limitació SO) — en minuts
-  });
+  try {
+    const status = await BackgroundTask.getStatusAsync();
+    if (status !== BackgroundTask.BackgroundTaskStatus.Available) {
+      return;
+    }
+
+    const isRegistered = await TaskManager.isTaskRegisteredAsync(BOOKING_SYNC_TASK);
+    if (isRegistered) return;
+
+    await BackgroundTask.registerTaskAsync(BOOKING_SYNC_TASK, {
+      minimumInterval: 15, // mínim 15 minuts (limitació SO) — en minuts
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : typeof error === 'string' ? error : '';
+
+    if (Platform.OS === 'ios' && IOS_BACKGROUND_MISCONFIG_REGEX.test(message)) {
+      console.warn(
+        '[BackgroundSync] iOS background task no configurada en el build actual. Recompila el cliente para aplicar UIBackgroundModes.',
+      );
+      return;
+    }
+
+    throw error;
+  }
 }
 
 /** Atura i desregistra la task de background */
@@ -95,5 +120,9 @@ export async function unregisterBackgroundSync(): Promise<void> {
 
 /** Retorna l'estat actual del fil de background */
 export async function getBackgroundSyncStatus(): Promise<BackgroundTask.BackgroundTaskStatus | null> {
-  return BackgroundTask.getStatusAsync();
+  try {
+    return await BackgroundTask.getStatusAsync();
+  } catch {
+    return null;
+  }
 }

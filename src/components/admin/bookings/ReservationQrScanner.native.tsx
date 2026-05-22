@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   StyleSheet,
@@ -6,11 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {
-  CameraView,
-  useCameraPermissions,
-  BarcodeScanningResult,
-} from 'expo-camera';
+import { Camera, CameraView, BarcodeScanningResult } from 'expo-camera';
 
 type Props = {
   loading: boolean;
@@ -34,21 +30,47 @@ export default function ReservationQrScanner({
   onPrimaryColor,
   primaryColor,
 }: Props) {
-  const [permission, requestPermission] = useCameraPermissions();
+  const [permissionGranted, setPermissionGranted] = useState<boolean | null>(
+    null,
+  );
+
+  useEffect(() => {
+    const loadPermission = async () => {
+      try {
+        const current = await Camera.getCameraPermissionsAsync();
+        setPermissionGranted(current.granted);
+      } catch {
+        setPermissionGranted(false);
+      }
+    };
+
+    loadPermission();
+  }, []);
+
+  const requestPermission = async () => {
+    try {
+      const next = await Camera.requestCameraPermissionsAsync();
+      setPermissionGranted(next.granted);
+    } catch {
+      setPermissionGranted(false);
+    }
+  };
 
   const handleBarcodeScanned = ({ data }: BarcodeScanningResult) => {
     onCodeScanned(data || '');
   };
 
-  if (!permission) {
+  if (permissionGranted === null) {
     return <ActivityIndicator color={primaryColor} />;
   }
 
-  if (!permission.granted) {
+  if (!permissionGranted) {
     return (
       <TouchableOpacity
         style={[styles.permissionBtn, { backgroundColor: primaryButtonColor }]}
-        onPress={requestPermission}
+        onPress={() => {
+          requestPermission();
+        }}
       >
         <Text style={[styles.permissionBtnText, { color: onPrimaryColor }]}>
           Permitir camara
