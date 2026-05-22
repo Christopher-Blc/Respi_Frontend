@@ -10,7 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { membershipsStyles as styles } from '../../../style/admin/memberships.styles';
-import { MembershipFormData } from '../../../hooks/useAdminMemberships';
+import { MembershipFormData } from '../../../hooks/admin/useAdminMemberships';
 
 type Props = {
   visible: boolean;

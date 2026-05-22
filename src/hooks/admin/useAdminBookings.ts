@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import api from '../services/api';
-import { Reservation, User, Court, CourtType } from '../types/types';
+import api from '../../services/api';
+import { Reservation, User, Court, CourtType } from '../../types/types';
 
 type ViewMode = 'cards' | 'list';
 type ConfirmActionType = '' | 'cancel' | 'delete';
@@ -97,6 +97,8 @@ export function useAdminBookings() {
         api.get('/courts').catch(() => ({ data: [] })),
         api.get('/court-types').catch(() => ({ data: [] })),
       ]);
+
+      console.log('Fetched reservations:', reservationsRes.data);
 
       setReservations(extractRows(reservationsRes?.data) as Reservation[]);
       setUsers(extractRows(usersRes?.data) as User[]);

@@ -3,44 +3,53 @@ import { View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { BlurViewCompat } from '../../general/BlurViewCompat';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../context/ThemeContext';
+import { User } from '../../../types/types';
 import { GlassTextButton } from '../../login/glassTextButton';
-import { ReplyFilter } from '../../../hooks/admin/useAdminReviews';
-
-type RatingFilter = number | 'all';
+import { GlassTextInput } from '../../login/glassTextInput';
 
 type Props = {
   visible: boolean;
   onClose: () => void;
-  courtNames: string[];
-  filterRating: RatingFilter;
-  setFilterRating: (value: RatingFilter) => void;
-  replyFilter: ReplyFilter;
-  setReplyFilter: (value: ReplyFilter) => void;
-  filterCourtName: string | 'all';
-  setFilterCourtName: (value: string | 'all') => void;
-  onClear: () => void;
+  registrationFromFilter: string;
+  setRegistrationFromFilter: (value: string) => void;
+  registrationToFilter: string;
+  setRegistrationToFilter: (value: string) => void;
+  roleFilter: 'ALL' | User['role'];
+  setRoleFilter: (value: 'ALL' | User['role']) => void;
+  activeFilter: 'ALL' | 'ACTIVE' | 'INACTIVE';
+  setActiveFilter: (value: 'ALL' | 'ACTIVE' | 'INACTIVE') => void;
+  clearFilters: () => void;
 };
 
-const RATING_FILTERS: RatingFilter[] = ['all', 1, 2, 3, 4, 5];
-const REPLY_FILTERS: ReplyFilter[] = ['all', 'pending', 'answered'];
+const ROLE_OPTIONS: Array<'ALL' | User['role']> = [
+  'ALL',
+  'SUPER_ADMIN',
+  'ADMIN',
+  'USER',
+  'CLIENTE',
+];
 
-const getReplyLabel = (value: ReplyFilter) => {
-  if (value === 'pending') return 'Pendientes';
-  if (value === 'answered') return 'Contestadas';
-  return 'Todas';
-};
+const ACTIVE_OPTIONS: Array<{
+  value: 'ALL' | 'ACTIVE' | 'INACTIVE';
+  label: string;
+}> = [
+  { value: 'ALL', label: 'Todos' },
+  { value: 'ACTIVE', label: 'Activos' },
+  { value: 'INACTIVE', label: 'Inactivos' },
+];
 
-export function ReviewsFiltersModal({
+export function UsersFiltersModal({
   visible,
   onClose,
-  courtNames,
-  filterRating,
-  setFilterRating,
-  replyFilter,
-  setReplyFilter,
-  filterCourtName,
-  setFilterCourtName,
-  onClear,
+  registrationFromFilter,
+  setRegistrationFromFilter,
+  registrationToFilter,
+  setRegistrationToFilter,
+  roleFilter,
+  setRoleFilter,
+  activeFilter,
+  setActiveFilter,
+  clearFilters,
 }: Props) {
   const { theme, isDarkMode } = useAppTheme();
 
@@ -84,7 +93,7 @@ export function ReviewsFiltersModal({
             maxWidth: 560,
             alignSelf: 'center',
             borderRadius: 22,
-            maxHeight: '80%',
+            maxHeight: '82%',
             overflow: 'hidden',
             shadowColor: '#000',
             shadowOpacity: 0.22,
@@ -103,6 +112,7 @@ export function ReviewsFiltersModal({
               borderRadius: 22,
             }}
           >
+            {/* Header */}
             <View
               style={{
                 paddingHorizontal: 18,
@@ -130,7 +140,6 @@ export function ReviewsFiltersModal({
             </View>
 
             <ScrollView
-              horizontal={false}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{
                 paddingHorizontal: 18,
@@ -138,6 +147,7 @@ export function ReviewsFiltersModal({
                 paddingBottom: 12,
               }}
             >
+              {/* Registration date range */}
               <Text
                 style={{
                   color: theme.textTitle,
@@ -146,7 +156,33 @@ export function ReviewsFiltersModal({
                   marginBottom: 8,
                 }}
               >
-                Valoracion
+                Fecha de registro
+              </Text>
+              <View style={{ marginBottom: 2 }}>
+                <GlassTextInput
+                  value={registrationFromFilter}
+                  onChangeText={setRegistrationFromFilter}
+                  placeholder="Desde (YYYY-MM-DD)"
+                />
+              </View>
+              <View style={{ marginBottom: 14 }}>
+                <GlassTextInput
+                  value={registrationToFilter}
+                  onChangeText={setRegistrationToFilter}
+                  placeholder="Hasta (YYYY-MM-DD)"
+                />
+              </View>
+
+              {/* Role filter */}
+              <Text
+                style={{
+                  color: theme.textTitle,
+                  fontSize: 13,
+                  fontWeight: '600',
+                  marginBottom: 8,
+                }}
+              >
+                Rol
               </Text>
               <View
                 style={{
@@ -156,12 +192,12 @@ export function ReviewsFiltersModal({
                   marginBottom: 14,
                 }}
               >
-                {RATING_FILTERS.map((value) => {
-                  const selected = filterRating === value;
+                {ROLE_OPTIONS.map((role) => {
+                  const selected = roleFilter === role;
                   return (
                     <TouchableOpacity
-                      key={`rating-${value}`}
-                      onPress={() => setFilterRating(value)}
+                      key={role}
+                      onPress={() => setRoleFilter(role)}
                       style={{
                         paddingHorizontal: 13,
                         paddingVertical: 7,
@@ -182,13 +218,14 @@ export function ReviewsFiltersModal({
                           fontSize: 13,
                         }}
                       >
-                        {value === 'all' ? 'Todas' : `${value} estrellas`}
+                        {role === 'ALL' ? 'Todos' : role}
                       </Text>
                     </TouchableOpacity>
                   );
                 })}
               </View>
 
+              {/* Active status filter */}
               <Text
                 style={{
                   color: theme.textTitle,
@@ -197,22 +234,22 @@ export function ReviewsFiltersModal({
                   marginBottom: 8,
                 }}
               >
-                Estado de respuesta
+                Estado
               </Text>
               <View
                 style={{
                   flexDirection: 'row',
                   flexWrap: 'wrap',
                   gap: 8,
-                  marginBottom: 14,
+                  marginBottom: 20,
                 }}
               >
-                {REPLY_FILTERS.map((value) => {
-                  const selected = replyFilter === value;
+                {ACTIVE_OPTIONS.map(({ value, label }) => {
+                  const selected = activeFilter === value;
                   return (
                     <TouchableOpacity
-                      key={`reply-${value}`}
-                      onPress={() => setReplyFilter(value)}
+                      key={value}
+                      onPress={() => setActiveFilter(value)}
                       style={{
                         paddingHorizontal: 13,
                         paddingVertical: 7,
@@ -233,86 +270,7 @@ export function ReviewsFiltersModal({
                           fontSize: 13,
                         }}
                       >
-                        {getReplyLabel(value)}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              <Text
-                style={{
-                  color: theme.textTitle,
-                  fontSize: 13,
-                  fontWeight: '600',
-                  marginBottom: 8,
-                }}
-              >
-                Pista
-              </Text>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  flexWrap: 'wrap',
-                  gap: 8,
-                  marginBottom: 8,
-                }}
-              >
-                <TouchableOpacity
-                  onPress={() => setFilterCourtName('all')}
-                  style={{
-                    paddingHorizontal: 13,
-                    paddingVertical: 7,
-                    borderRadius: 20,
-                    borderWidth: 1,
-                    borderColor:
-                      filterCourtName === 'all'
-                        ? pillActiveBorder
-                        : pillInactiveBorder,
-                    backgroundColor:
-                      filterCourtName === 'all' ? pillActiveBg : pillInactiveBg,
-                  }}
-                >
-                  <Text
-                    style={{
-                      color:
-                        filterCourtName === 'all'
-                          ? pillActiveText
-                          : pillInactiveText,
-                      fontWeight: filterCourtName === 'all' ? '700' : '500',
-                      fontSize: 13,
-                    }}
-                  >
-                    Todas las pistas
-                  </Text>
-                </TouchableOpacity>
-                {courtNames.map((courtName) => {
-                  const selected = courtName === filterCourtName;
-                  return (
-                    <TouchableOpacity
-                      key={courtName}
-                      onPress={() => setFilterCourtName(courtName)}
-                      style={{
-                        paddingHorizontal: 13,
-                        paddingVertical: 7,
-                        borderRadius: 20,
-                        borderWidth: 1,
-                        borderColor: selected
-                          ? pillActiveBorder
-                          : pillInactiveBorder,
-                        backgroundColor: selected
-                          ? pillActiveBg
-                          : pillInactiveBg,
-                      }}
-                    >
-                      <Text
-                        style={{
-                          color: selected ? pillActiveText : pillInactiveText,
-                          fontWeight: selected ? '700' : '500',
-                          fontSize: 13,
-                        }}
-                      >
-                        {courtName}
+                        {label}
                       </Text>
                     </TouchableOpacity>
                   );
@@ -333,7 +291,7 @@ export function ReviewsFiltersModal({
               <View style={{ flex: 1 }}>
                 <GlassTextButton
                   text="Limpiar"
-                  onPress={onClear}
+                  onPress={clearFilters}
                   textColor={theme.textBody}
                   color={theme.inputBackground}
                   borderColor={theme.borderInput}

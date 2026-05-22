@@ -22,7 +22,7 @@ import { ReviewsFiltersModal } from '../../../../components/admin/reviews/Review
 import {
   AdminReview,
   useAdminReviews,
-} from '../../../../hooks/useAdminReviews';
+} from '../../../../hooks/admin/useAdminReviews';
 
 export default function AdminReviewsScreen() {
   const { theme } = useAppTheme();

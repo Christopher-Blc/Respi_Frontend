@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../../../context/ThemeContext';
 import { membershipsStyles as styles } from '../../../../style/admin/memberships.styles';
 import { Installation } from '../../../../types/types';
-import { useAdminInstallations } from '../../../../hooks/useAdminInstallations';
+import { useAdminInstallations } from '../../../../hooks/admin/useAdminInstallations';
 import { InstallationCard } from '../../../../components/admin/installations/InstallationCard';
 import { InstallationFormModal } from '../../../../components/admin/installations/InstallationFormModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';

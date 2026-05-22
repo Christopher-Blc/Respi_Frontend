@@ -115,6 +115,7 @@ export interface Reservation {
   total_price: string;
   createdAt: string;
   note: string;
+  verification_code: string;
   // Relations
   user?: User;
   court?: Court;

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Membership } from '../types/types';
-import api from '../services/api';
+import { Membership } from '../../types/types';
+import api from '../../services/api';
 
 export type MembershipFormData = {
   level: string;

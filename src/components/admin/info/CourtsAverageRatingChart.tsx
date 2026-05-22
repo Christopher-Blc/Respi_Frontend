@@ -3,7 +3,7 @@ import { Text, View, Modal, TouchableOpacity } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { Court } from '../../../types/types';
 import { AppTheme } from '../../../theme';
-import { AdminReview } from '../../../hooks/useAdminReviews';
+import { AdminReview } from '../../../hooks/admin/useAdminReviews';
 import { adminInfoStyles as styles } from '../../../style/admin/info.styles';
 
 type Props = {

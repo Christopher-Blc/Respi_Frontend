@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../context/ThemeContext';
-import { ReservationFormData } from '../../../hooks/useAdminBookings';
+import { ReservationFormData } from '../../../hooks/admin/useAdminBookings';
 import { bookingsAdminStyles as styles } from '../../../style/admin/bookings.styles';
 import { Court, User, Reservation } from '../../../types/types';
 

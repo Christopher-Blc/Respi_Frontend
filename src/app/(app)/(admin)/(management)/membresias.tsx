@@ -14,7 +14,7 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../../../context/ThemeContext';
 import { membershipsStyles as styles } from '../../../../style/admin/memberships.styles';
-import { useAdminMemberships } from '../../../../hooks/useAdminMemberships';
+import { useAdminMemberships } from '../../../../hooks/admin/useAdminMemberships';
 import { MembershipCard } from '../../../../components/admin/memberships/MembershipCard';
 import { MembershipFormModal } from '../../../../components/admin/memberships/MembershipFormModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';

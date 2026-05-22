@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import api from '../services/api';
-import { Installation } from '../types/types';
+import api from '../../services/api';
+import { Installation } from '../../types/types';
 
 type InstallationFormData = {
   name: string;

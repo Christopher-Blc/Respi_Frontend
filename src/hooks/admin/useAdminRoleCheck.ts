@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { router } from 'expo-router';
-import api from '../services/api';
+import api from '../../services/api';
 
 /**
  * Hook que verifica periódicamente si el usuario actual sigue siendo admin.

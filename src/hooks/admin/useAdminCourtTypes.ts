@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
-import { Court, CourtType } from '../types/types';
-import api from '../services/api';
+import { Court, CourtType } from '../../types/types';
+import api from '../../services/api';
 import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';

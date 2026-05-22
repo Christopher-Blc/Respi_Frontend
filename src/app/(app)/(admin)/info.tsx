@@ -13,14 +13,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../context/ThemeContext';
-import { useAdminInfo } from '../../../hooks/useAdminInfo';
+import { useAdminInfo } from '../../../hooks/admin/useAdminInfo';
 import { adminInfoStyles as styles } from '../../../style/admin/info.styles';
 import { InfoHeroCard } from '../../../components/admin/info/InfoHeroCard';
 import { InfoPieChartCard } from '../../../components/admin/info/InfoPieChartCard';
 import { InfoLineChartCard } from '../../../components/admin/info/InfoLineChartCard';
-import { useAdminReviews } from '../../../hooks/useAdminReviews';
+import { useAdminReviews } from '../../../hooks/admin/useAdminReviews';
 import { CourtsAverageRatingChart } from '../../../components/admin/info/CourtsAverageRatingChart';
-import { useAdminReports } from '../../../hooks/useAdminReports';
+import { useAdminReports } from '../../../hooks/admin/useAdminReports';
 import { ReportType } from '../../../services/reportsService';
 
 export default function InfoAdmin() {

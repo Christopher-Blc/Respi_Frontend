@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../context/ThemeContext';
-import { AdminReview } from '../../../hooks/useAdminReviews';
+import { AdminReview } from '../../../hooks/admin/useAdminReviews';
 import { reviewsStyles as styles } from '../../../style/admin/reviews.styles';
 
 type Props = {
