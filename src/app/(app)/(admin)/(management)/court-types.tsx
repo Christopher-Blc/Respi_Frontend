@@ -21,14 +21,15 @@ import { TipoCourtCard } from '../../../../components/admin/courtTypes/CourtType
 import { TipoCourtFormModal } from '../../../../components/admin/courtTypes/CourtTypeFormModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
 import { useTranslation } from 'react-i18next';
-import { API_PUBLIC_URL } from '../../../../constants';
 import { addSoftBreaks } from '../../../../utils/addSoftBreaks';
+import { API_PUBLIC_URL } from '../../../../constants';
 
 const getImageUri = (
   imagePath: string | null | undefined,
 ): string | undefined => {
   if (!imagePath) return undefined;
-  return `${API_PUBLIC_URL}/${imagePath}`;
+  if (imagePath.startsWith('http')) return imagePath;
+  return `${API_PUBLIC_URL}/${imagePath.replace(/^\//, '')}`;
 };
 
 export default function AdminTiposPista() {

@@ -98,11 +98,12 @@ export default function PistaTypeIndex() {
 
       <View style={styles.gridContainer}>
         {modelos.map((item) => {
-          const imgSource = item.image
+          const imagePath = item.previewImage || item.image;
+          const imgSource = imagePath
             ? {
-                uri: item.image.startsWith('http')
-                  ? item.image
-                  : `${API_PUBLIC_URL}${item.image.startsWith('/') ? '' : '/'}${item.image}`,
+                uri: imagePath.startsWith('http')
+                  ? imagePath
+                  : `${API_PUBLIC_URL}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`,
               }
             : require('../../../../../assets/RespiLogo.png');
           const description = getCardDescription(item);
