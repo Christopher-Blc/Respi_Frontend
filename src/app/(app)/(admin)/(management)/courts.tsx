@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   useWindowDimensions,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../../context/ThemeContext';
@@ -23,6 +24,7 @@ import { MaintenanceDateModal } from '../../../../components/admin/courts/Mainte
 import { CourtCard } from '../../../../components/admin/courts/CourtCard';
 import { useTranslation } from 'react-i18next';
 import { addSoftBreaks } from '../../../../utils/addSoftBreaks';
+import { API_PUBLIC_URL } from '../../../../constants';
 
 export default function AdminPistas() {
   const { theme } = useAppTheme();
@@ -77,6 +79,8 @@ export default function AdminPistas() {
     globalPrice,
     setGlobalPrice,
     toggleSamePrice,
+    imagen,
+    setImagen,
     filterTipoPistaId,
     setFilterTipoPistaId,
     filterPrecioMax,
@@ -272,6 +276,14 @@ export default function AdminPistas() {
               </Text>
               <Text
                 style={[
+                  styles.colImage,
+                  { color: theme.textTitle, fontWeight: '700' },
+                ]}
+              >
+                Imagen
+              </Text>
+              <Text
+                style={[
                   styles.colPrice,
                   { color: theme.textTitle, fontWeight: '700' },
                 ]}
@@ -323,6 +335,27 @@ export default function AdminPistas() {
                       )?.name || '-',
                     )}
                   </Text>
+                  <View style={styles.colImage}>
+                    {item.image ? (
+                      <Image
+                        source={{
+                          uri: item.image.startsWith('http')
+                            ? item.image
+                            : `${API_PUBLIC_URL}/${String(item.image).replace(/^\//, '')}`,
+                        }}
+                        style={{
+                          width: 68,
+                          height: 40,
+                          borderRadius: 6,
+                          borderWidth: 1,
+                          borderColor: theme.primarySoft,
+                        }}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <Text style={{ color: theme.textBody }}>-</Text>
+                    )}
+                  </View>
                   <Text style={[styles.colPrice, { color: theme.textBody }]}>
                     {item.price_per_hour}€/h
                   </Text>
@@ -436,6 +469,9 @@ export default function AdminPistas() {
         globalPrice={globalPrice}
         setGlobalPrice={setGlobalPrice}
         toggleSamePrice={toggleSamePrice}
+        imagen={imagen}
+        setImagen={setImagen}
+        existingImageUri={pistaAEditar?.image}
       />
 
       <CourtsFiltersModal
