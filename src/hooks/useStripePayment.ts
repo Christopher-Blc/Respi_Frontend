@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { Platform } from 'react-native';
-import MockPaymentSheet from '../components/MockPaymentSheet';
+import WebPaymentSheet from '../components/WebPaymentSheet';
+import api from '../services/api';
 
 export interface UseStripePaymentResult {
   initAndPay: (reservationId: number, merchantName?: string, amount?: string) => Promise<boolean>;
@@ -11,51 +11,68 @@ export interface UseStripePaymentResult {
 
 export function useStripePayment(): UseStripePaymentResult {
   const [loading, setLoading] = useState(false);
-  const [error] = useState<string | null>(null);
-  const [visible, setVisible] = useState(false);
-  const [modalAmount, setModalAmount] = useState('0.00');
-  const [modalMerchant, setModalMerchant] = useState('ResPi');
-  const resolveRef = useRef<((paid: boolean) => void) | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [clientSecret, setClientSecret] = useState('');
+  const [merchantName, setMerchantName] = useState('ResPi');
+  const [amount, setAmount] = useState('0.00');
 
-  const initAndPay = (
-    _reservationId: number,
-    merchantName = 'ResPi',
-    amount = '0.00',
+  const resolveRef = useRef<((value: boolean) => void) | null>(null);
+  const reservationIdRef = useRef<number>(0);
+
+  const initAndPay = async (
+    reservationId: number,
+    name = 'ResPi',
+    amountStr = '0.00',
   ): Promise<boolean> => {
-    if (Platform.OS === 'web') {
-      alert('Para realizar pagos de forma segura, descarga nuestra App Oficial de Respi.');
-      return Promise.resolve(false);
+    setLoading(true);
+    setError(null);
+    setMerchantName(name);
+    setAmount(amountStr);
+    reservationIdRef.current = reservationId;
+
+    try {
+      const { data } = await api.post('/stripe/create-payment-intent', { reservationId });
+      setClientSecret(data.clientSecret);
+      setModalVisible(true);
+      setLoading(false);
+
+      return new Promise<boolean>((resolve) => {
+        resolveRef.current = resolve;
+      });
+    } catch (err: any) {
+      setLoading(false);
+      setError(err?.response?.data?.message ?? 'Error al iniciar el pago');
+      return false;
     }
-    setModalMerchant(merchantName);
-    setModalAmount(amount);
-    setVisible(true);
-    return new Promise((resolve) => {
-      resolveRef.current = resolve;
-    });
   };
 
-  const handlePay = async () => {
-    setLoading(true);
-    await new Promise<void>((r) => setTimeout(r, 1200));
-    setLoading(false);
-    setVisible(false);
+  const handleSuccess = async (paymentIntentId: string) => {
+    setModalVisible(false);
+    try {
+      await api.post('/stripe/manual-confirm', {
+        reservationId: reservationIdRef.current,
+        paymentIntentId,
+      });
+    } catch (e) {
+      console.warn('[Stripe] manual-confirm failed, webhook may handle it', e);
+    }
     resolveRef.current?.(true);
     resolveRef.current = null;
-    console.log('[DEV] Pago simulado completado');
   };
 
   const handleCancel = () => {
-    setVisible(false);
+    setModalVisible(false);
     resolveRef.current?.(false);
     resolveRef.current = null;
   };
 
-  const PaymentModal = React.createElement(MockPaymentSheet, {
-    visible,
-    amount: modalAmount,
-    merchantName: modalMerchant,
-    loading,
-    onPay: handlePay,
+  const PaymentModal = React.createElement(WebPaymentSheet, {
+    visible: modalVisible,
+    clientSecret,
+    merchantName,
+    amount,
+    onSuccess: handleSuccess,
     onCancel: handleCancel,
   });
 

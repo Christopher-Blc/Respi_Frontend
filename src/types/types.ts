@@ -101,6 +101,10 @@ export interface Payment {
   payment_method: string;
   payment_status: string;
   note: string;
+  stripe_payment_intent_id?: string;
+  stripe_refund_id?: string;
+  refund_amount?: number;
+  refund_date?: string;
 }
 
 // ─── Reservation (/Reservation, /Reservation/mis-reservas) ───────
