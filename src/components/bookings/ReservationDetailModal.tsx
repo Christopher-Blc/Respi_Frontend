@@ -64,8 +64,17 @@ export default function ReservationDetailModal({
 
   const isPaid = payment?.payment_status === 'Pagado';
   const isRefunded = payment?.payment_status === 'Reembolsado';
+
+  const isPast = (() => {
+    const [h, m] = reservation.end_time.split(':').map(Number);
+    const end = new Date(reservation.reservation_date);
+    end.setHours(h, m, 0, 0);
+    return end < new Date();
+  })();
+
   const canCancel =
-    reservation.status === 'PENDIENTE' || reservation.status === 'CONFIRMADA';
+    !isPast &&
+    (reservation.status === 'PENDIENTE' || reservation.status === 'CONFIRMADA');
   const willRefund = reservation.status === 'CONFIRMADA' && isPaid;
 
   const date = new Date(reservation.reservation_date).toLocaleDateString(
@@ -173,7 +182,7 @@ export default function ReservationDetailModal({
                 />
               )}
 
-              {!!reservation.verification_code && (
+              {!!reservation.verification_code && !isPast && (
                 <View
                   style={[
                     styles.qrWrap,
