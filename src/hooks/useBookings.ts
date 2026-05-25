@@ -32,11 +32,18 @@ export function useReservas() {
     setRefreshing(false);
   }, [fetchReservas]);
 
-  const handleCancelReserva = useCallback((id: number) => {
-    setReservas((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status: 'CANCELADA' as const } : r)),
-    );
-  }, []);
+  const handleCancelReserva = useCallback(
+    async (id: number) => {
+      try {
+        await api.put(`/reservations/${id}`, { status: 'CANCELADA' });
+        // El backend procesa el reembolso automáticamente si la reserva estaba confirmada
+        await fetchReservas();
+      } catch (error) {
+        console.error('Error al cancelar reserva:', error);
+      }
+    },
+    [fetchReservas],
+  );
 
   const formatDateEs = useCallback((iso: string) => {
     try {

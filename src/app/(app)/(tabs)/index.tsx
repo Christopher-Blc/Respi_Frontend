@@ -52,6 +52,7 @@ export default function HomeScreen() {
     onRefresh,
     nextReservationDate,
     uniqueSportsCount,
+    handleCancelReserva,
   } = useHome();
 
   const [selectedReservation, setSelectedReservation] =
@@ -160,6 +161,7 @@ export default function HomeScreen() {
       <ReservationDetailModal
         reservation={selectedReservation}
         onClose={() => setSelectedReservation(null)}
+        onCancel={handleCancelReserva}
       />
       {loading ? (
         <ActivityIndicator
@@ -243,8 +245,8 @@ export default function HomeScreen() {
             <Text style={localStyles.sectionTitle}>
               {t('homeUpcomingBookings')}
             </Text>
-            <TouchableOpacity onPress={onRefresh}>
-              <Text style={localStyles.sectionLink}>{t('homeRefresh')}</Text>
+            <TouchableOpacity onPress={() => router.push('/(app)/(tabs)/reservations-history')}>
+              <Text style={localStyles.sectionLink}>Ver historial</Text>
             </TouchableOpacity>
           </View>
 

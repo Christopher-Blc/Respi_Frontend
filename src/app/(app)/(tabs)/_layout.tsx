@@ -249,6 +249,13 @@ export default function tabLayout() {
           headerShown: false,
         }}
       />
+      <Tabs.Screen
+        name="reservations-history"
+        options={{
+          href: null,
+          headerShown: false,
+        }}
+      />
     </Tabs>
   );
 

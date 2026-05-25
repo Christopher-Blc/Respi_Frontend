@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { jwtDecode } from 'jwt-decode';
@@ -87,15 +88,25 @@ export function useHome() {
     [loggedUserId],
   );
 
-  useEffect(() => {
-    fetchUserReservas();
-  }, [fetchUserReservas]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserReservas();
+    }, [fetchUserReservas]),
+  );
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await fetchUserReservas(true);
     setRefreshing(false);
   }, [fetchUserReservas]);
+
+  const handleCancelReserva = useCallback(
+    async (id: number) => {
+      await api.put(`/reservations/${id}`, { status: 'CANCELADA' });
+      await fetchUserReservas(true);
+    },
+    [fetchUserReservas],
+  );
 
   const nextReservationDate = useMemo(() => {
     if (!reservations.length) return 'Sin reservas';
@@ -126,5 +137,6 @@ export function useHome() {
     onRefresh,
     nextReservationDate,
     uniqueSportsCount,
+    handleCancelReserva,
   };
 }

@@ -133,7 +133,14 @@ export default function ConfirmacionReserva() {
       console.log('[DEBUG] paid =', paid);
 
       if (paid) {
-        setCompletedReservation(createdReservation);
+        // Intentar obtener la reserva actualizada (el webhook puede haberla confirmado ya)
+        try {
+          const updated = await api.get(`/reservations/${reservationId}`);
+          setCompletedReservation(updated.data as Reservation);
+        } catch {
+          // Si falla el refresh, mostramos los datos originales (PENDIENTE)
+          setCompletedReservation(createdReservation);
+        }
       }
       // Si paid === false, el usuario canceló el pago — la reserva queda PENDIENTE
       // No mostramos error: el usuario volvió atrás voluntariamente

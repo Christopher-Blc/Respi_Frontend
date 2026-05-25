@@ -1,6 +1,7 @@
-﻿import React from 'react';
+﻿import React, { useState } from 'react';
 import {
   Modal,
+  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Text,
@@ -23,20 +24,49 @@ const STATUS_COLOR: Record<string, string> = {
 type Props = {
   reservation: Reservation | null;
   onClose: () => void;
+  onCancel?: (id: number) => Promise<void>;
 };
 
 export default function ReservationDetailModal({
   reservation,
   onClose,
+  onCancel,
 }: Props) {
   const { theme } = useAppTheme();
+  const [cancelling, setCancelling] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
   if (!reservation) return null;
+
+  const handleClose = () => {
+    setConfirming(false);
+    onClose();
+  };
+
+  const handleCancel = () => setConfirming(true);
+
+  const handleConfirmCancel = async () => {
+    if (!onCancel) return;
+    setCancelling(true);
+    setConfirming(false);
+    try {
+      await onCancel(reservation.id);
+      onClose();
+    } catch {
+      setCancelling(false);
+    }
+  };
 
   const statusColor = STATUS_COLOR[reservation.status] ?? theme.primary;
   const court = reservation.court;
   const payment = reservation.payments?.[0];
   const membership = reservation.user?.membership;
+
+  const isPaid = payment?.payment_status === 'Pagado';
+  const isRefunded = payment?.payment_status === 'Reembolsado';
+  const canCancel =
+    reservation.status === 'PENDIENTE' || reservation.status === 'CONFIRMADA';
+  const willRefund = reservation.status === 'CONFIRMADA' && isPaid;
 
   const date = new Date(reservation.reservation_date).toLocaleDateString(
     undefined,
@@ -49,11 +79,11 @@ export default function ReservationDetailModal({
   );
 
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
+    <Modal visible transparent animationType="fade" onRequestClose={handleClose}>
       <View style={styles.backdrop}>
         <TouchableOpacity
           activeOpacity={1}
-          onPress={onClose}
+          onPress={handleClose}
           style={styles.backdropTouchLayer}
         />
         <TouchableWithoutFeedback>
@@ -77,7 +107,7 @@ export default function ReservationDetailModal({
                 </Text>
               </View>
               <View style={{ gap: 6, alignItems: 'flex-end' }}>
-                <TouchableOpacity onPress={onClose}>
+                <TouchableOpacity onPress={handleClose}>
                   <Ionicons
                     name="close-circle"
                     size={26}
@@ -215,11 +245,20 @@ export default function ReservationDetailModal({
               />
               {!!payment?.payment_status && (
                 <Row
-                  icon="checkmark-circle-outline"
+                  icon={isRefunded ? 'refresh-circle-outline' : 'checkmark-circle-outline'}
                   label="Estado del pago"
                   value={payment.payment_status}
                   theme={theme}
                 />
+              )}
+              {isRefunded && (
+                <View style={styles.refundBanner}>
+                  <Ionicons name="checkmark-circle" size={16} color="#22c55e" />
+                  <Text style={styles.refundBannerText}>
+                    Reembolso procesado correctamente
+                    {payment?.refund_amount ? ` · ${payment.refund_amount} €` : ''}
+                  </Text>
+                </View>
               )}
 
               {/* Membresía */}
@@ -247,6 +286,62 @@ export default function ReservationDetailModal({
                     />
                   )}
                 </>
+              )}
+
+              {canCancel && !!onCancel && !confirming && (
+                <TouchableOpacity
+                  style={[
+                    styles.cancelBtn,
+                    willRefund ? styles.refundBtn : styles.cancelBtnRed,
+                    { opacity: cancelling ? 0.6 : 1 },
+                  ]}
+                  onPress={handleCancel}
+                  disabled={cancelling}
+                >
+                  {cancelling ? (
+                    <ActivityIndicator size="small" color={willRefund ? '#0ea5e9' : '#ef4444'} />
+                  ) : (
+                    <>
+                      <Ionicons
+                        name={willRefund ? 'card-outline' : 'close-circle-outline'}
+                        size={16}
+                        color={willRefund ? '#0ea5e9' : '#ef4444'}
+                      />
+                      <Text style={[styles.cancelBtnText, willRefund && styles.refundBtnText]}>
+                        {willRefund ? 'Cancelar y devolver pago' : 'Cancelar reserva'}
+                      </Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              )}
+
+              {confirming && (
+                <View style={styles.confirmBox}>
+                  <Text style={styles.confirmTitle}>
+                    {willRefund ? '¿Cancelar y devolver pago?' : '¿Cancelar reserva?'}
+                  </Text>
+                  <Text style={styles.confirmBody}>
+                    {willRefund
+                      ? `Se devolverán ${reservation.total_price} € automáticamente.`
+                      : 'Esta acción no se puede deshacer.'}
+                  </Text>
+                  <View style={styles.confirmRow}>
+                    <TouchableOpacity
+                      style={styles.confirmNoBtn}
+                      onPress={() => setConfirming(false)}
+                    >
+                      <Text style={styles.confirmNoText}>No</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.confirmYesBtn, willRefund ? styles.refundBtn : styles.cancelBtnRed]}
+                      onPress={handleConfirmCancel}
+                    >
+                      <Text style={[styles.cancelBtnText, willRefund && styles.refundBtnText]}>
+                        {willRefund ? 'Sí, cancelar y devolver' : 'Sí, cancelar'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
               )}
             </ScrollView>
           </View>
@@ -394,5 +489,92 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '800',
     letterSpacing: 1.2,
+  },
+  cancelBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1.5,
+  },
+  cancelBtnRed: {
+    borderColor: '#ef4444',
+  },
+  refundBtn: {
+    borderColor: '#0ea5e9',
+    backgroundColor: '#e0f2fe',
+  },
+  cancelBtnText: {
+    color: '#ef4444',
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  refundBtnText: {
+    color: '#0ea5e9',
+  },
+  refundBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#dcfce7',
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 6,
+  },
+  refundBannerText: {
+    color: '#166534',
+    fontSize: 13,
+    fontWeight: '600',
+    flex: 1,
+  },
+  confirmBox: {
+    marginTop: 16,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#ef444440',
+    backgroundColor: '#fff5f5',
+    padding: 14,
+    gap: 6,
+  },
+  confirmTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#b91c1c',
+  },
+  confirmBody: {
+    fontSize: 13,
+    color: '#6b7280',
+    marginBottom: 4,
+  },
+  confirmRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 4,
+  },
+  confirmNoBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    alignItems: 'center',
+  },
+  confirmNoText: {
+    color: '#374151',
+    fontWeight: '700',
+    fontSize: 13,
+  },
+  confirmYesBtn: {
+    flex: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 10,
+    gap: 6,
   },
 });
