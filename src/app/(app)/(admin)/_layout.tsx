@@ -11,18 +11,19 @@ import { useSegments } from 'expo-router';
 import Octicons from '@expo/vector-icons/Octicons';
 import { BlurViewCompat } from '../../../components/general/BlurViewCompat';
 import { useAppTheme } from '../../../context/ThemeContext';
-import WebSidebar, {
-  SidebarSection,
-} from '../../../components/general/WebSidebar';
-import WebBurgerMenu, {
-  BurgerNavItem,
-} from '../../../components/general/WebBurgerMenu';
+import WebSidebar from '../../../components/general/WebSidebar';
+import WebBurgerMenu from '../../../components/general/WebBurgerMenu';
 import WebProfileBadge from '../../../components/general/WebProfileBadge';
 import { useTranslation } from 'react-i18next';
 import { RESPONSIVE_NAVIGATION_BREAKPOINT } from '../../../constants';
 import { useAdminRoleCheck } from '../../../hooks/admin/useAdminRoleCheck';
 import { SessionExpiredModal } from '../../../components/alert.modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  flattenNavigationItems,
+  getAdminNavigation,
+} from '../../../utils/navigation';
+import { ROUTES } from '../../../utils/routes';
 
 export const WEB_ADMIN_HEADER_HEIGHT = 73;
 
@@ -41,171 +42,8 @@ export default function AdminTabLayout() {
   const TAB_BAR_BASE_HEIGHT = 56;
   const tabBarHeight = TAB_BAR_BASE_HEIGHT + insets.bottom;
 
-  const adminSidebarSections: SidebarSection[] = [
-    {
-      label: t('adminSectionGeneral'),
-      items: [
-        {
-          label: 'Home',
-          route: '/(app)/(admin)/index',
-          icon: 'home',
-          pathMatch: '/',
-        },
-        {
-          label: t('adminInfo'),
-          route: '/(app)/(admin)/info',
-          icon: 'graph',
-          pathMatch: 'info',
-        },
-        {
-          label: t('tabsProfile'),
-          route: '/(app)/(admin)/profile',
-          icon: 'person',
-          pathMatch: 'profile',
-        },
-      ],
-    },
-    {
-      label: t('adminSectionAdministration'),
-      items: [
-        {
-          label: t('tabsCourts'),
-          route: '/(app)/(admin)/(management)/courts',
-          icon: 'project',
-          pathMatch: '/courts',
-        },
-        {
-          label: t('adminInstallations'),
-          route: '/(app)/(admin)/(management)/installations',
-          icon: 'organization',
-          pathMatch: 'installations',
-        },
-        {
-          label: t('adminCourtTypes'),
-          route: '/(app)/(admin)/(management)/court-types',
-          icon: 'tag',
-          pathMatch: 'court-types',
-        },
-        {
-          label: t('adminUsers'),
-          route: '/(app)/(admin)/(management)/usuarios',
-          icon: 'people',
-          pathMatch: 'usuarios',
-        },
-        {
-          label: t('tabsBookings'),
-          route: '/(app)/(admin)/(management)/reservas-global',
-          icon: 'calendar',
-          pathMatch: 'reservas-global',
-        },
-        {
-          label: t('adminPayments'),
-          route: '/(app)/(admin)/pagos',
-          icon: 'credit-card',
-          pathMatch: 'pagos',
-        },
-        {
-          label: t('adminMemberships'),
-          route: '/(app)/(admin)/membresias',
-          icon: 'gift',
-          pathMatch: 'membresias',
-        },
-        {
-          label: t('adminReviews'),
-          route: '/(app)/(admin)/(management)/resenyas',
-          icon: 'star',
-          pathMatch: 'resenyas',
-        },
-        {
-          label: 'Notificaciones',
-          route: '/(app)/(admin)/notificaciones',
-          icon: 'bell',
-          pathMatch: 'notificaciones',
-        },
-      ],
-    },
-  ];
-
-  const adminBurgerNavItems: BurgerNavItem[] = [
-    {
-      label: 'Home',
-      route: '/(app)/(admin)/index',
-      icon: 'home',
-      segment: 'index',
-    },
-    {
-      label: t('adminInfo'),
-      route: '/(app)/(admin)/info',
-      icon: 'graph',
-      segment: 'info',
-    },
-    {
-      label: t('tabsProfile'),
-      route: '/(app)/(admin)/profile',
-      icon: 'person',
-      segment: 'profile',
-    },
-    {
-      label: t('tabsCourts'),
-      route: '/(app)/(admin)/(management)/courts',
-      icon: 'project',
-      segment: 'courts',
-    },
-    {
-      label: t('adminInstallations'),
-      route: '/(app)/(admin)/(management)/installations',
-      icon: 'organization',
-      segment: 'installations',
-    },
-    {
-      label: t('adminCourtTypes'),
-      route: '/(app)/(admin)/(management)/court-types',
-      icon: 'tag',
-      segment: 'court-types',
-    },
-    {
-      label: t('adminUsers'),
-      route: '/(app)/(admin)/(management)/usuarios',
-      icon: 'people',
-      segment: 'usuarios',
-    },
-    {
-      label: t('tabsBookings'),
-      route: '/(app)/(admin)/(management)/reservas-global',
-      icon: 'calendar',
-      segment: 'reservas-global',
-    },
-    {
-      label: 'Validar reserva',
-      route: '/(app)/(admin)/(management)/validar-reserva',
-      icon: 'verified',
-      segment: 'validar-reserva',
-    },
-    {
-      label: t('adminPayments'),
-      route: '/(app)/(admin)/pagos',
-      icon: 'credit-card',
-      segment: 'pagos',
-    },
-    {
-      label: t('adminMemberships'),
-      route: '/(app)/(admin)/(management)/membresias',
-      icon: 'gift',
-      segment: 'membresias',
-    },
-    {
-      label: t('adminReviews'),
-      route: '/(app)/(admin)/(management)/resenyas',
-      icon: 'star',
-      segment: 'resenyas',
-    },
-    {
-      label: 'Notificaciones',
-      route: '/(app)/(admin)/(management)/notificaciones',
-      icon: 'bell',
-      segment: 'notificaciones',
-    },
-  ];
+  const adminSidebarSections = getAdminNavigation(t);
+  const adminBurgerNavItems = flattenNavigationItems(adminSidebarSections);
 
   const tabs = (
     <Tabs
@@ -265,7 +103,7 @@ export default function AdminTabLayout() {
                 borderTopWidth: 1,
               },
         headerRight: isWideScreen
-          ? () => <WebProfileBadge profileRoute="/(app)/(admin)/profile" />
+          ? () => <WebProfileBadge profileRoute={ROUTES.admin.profile} />
           : undefined,
         tabBarBackground: () => (
           <BlurViewCompat

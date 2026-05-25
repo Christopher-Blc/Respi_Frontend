@@ -219,6 +219,7 @@ export function useAdminCourtTypes() {
         );
       }
     }
+
     try {
       if (tipoPistaAEditar) {
         await api.put(`/court-types/${tipoPistaAEditar.id}`, formData, {
@@ -233,20 +234,14 @@ export function useAdminCourtTypes() {
       closeModal();
       fetchTiposPista();
     } catch (error) {
-      console.log('Error al hacer put/posta court-type:', error);
-
-      if (axios.isAxiosError(error)) {
-        console.log('Error creating/updating tipo_pista:', error.response?.data);
-
-        if (error.response?.status === 413) {
-          setErrorModal({
-            visible: true,
-            title: t('bookingConfirmErrorTitle'),
-            message:
-              'La imagen supera el tamaño permitido por el servidor. Prueba con una imagen más ligera.',
-          });
-          return;
-        }
+      if (axios.isAxiosError(error) && error.response?.status === 413) {
+        setErrorModal({
+          visible: true,
+          title: t('bookingConfirmErrorTitle'),
+          message:
+            'La imagen supera el tamaño permitido por el servidor. Prueba con una imagen más ligera.',
+        });
+        return;
       }
 
       setErrorModal({

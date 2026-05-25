@@ -161,6 +161,13 @@ export default function PistasTab() {
       </View>
     );
   };
+
+  const selectedSportImage = selectedModel?.image
+    ? {
+        uri: `${API_PUBLIC_URL}${selectedModel.image.startsWith('/') ? '' : '/'}${selectedModel.image}`,
+      }
+    : undefined;
+
   const renderSportCourtCard = (pista: CourtAvailability) => {
     const pistaId = String(pista.id ?? '');
     const reservasHoy = pista.current_reservations?.length || 0;
@@ -192,7 +199,7 @@ export default function PistasTab() {
         ]}
       >
         <ImageBackground
-          source={getTipoPistaImage(pista)}
+          source={selectedSportImage || getTipoPistaImage(pista)}
           style={localStyles.sportCardImage}
           imageStyle={localStyles.sportCardImageStyle}
         >

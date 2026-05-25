@@ -14,15 +14,16 @@ import { TouchableOpacity } from 'react-native';
 import { BlurViewCompat } from '../../../components/general/BlurViewCompat';
 import { useRouter, useSegments } from 'expo-router';
 import { useAppTheme } from '../../../context/ThemeContext';
-import WebSidebar, {
-  SidebarSection,
-} from '../../../components/general/WebSidebar';
-import WebBurgerMenu, {
-  BurgerNavItem,
-} from '../../../components/general/WebBurgerMenu';
+import WebSidebar from '../../../components/general/WebSidebar';
+import WebBurgerMenu from '../../../components/general/WebBurgerMenu';
 import WebProfileBadge from '../../../components/general/WebProfileBadge';
 import { useTranslation } from 'react-i18next';
 import { RESPONSIVE_NAVIGATION_BREAKPOINT } from '../../../constants';
+import {
+  flattenNavigationItems,
+  getUserNavigation,
+} from '../../../utils/navigation';
+import { ROUTES } from '../../../utils/routes';
 
 export default function tabLayout() {
   const { isDarkMode, theme } = useAppTheme();
@@ -38,64 +39,8 @@ export default function tabLayout() {
   const TAB_BAR_BASE_HEIGHT = 56;
   const tabBarHeight = TAB_BAR_BASE_HEIGHT + insets.bottom;
 
-  const webSidebarSections: SidebarSection[] = [
-    {
-      label: t('tabsSectionApp'),
-      items: [
-        {
-          label: t('tabsHome'),
-          route: '/(app)/(tabs)',
-          icon: 'home',
-          pathMatch: '/',
-        },
-        {
-          label: t('tabsCourts'),
-          route: '/(app)/(tabs)/courts',
-          icon: 'location',
-          pathMatch: 'courts',
-        },
-        {
-          label: t('tabsBookings'),
-          route: '/(app)/(tabs)/bookings',
-          icon: 'calendar',
-          pathMatch: 'bookings',
-        },
-        {
-          label: t('tabsProfile'),
-          route: '/(app)/(tabs)/profile',
-          icon: 'person',
-          pathMatch: 'profile',
-        },
-      ],
-    },
-  ];
-
-  const webBurgerNavItems: BurgerNavItem[] = [
-    {
-      label: t('tabsHome'),
-      route: '/(app)/(tabs)',
-      icon: 'home',
-      segment: 'index',
-    },
-    {
-      label: t('tabsCourts'),
-      route: '/(app)/(tabs)/courts',
-      icon: 'location',
-      segment: 'courts',
-    },
-    {
-      label: t('tabsBookings'),
-      route: '/(app)/(tabs)/bookings',
-      icon: 'calendar',
-      segment: 'bookings',
-    },
-    {
-      label: t('tabsProfile'),
-      route: '/(app)/(tabs)/profile',
-      icon: 'person',
-      segment: 'profile',
-    },
-  ];
+  const webSidebarSections = getUserNavigation(t);
+  const webBurgerNavItems = flattenNavigationItems(webSidebarSections);
 
   const bookingsSegmentIndex = segments.lastIndexOf('bookings');
   const isReservasNestedScreen =
@@ -214,7 +159,7 @@ export default function tabLayout() {
                     return;
                   }
 
-                  router.replace('/(app)/(tabs)/bookings');
+                  router.replace(ROUTES.userTabs.bookings.root);
                 }}
                 style={{ marginLeft: 8, padding: 4 }}
                 hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
