@@ -195,6 +195,13 @@ export default function tabLayout() {
         }}
       />
       <Tabs.Screen
+        name="reviews"
+        options={{
+          href: null,
+          title: 'Reseñas',
+        }}
+      />
+      <Tabs.Screen
         name="reservations-history"
         options={{
           href: null,

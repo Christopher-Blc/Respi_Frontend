@@ -34,6 +34,7 @@ export const ROUTES = {
     index: '/(app)/(tabs)',
     courts: '/(app)/(tabs)/courts',
     profile: '/(app)/(tabs)/profile',
+    reviews: '/(app)/(tabs)/reviews',
     notificationsHistory: '/(app)/(tabs)/notifications-history',
     bookings: {
       root: '/(app)/(tabs)/bookings',

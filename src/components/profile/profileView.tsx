@@ -2,14 +2,11 @@
 import {
   View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
   ActivityIndicator,
   Platform,
   Alert,
   Image,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
@@ -118,6 +115,7 @@ export default function ProfileView() {
   const currentLanguage = getAppLanguage(
     i18n.resolvedLanguage || i18n.language,
   );
+  const isReviewFeatureEnabled = Number(user?.id) === 41 || 31;
 
   //handlers que se usan en los botones
   const handleLogout = async () => {
@@ -321,6 +319,23 @@ export default function ProfileView() {
                 value={userMembershipLabel}
                 isLast={true}
                 onPress={() => setModalMembresiaVisible(true)}
+              />
+            </View>
+          </View>
+        )}
+
+        {isReviewFeatureEnabled && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Reseñas</Text>
+            <View
+              style={[styles.card, { backgroundColor: theme.backgroundCard }]}
+            >
+              <MenuOption
+                icon="star-outline"
+                title="Crear reseña"
+                value="Abrir"
+                isLast
+                onPress={() => router.push('/(app)/(tabs)/reviews')}
               />
             </View>
           </View>
