@@ -165,6 +165,84 @@ export const createProfileStyles = (theme: AppTheme) =>
       fontSize: 12,
       color: theme.textMuted,
     },
+    reviewModalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.58)',
+      justifyContent: 'flex-end',
+    },
+    reviewModalContent: {
+      borderTopLeftRadius: 22,
+      borderTopRightRadius: 22,
+      padding: 20,
+      maxHeight: '88%',
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 14,
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: '800',
+    },
+    reviewLabel: {
+      fontSize: 12,
+      fontWeight: '700',
+      marginTop: 10,
+      marginBottom: 6,
+      textTransform: 'uppercase',
+    },
+    reviewChipsWrap: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+      marginBottom: 4,
+    },
+    reviewChip: {
+      borderWidth: 1,
+      borderRadius: 999,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+    },
+    reviewInput: {
+      borderWidth: 1,
+      borderRadius: 12,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      fontSize: 14,
+    },
+    reviewTextArea: {
+      minHeight: 90,
+      textAlignVertical: 'top',
+    },
+    reviewStarsWrap: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 10,
+    },
+    reviewSaveButton: {
+      height: 48,
+      borderRadius: 12,
+      marginTop: 4,
+      marginBottom: 8,
+    },
+    reviewEmptyText: {
+      fontSize: 13,
+      opacity: 0.85,
+      marginBottom: 8,
+    },
+    reviewItemCard: {
+      borderWidth: 1,
+      borderRadius: 12,
+      padding: 12,
+      marginBottom: 8,
+    },
+    reviewItemTitle: {
+      fontSize: 14,
+      fontWeight: '700',
+    },
   });
 
 export default createProfileStyles;
