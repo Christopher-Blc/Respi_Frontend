@@ -49,8 +49,7 @@ export function getTipoPistaImage(
     raw = entity as Court | CourtAvailability;
   }
 
-  const imagen = raw?.courtType?.image;
+  const imagen = raw?.image || raw?.courtType?.image;
 
-  console.log('Imagen---->', toImageSource(imagen));
   return toImageSource(imagen);
 }

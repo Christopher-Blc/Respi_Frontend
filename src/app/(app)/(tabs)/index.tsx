@@ -76,10 +76,10 @@ export default function HomeScreen() {
 
   const renderReservation = (item: Reservation) => {
     const title = item.court?.name || t('homeReservationFallback');
-    const rawPath = item.court?.courtType?.image;
+    const rawPath = item.court?.image || item.court?.courtType?.image;
     const img = rawPath
       ? {
-          uri: API_PUBLIC_URL + '/' + String(rawPath),
+          uri: `${API_PUBLIC_URL}/${String(rawPath).replace(/^\//, '')}`,
         }
       : undefined;
     const cleanDate = new Date(item.reservation_date).toLocaleDateString(

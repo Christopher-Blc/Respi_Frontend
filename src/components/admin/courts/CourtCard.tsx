@@ -1,10 +1,11 @@
 ﻿import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Court } from '../../../types/types';
 import { AppTheme } from '../../../theme';
 import { pistasStyles as styles } from '../../../style/admin/courts.styles';
 import { useTranslation } from 'react-i18next';
+import { API_PUBLIC_URL } from '../../../constants';
 
 type Props = {
   item: Court;
@@ -22,6 +23,12 @@ export function CourtCard({
   onDelete,
 }: Props) {
   const { t } = useTranslation();
+  const imageUri = item.image
+    ? item.image.startsWith('http')
+      ? item.image
+      : `${API_PUBLIC_URL}/${String(item.image).replace(/^\//, '')}`
+    : null;
+
   return (
     <View
       style={[
@@ -32,6 +39,19 @@ export function CourtCard({
         },
       ]}
     >
+      {imageUri ? (
+        <Image
+          source={{ uri: imageUri }}
+          style={{
+            width: '100%',
+            height: 120,
+            borderRadius: 10,
+            marginBottom: 12,
+          }}
+          resizeMode="cover"
+        />
+      ) : null}
+
       <View style={styles.cardHeader}>
         <View style={{ flex: 1 }}>
           <Text style={[styles.cardTitle, { color: theme.textTitle }]}>

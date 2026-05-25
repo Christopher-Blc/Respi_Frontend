@@ -11,7 +11,7 @@ const getImageUri = (
 ): string | undefined => {
   if (!imagePath) return undefined;
   if (imagePath.startsWith('http')) return imagePath;
-  return `${API_PUBLIC_URL}/${imagePath}`;
+  return `${API_PUBLIC_URL}/${imagePath.replace(/^\//, '')}`;
 };
 
 type Props = {

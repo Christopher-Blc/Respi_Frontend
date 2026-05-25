@@ -6,6 +6,7 @@ import {
   CourtFormData,
 } from '../types/types';
 import api from '../services/api';
+import * as ImagePicker from 'expo-image-picker';
 import {
   WEEK_DAYS,
   DEFAULT_FORM,
@@ -35,6 +36,9 @@ export function useCourtForm(
   }>({ visible: false, title: '', message: '' });
   const [samePriceMode, setSamePriceMode] = useState(false);
   const [globalPrice, setGlobalPrice] = useState('');
+  const [imagen, setImagen] = useState<ImagePicker.ImagePickerAsset | null>(
+    null,
+  );
 
   const openModal = (pista: Court | null = null) => {
     setPistaAEditar(pista);
@@ -66,6 +70,7 @@ export function useCourtForm(
           };
         }),
       );
+      setImagen(null);
     } else {
       setFormData({
         ...DEFAULT_FORM,
@@ -73,6 +78,7 @@ export function useCourtForm(
           instalaciones[0]?.id?.toString() || DEFAULT_FORM.installation_id,
       });
       setWeeklySchedule(createDefaultWeeklySchedule());
+      setImagen(null);
     }
     setSamePriceMode(false);
     setGlobalPrice('');
@@ -144,6 +150,50 @@ export function useCourtForm(
         court_type_id: courtTypeId,
       };
 
+      const createCourtPayload = (day: WeeklyScheduleItem) => ({
+        ...bodyBase,
+        price_per_hour: parseFloat(
+          (samePriceMode ? globalPrice : day.price_per_hour)
+            .trim()
+            .replace(',', '.'),
+        ),
+        day_of_week: day.day_of_week,
+        opening_time: day.opening_time.substring(0, 5),
+        closing_time: day.closing_time.substring(0, 5),
+        status: 'DISPONIBLE',
+      });
+
+      const selectedWebFile = (imagen as ImagePicker.ImagePickerAsset & {
+        file?: File;
+      })?.file;
+
+      const appendPayloadToFormData = (
+        fd: FormData,
+        payload: Record<string, any>,
+      ) => {
+        Object.entries(payload).forEach(([key, value]) => {
+          fd.append(key, String(value));
+        });
+      };
+
+      const appendSelectedImage = (fd: FormData) => {
+        if (!imagen?.uri) return;
+
+        if (selectedWebFile) {
+          fd.append('image', selectedWebFile, selectedWebFile.name);
+          return;
+        }
+
+        fd.append(
+          'image',
+          {
+            uri: imagen.uri,
+            name: imagen.fileName || `court_${Date.now()}.jpg`,
+            type: imagen.mimeType || 'image/jpeg',
+          } as any,
+        );
+      };
+
       if (pistaAEditar) {
         const existingByDay = pistas.reduce(
           (acc, p) => {
@@ -158,35 +208,49 @@ export function useCourtForm(
         await Promise.all(
           activeDays.map((day) => {
             const existingId = existingByDay[day.day_of_week];
-            const precio = (samePriceMode ? globalPrice : day.price_per_hour).trim().replace(',', '.');
-            const body = {
-              ...bodyBase,
-              price_per_hour: parseFloat(precio),
-              day_of_week: day.day_of_week,
-              opening_time: day.opening_time.substring(0, 5),
-              closing_time: day.closing_time.substring(0, 5),
-              status: 'DISPONIBLE',
-            };
-            return existingId ? api.put(`/courts/${existingId}`, body) : api.post('/courts', body);
+            const body = createCourtPayload(day);
+
+            if (imagen?.uri) {
+              const formPayload = new FormData();
+              appendPayloadToFormData(formPayload, body);
+              appendSelectedImage(formPayload);
+
+              return existingId
+                ? api.put(`/courts/${existingId}`, formPayload, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                  })
+                : api.post('/courts', formPayload, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                  });
+            }
+
+            return existingId
+              ? api.put(`/courts/${existingId}`, body)
+              : api.post('/courts', body);
           }),
         );
       } else {
         await Promise.all(
           activeDays.map((day) => {
-            const precio = (samePriceMode ? globalPrice : day.price_per_hour).trim().replace(',', '.');
-            return api.post('/courts', {
-              ...bodyBase,
-              price_per_hour: parseFloat(precio),
-              day_of_week: day.day_of_week,
-              opening_time: day.opening_time.substring(0, 5),
-              closing_time: day.closing_time.substring(0, 5),
-              status: 'DISPONIBLE',
-            });
+            const body = createCourtPayload(day);
+
+            if (imagen?.uri) {
+              const formPayload = new FormData();
+              appendPayloadToFormData(formPayload, body);
+              appendSelectedImage(formPayload);
+
+              return api.post('/courts', formPayload, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+              });
+            }
+
+            return api.post('/courts', body);
           }),
         );
       }
 
       setModalVisible(false);
+      setImagen(null);
       fetchPistas();
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || error.message || 'Error desconocido';
@@ -236,6 +300,8 @@ export function useCourtForm(
     samePriceMode,
     globalPrice,
     setGlobalPrice,
+    imagen,
+    setImagen,
     openModal,
     handleSave,
     updateWeeklySchedule,
