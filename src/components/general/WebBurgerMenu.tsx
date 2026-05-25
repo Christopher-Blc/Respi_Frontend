@@ -7,16 +7,13 @@ import {
   Pressable,
   StyleSheet,
 } from 'react-native';
-import { useRouter, useSegments } from 'expo-router';
+import { usePathname, useRouter } from 'expo-router';
 import Octicons from '@expo/vector-icons/Octicons';
 import { useAppTheme } from '../../context/ThemeContext';
-
-export type BurgerNavItem = {
-  label: string;
-  route: string;
-  icon: string;
-  segment: string;
-};
+import {
+  isNavigationRouteActive,
+  type BurgerNavItem,
+} from '../../utils/navigation';
 
 type Props = {
   navItems: BurgerNavItem[];
@@ -30,20 +27,10 @@ export default function WebBurgerMenu({
   const [open, setOpen] = useState(false);
   const { theme } = useAppTheme();
   const router = useRouter();
-  const segments = useSegments();
+  const pathname = usePathname();
 
-  const lastSegment = segments[segments.length - 1] ?? '';
-
-  const isActive = (item: BurgerNavItem) => {
-    if (item.segment === 'index') {
-      return (
-        lastSegment === 'index' ||
-        lastSegment === '(tabs)' ||
-        lastSegment === '(admin)'
-      );
-    }
-    return lastSegment === item.segment;
-  };
+  const isActive = (item: BurgerNavItem) =>
+    isNavigationRouteActive(pathname, item.pathMatch);
 
   const navigate = (route: string) => {
     setOpen(false);

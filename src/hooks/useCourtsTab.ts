@@ -13,6 +13,12 @@ const resolvePistaCardImage = (
   pista: Court,
   tipos: CourtType[],
 ): { uri: string } | undefined => {
+  if (pista.image) {
+    return {
+      uri: `${API_PUBLIC_URL}${pista.image.startsWith('/') ? '' : '/'}${pista.image}`,
+    };
+  }
+
   const tipo = tipos.find(
     (item) => String(item.id) === String(pista.court_type_id),
   );
@@ -82,6 +88,16 @@ export function useCourtsTab() {
     },
     [pistas],
   );
+
+  const getModelImagePath = (model: CourtType): string | undefined => {
+    const matchingCourt = pistas.find(
+      (pista) =>
+        String(pista.court_type_id) === String(model.id) &&
+        Boolean(pista.image),
+    );
+
+    return matchingCourt?.image || model.image;
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -207,5 +223,6 @@ export function useCourtsTab() {
     availableDays,
     formattedDate,
     clearSportFilter,
+    getModelImagePath,
   };
 }

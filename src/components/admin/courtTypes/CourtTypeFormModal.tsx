@@ -17,7 +17,7 @@ import { API_PUBLIC_URL } from '../../../constants';
 const getImageUri = (imagePath: string | null | undefined) => {
   if (!imagePath) return null;
   if (imagePath.startsWith('http')) return imagePath;
-  return `${API_PUBLIC_URL}/${imagePath}`;
+  return `${API_PUBLIC_URL}/${imagePath.replace(/^\//, '')}`;
 };
 
 type Props = {
@@ -115,35 +115,47 @@ export function TipoCourtFormModal({
 
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <TouchableOpacity
-              style={[
-                styles.btnAction,
-                {
-                  backgroundColor: theme.primary + '18',
-                  borderColor: theme.primarySoft,
-                  borderWidth: 1,
-                  marginBottom: 10,
-                },
-              ]}
+              style={{
+                flex: 1,
+                minHeight: 52,
+                borderRadius: 12,
+                borderWidth: 1,
+                borderStyle: 'dashed',
+                borderColor: theme.primarySoft,
+                backgroundColor: theme.primary + '10',
+                paddingHorizontal: 14,
+                marginBottom: 10,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
               onPress={pickImage}
             >
-              <Ionicons name="image-outline" size={18} color={theme.textBody} />
-              <Text
-                style={{
-                  color: theme.textBody,
-                  fontWeight: '600',
-                  marginLeft: 8,
-                }}
+              <View
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}
               >
-                {previewUri ? 'Cambiar imagen' : 'Seleccionar imagen'}
-              </Text>
+                <Ionicons
+                  name={previewUri ? 'sync-outline' : 'image-outline'}
+                  size={17}
+                  color={theme.primary}
+                />
+                <Text style={{ color: theme.textTitle, fontWeight: '600' }}>
+                  {previewUri ? 'Cambiar imagen' : 'Seleccionar imagen'}
+                </Text>
+              </View>
+              <Ionicons
+                name="chevron-forward"
+                size={16}
+                color={theme.textSubtitle}
+              />
             </TouchableOpacity>
 
             {previewUri ? (
               <Image
                 source={{ uri: previewUri }}
                 style={{
-                  width: 68,
-                  height: 38,
+                  width: 78,
+                  height: 44,
                   borderRadius: 8,
                   marginBottom: 10,
                   borderWidth: 1,

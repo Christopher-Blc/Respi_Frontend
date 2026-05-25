@@ -10,8 +10,8 @@ import { CourtAvailability } from '../../types/types';
 import { API_PUBLIC_URL } from '../../constants';
 
 const getImageForPista = (pista: CourtAvailability) => {
-  if (pista.courtType?.image) {
-    const path = pista.courtType.image;
+  const path = pista.image || pista.courtType?.image;
+  if (path) {
     return {
       uri: path.startsWith('http')
         ? path
