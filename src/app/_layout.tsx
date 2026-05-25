@@ -61,7 +61,7 @@ function WebStyleHandler() {
 }
 
 function AuthNavigation() {
-  const { userToken, isLoading, role } = useAuth();
+  const { userToken, isLoading, effectiveRole } = useAuth();
   const { theme, isThemeReady } = useAppTheme();
   const segments = useSegments() as string[];
   const router = useRouter();
@@ -108,18 +108,21 @@ function AuthNavigation() {
     if (userToken) {
       if (inAuthGroup || segments.length === 0 || segments[0] === 'index') {
         const dest =
-          role === 'SUPER_ADMIN' ? '/(app)/(admin)' : '/(app)/(tabs)';
+          effectiveRole === 'SUPER_ADMIN' ? '/(app)/(admin)' : '/(app)/(tabs)';
         router.replace(dest);
         return;
       }
 
-      if (role === 'SUPER_ADMIN' && !segments.includes('(admin)')) {
+      if (effectiveRole === 'SUPER_ADMIN' && !segments.includes('(admin)')) {
         router.replace('/(app)/(admin)');
-      } else if (role === 'CLIENTE' && !segments.includes('(tabs)')) {
+      } else if (
+        effectiveRole === 'CLIENTE' &&
+        !segments.includes('(tabs)')
+      ) {
         router.replace('/(app)/(tabs)');
       }
     }
-  }, [userToken, isLoading, segments, role]);
+  }, [userToken, isLoading, segments, effectiveRole]);
 
   if (isLoading || !isThemeReady) {
     return (
