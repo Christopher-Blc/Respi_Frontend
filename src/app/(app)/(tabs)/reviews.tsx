@@ -59,7 +59,7 @@ export default function ReviewsScreen() {
   const [editingText, setEditingText] = useState('');
   const [updatingReview, setUpdatingReview] = useState(false);
 
-  const isReviewFeatureEnabled = Number(user?.id) === 41;
+  const isReviewFeatureEnabled = Number(user?.id) === 41 || 31;
 
   const selectedCourtName = useMemo(() => {
     const found = reservedCourts.find(
