@@ -33,7 +33,7 @@ import api from '../../services/api';
 export default function ProfileView() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  const { signOut, role } = useAuth();
+  const { signOut, effectiveRole, canToggleRole, toggleRoleView } = useAuth();
   const {
     isDarkMode,
     isSystemTheme,
@@ -256,7 +256,7 @@ export default function ProfileView() {
           </Text> */}
           <View style={{ height: 15 }} />
 
-          {role !== 'SUPER_ADMIN' && (
+          {effectiveRole !== 'SUPER_ADMIN' && (
             <View style={styles.reservasCountCard}>
               <Text style={[styles.reservasNumber, { color: theme.textTitle }]}>
                 {totalReservas || 0}
@@ -307,7 +307,28 @@ export default function ProfileView() {
             />
           </View>
         </View>
-        {role !== 'SUPER_ADMIN' && (
+        {canToggleRole && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Modo de cuenta</Text>
+            <View
+              style={[styles.card, { backgroundColor: theme.backgroundCard }]}
+            >
+              <MenuOption
+                icon="swap-horizontal-outline"
+                title="Cambiar vista"
+                value={
+                  effectiveRole === 'SUPER_ADMIN'
+                    ? 'Admin'
+                    : 'Cliente'
+                }
+                isLast
+                onPress={toggleRoleView}
+              />
+            </View>
+          </View>
+        )}
+
+        {effectiveRole !== 'SUPER_ADMIN' && (
           <View style={styles.membresiaCard}>
             <Text style={styles.sectionTitle}>{t('profileMembership')}</Text>
             <View
