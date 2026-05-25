@@ -7,6 +7,7 @@ import {
   TextInput,
   Modal,
   Switch,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../context/ThemeContext';
@@ -20,6 +21,8 @@ import {
   WeeklyScheduleItem,
 } from '../../../types/types';
 import { useTranslation } from 'react-i18next';
+import * as ImagePicker from 'expo-image-picker';
+import { API_PUBLIC_URL } from '../../../constants';
 
 type Props = {
   visible: boolean;
@@ -47,6 +50,9 @@ type Props = {
   globalPrice: string;
   setGlobalPrice: (price: string) => void;
   toggleSamePrice: (enabled: boolean, price: string) => void;
+  imagen: ImagePicker.ImagePickerAsset | null;
+  setImagen: (value: ImagePicker.ImagePickerAsset | null) => void;
+  existingImageUri?: string;
 };
 
 const InputLabel = ({ label, theme }: { label: string; theme: any }) => (
@@ -80,6 +86,9 @@ export function CourtFormModal({
   globalPrice,
   setGlobalPrice,
   toggleSamePrice,
+  imagen,
+  setImagen,
+  existingImageUri,
 }: Props) {
   const { theme } = useAppTheme();
   const { t } = useTranslation();
@@ -87,6 +96,27 @@ export function CourtFormModal({
   const switchTrackOn = theme.primary;
   const switchThumbOff = theme.backgroundCard;
   const switchThumbOn = theme.onPrimary;
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 0.55,
+    });
+
+    if (!result.canceled && result.assets.length > 0) {
+      setImagen(result.assets[0]);
+    }
+  };
+
+  const previewUri =
+    imagen?.uri ||
+    (existingImageUri
+      ? existingImageUri.startsWith('http')
+        ? existingImageUri
+        : `${API_PUBLIC_URL}/${existingImageUri.replace(/^\//, '')}`
+      : null);
 
   return (
     <>
@@ -227,6 +257,106 @@ export function CourtFormModal({
                 value={formData.name}
                 onChangeText={(t) => setFormData({ ...formData, name: t })}
               />
+
+              <InputLabel label="Imagen de pista" theme={theme} />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 12,
+                  marginBottom: 14,
+                }}
+              >
+                <TouchableOpacity
+                  activeOpacity={0.88}
+                  style={{
+                    flex: 1,
+                    minHeight: 54,
+                    borderRadius: 12,
+                    borderWidth: 1,
+                    borderStyle: 'dashed',
+                    borderColor: theme.primarySoft,
+                    backgroundColor: theme.primary + '10',
+                    paddingHorizontal: 14,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 10,
+                  }}
+                  onPress={pickImage}
+                >
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 10,
+                      flex: 1,
+                    }}
+                  >
+                    <View
+                      style={{
+                        width: 30,
+                        height: 30,
+                        borderRadius: 15,
+                        backgroundColor: theme.primary + '24',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Ionicons
+                        name={
+                          previewUri ? 'sync-outline' : 'cloud-upload-outline'
+                        }
+                        size={16}
+                        color={theme.primary}
+                      />
+                    </View>
+
+                    <View style={{ flex: 1 }}>
+                      <Text
+                        style={{
+                          color: theme.textTitle,
+                          fontWeight: '700',
+                          fontSize: 13,
+                        }}
+                      >
+                        {previewUri
+                          ? 'Cambiar foto de la pista'
+                          : 'Subir foto de la pista'}
+                      </Text>
+                      <Text
+                        style={{
+                          color: theme.textBody,
+                          fontSize: 11,
+                          marginTop: 2,
+                        }}
+                      >
+                        Recomendado 16:9, maximo 1MB
+                      </Text>
+                    </View>
+                  </View>
+
+                  <Ionicons
+                    name="chevron-forward"
+                    size={16}
+                    color={theme.textSubtitle}
+                  />
+                </TouchableOpacity>
+
+                {previewUri ? (
+                  <Image
+                    source={{ uri: previewUri }}
+                    style={{
+                      width: 92,
+                      height: 54,
+                      borderRadius: 10,
+                      borderWidth: 1,
+                      borderColor: theme.primarySoft,
+                    }}
+                    resizeMode="cover"
+                  />
+                ) : null}
+              </View>
 
               <View style={{ flexDirection: 'row', gap: 12 }}>
                 <View style={{ flex: 1 }}>

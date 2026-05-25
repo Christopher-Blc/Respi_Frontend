@@ -28,6 +28,7 @@ export interface Court {
   id: number;
   installation_id: number;
   court_type_id: number;
+  image?: string;
   name: string;
   capacity: number;
   price_per_hour: string;

@@ -10,28 +10,17 @@ import {
 import { useRouter, usePathname } from 'expo-router';
 import Octicons from '@expo/vector-icons/Octicons';
 import { useAppTheme } from '../../context/ThemeContext';
-
-export type SidebarChildItem = {
-  label: string;
-  route: string;
-  pathMatch: string;
-};
-
-export type SidebarItem = {
-  label: string;
-  route?: string;
-  icon: string;
-  pathMatch: string;
-  children?: SidebarChildItem[];
-};
-
-export type SidebarSection = {
-  label: string;
-  items: SidebarItem[];
-};
+import {
+  getChildPathMatch,
+  getItemPathMatch,
+  isNavigationRouteActive,
+  type NavigationChildItem,
+  type NavigationItem,
+  type NavigationSection,
+} from '../../utils/navigation';
 
 type Props = {
-  sections: SidebarSection[];
+  sections: NavigationSection[];
   appName?: string;
   appSubtitle?: string;
   topAreaHeight?: number;
@@ -48,26 +37,18 @@ export default function WebSidebar({
   const pathname = usePathname();
   const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
 
-  const isRootPath = () =>
-    pathname === '/' ||
-    pathname === '/index' ||
-    pathname === '' ||
-    /^\/(app)\/(tabs|admin)\/?$/.test(pathname);
+  const isItemActive = (item: NavigationItem): boolean =>
+    isNavigationRouteActive(pathname, getItemPathMatch(item));
 
-  const isItemActive = (item: SidebarItem): boolean => {
-    if (item.pathMatch === '/') return isRootPath();
-    return pathname.includes(item.pathMatch);
-  };
-
-  const isChildActive = (child: SidebarChildItem) =>
-    pathname.includes(child.pathMatch);
+  const isChildActive = (child: NavigationChildItem) =>
+    isNavigationRouteActive(pathname, getChildPathMatch(child));
 
   const toggleOpen = (key: string) =>
     setOpenItems((prev) => ({ ...prev, [key]: !prev[key] }));
 
   const navigate = (route: string) => router.push(route as any);
 
-  const renderChild = (child: SidebarChildItem) => {
+  const renderChild = (child: NavigationChildItem) => {
     const active = isChildActive(child);
     return (
       <TouchableOpacity
@@ -142,14 +123,17 @@ export default function WebSidebar({
             {section.items.map((item) => {
               const hasChildren = !!item.children?.length;
               const active = !hasChildren && isItemActive(item);
-              const open = openItems[item.pathMatch] ?? false;
+              const itemKey = getItemPathMatch(item);
+              const hasActiveChild =
+                item.children?.some((child) => isChildActive(child)) ?? false;
+              const open = openItems[itemKey] ?? hasActiveChild;
 
               return (
-                <View key={item.pathMatch}>
+                <View key={itemKey}>
                   <TouchableOpacity
                     onPress={() => {
                       if (hasChildren) {
-                        toggleOpen(item.pathMatch);
+                        toggleOpen(itemKey);
                       } else if (item.route) {
                         navigate(item.route);
                       }
@@ -178,7 +162,7 @@ export default function WebSidebar({
                             ? (theme.onPrimary ?? '#fff')
                             : theme.textBody,
                         },
-                        (active || hasChildren) && s.bold,
+                        (active || hasChildren || hasActiveChild) && s.bold,
                       ]}
                     >
                       {item.label}

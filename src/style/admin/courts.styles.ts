@@ -161,6 +161,7 @@ export const pistasStyles = StyleSheet.create({
   },
   colName: { flex: 1.4, minWidth: 0, flexShrink: 1 },
   colType: { flex: 1, minWidth: 0, flexShrink: 1 },
+  colImage: { flex: 0.9, minWidth: 88, alignItems: 'center' },
   colPrice: { flex: 0.8, minWidth: 86 },
   colStatus: { flex: 1, minWidth: 100 },
   colActions: { flex: 1, minWidth: 92, alignItems: 'flex-end' },
