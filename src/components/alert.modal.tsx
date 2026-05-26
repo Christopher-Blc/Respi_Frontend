@@ -9,6 +9,7 @@ interface Props {
   visible: boolean;
   onConfirm: () => void;
   onCancel?: () => void;
+  variant?: 'session' | 'generic';
   title?: string;
   message?: string;
   confirmText?: string;
@@ -20,6 +21,7 @@ export const SessionExpiredModal = ({
   visible,
   onConfirm,
   onCancel,
+  variant = 'generic',
   title,
   message,
   confirmText,
@@ -28,8 +30,18 @@ export const SessionExpiredModal = ({
 }: Props) => {
   const { t } = useTranslation();
   const { isDarkMode, theme } = useAppTheme();
-  const resolvedTitle = title || t('modalSessionExpiredTitle');
-  const resolvedMessage = message || t('modalSessionExpiredMessage');
+  const resolvedTitle =
+    title ??
+    (variant === 'session'
+      ? t('modalSessionExpiredTitle')
+      : t('authConnectionError', { defaultValue: 'Error' }));
+  const resolvedMessage =
+    message ??
+    (variant === 'session'
+      ? t('modalSessionExpiredMessage')
+      : t('bookingCreateError', {
+          defaultValue: 'Ha ocurrido un error. Intentalo de nuevo.',
+        }));
   const resolvedConfirmText = confirmText || t('commonUnderstood');
   const resolvedCancelText = cancelText || t('commonCancel');
 
