@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master # Make sure this matches your branch name (main or master)
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
