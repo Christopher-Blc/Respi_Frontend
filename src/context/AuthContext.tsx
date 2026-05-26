@@ -21,20 +21,30 @@ import api from '../services/api';
 const AuthContext = createContext<{
   userToken: string | null;
   role: 'SUPER_ADMIN' | 'CLIENTE' | null;
+  effectiveRole: 'SUPER_ADMIN' | 'CLIENTE' | null;
+  canToggleRole: boolean;
   isLoading: boolean;
   signIn: (accessToken: string, refreshToken: string) => void;
   signOut: () => void;
+  toggleRoleView: () => void;
 }>({
   userToken: null,
   role: null,
+  effectiveRole: null,
+  canToggleRole: false,
   isLoading: true,
   signIn: () => {},
   signOut: () => {},
+  toggleRoleView: () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userToken, setUserToken] = useState<string | null>(null);
   const [role, setRole] = useState<'SUPER_ADMIN' | 'CLIENTE' | null>(null);
+  const [userId, setUserId] = useState<number | null>(null);
+  const [roleViewOverride, setRoleViewOverride] = useState<
+    'SUPER_ADMIN' | 'CLIENTE' | null
+  >(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showExpiredModal, setShowExpiredModal] = useState(false);
   const suppressForcedLogoutModalRef = useRef(false);
@@ -44,11 +54,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const decoded = jwtDecode(token) as unknown as JWTPayload;
       if (decoded && decoded.role) {
         setRole(decoded.role);
+        setUserId(Number(decoded.sub));
       }
     } catch (error) {
       console.error('Error decodificando el token:', error);
       setRole(null);
+      setUserId(null);
     }
+  };
+
+  const canToggleRole = userId === 31 || userId === 41;
+  const effectiveRole =
+    canToggleRole && roleViewOverride ? roleViewOverride : role;
+
+  const toggleRoleView = () => {
+    if (!canToggleRole) return;
+    const current = effectiveRole ?? role;
+    const next = current === 'SUPER_ADMIN' ? 'CLIENTE' : 'SUPER_ADMIN';
+    setRoleViewOverride(next);
   };
 
   useEffect(() => {
@@ -96,6 +119,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Cambiamos signIn para recibir ambos
         signIn: async (accessToken, refreshToken) => {
           suppressForcedLogoutModalRef.current = false;
+          setRoleViewOverride(null);
           setUserToken(accessToken);
           decodeAndSetRole(accessToken);
           await saveToken(accessToken);
@@ -115,6 +139,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
           setUserToken(null);
           setRole(null);
+          setUserId(null);
+          setRoleViewOverride(null);
           await logout(false); // Esto ya borra ambos tokens según tu authStorage
           router.replace('/(auth)/login');
 
@@ -123,6 +149,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             suppressForcedLogoutModalRef.current = false;
           }, 2000);
         },
+        effectiveRole,
+        canToggleRole,
+        toggleRoleView,
       }}
     >
       {children}
