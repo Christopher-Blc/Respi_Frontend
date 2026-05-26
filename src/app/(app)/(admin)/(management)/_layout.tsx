@@ -53,6 +53,10 @@ export default function ManagementLayout() {
         name="validar-reserva"
         options={{ title: 'Validar reserva' }}
       />
+      <Stack.Screen
+        name="pagos"
+        options={{ title: 'Pagos' }}
+      />
     </Stack>
   );
 }

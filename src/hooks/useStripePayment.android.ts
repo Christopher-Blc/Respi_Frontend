@@ -16,12 +16,14 @@ function useMockStripePayment(): UseStripePaymentResult {
   const [modalAmount, setModalAmount] = useState('0.00');
   const [modalMerchant, setModalMerchant] = useState('ResPi');
   const resolveRef = useRef<((paid: boolean) => void) | null>(null);
+  const reservationIdRef = useRef<number>(0);
 
   const initAndPay = (
-    _reservationId: number,
+    reservationId: number,
     merchantName = 'ResPi',
     amount = '0.00',
   ): Promise<boolean> => {
+    reservationIdRef.current = reservationId;
     setModalMerchant(merchantName);
     setModalAmount(amount);
     setVisible(true);
@@ -35,9 +37,13 @@ function useMockStripePayment(): UseStripePaymentResult {
     await new Promise<void>((r) => setTimeout(r, 1200));
     setLoading(false);
     setVisible(false);
+    try {
+      await api.post('/stripe/manual-confirm', { reservationId: reservationIdRef.current });
+    } catch (e) {
+      console.warn('[DEV] manual-confirm failed', e);
+    }
     resolveRef.current?.(true);
     resolveRef.current = null;
-    console.log('[DEV] Pago simulado en Android Expo Go completado');
   };
 
   const handleCancel = () => {
@@ -77,9 +83,9 @@ function useRealStripePayment(): UseStripePaymentResult {
       );
       const { clientSecret } = response.data;
 
-      if (!clientSecret) {
-        throw new Error('No se recibió clientSecret del servidor');
-      }
+      if (!clientSecret) throw new Error('No se recibió clientSecret del servidor');
+
+      const paymentIntentId = clientSecret.split('_secret_')[0];
 
       const { error: initError } = await initPaymentSheet({
         paymentIntentClientSecret: clientSecret,
@@ -88,24 +94,24 @@ function useRealStripePayment(): UseStripePaymentResult {
         allowsDelayedPaymentMethods: false,
       });
 
-      if (initError) {
-        throw new Error(initError.message);
-      }
+      if (initError) throw new Error(initError.message);
 
       const { error: presentError } = await presentPaymentSheet();
 
       if (presentError) {
-        if (presentError.code === 'Canceled') {
-          return false;
-        }
+        if (presentError.code === 'Canceled') return false;
         throw new Error(presentError.message);
+      }
+
+      try {
+        await api.post('/stripe/manual-confirm', { reservationId, paymentIntentId });
+      } catch (e) {
+        console.warn('[Stripe] manual-confirm failed, webhook may handle it', e);
       }
 
       return true;
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Error procesando el pago';
-      setError(message);
+      setError(err instanceof Error ? err.message : 'Error procesando el pago');
       return false;
     } finally {
       setLoading(false);

@@ -22,6 +22,8 @@ export function useStripePayment(): UseStripePaymentResult {
         { reservationId },
       );
 
+      const paymentIntentId = data.clientSecret.split('_secret_')[0];
+
       const { error: initError } = await initPaymentSheet({
         paymentIntentClientSecret: data.clientSecret,
         merchantDisplayName: merchantName,
@@ -36,20 +38,20 @@ export function useStripePayment(): UseStripePaymentResult {
       const { error: presentError } = await presentPaymentSheet();
 
       if (presentError) {
-        if (presentError.code === 'Canceled') {
-          return false;
-        }
+        if (presentError.code === 'Canceled') return false;
         setError(presentError.message);
         return false;
       }
 
+      try {
+        await api.post('/stripe/manual-confirm', { reservationId, paymentIntentId });
+      } catch (e) {
+        console.warn('[Stripe] manual-confirm failed, webhook may handle it', e);
+      }
+
       return true;
     } catch (err: any) {
-      const message =
-        err?.response?.data?.message ||
-        err?.message ||
-        'Error al procesar el pago';
-      setError(message);
+      setError(err?.response?.data?.message ?? err?.message ?? 'Error al procesar el pago');
       return false;
     } finally {
       setLoading(false);
