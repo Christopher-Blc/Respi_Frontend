@@ -8,6 +8,7 @@ interface Props {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
+  placeholderTextColor?: string;
   label?: string;
   keyboardType?: React.ComponentProps<typeof RNTextInput>['keyboardType'];
   readonly?: boolean;
@@ -27,6 +28,7 @@ export const GlassTextInput: React.FC<Props> = ({
   value,
   onChangeText,
   placeholder,
+  placeholderTextColor,
   label,
   keyboardType = 'default',
   readonly = false,
@@ -57,7 +59,7 @@ export const GlassTextInput: React.FC<Props> = ({
         onChangeText={onChangeText}
         // 2. Si está focused, quitamos el placeholder para que no moleste
         placeholder={isFocused ? '' : placeholder || t('exampleText')}
-        placeholderTextColor={theme.inputPlaceholder}
+        placeholderTextColor={placeholderTextColor || theme.inputPlaceholder}
         mode="flat"
         underlineColor="transparent"
         activeUnderlineColor="transparent"

@@ -36,6 +36,7 @@ const Login: React.FC = () => {
   const { t } = useTranslation();
   const { isDarkMode, theme } = useAppTheme();
   const styles = useMemo(() => createLoginStyles(theme), [theme]);
+  const loginTextColor = theme.textBody;
 
   const { signIn } = useAuth();
 
@@ -110,36 +111,40 @@ const Login: React.FC = () => {
           {t('authLoginTitle')}
         </Text>
 
-        <Text style={[styles.label, { color: theme.grayLabelText }]}>
+        <Text style={[styles.label, { color: loginTextColor }]}>
           {t('authLoginEmail')}:
         </Text>
         <GlassTextInput
           autoComplete="email"
           keyboardType="email-address"
           placeholder={t('exampleEmail')}
+          placeholderTextColor={loginTextColor}
           value={email}
           onChangeText={setEmail}
         />
 
-        <Text style={[styles.label, { color: theme.grayLabelText }]}>
+        <Text style={[styles.label, { color: loginTextColor }]}>
           {t('authLoginPassword')}:
         </Text>
         <GlassTextInputPassword
           autoComplete="current-password"
           placeholder={t('examplePassword')}
+          placeholderTextColor={loginTextColor}
           value={password}
           onChangeText={setPassword}
         />
 
         <Text
           style={{
-            color: theme.textBody,
+            color: '#1F2937',
             textAlign: 'left',
             fontSize: 12,
-            left: 0,
-            alignSelf: 'stretch',
+            alignSelf: 'flex-start',
             marginBottom: 15,
             textDecorationLine: 'underline',
+            textShadowColor: 'rgba(255, 255, 255, 0.72)',
+            textShadowOffset: { width: 0, height: 0 },
+            textShadowRadius: 7,
           }}
           onPress={() =>
             router.push({
@@ -162,7 +167,14 @@ const Login: React.FC = () => {
 
         {/* Registro */}
         <Text
-          style={{ color: theme.textBody, textAlign: 'center', fontSize: 14 }}
+          style={{
+            color: '#1F2937',
+            textAlign: 'center',
+            fontSize: 14,
+            textShadowColor: 'rgba(255, 255, 255, 0.68)',
+            textShadowOffset: { width: 0, height: 0 },
+            textShadowRadius: 6,
+          }}
         >
           {t('authLoginNoAccount')}{' '}
           <Text

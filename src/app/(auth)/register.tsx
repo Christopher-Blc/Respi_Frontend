@@ -65,6 +65,7 @@ const Register: React.FC = () => {
 
   const { isDarkMode, theme } = useAppTheme();
   const styles = React.useMemo(() => createRegisterStyles(theme), [theme]);
+  const registerTextColor = theme.textBody;
 
   //Igual que en el login , hacemos una funcion de renderform para que devuelva el formulario principal
   //y en el return normal , tenemos el control si es web o mobil
@@ -140,7 +141,7 @@ const Register: React.FC = () => {
             style={[
               styles.label,
               {
-                color: theme.grayLabelText,
+                color: registerTextColor,
               },
             ]}
           >
@@ -149,6 +150,7 @@ const Register: React.FC = () => {
           <GlassTextInput
             autoComplete="name"
             placeholder={t('authRegisterName')}
+            placeholderTextColor={registerTextColor}
             value={name}
             onChangeText={setName}
           />
@@ -157,7 +159,7 @@ const Register: React.FC = () => {
             style={[
               styles.label,
               {
-                color: theme.grayLabelText,
+                color: registerTextColor,
               },
             ]}
           >
@@ -166,6 +168,7 @@ const Register: React.FC = () => {
           <GlassTextInput
             autoComplete="family-name"
             placeholder={t('authRegisterSurname')}
+            placeholderTextColor={registerTextColor}
             value={surname}
             onChangeText={setSurname}
           />
@@ -174,7 +177,7 @@ const Register: React.FC = () => {
             style={[
               styles.label,
               {
-                color: theme.grayLabelText,
+                color: registerTextColor,
               },
             ]}
           >
@@ -183,6 +186,7 @@ const Register: React.FC = () => {
           <GlassTextInput
             autoComplete="username"
             placeholder={t('authRegisterUsername')}
+            placeholderTextColor={registerTextColor}
             value={username}
             onChangeText={setUsername}
           />
@@ -191,7 +195,7 @@ const Register: React.FC = () => {
             style={[
               styles.label,
               {
-                color: theme.grayLabelText,
+                color: registerTextColor,
               },
             ]}
           >
@@ -201,6 +205,7 @@ const Register: React.FC = () => {
             autoComplete="email"
             keyboardType="email-address"
             placeholder={t('exampleEmail')}
+            placeholderTextColor={registerTextColor}
             value={email}
             onChangeText={setEmail}
           />
@@ -209,7 +214,7 @@ const Register: React.FC = () => {
             style={[
               styles.label,
               {
-                color: theme.grayLabelText,
+                color: registerTextColor,
               },
             ]}
           >
@@ -249,7 +254,7 @@ const Register: React.FC = () => {
                   style={{
                     color: isPhoneFocused
                       ? theme.inputFocus
-                      : theme.grayLabelText,
+                      : registerTextColor,
                     fontWeight: '700',
                     fontSize: 13,
                   }}
@@ -266,7 +271,7 @@ const Register: React.FC = () => {
                 onFocus={() => setIsPhoneFocused(true)}
                 onBlur={() => setIsPhoneFocused(false)}
                 placeholder={isPhoneFocused ? '' : t('authRegisterPhone')}
-                placeholderTextColor={theme.inputPlaceholder}
+                placeholderTextColor={registerTextColor}
                 selectionColor={theme.inputFocus}
                 style={{
                   flex: 1,
@@ -294,7 +299,7 @@ const Register: React.FC = () => {
             style={[
               styles.label,
               {
-                color: theme.grayLabelText,
+                color: registerTextColor,
               },
             ]}
           >
@@ -303,6 +308,7 @@ const Register: React.FC = () => {
           <GlassTextInputPassword
             autoComplete="new-password"
             placeholder={t('examplePassword')}
+            placeholderTextColor={registerTextColor}
             value={password}
             onChangeText={setPassword}
           />
@@ -312,7 +318,7 @@ const Register: React.FC = () => {
             style={[
               styles.label,
               {
-                color: theme.grayLabelText,
+                color: registerTextColor,
               },
             ]}
           >
@@ -322,6 +328,7 @@ const Register: React.FC = () => {
           <View style={styles.inputWrapper}>
             <GlassTextInput
               placeholder="DD/MM/YYYY"
+              placeholderTextColor={registerTextColor}
               value={birthDate}
               onChangeText={handleTextChange}
             />
@@ -385,7 +392,7 @@ const Register: React.FC = () => {
             style={[
               styles.label,
               {
-                color: theme.grayLabelText,
+                color: registerTextColor,
               },
             ]}
           >
@@ -394,6 +401,7 @@ const Register: React.FC = () => {
           <GlassTextInput
             autoComplete="off"
             placeholder={t('authRegisterLocation')}
+            placeholderTextColor={registerTextColor}
             value={location}
             onChangeText={setLocation}
           />

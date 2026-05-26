@@ -50,9 +50,9 @@ const createLoginStyles = (theme: AppTheme) =>
       color: theme.textSecondary,
       textAlign: 'center',
       lineHeight: 22,
-      textShadowColor: theme.surfaceGlass,
-      textShadowOffset: { width: 1, height: 1 },
-      textShadowRadius: 5,
+      textShadowColor: 'rgba(255, 255, 255, 0.72)',
+      textShadowOffset: { width: 0, height: 0 },
+      textShadowRadius: 10,
     },
     input: {
       width: '100%',
