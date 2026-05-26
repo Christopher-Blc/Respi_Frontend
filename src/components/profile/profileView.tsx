@@ -221,8 +221,8 @@ export default function ProfileView() {
         {showMariaCard && (
           <View style={styles.mariaCard}>
             <View style={styles.mariaCardTextWrap}>
-              <Text style={styles.mariaCardTextShadow}>Maria</Text>
-              <Text style={styles.mariaCardText}>Maria</Text>
+              <Text style={styles.mariaCardTextShadow}>María</Text>
+              <Text style={styles.mariaCardText}>María</Text>
             </View>
           </View>
         )}
