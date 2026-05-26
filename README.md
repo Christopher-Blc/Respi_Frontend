@@ -13,7 +13,7 @@ ResPi conecta a usuarios con pistas deportivas: consultar disponibilidad, crear 
 
 ## Estado actual
 
-El frontend está **en fase avanzada de desarrollo**. Las funcionalidades implementadas incluyen:
+El frontend está **en fase avanzada de desarrollo** , estando a punto de terminarse. Las funcionalidades implementadas incluyen:
 
 ### Autenticación
 - Login con JWT + refresh token automático
