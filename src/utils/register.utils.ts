@@ -80,7 +80,6 @@ export type RegisterRequiredFields = {
   username: string;
   phone: string;
   birthDate: string;
-  location: string;
 };
 
 export const hasRequiredRegisterFields = (
@@ -93,7 +92,6 @@ export const hasRequiredRegisterFields = (
       fields.surname &&
       fields.username &&
       fields.phone &&
-      fields.birthDate &&
-      fields.location,
+      fields.birthDate,
   );
 };

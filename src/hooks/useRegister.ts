@@ -24,7 +24,6 @@ export const useRegister = () => {
   const [password, setPassword] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [date, setDate] = useState(new Date(2000, 0, 1));
-  const [location, setLocation] = useState('');
   const [showPicker, setShowPicker] = useState(false);
   const [isPhoneFocused, setIsPhoneFocused] = useState(false);
   const [showCountryPicker, setShowCountryPicker] = useState(false);
@@ -92,7 +91,6 @@ export const useRegister = () => {
         username,
         phone: sanitizedPhone,
         birthDate,
-        location,
       })
     ) {
       setError(t('authLoginEmptyFields'));
@@ -121,7 +119,6 @@ export const useRegister = () => {
         phone: `${selectedCountry.code}${sanitizedPhone}`,
         password,
         date_of_birth: formatLocalDateForApi(parsedBirthDate),
-        address: location,
       });
 
       if (response.status === 201) {
@@ -152,8 +149,6 @@ export const useRegister = () => {
     setPassword,
     birthDate,
     date,
-    location,
-    setLocation,
     showPicker,
     setShowPicker,
     isPhoneFocused,

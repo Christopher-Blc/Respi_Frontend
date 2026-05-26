@@ -18,6 +18,7 @@ El frontend está **en fase avanzada de desarrollo**. Las funcionalidades implem
 ### Autenticación
 - Login con JWT + refresh token automático
 - Registro de nuevos usuarios
+- Registro simplificado (sin campo de dirección)
 - Persistencia de sesión con Expo Secure Store
 - Redirección automática según rol (admin / cliente)
 
@@ -91,15 +92,20 @@ npx expo start
 La app ya incluye:
 - Registro de listeners globales en `src/app/_layout.tsx`
 - Servicio central de notificaciones en `src/services/notificationsService.ts`
-- Acciones desde Perfil para:
-  - Solicitar permisos y obtener token Expo Push
-  - Programar una notificación local de prueba
+- Pantalla de historial en `src/app/(app)/(tabs)/notifications-history.tsx` con:
+  - Activación/desactivación de notificaciones
+  - Historial local de notificaciones recientes
+
+### Acceso por plataforma
+
+- En móvil (Android/iOS): el acceso a notificaciones aparece en Perfil.
+- En web: el acceso a notificaciones está oculto en Perfil.
 
 ### Cómo probar
 
-1. Abre la app y entra en **Perfil**.
-2. Pulsa **Notificaciones** para conceder permisos.
-3. Pulsa **Notificacion de prueba** para recibir una local en ~2 segundos.
+1. Abre la app y entra en **Perfil** (móvil).
+2. Pulsa **Notificaciones** para abrir el historial.
+3. Activa el switch de notificaciones y concede permisos cuando se soliciten.
 
 ### Notas importantes
 
@@ -140,9 +146,19 @@ Todas las peticiones pasan por el cliente Axios (`src/services/api.ts`) con inte
 
 ---
 
-generar apk android: eas build --platform android --profile preview
+## Build y despliegue APK
 
-subir apk a server: scp ResPi_dev1.0.1.apk respi@respi.es:/home/respi/ProyectoApp_Acceso_A_Datos/public
+Generar APK Android:
+
+```bash
+eas build --platform android --profile preview
+```
+
+Subir APK al servidor:
+
+```bash
+scp ResPi_dev1.0.1.apk respi@respi.es:/home/respi/ProyectoApp_Acceso_A_Datos/public
+```
 
 ---
 
