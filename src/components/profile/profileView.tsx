@@ -85,6 +85,12 @@ export default function ProfileView() {
   const themeOrangeLabel = t('profileThemeOrange', { defaultValue: 'Orange' });
   const themeRedLabel = t('profileThemeRed', { defaultValue: 'Red' });
   const themeCyanLabel = t('profileThemeCyan', { defaultValue: 'Cyan' });
+  const themePastelPinkLabel = t('profileThemePastelPink', {
+    defaultValue: 'Pastel Pink',
+  });
+  const themeSkyBlueLabel = t('profileThemeSkyBlue', {
+    defaultValue: 'Sky Blue',
+  });
 
   const themePaletteLabel =
     themePalette === 'blue'
@@ -95,7 +101,11 @@ export default function ProfileView() {
           ? themeRedLabel
           : themePalette === 'cyan'
             ? themeCyanLabel
-            : themeOrangeLabel;
+            : themePalette === 'pastelPink'
+              ? themePastelPinkLabel
+              : themePalette === 'skyBlue'
+                ? themeSkyBlueLabel
+                : themeOrangeLabel;
 
   const themeModeLabel = isSystemTheme
     ? t('profileSystem')
@@ -115,7 +125,8 @@ export default function ProfileView() {
   const currentLanguage = getAppLanguage(
     i18n.resolvedLanguage || i18n.language,
   );
-  const isReviewFeatureEnabled = Number(user?.id) === 41 || 31;
+  const isReviewFeatureEnabled =
+    Number(user?.id) === 41 || Number(user?.id) === 31;
 
   //handlers que se usan en los botones
   const handleLogout = async () => {
@@ -316,11 +327,7 @@ export default function ProfileView() {
               <MenuOption
                 icon="swap-horizontal-outline"
                 title="Cambiar vista"
-                value={
-                  effectiveRole === 'SUPER_ADMIN'
-                    ? 'Admin'
-                    : 'Cliente'
-                }
+                value={effectiveRole === 'SUPER_ADMIN' ? 'Admin' : 'Cliente'}
                 isLast
                 onPress={toggleRoleView}
               />
