@@ -125,7 +125,8 @@ export default function ProfileView() {
   const currentLanguage = getAppLanguage(
     i18n.resolvedLanguage || i18n.language,
   );
-  const isReviewFeatureEnabled = Number(user?.id) === 41 || 31;
+  const isReviewFeatureEnabled =
+    Number(user?.id) === 41 || Number(user?.id) === 31;
 
   //handlers que se usan en los botones
   const handleLogout = async () => {
@@ -326,11 +327,7 @@ export default function ProfileView() {
               <MenuOption
                 icon="swap-horizontal-outline"
                 title="Cambiar vista"
-                value={
-                  effectiveRole === 'SUPER_ADMIN'
-                    ? 'Admin'
-                    : 'Cliente'
-                }
+                value={effectiveRole === 'SUPER_ADMIN' ? 'Admin' : 'Cliente'}
                 isLast
                 onPress={toggleRoleView}
               />
