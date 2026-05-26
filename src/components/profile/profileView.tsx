@@ -85,6 +85,12 @@ export default function ProfileView() {
   const themeOrangeLabel = t('profileThemeOrange', { defaultValue: 'Orange' });
   const themeRedLabel = t('profileThemeRed', { defaultValue: 'Red' });
   const themeCyanLabel = t('profileThemeCyan', { defaultValue: 'Cyan' });
+  const themePastelPinkLabel = t('profileThemePastelPink', {
+    defaultValue: 'Pastel Pink',
+  });
+  const themeSkyBlueLabel = t('profileThemeSkyBlue', {
+    defaultValue: 'Sky Blue',
+  });
 
   const themePaletteLabel =
     themePalette === 'blue'
@@ -95,7 +101,11 @@ export default function ProfileView() {
           ? themeRedLabel
           : themePalette === 'cyan'
             ? themeCyanLabel
-            : themeOrangeLabel;
+            : themePalette === 'pastelPink'
+              ? themePastelPinkLabel
+              : themePalette === 'skyBlue'
+                ? themeSkyBlueLabel
+                : themeOrangeLabel;
 
   const themeModeLabel = isSystemTheme
     ? t('profileSystem')

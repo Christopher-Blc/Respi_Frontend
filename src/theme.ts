@@ -1,12 +1,14 @@
 import { MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
 
-export type ThemePalette = 'orange' | 'blue' | 'green' | 'red' | 'cyan';
+export type ThemePalette = 'orange' | 'blue' | 'green' | 'red' | 'cyan' | 'pastelPink' | 'skyBlue';
 export const THEME_PALETTES: readonly ThemePalette[] = [
   'orange',
   'blue',
   'green',
   'red',
   'cyan',
+  'pastelPink',
+  'skyBlue',
 ];
 
 export type AppTheme = {
@@ -377,6 +379,46 @@ const paletteTokens: Record<ThemePalette, PaletteTokens> = {
     avatarTextDark: '#80DEEA',
     buttonGradientAltLight: ['#CFFAFE', '#ECFEFF'],
     buttonGradientAltDark: ['#0E7490', '#112329'],
+  },
+  pastelPink: {
+    primary: '#F0A8D8',
+    primarySoft: 'rgba(240, 168, 216, 0.16)',
+    borderAccentSoft: 'rgba(240, 168, 216, 0.35)',
+    iconPrimary: '#F0A8D8',
+    avatarBorder: '#F08FCC',
+    profileGradientMiddleLight: '#FFE0F0',
+    profileGradientMiddleDark: '#2A1A22',
+    success: '#F0A8D8',
+    successSoftLight: 'rgba(240, 168, 216, 0.16)',
+    successSoftDark: 'rgba(240, 168, 216, 0.24)',
+    primaryButtonLight: 'rgba(240, 168, 216, 0.43)',
+    primaryButtonDark: 'rgba(240, 168, 216, 0.45)',
+    borderMainLight: '#E6BFDB',
+    borderMainDark: '#3D2A3A',
+    avatarTextLight: '#C2488F',
+    avatarTextDark: '#F5C8E8',
+    buttonGradientAltLight: ['#F5D5E8', '#FCE8F3'],
+    buttonGradientAltDark: ['#D95AB5', '#3B2535'],
+  },
+  skyBlue: {
+    primary: '#87CEEB',
+    primarySoft: 'rgba(135, 206, 235, 0.16)',
+    borderAccentSoft: 'rgba(135, 206, 235, 0.35)',
+    iconPrimary: '#87CEEB',
+    avatarBorder: '#79BFDB',
+    profileGradientMiddleLight: '#E0F7FF',
+    profileGradientMiddleDark: '#0F1E2A',
+    success: '#87CEEB',
+    successSoftLight: 'rgba(135, 206, 235, 0.16)',
+    successSoftDark: 'rgba(135, 206, 235, 0.24)',
+    primaryButtonLight: 'rgba(135, 206, 235, 0.43)',
+    primaryButtonDark: 'rgba(135, 206, 235, 0.45)',
+    borderMainLight: '#B8D9E8',
+    borderMainDark: '#1F3A4D',
+    avatarTextLight: '#3B7E9F',
+    avatarTextDark: '#B5E7F5',
+    buttonGradientAltLight: ['#D5F2FF', '#ECFAFF'],
+    buttonGradientAltDark: ['#4A9BC7', '#0F2A3D'],
   },
 };
 
