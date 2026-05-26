@@ -43,8 +43,6 @@ const Register: React.FC = () => {
     setPassword,
     birthDate,
     date,
-    location,
-    setLocation,
     showPicker,
     setShowPicker,
     isPhoneFocused,
@@ -387,24 +385,6 @@ const Register: React.FC = () => {
               textColor={theme.textPrimary}
             />
           )}
-
-          <Text
-            style={[
-              styles.label,
-              {
-                color: registerTextColor,
-              },
-            ]}
-          >
-            {t('authRegisterLocation')}:
-          </Text>
-          <GlassTextInput
-            autoComplete="off"
-            placeholder={t('authRegisterLocation')}
-            placeholderTextColor={registerTextColor}
-            value={location}
-            onChangeText={setLocation}
-          />
 
           <GlassTextButton
             text={t('authRegisterButton')}
