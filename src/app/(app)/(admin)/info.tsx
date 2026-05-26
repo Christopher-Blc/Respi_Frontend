@@ -169,11 +169,6 @@ export default function InfoAdmin() {
               gap: 14,
             }}
           >
-            <Image
-              source={require('../../../../assets/icon.png')}
-              style={{ width: 48, height: 48, borderRadius: 12 }}
-              resizeMode="contain"
-            />
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 18, fontWeight: '900', color: ORANGE }}>
                 {t('adminReportsSectionTitle')}
@@ -191,7 +186,6 @@ export default function InfoAdmin() {
             </View>
           </View>
 
-          {/* Botons d'informe */}
           {reportOptions.map((item) => {
             const isLoading = reportLoading[item.type];
             return (

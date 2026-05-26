@@ -8,6 +8,7 @@ interface Props {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
+  placeholderTextColor?: string;
   label?: string;
   autoComplete?: 'password' | 'current-password' | 'new-password' | 'off';
 }
@@ -16,6 +17,7 @@ export const GlassTextInputPassword: React.FC<Props> = ({
   value,
   onChangeText,
   placeholder,
+  placeholderTextColor,
   label,
   autoComplete = 'off',
 }) => {
@@ -43,7 +45,7 @@ export const GlassTextInputPassword: React.FC<Props> = ({
         value={value}
         onChangeText={onChangeText}
         placeholder={isFocused ? '' : placeholder || t('examplePassword')}
-        placeholderTextColor={theme.inputPlaceholder}
+        placeholderTextColor={placeholderTextColor || theme.inputPlaceholder}
         secureTextEntry={!passwordVisible}
         mode="flat"
         underlineColor="transparent"
