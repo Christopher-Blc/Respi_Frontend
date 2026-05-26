@@ -22,6 +22,7 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { useRouter } from 'expo-router';
 import { StoredNotification } from '../../../services/notificationHistoryService';
 import { requestPushPermissionsAndToken } from '../../../services/notificationsService';
+import { ROUTES } from '../../../utils/routes';
 
 export default function NotificationsHistory() {
   const { t } = useTranslation();
@@ -252,7 +253,7 @@ export default function NotificationsHistory() {
           ]}
         >
           <TouchableOpacity
-            onPress={() => router.back()}
+            onPress={() => router.replace(ROUTES.userTabs.profile)}
             style={styles.backButton}
           >
             <Ionicons name="chevron-back" size={28} color={theme.textTitle} />

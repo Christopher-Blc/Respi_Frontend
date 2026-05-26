@@ -1,12 +1,5 @@
 ﻿import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  ActivityIndicator,
-  Platform,
-  Alert,
-  Image,
-} from 'react-native';
+import { View, Text, ActivityIndicator, Platform, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
@@ -20,14 +13,11 @@ import EditPasswordModal from '../../components/profile/editPassword.modal';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import MembresiaModal from '../../components/profile/membership.modal';
+import { SessionExpiredModal } from '../../components/alert.modal';
 import { ThemePalette } from '../../theme';
 import { useProfile } from '../../hooks/useProfile';
 import { useTranslation } from 'react-i18next';
 import { getAppLanguage } from '../../i18n';
-import {
-  requestPushPermissionsAndToken,
-  scheduleLocalNotification,
-} from '../../services/notificationsService';
 import api from '../../services/api';
 
 export default function ProfileView() {
@@ -69,9 +59,7 @@ export default function ProfileView() {
     useState(false);
   const [modalEditPasswordVisible, setModalEditPasswordVisible] =
     useState(false);
-  const [notificationStatus, setNotificationStatus] = useState(
-    t('profileDisabled', { defaultValue: 'Desactivado' }),
-  );
+  const [modalPrivacyVisible, setModalPrivacyVisible] = useState(false);
 
   //estados para darkmode que pilla de settings del dispositivo
   const [initialDarkModeValue, setInitialDarkModeValue] = useState(isDarkMode);
@@ -128,6 +116,10 @@ export default function ProfileView() {
   const showMariaCard = Number(user?.id) === 41;
   const isReviewFeatureEnabled =
     Number(user?.id) === 41 || Number(user?.id) === 31;
+  const showRoleOption = canToggleRole;
+  const showMembershipOption = effectiveRole !== 'SUPER_ADMIN';
+  const showReviewsOption = isReviewFeatureEnabled;
+  const showNotificationsOption = Platform.OS !== 'web';
 
   //handlers que se usan en los botones
   const handleLogout = async () => {
@@ -179,60 +171,6 @@ export default function ProfileView() {
       console.error('Error guardando preferencia de modo oscuro', error);
     } finally {
       setModalDarkmodeVisible(false);
-    }
-  };
-
-  const handleEnableNotifications = async () => {
-    const result = await requestPushPermissionsAndToken();
-
-    if (!result.granted) {
-      setNotificationStatus(
-        t('profileDisabled', { defaultValue: 'Desactivado' }),
-      );
-      Alert.alert(
-        t('profileNotifications', { defaultValue: 'Notificaciones' }),
-        result.error || t('authConnectionError', { defaultValue: 'Error' }),
-      );
-      return;
-    }
-
-    setNotificationStatus(t('profileEnabled', { defaultValue: 'Activado' }));
-
-    if (result.token) {
-      console.log('Expo push token:', result.token);
-    }
-
-    Alert.alert(
-      t('profileNotifications', { defaultValue: 'Notificaciones' }),
-      t('notificationsEnabledMessage', {
-        defaultValue: 'Notificaciones activadas correctamente.',
-      }),
-    );
-  };
-
-  const handleSendTestNotification = async () => {
-    try {
-      await scheduleLocalNotification(
-        t('notificationsTestTitle', { defaultValue: 'Recordatorio ResPi' }),
-        t('notificationsTestBody', {
-          defaultValue: 'Esta es una notificacion local de prueba.',
-        }),
-      );
-
-      Alert.alert(
-        t('profileNotifications', { defaultValue: 'Notificaciones' }),
-        t('notificationsScheduledMessage', {
-          defaultValue: 'Notificacion de prueba programada en 2 segundos.',
-        }),
-      );
-    } catch (error) {
-      console.error('Error scheduling test notification', error);
-      Alert.alert(
-        t('profileNotifications', { defaultValue: 'Notificaciones' }),
-        t('bookingCreateError', {
-          defaultValue: 'No se pudo crear la reserva',
-        }),
-      );
     }
   };
 
@@ -328,84 +266,52 @@ export default function ProfileView() {
             />
           </View>
         </View>
-        {canToggleRole && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Modo de cuenta</Text>
-            <View
-              style={[styles.card, { backgroundColor: theme.backgroundCard }]}
-            >
-              <MenuOption
-                icon="swap-horizontal-outline"
-                title="Cambiar vista"
-                value={effectiveRole === 'SUPER_ADMIN' ? 'Admin' : 'Cliente'}
-                isLast
-                onPress={toggleRoleView}
-              />
-            </View>
-          </View>
-        )}
-
-        {effectiveRole !== 'SUPER_ADMIN' && (
-          <View style={styles.membresiaCard}>
-            <Text style={styles.sectionTitle}>{t('profileMembership')}</Text>
-            <View
-              style={[styles.card, { backgroundColor: theme.backgroundCard }]}
-            >
-              <MenuOption
-                icon="diamond-outline"
-                title={t('profileMembership')}
-                value={userMembershipLabel}
-                isLast={true}
-                onPress={() => setModalMembresiaVisible(true)}
-              />
-            </View>
-          </View>
-        )}
-
-        {isReviewFeatureEnabled && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Reseñas</Text>
-            <View
-              style={[styles.card, { backgroundColor: theme.backgroundCard }]}
-            >
-              <MenuOption
-                icon="star-outline"
-                title="Crear reseña"
-                value="Abrir"
-                isLast
-                onPress={() => router.push('/(app)/(tabs)/reviews')}
-              />
-            </View>
-          </View>
-        )}
-
-        {/* GRUPO 2: APP */}
+        {/* Bloque unificado: desde Cambiar vista hasta Privacidad */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('profileSettings')}</Text>
           <View
             style={[styles.card, { backgroundColor: theme.backgroundCard }]}
           >
-            <MenuOption
-              icon="notifications-outline"
-              title={t('profileNotifications')}
-              value={notificationStatus}
-              isLast={undefined}
-              onPress={() => router.push('/(app)/(tabs)/notifications-history')}
-            />
-            <MenuOption
-              icon="paper-plane-outline"
-              title={t('notificationsTestButton', {
-                defaultValue: 'Notificacion de prueba',
-              })}
-              value={undefined}
-              isLast={undefined}
-              onPress={handleSendTestNotification}
-            />
+            {showRoleOption && (
+              <MenuOption
+                icon="swap-horizontal-outline"
+                title="Cambiar vista"
+                value={effectiveRole === 'SUPER_ADMIN' ? 'Admin' : 'Cliente'}
+                onPress={toggleRoleView}
+              />
+            )}
+            {showMembershipOption && (
+              <MenuOption
+                icon="diamond-outline"
+                title={t('profileMembership')}
+                value={userMembershipLabel}
+                onPress={() => setModalMembresiaVisible(true)}
+              />
+            )}
+            {showReviewsOption && (
+              <MenuOption
+                icon="star-outline"
+                title="Crear reseña"
+                value="Abrir"
+                onPress={() => router.push('/(app)/(tabs)/reviews')}
+              />
+            )}
+            {showNotificationsOption && (
+              <MenuOption
+                icon="notifications-outline"
+                title={t('profileNotifications')}
+                value={undefined}
+                onPress={() =>
+                  router.push('/(app)/(tabs)/notifications-history')
+                }
+              />
+            )}
             <MenuOption
               icon="lock-closed-outline"
               title={t('profilePrivacy')}
               isLast
               value={undefined}
+              onPress={() => setModalPrivacyVisible(true)}
             />
           </View>
         </View>
@@ -467,6 +373,17 @@ export default function ProfileView() {
       <EditPasswordModal
         visible={modalEditPasswordVisible}
         onClose={() => setModalEditPasswordVisible(false)}
+      />
+
+      <SessionExpiredModal
+        visible={modalPrivacyVisible}
+        title={t('profilePrivacy')}
+        message={t('profilePrivacyPlaceholder', {
+          defaultValue:
+            'Politica de privacidad en construccion. Proximamente anadiremos aqui toda la informacion legal.',
+        })}
+        confirmText={t('commonInformation', { defaultValue: 'Informacion' })}
+        onConfirm={() => setModalPrivacyVisible(false)}
       />
     </>
   );
