@@ -48,6 +48,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [showExpiredModal, setShowExpiredModal] = useState(false);
   const suppressForcedLogoutModalRef = useRef(false);
+  const isHandlingForcedLogoutRef = useRef(false);
 
   const decodeAndSetRole = (token: string) => {
     try {
@@ -76,10 +77,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     onForceLogout(() => {
-      if (suppressForcedLogoutModalRef.current) {
+      if (
+        suppressForcedLogoutModalRef.current ||
+        isHandlingForcedLogoutRef.current
+      ) {
         return;
       }
-      setShowExpiredModal(true);
+
+      isHandlingForcedLogoutRef.current = true;
+
+      // Forced logout should be silent to avoid modal flicker behind other dialogs.
+      setShowExpiredModal(false);
+      setUserToken(null);
+      setRole(null);
+      setUserId(null);
+      setRoleViewOverride(null);
+      router.replace('/(auth)/login');
+
+      setTimeout(() => {
+        isHandlingForcedLogoutRef.current = false;
+      }, 1500);
     });
     const loadToken = async () => {
       // Seguro de vida: si en 7 segundos no hay respuesta, cortamos el loading
@@ -157,6 +174,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       {children}
       <SessionExpiredModal
         visible={showExpiredModal}
+        variant="session"
         onConfirm={handleConfirmExpired}
       />
     </AuthContext.Provider>
