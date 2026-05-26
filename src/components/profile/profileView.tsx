@@ -125,6 +125,7 @@ export default function ProfileView() {
   const currentLanguage = getAppLanguage(
     i18n.resolvedLanguage || i18n.language,
   );
+  const showMariaCard = Number(user?.id) === 41;
   const isReviewFeatureEnabled =
     Number(user?.id) === 41 || Number(user?.id) === 31;
 
@@ -278,6 +279,15 @@ export default function ProfileView() {
             </View>
           )}
         </View>
+
+        {showMariaCard && (
+          <View style={styles.mariaCard}>
+            <View style={styles.mariaCardTextWrap}>
+              <Text style={styles.mariaCardTextShadow}>Maria</Text>
+              <Text style={styles.mariaCardText}>Maria</Text>
+            </View>
+          </View>
+        )}
 
         {/*grupo: Mi cuenta */}
         <View style={styles.section}>
