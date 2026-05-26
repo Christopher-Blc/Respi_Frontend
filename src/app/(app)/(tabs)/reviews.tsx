@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useHeaderHeight } from '@react-navigation/elements';
+import axios from 'axios';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { useProfile } from '../../../hooks/useProfile';
 import { Court, Reservation, Review } from '../../../types/types';
@@ -59,7 +60,8 @@ export default function ReviewsScreen() {
   const [editingText, setEditingText] = useState('');
   const [updatingReview, setUpdatingReview] = useState(false);
 
-  const isReviewFeatureEnabled = Number(user?.id) === 41 || 31;
+  const isReviewFeatureEnabled =
+    Number(user?.id) === 41 || Number(user?.id) === 31;
 
   const selectedCourtName = useMemo(() => {
     const found = reservedCourts.find(
@@ -82,6 +84,11 @@ export default function ReviewsScreen() {
       const reviews = extractRows(reviewsRes?.data)
         .map((item, index) => normalizeReview(item, index))
         .filter((item) => item.user_id === Number(user.id));
+      const reviewedCourtIds = new Set(
+        reviews
+          .map((review) => Number(review.court_id))
+          .filter((courtId) => Number.isFinite(courtId) && courtId > 0),
+      );
 
       const uniqueCourts = new Map<number, Court>();
       reservations.forEach((reservation) => {
@@ -98,10 +105,18 @@ export default function ReviewsScreen() {
       });
 
       const courts = Array.from(uniqueCourts.values());
-      setReservedCourts(courts);
+      const availableCourts = courts.filter(
+        (court) => !reviewedCourtIds.has(Number(court.id)),
+      );
+
+      setReservedCourts(availableCourts);
       setMyReviews(reviews);
-      setSelectedCourtId(
-        (prev) => prev || (courts[0]?.id ? String(courts[0].id) : ''),
+      setSelectedCourtId((prev) =>
+        availableCourts.some((court) => String(court.id) === String(prev))
+          ? prev
+          : availableCourts[0]?.id
+            ? String(availableCourts[0].id)
+            : '',
       );
     } catch (error) {
       console.error('Error loading reviews data', error);
@@ -150,8 +165,29 @@ export default function ReviewsScreen() {
       console.log('Review creada correctamente');
       Alert.alert('Reseñas', 'Tu reseña se ha guardado correctamente.');
     } catch (error) {
-      console.error('Error creating review', body);
-      Alert.alert('Reseñas', 'No se pudo guardar la reseña.');
+      let backendMessage = 'No se pudo guardar la reseña.';
+
+      if (axios.isAxiosError(error)) {
+        const rawMessage = error.response?.data?.message;
+        if (Array.isArray(rawMessage) && rawMessage.length > 0) {
+          backendMessage = rawMessage.join(' | ');
+        } else if (
+          typeof rawMessage === 'string' &&
+          rawMessage.trim().length > 0
+        ) {
+          backendMessage = rawMessage;
+        }
+
+        console.error('Error creating review', {
+          status: error.response?.status,
+          payload: body,
+          message: rawMessage,
+        });
+      } else {
+        console.error('Error creating review', error);
+      }
+
+      Alert.alert('Reseñas', backendMessage);
     } finally {
       setSubmitting(false);
     }
@@ -303,7 +339,7 @@ export default function ReviewsScreen() {
         >
           {reservedCourts.length === 0 ? (
             <Text style={{ color: theme.textBody }}>
-              No tienes pistas reservadas.
+              No tienes pistas pendientes de reseñar.
             </Text>
           ) : (
             reservedCourts.map((court) => {
