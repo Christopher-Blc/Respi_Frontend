@@ -56,6 +56,12 @@ export default function DarkModeModal({
   const themeGreenLabel = t('profileThemeGreen', { defaultValue: 'Green' });
   const themeRedLabel = t('profileThemeRed', { defaultValue: 'Red' });
   const themeCyanLabel = t('profileThemeCyan', { defaultValue: 'Cyan' });
+  const themePastelPinkLabel = t('profileThemePastelPink', {
+    defaultValue: 'Pastel Pink',
+  });
+  const themeSkyBlueLabel = t('profileThemeSkyBlue', {
+    defaultValue: 'Sky Blue',
+  });
   const isWeb = Platform.OS === 'web';
   const styles = React.useMemo(
     () => createModalDarkModeStyles(theme, isWeb),
@@ -118,6 +124,16 @@ export default function DarkModeModal({
       value: 'cyan',
       label: themeCyanLabel,
       color: '#00838F',
+    },
+    {
+      value: 'pastelPink',
+      label: themePastelPinkLabel,
+      color: '#F0A8D8',
+    },
+    {
+      value: 'skyBlue',
+      label: themeSkyBlueLabel,
+      color: '#87CEEB',
     },
   ];
 
