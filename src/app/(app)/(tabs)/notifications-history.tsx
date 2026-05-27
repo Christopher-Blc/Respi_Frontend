@@ -73,13 +73,25 @@ export default function NotificationsHistory() {
     const normalized = (tipoNoti || '').trim().toLowerCase();
 
     if (normalized.includes('alert')) {
-      return { color: '#D32F2F', backgroundColor: '#D32F2F18', borderColor: '#D32F2F' };
+      return {
+        color: '#D32F2F',
+        backgroundColor: '#D32F2F18',
+        borderColor: '#D32F2F',
+      };
     }
     if (normalized.includes('promo')) {
-      return { color: '#2E7D32', backgroundColor: '#2E7D3218', borderColor: '#2E7D32' };
+      return {
+        color: '#2E7D32',
+        backgroundColor: '#2E7D3218',
+        borderColor: '#2E7D32',
+      };
     }
     if (normalized.includes('record')) {
-      return { color: '#F57C00', backgroundColor: '#F57C0018', borderColor: '#F57C00' };
+      return {
+        color: '#F57C00',
+        backgroundColor: '#F57C0018',
+        borderColor: '#F57C00',
+      };
     }
 
     return {
@@ -145,52 +157,77 @@ export default function NotificationsHistory() {
         year: 'numeric',
       });
     }
-    const totalPages = Math.ceil(filteredNotifications.length / PAGE_SIZE) || 1;
-    const pagedNotifications = filteredNotifications.slice(
-  const renderNotificationItem = ({ item }: { item: AppNotification }) => (
-    <View
-      style={[
-        styles.notificationCard,
-        {
-          backgroundColor: item.is_read
-            ? theme.backgroundCard
-            : theme.primaryButton + '15',
-          borderLeftColor: item.is_read
-            ? theme.borderSoft
-            : theme.primaryButton,
-        },
-      ]}
-    >
-      <View style={styles.notificationContent}>
-        <Text
-          style={[
-            styles.notificationTitle,
-            {
-              color: theme.textTitle,
-              fontWeight: item.is_read ? '500' : '700',
-            },
-          ]}
-        >
-          {item.title ||
-            t('profileNotifications', { defaultValue: 'Notificaciones' })}
-        </Text>
-        <Text style={[styles.notificationBody, { color: theme.textBody }]}>
-          {item.message}
-        </Text>
-        <Text style={[styles.notificationDate, { color: theme.primaryButton }]}>
-          {item.notification_type || 'General'}
-        </Text>
-        <Text style={[styles.notificationDate, { color: theme.textSecondary }]}>
-          {formatDate(item.created_at)}
-        </Text>
+  };
+
+  const renderNotificationItem = ({ item }: { item: AppNotification }) => {
+    const typeStyles = getNotificationTypeStyle(item.notification_type, theme);
+
+    return (
+      <View
+        style={[
+          styles.notificationCard,
+          {
+            backgroundColor: item.is_read
+              ? theme.backgroundCard
+              : theme.primaryButton + '15',
+            borderLeftColor: item.is_read
+              ? theme.borderSoft
+              : typeStyles.borderColor,
+          },
+        ]}
+      >
+        <View style={styles.notificationContent}>
+          <Text
+            style={[
+              styles.notificationTitle,
+              {
+                color: theme.textTitle,
+                fontWeight: item.is_read ? '500' : '700',
+              },
+            ]}
+          >
+            {item.title ||
+              t('profileNotifications', { defaultValue: 'Notificaciones' })}
+          </Text>
+          <Text style={[styles.notificationBody, { color: theme.textBody }]}>
+            {item.message}
+          </Text>
+          <Text
+            style={[
+              styles.notificationDate,
+              {
+                color: typeStyles.color,
+                backgroundColor: typeStyles.backgroundColor,
+                borderColor: typeStyles.borderColor,
+                borderWidth: 1,
+                paddingHorizontal: 8,
+                paddingVertical: 3,
+                borderRadius: 999,
+                overflow: 'hidden',
+                alignSelf: 'flex-start',
+                marginBottom: 6,
+              },
+            ]}
+          >
+            {item.notification_type || 'General'}
+          </Text>
+          <Text
+            style={[styles.notificationDate, { color: theme.textSecondary }]}
+          >
+            {formatDate(item.created_at)}
+          </Text>
+        </View>
+        {!item.is_read && (
+          <View
+            style={[
+              styles.unreadBadge,
+              { backgroundColor: typeStyles.borderColor },
+            ]}
+          />
+        )}
       </View>
-      {!item.is_read && (
-        <View
-          style={[styles.unreadBadge, { backgroundColor: theme.primaryButton }]}
-        />
-      )}
-    </View>
-  );
+    );
+  };
 
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
