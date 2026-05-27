@@ -18,7 +18,13 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { useRouter } from 'expo-router';
 import { ROUTES } from '../../../utils/routes';
 import api from '../../../services/api';
-import { Notification as AppNotification } from '../../../types/types';
+import {
+  JWTPayload,
+  Notification as AppNotification,
+} from '../../../types/types';
+import { useFocusEffect } from '@react-navigation/native';
+import { useAuth } from '../../../context/AuthContext';
+import { jwtDecode } from 'jwt-decode';
 
 const extractRows = (payload: unknown): AppNotification[] => {
   if (Array.isArray(payload)) return payload as AppNotification[];
@@ -32,6 +38,7 @@ const extractRows = (payload: unknown): AppNotification[] => {
 export default function NotificationsHistory() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
+  const { userToken } = useAuth();
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(false);
   const insets = useSafeAreaInsets();
@@ -40,19 +47,41 @@ export default function NotificationsHistory() {
   const [currentPage, setCurrentPage] = useState(1);
   const [showOnlyToday, setShowOnlyToday] = useState(false);
 
+  const currentUserId = React.useMemo(() => {
+    if (!userToken) return null;
+    try {
+      const decoded = jwtDecode(userToken) as JWTPayload;
+      return Number(decoded?.sub) || null;
+    } catch {
+      return null;
+    }
+  }, [userToken]);
+
   const loadNotifications = React.useCallback(async () => {
+    if (!currentUserId) {
+      setNotifications([]);
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await api.get('/notifications');
       const rows = extractRows(res?.data);
-      setNotifications(rows);
+      const onlyMine = rows
+        .filter((item) => Number(item.user_id) === currentUserId)
+        .sort(
+          (left, right) =>
+            new Date(right.created_at).getTime() -
+            new Date(left.created_at).getTime(),
+        );
+      setNotifications(onlyMine);
     } catch (error) {
       console.error('Error loading notifications from backend:', error);
       setNotifications([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentUserId]);
 
   const parseDateValue = (value?: string | number) => {
     if (!value) return 0;
@@ -99,6 +128,12 @@ export default function NotificationsHistory() {
       borderColor: theme?.primaryButton ?? '#1976D2',
     };
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      void loadNotifications();
+    }, [loadNotifications]),
+  );
 
   const refresh = React.useCallback(async () => {
     await loadNotifications();
