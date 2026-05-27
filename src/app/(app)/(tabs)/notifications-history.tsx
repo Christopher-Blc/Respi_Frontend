@@ -39,6 +39,7 @@ export default function NotificationsHistory() {
   const headerHeight = useHeaderHeight();
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
+  const [showOnlyToday, setShowOnlyToday] = useState(false);
 
   const loadNotifications = React.useCallback(async () => {
     setLoading(true);
@@ -64,12 +65,29 @@ export default function NotificationsHistory() {
     await loadNotifications();
   }, [loadNotifications]);
 
+  const isToday = React.useCallback((value?: string | number) => {
+    const date = new Date(value || 0);
+    if (Number.isNaN(date.getTime())) return false;
+    const now = new Date();
+    return (
+      date.getFullYear() === now.getFullYear() &&
+      date.getMonth() === now.getMonth() &&
+      date.getDate() === now.getDate()
+    );
+  }, []);
+
+  const filteredNotifications = React.useMemo(() => {
+    if (!showOnlyToday) return notifications;
+    return notifications.filter((item) => isToday(item.created_at));
+  }, [notifications, showOnlyToday, isToday]);
+
   useEffect(() => {
     setCurrentPage(1);
-  }, [notifications.length]);
+  }, [filteredNotifications.length, showOnlyToday]);
+
   const PAGE_SIZE = 10;
-  const totalPages = Math.ceil(notifications.length / PAGE_SIZE) || 1;
-  const pagedNotifications = notifications.slice(
+  const totalPages = Math.ceil(filteredNotifications.length / PAGE_SIZE) || 1;
+  const pagedNotifications = filteredNotifications.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE,
   );
@@ -104,7 +122,9 @@ export default function NotificationsHistory() {
           backgroundColor: item.is_read
             ? theme.backgroundCard
             : theme.primaryButton + '15',
-          borderLeftColor: item.is_read ? theme.borderSoft : theme.primaryButton,
+          borderLeftColor: item.is_read
+            ? theme.borderSoft
+            : theme.primaryButton,
         },
       ]}
     >
@@ -118,7 +138,8 @@ export default function NotificationsHistory() {
             },
           ]}
         >
-          {item.title || t('profileNotifications', { defaultValue: 'Notificaciones' })}
+          {item.title ||
+            t('profileNotifications', { defaultValue: 'Notificaciones' })}
         </Text>
         <Text style={[styles.notificationBody, { color: theme.textBody }]}>
           {item.message}
@@ -149,10 +170,70 @@ export default function NotificationsHistory() {
         {t('noNotifications', { defaultValue: 'Sin notificaciones' })}
       </Text>
       <Text style={[styles.emptySubtitle, { color: theme.textBody }]}>
-        {t('noNotificationsDescription', {
-          defaultValue: 'No hay notificaciones para mostrar',
-        })}
+        {showOnlyToday
+          ? 'No hay notificaciones de hoy.'
+          : t('noNotificationsDescription', {
+              defaultValue: 'No hay notificaciones para mostrar',
+            })}
       </Text>
+    </View>
+  );
+
+  const renderListHeader = () => (
+    <View style={styles.listHeaderWrap}>
+      {Platform.OS === 'web' && (
+        <View
+          style={[
+            styles.infoCard,
+            {
+              backgroundColor: theme.backgroundCard,
+              borderColor: theme.primarySoft,
+            },
+          ]}
+        >
+          <Ionicons
+            name="information-circle-outline"
+            size={18}
+            color={theme.primaryButton}
+          />
+          <Text style={[styles.infoText, { color: theme.textBody }]}>
+            En web estas notificaciones no se muestran como popup; aqui solo se
+            listan.
+          </Text>
+        </View>
+      )}
+
+      <View style={styles.filterRow}>
+        <TouchableOpacity
+          onPress={() => setShowOnlyToday((prev) => !prev)}
+          style={[
+            styles.todayFilterButton,
+            {
+              borderColor: showOnlyToday
+                ? theme.primaryButton
+                : theme.primarySoft,
+              backgroundColor: showOnlyToday
+                ? theme.primaryButton + '25'
+                : theme.backgroundCard,
+            },
+          ]}
+        >
+          <Ionicons
+            name={showOnlyToday ? 'calendar' : 'calendar-outline'}
+            size={16}
+            color={showOnlyToday ? theme.primaryButton : theme.textBody}
+          />
+          <Text
+            style={{
+              color: showOnlyToday ? theme.primaryButton : theme.textBody,
+              fontWeight: '700',
+              fontSize: 13,
+            }}
+          >
+            {showOnlyToday ? 'Solo hoy' : 'Ver solo hoy'}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -199,6 +280,7 @@ export default function NotificationsHistory() {
               data={pagedNotifications}
               renderItem={renderNotificationItem}
               keyExtractor={(item) => String(item.id)}
+              ListHeaderComponent={renderListHeader}
               contentContainerStyle={[
                 styles.listContent,
                 {
@@ -214,7 +296,7 @@ export default function NotificationsHistory() {
                   tintColor={theme.primaryButton}
                 />
               }
-              scrollEnabled={notifications.length > 0}
+              scrollEnabled={filteredNotifications.length > 0}
             />
             {!loading && totalPages > 1 && (
               <View
@@ -302,6 +384,37 @@ const createStyles = (theme: any) =>
     listContent: {
       paddingHorizontal: 16,
       paddingVertical: 12,
+    },
+    listHeaderWrap: {
+      marginBottom: 12,
+      gap: 10,
+    },
+    infoCard: {
+      borderWidth: 1,
+      borderRadius: 12,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: 8,
+    },
+    infoText: {
+      flex: 1,
+      fontSize: 13,
+      lineHeight: 18,
+    },
+    filterRow: {
+      flexDirection: 'row',
+    },
+    todayFilterButton: {
+      borderWidth: 1,
+      borderRadius: 999,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      alignSelf: 'flex-start',
     },
     notificationCard: {
       flexDirection: 'row',

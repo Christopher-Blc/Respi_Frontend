@@ -19,6 +19,7 @@ import { useProfile } from '../../hooks/useProfile';
 import { useTranslation } from 'react-i18next';
 import { getAppLanguage } from '../../i18n';
 import api from '../../services/api';
+import { ROUTES } from '../../utils/routes';
 
 export default function ProfileView() {
   const { t, i18n } = useTranslation();
@@ -120,6 +121,15 @@ export default function ProfileView() {
   const showMembershipOption = effectiveRole !== 'SUPER_ADMIN';
   const showReviewsOption = isReviewFeatureEnabled;
   const showNotificationsOption = true;
+
+  const handleOpenNotifications = () => {
+    if (effectiveRole === 'SUPER_ADMIN') {
+      router.push(ROUTES.admin.management.notifications);
+      return;
+    }
+
+    router.push(ROUTES.userTabs.notificationsHistory);
+  };
 
   //handlers que se usan en los botones
   const handleLogout = async () => {
@@ -301,9 +311,7 @@ export default function ProfileView() {
                 icon="notifications-outline"
                 title={t('profileNotifications')}
                 value={undefined}
-                onPress={() =>
-                  router.push('/(app)/(tabs)/notifications-history')
-                }
+                onPress={handleOpenNotifications}
               />
             )}
             <MenuOption
