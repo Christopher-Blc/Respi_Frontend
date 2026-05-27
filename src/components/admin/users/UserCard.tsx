@@ -16,6 +16,44 @@ type Props = {
   onToggleActive: (item: AdminUser) => void;
 };
 
+const formatLastTimeSeen = (value?: string | null) => {
+  if (!value) return 'Nunca';
+  const trimmed = String(value).trim();
+  if (!trimmed) return 'Nunca';
+
+  // Backend can send SQL-like datetime: "YYYY-MM-DD HH:mm:ss"
+  const normalized = trimmed.includes('T')
+    ? trimmed
+    : trimmed.replace(' ', 'T');
+  let parsed = new Date(normalized);
+
+  if (Number.isNaN(parsed.getTime())) {
+    const match = trimmed.match(
+      /^(\d{4})-(\d{2})-(\d{2})\s(\d{2}):(\d{2})(?::(\d{2}))?$/,
+    );
+    if (!match) return 'Nunca';
+
+    const [, y, m, d, hh, mm, ss = '00'] = match;
+    parsed = new Date(
+      Number(y),
+      Number(m) - 1,
+      Number(d),
+      Number(hh),
+      Number(mm),
+      Number(ss),
+    );
+    if (Number.isNaN(parsed.getTime())) return 'Nunca';
+  }
+
+  return parsed.toLocaleString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
 export function UserCard({ item, theme, onEdit, onToggleActive }: Props) {
   const membershipLabel = item.membership?.name
     ? `${item.membership.name} · Nivel ${item.membership.level}`
@@ -103,6 +141,10 @@ export function UserCard({ item, theme, onEdit, onToggleActive }: Props) {
         <MetaPill label={item.role} theme={theme} />
         <MetaPill label={membershipLabel} theme={theme} />
         <MetaPill label={item.phone || 'Sin telefono'} theme={theme} />
+        <MetaPill
+          label={`Ult. vez: ${formatLastTimeSeen(item.last_time_seen)}`}
+          theme={theme}
+        />
       </ScrollView>
 
       <View style={styles.actionsRow}>

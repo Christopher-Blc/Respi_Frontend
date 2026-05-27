@@ -3,12 +3,35 @@ import api from '../../services/api';
 import { Membership, User } from '../../types/types';
 import { UserFormData } from '../../components/admin/users/UserFormModal';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type AdminUser = User & {
   membership?: Membership | null;
 };
 
 type ViewMode = 'cards' | 'list';
+
+const USERS_FILTERS_STORAGE_KEY = 'admin_users_filters_v1';
+
+type PersistedUsersFilters = {
+  searchQuery: string;
+  viewMode: ViewMode;
+  registrationFromFilter: string;
+  registrationToFilter: string;
+  roleFilter: 'ALL' | User['role'];
+  activeFilter: 'ALL' | 'ACTIVE' | 'INACTIVE';
+  userFilter: string;
+};
+
+const DEFAULT_PERSISTED_FILTERS: PersistedUsersFilters = {
+  searchQuery: '',
+  viewMode: 'cards',
+  registrationFromFilter: '',
+  registrationToFilter: '',
+  roleFilter: 'ALL',
+  activeFilter: 'ALL',
+  userFilter: '',
+};
 
 const EMPTY_FORM: UserFormData = {
   username: '',
@@ -46,13 +69,29 @@ export function useAdminUsers() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [memberships, setMemberships] = useState<Membership[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<ViewMode>('cards');
+  const [hydratedFilters, setHydratedFilters] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(
+    DEFAULT_PERSISTED_FILTERS.searchQuery,
+  );
+  const [viewMode, setViewMode] = useState<ViewMode>(
+    DEFAULT_PERSISTED_FILTERS.viewMode,
+  );
 
-  const [registrationFromFilter, setRegistrationFromFilter] = useState('');
-  const [registrationToFilter, setRegistrationToFilter] = useState('');
-  const [roleFilter, setRoleFilter] = useState<'ALL' | User['role']>('ALL');
-  const [activeFilter, setActiveFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
+  const [registrationFromFilter, setRegistrationFromFilter] = useState(
+    DEFAULT_PERSISTED_FILTERS.registrationFromFilter,
+  );
+  const [registrationToFilter, setRegistrationToFilter] = useState(
+    DEFAULT_PERSISTED_FILTERS.registrationToFilter,
+  );
+  const [roleFilter, setRoleFilter] = useState<'ALL' | User['role']>(
+    DEFAULT_PERSISTED_FILTERS.roleFilter,
+  );
+  const [activeFilter, setActiveFilter] = useState<
+    'ALL' | 'ACTIVE' | 'INACTIVE'
+  >(DEFAULT_PERSISTED_FILTERS.activeFilter);
+  const [userFilter, setUserFilter] = useState(
+    DEFAULT_PERSISTED_FILTERS.userFilter,
+  );
 
   const [modalVisible, setModalVisible] = useState(false);
   const [userToEdit, setUserToEdit] = useState<AdminUser | null>(null);
@@ -98,15 +137,114 @@ export function useAdminUsers() {
     fetchUsers();
   }, []);
 
+  useEffect(() => {
+    const hydrateFilters = async () => {
+      try {
+        const raw = await AsyncStorage.getItem(USERS_FILTERS_STORAGE_KEY);
+        if (!raw) {
+          setHydratedFilters(true);
+          return;
+        }
+
+        const parsed = JSON.parse(raw) as Partial<PersistedUsersFilters>;
+        setSearchQuery(
+          typeof parsed.searchQuery === 'string'
+            ? parsed.searchQuery
+            : DEFAULT_PERSISTED_FILTERS.searchQuery,
+        );
+        setViewMode(
+          parsed.viewMode === 'cards' || parsed.viewMode === 'list'
+            ? parsed.viewMode
+            : DEFAULT_PERSISTED_FILTERS.viewMode,
+        );
+        setRegistrationFromFilter(
+          typeof parsed.registrationFromFilter === 'string'
+            ? parsed.registrationFromFilter
+            : DEFAULT_PERSISTED_FILTERS.registrationFromFilter,
+        );
+        setRegistrationToFilter(
+          typeof parsed.registrationToFilter === 'string'
+            ? parsed.registrationToFilter
+            : DEFAULT_PERSISTED_FILTERS.registrationToFilter,
+        );
+        setRoleFilter(
+          parsed.roleFilter === 'ALL' ||
+            parsed.roleFilter === 'SUPER_ADMIN' ||
+            parsed.roleFilter === 'ADMIN' ||
+            parsed.roleFilter === 'USER' ||
+            parsed.roleFilter === 'CLIENTE'
+            ? parsed.roleFilter
+            : DEFAULT_PERSISTED_FILTERS.roleFilter,
+        );
+        setActiveFilter(
+          parsed.activeFilter === 'ALL' ||
+            parsed.activeFilter === 'ACTIVE' ||
+            parsed.activeFilter === 'INACTIVE'
+            ? parsed.activeFilter
+            : DEFAULT_PERSISTED_FILTERS.activeFilter,
+        );
+        setUserFilter(
+          typeof parsed.userFilter === 'string'
+            ? parsed.userFilter
+            : DEFAULT_PERSISTED_FILTERS.userFilter,
+        );
+      } catch {
+        // Ignore bad persisted data and keep defaults.
+      } finally {
+        setHydratedFilters(true);
+      }
+    };
+
+    hydrateFilters();
+  }, []);
+
+  useEffect(() => {
+    if (!hydratedFilters) return;
+
+    const persistFilters = async () => {
+      const payload: PersistedUsersFilters = {
+        searchQuery,
+        viewMode,
+        registrationFromFilter,
+        registrationToFilter,
+        roleFilter,
+        activeFilter,
+        userFilter,
+      };
+
+      try {
+        await AsyncStorage.setItem(
+          USERS_FILTERS_STORAGE_KEY,
+          JSON.stringify(payload),
+        );
+      } catch {
+        // Avoid blocking UI if persistence fails.
+      }
+    };
+
+    persistFilters();
+  }, [
+    hydratedFilters,
+    searchQuery,
+    viewMode,
+    registrationFromFilter,
+    registrationToFilter,
+    roleFilter,
+    activeFilter,
+    userFilter,
+  ]);
+
   const clearFilters = () => {
     setRegistrationFromFilter('');
     setRegistrationToFilter('');
     setRoleFilter('ALL');
     setActiveFilter('ALL');
+    setUserFilter('');
   };
 
   const filteredUsers = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
+    const qUser = userFilter.trim().toLowerCase();
 
     return users.filter((user) => {
       if (q) {
@@ -124,6 +262,13 @@ export function useAdminUsers() {
         if (!text.includes(q)) return false;
       }
 
+      if (qUser) {
+        const userText = [user.username, user.name, user.surname, user.email]
+          .join(' ')
+          .toLowerCase();
+        if (!userText.includes(qUser)) return false;
+      }
+
       const regDate = (user.registration_date || '').slice(0, 10);
       if (registrationFromFilter && regDate < registrationFromFilter) return false;
       if (registrationToFilter && regDate > registrationToFilter) return false;
@@ -135,7 +280,15 @@ export function useAdminUsers() {
 
       return true;
     });
-  }, [users, searchQuery, registrationFromFilter, registrationToFilter, roleFilter, activeFilter]);
+  }, [
+    users,
+    searchQuery,
+    userFilter,
+    registrationFromFilter,
+    registrationToFilter,
+    roleFilter,
+    activeFilter,
+  ]);
 
   const openCreateModal = () => {
     setUserToEdit(null);
@@ -317,6 +470,8 @@ export function useAdminUsers() {
     setRoleFilter,
     activeFilter,
     setActiveFilter,
+    userFilter,
+    setUserFilter,
     clearFilters,
     modalVisible,
     setModalVisible,

@@ -14,6 +14,8 @@ type Props = {
   setRegistrationFromFilter: (value: string) => void;
   registrationToFilter: string;
   setRegistrationToFilter: (value: string) => void;
+  userFilter: string;
+  setUserFilter: (value: string) => void;
   roleFilter: 'ALL' | User['role'];
   setRoleFilter: (value: 'ALL' | User['role']) => void;
   activeFilter: 'ALL' | 'ACTIVE' | 'INACTIVE';
@@ -53,6 +55,8 @@ export function UsersFiltersModal({
   setRegistrationFromFilter,
   registrationToFilter,
   setRegistrationToFilter,
+  userFilter,
+  setUserFilter,
   roleFilter,
   setRoleFilter,
   activeFilter,
@@ -218,6 +222,25 @@ export function UsersFiltersModal({
                   Hoy
                 </Text>
               </TouchableOpacity>
+
+              {/* User filter */}
+              <Text
+                style={{
+                  color: theme.textTitle,
+                  fontSize: 13,
+                  fontWeight: '600',
+                  marginBottom: 8,
+                }}
+              >
+                Usuario
+              </Text>
+              <View style={{ marginBottom: 14 }}>
+                <GlassTextInput
+                  value={userFilter}
+                  onChangeText={setUserFilter}
+                  placeholder="Username, nombre o email"
+                />
+              </View>
 
               {/* Role filter */}
               <Text
