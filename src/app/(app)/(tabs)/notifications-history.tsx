@@ -55,6 +55,39 @@ export default function NotificationsHistory() {
     }
   }, []);
 
+  const parseDateValue = (value?: string | number) => {
+    if (!value) return 0;
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) return parsed.getTime();
+
+    if (typeof value === 'string') {
+      const normalized = value.includes('T') ? value : value.replace(' ', 'T');
+      const fallback = new Date(normalized);
+      return Number.isNaN(fallback.getTime()) ? 0 : fallback.getTime();
+    }
+
+    return 0;
+  };
+
+  const getNotificationTypeStyle = (tipoNoti?: string, theme?: any) => {
+    const normalized = (tipoNoti || '').trim().toLowerCase();
+
+    if (normalized.includes('alert')) {
+      return { color: '#D32F2F', backgroundColor: '#D32F2F18', borderColor: '#D32F2F' };
+    }
+    if (normalized.includes('promo')) {
+      return { color: '#2E7D32', backgroundColor: '#2E7D3218', borderColor: '#2E7D32' };
+    }
+    if (normalized.includes('record')) {
+      return { color: '#F57C00', backgroundColor: '#F57C0018', borderColor: '#F57C00' };
+    }
+
+    return {
+      color: theme?.primaryButton ?? '#1976D2',
+      backgroundColor: (theme?.primaryButton ?? '#1976D2') + '18',
+      borderColor: theme?.primaryButton ?? '#1976D2',
+    };
+  };
   useFocusEffect(
     React.useCallback(() => {
       void loadNotifications();
@@ -112,8 +145,8 @@ export default function NotificationsHistory() {
         year: 'numeric',
       });
     }
-  };
-
+    const totalPages = Math.ceil(filteredNotifications.length / PAGE_SIZE) || 1;
+    const pagedNotifications = filteredNotifications.slice(
   const renderNotificationItem = ({ item }: { item: AppNotification }) => (
     <View
       style={[
