@@ -119,7 +119,7 @@ export default function ProfileView() {
   const showRoleOption = canToggleRole;
   const showMembershipOption = effectiveRole !== 'SUPER_ADMIN';
   const showReviewsOption = isReviewFeatureEnabled;
-  const showNotificationsOption = Platform.OS !== 'web';
+  const showNotificationsOption = true;
 
   //handlers que se usan en los botones
   const handleLogout = async () => {
