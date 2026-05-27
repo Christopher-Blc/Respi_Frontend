@@ -7,31 +7,63 @@ import {
   ActivityIndicator,
   RefreshControl,
   Platform,
-  Alert,
   TouchableOpacity,
-  Switch,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useNotificationHistory } from '../../../hooks/useNotificationHistory';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useRouter } from 'expo-router';
-import { StoredNotification } from '../../../services/notificationHistoryService';
-import { requestPushPermissionsAndToken } from '../../../services/notificationsService';
 import { ROUTES } from '../../../utils/routes';
+import api from '../../../services/api';
+import { Notification as AppNotification } from '../../../types/types';
+import { useFocusEffect } from '@react-navigation/native';
+
+const extractRows = (payload: unknown): AppNotification[] => {
+  if (Array.isArray(payload)) return payload as AppNotification[];
+  if (payload && typeof payload === 'object') {
+    const rows = (payload as { rows?: unknown }).rows;
+    if (Array.isArray(rows)) return rows as AppNotification[];
+  }
+  return [];
+};
 
 export default function NotificationsHistory() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
-  const { notifications, loading, refresh } = useNotificationHistory();
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [loading, setLoading] = useState(true);
   const insets = useSafeAreaInsets();
   const headerHeight = useHeaderHeight();
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
+
+  const loadNotifications = React.useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await api.get('/notifications');
+      const rows = extractRows(res?.data);
+      setNotifications(rows);
+    } catch (error) {
+      console.error('Error loading notifications from backend:', error);
+      setNotifications([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      void loadNotifications();
+    }, [loadNotifications]),
+  );
+
+  const refresh = React.useCallback(async () => {
+    await loadNotifications();
+  }, [loadNotifications]);
+
   useEffect(() => {
     setCurrentPage(1);
   }, [notifications.length]);
@@ -41,87 +73,12 @@ export default function NotificationsHistory() {
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE,
   );
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [togglingNotifications, setTogglingNotifications] = useState(false);
 
   const styles = React.useMemo(() => createStyles(theme), [theme]);
 
-  // Load notifications state on mount
-  useEffect(() => {
-    const loadNotificationsState = async () => {
-      try {
-        const stored = await AsyncStorage.getItem('notificationsEnabled');
-        if (stored) {
-          setNotificationsEnabled(JSON.parse(stored));
-        }
-      } catch (error) {
-        console.error('Error loading notifications state:', error);
-      }
-    };
-    loadNotificationsState();
-  }, []);
-
-  // Save notifications state to storage
-  const saveNotificationsState = async (enabled: boolean) => {
-    try {
-      await AsyncStorage.setItem(
-        'notificationsEnabled',
-        JSON.stringify(enabled),
-      );
-    } catch (error) {
-      console.error('Error saving notifications state:', error);
-    }
-  };
-
-  const handleToggleNotifications = async () => {
-    setTogglingNotifications(true);
-    try {
-      // If already enabled, just disable
-      if (notificationsEnabled) {
-        setNotificationsEnabled(false);
-        await saveNotificationsState(false);
-        Alert.alert(
-          t('profileNotifications', { defaultValue: 'Notificaciones' }),
-          t('notificationsDisabledMessage', {
-            defaultValue: 'Notificaciones desactivadas.',
-          }),
-        );
-        return;
-      }
-
-      // If disabled, request permissions to enable
-      const result = await requestPushPermissionsAndToken();
-
-      if (result.granted) {
-        setNotificationsEnabled(true);
-        await saveNotificationsState(true);
-        Alert.alert(
-          t('profileNotifications', { defaultValue: 'Notificaciones' }),
-          t('notificationsEnabledMessage', {
-            defaultValue: 'Notificaciones activadas correctamente.',
-          }),
-        );
-      } else {
-        setNotificationsEnabled(false);
-        await saveNotificationsState(false);
-        Alert.alert(
-          t('profileNotifications', { defaultValue: 'Notificaciones' }),
-          result.error || t('authConnectionError', { defaultValue: 'Error' }),
-        );
-      }
-    } catch (error) {
-      console.error('Error toggling notifications:', error);
-      Alert.alert(
-        t('profileNotifications', { defaultValue: 'Notificaciones' }),
-        t('authConnectionError', { defaultValue: 'Error' }),
-      );
-    } finally {
-      setTogglingNotifications(false);
-    }
-  };
-
-  const formatDate = (timestamp: number) => {
-    const date = new Date(timestamp);
+  const formatDate = (value?: string | number) => {
+    const date = new Date(value || 0);
+    if (Number.isNaN(date.getTime())) return '—';
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
@@ -135,21 +92,19 @@ export default function NotificationsHistory() {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
       });
     }
   };
 
-  const renderNotificationItem = ({ item }: { item: StoredNotification }) => (
+  const renderNotificationItem = ({ item }: { item: AppNotification }) => (
     <View
       style={[
         styles.notificationCard,
         {
-          backgroundColor: item.read
+          backgroundColor: item.is_read
             ? theme.backgroundCard
             : theme.primaryButton + '15',
-          borderLeftColor: item.read ? theme.borderSoft : theme.primaryButton,
+          borderLeftColor: item.is_read ? theme.borderSoft : theme.primaryButton,
         },
       ]}
     >
@@ -157,19 +112,25 @@ export default function NotificationsHistory() {
         <Text
           style={[
             styles.notificationTitle,
-            { color: theme.textTitle, fontWeight: item.read ? '500' : '700' },
+            {
+              color: theme.textTitle,
+              fontWeight: item.is_read ? '500' : '700',
+            },
           ]}
         >
-          {item.title}
+          {item.title || t('profileNotifications', { defaultValue: 'Notificaciones' })}
         </Text>
         <Text style={[styles.notificationBody, { color: theme.textBody }]}>
-          {item.body}
+          {item.message}
+        </Text>
+        <Text style={[styles.notificationDate, { color: theme.primaryButton }]}>
+          {item.notification_type || 'General'}
         </Text>
         <Text style={[styles.notificationDate, { color: theme.textSecondary }]}>
-          {formatDate(item.timestamp)}
+          {formatDate(item.created_at)}
         </Text>
       </View>
-      {!item.read && (
+      {!item.is_read && (
         <View
           style={[styles.unreadBadge, { backgroundColor: theme.primaryButton }]}
         />
@@ -189,45 +150,9 @@ export default function NotificationsHistory() {
       </Text>
       <Text style={[styles.emptySubtitle, { color: theme.textBody }]}>
         {t('noNotificationsDescription', {
-          defaultValue: 'No hay notificaciones de los últimos 30 días',
+          defaultValue: 'No hay notificaciones para mostrar',
         })}
       </Text>
-    </View>
-  );
-
-  const renderListHeader = () => (
-    <View
-      style={[styles.toggleCard, { backgroundColor: theme.backgroundCard }]}
-    >
-      <View style={styles.toggleContent}>
-        <Ionicons
-          name={notificationsEnabled ? 'notifications' : 'notifications-off'}
-          size={24}
-          color={theme.primaryButton}
-        />
-        <View style={styles.toggleTextContainer}>
-          <Text style={[styles.toggleTitle, { color: theme.textTitle }]}>
-            {t('profileNotifications', { defaultValue: 'Notificaciones' })}
-          </Text>
-          <Text style={[styles.toggleSubtitle, { color: theme.textBody }]}>
-            {notificationsEnabled
-              ? t('profileEnabled', { defaultValue: 'Activado' })
-              : t('profileDisabled', { defaultValue: 'Desactivado' })}
-          </Text>
-        </View>
-      </View>
-      <Switch
-        value={notificationsEnabled}
-        onValueChange={handleToggleNotifications}
-        disabled={togglingNotifications}
-        trackColor={{
-          false: theme.borderSoft,
-          true: theme.primaryButton + '50',
-        }}
-        thumbColor={
-          notificationsEnabled ? theme.primaryButton : theme.textSecondary
-        }
-      />
     </View>
   );
 
@@ -273,8 +198,7 @@ export default function NotificationsHistory() {
             <FlatList
               data={pagedNotifications}
               renderItem={renderNotificationItem}
-              keyExtractor={(item) => item.id}
-              ListHeaderComponent={renderListHeader}
+              keyExtractor={(item) => String(item.id)}
               contentContainerStyle={[
                 styles.listContent,
                 {
@@ -378,32 +302,6 @@ const createStyles = (theme: any) =>
     listContent: {
       paddingHorizontal: 16,
       paddingVertical: 12,
-    },
-    toggleCard: {
-      flexDirection: 'row',
-      borderRadius: 12,
-      marginBottom: 16,
-      paddingHorizontal: 16,
-      paddingVertical: 14,
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    toggleContent: {
-      flexDirection: 'row',
-      flex: 1,
-      alignItems: 'center',
-    },
-    toggleTextContainer: {
-      marginLeft: 12,
-      flex: 1,
-    },
-    toggleTitle: {
-      fontSize: 16,
-      fontWeight: '600',
-    },
-    toggleSubtitle: {
-      fontSize: 12,
-      marginTop: 2,
     },
     notificationCard: {
       flexDirection: 'row',
