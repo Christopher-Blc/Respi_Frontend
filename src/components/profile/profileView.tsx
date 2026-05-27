@@ -124,7 +124,7 @@ export default function ProfileView() {
 
   const handleOpenNotifications = () => {
     if (effectiveRole === 'SUPER_ADMIN') {
-      router.push(ROUTES.admin.management.notifications);
+      router.push(ROUTES.admin.notificationsHistory);
       return;
     }
 
