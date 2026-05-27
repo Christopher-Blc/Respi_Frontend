@@ -63,6 +63,8 @@ export default function AdminUsuarios() {
     setRoleFilter,
     activeFilter,
     setActiveFilter,
+    userFilter,
+    setUserFilter,
     clearFilters,
     modalVisible,
     setModalVisible,
@@ -123,6 +125,8 @@ export default function AdminUsuarios() {
         setRoleFilter={setRoleFilter}
         activeFilter={activeFilter}
         setActiveFilter={setActiveFilter}
+        userFilter={userFilter}
+        setUserFilter={setUserFilter}
         clearFilters={clearFilters}
       />
       <View style={[styles.headerActions, { paddingTop: headerHeight + 10 }]}>
@@ -161,6 +165,7 @@ export default function AdminUsuarios() {
                 filtersOpen ||
                 registrationFromFilter.trim().length > 0 ||
                 registrationToFilter.trim().length > 0 ||
+                userFilter.trim().length > 0 ||
                 roleFilter !== 'ALL' ||
                 activeFilter !== 'ALL'
                   ? theme.primary + '18'

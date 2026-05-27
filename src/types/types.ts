@@ -69,6 +69,7 @@ export interface User {
   email_verified?: boolean;
   registration_date: string;
   last_login_date: string;
+  last_time_seen?: string | null;
   date_of_birth: string;
   address: string;
   refresh_token_hash?: string;
