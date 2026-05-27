@@ -19,7 +19,6 @@ import { useRouter } from 'expo-router';
 import { ROUTES } from '../../../utils/routes';
 import api from '../../../services/api';
 import { Notification as AppNotification } from '../../../types/types';
-import { useFocusEffect } from '@react-navigation/native';
 
 const extractRows = (payload: unknown): AppNotification[] => {
   if (Array.isArray(payload)) return payload as AppNotification[];
@@ -34,7 +33,7 @@ export default function NotificationsHistory() {
   const { t } = useTranslation();
   const { theme } = useAppTheme();
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const insets = useSafeAreaInsets();
   const headerHeight = useHeaderHeight();
   const router = useRouter();
@@ -100,11 +99,6 @@ export default function NotificationsHistory() {
       borderColor: theme?.primaryButton ?? '#1976D2',
     };
   };
-  useFocusEffect(
-    React.useCallback(() => {
-      void loadNotifications();
-    }, [loadNotifications]),
-  );
 
   const refresh = React.useCallback(async () => {
     await loadNotifications();
