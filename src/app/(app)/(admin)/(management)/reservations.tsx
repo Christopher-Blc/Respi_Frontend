@@ -20,6 +20,7 @@ import { BookingFormModal } from '../../../../components/admin/bookings/BookingF
 import { BookingsFiltersModal } from '../../../../components/admin/bookings/BookingsFiltersModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
 import { useAdminBookings } from '../../../../hooks/admin/useAdminBookings';
+import AdminNotificationsPanel from '../../../../components/admin/AdminNotificationsPanel';
 
 const statusColorMap: Record<string, string> = {
   CONFIRMADA: '#1E88E5',
@@ -488,6 +489,8 @@ export default function AdminReservasGlobal() {
           </TouchableOpacity>
         </View>
       )}
+
+      <AdminNotificationsPanel theme={theme} />
 
       <BookingsFiltersModal
         visible={filtersOpen}

@@ -15,6 +15,7 @@ export const ROUTES = {
     pagos: '/(app)/(admin)/pagos',
     membresias: '/(app)/(admin)/membresias',
     notificaciones: '/(app)/(admin)/notificaciones',
+    notificationsHistory: '/(app)/(admin)/notifications-history',
     management: {
       root: '/(app)/(admin)/(management)',
       index: '/(app)/(admin)/(management)/index',
