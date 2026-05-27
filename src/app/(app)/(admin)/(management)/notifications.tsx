@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -43,6 +49,47 @@ const parseNotification = (item: any, index: number): NotificationListItem => ({
   createdAt: item?.createdAt ?? item?.created_at,
 });
 
+const getNotificationTypeStyle = (tipoNoti: string, theme: any) => {
+  const normalized = tipoNoti.trim().toLowerCase();
+
+  if (normalized.includes('alert')) {
+    return {
+      color: '#D32F2F',
+      backgroundColor: '#D32F2F18',
+      borderColor: '#D32F2F',
+    };
+  }
+
+  if (normalized.includes('promo')) {
+    return {
+      color: '#2E7D32',
+      backgroundColor: '#2E7D3218',
+      borderColor: '#2E7D32',
+    };
+  }
+
+  if (normalized.includes('record')) {
+    return {
+      color: '#F57C00',
+      backgroundColor: '#F57C0018',
+      borderColor: '#F57C00',
+    };
+  }
+
+  return {
+    color: theme.primary,
+    backgroundColor: theme.primary + '18',
+    borderColor: theme.primary,
+  };
+};
+
+const parseDateValue = (value?: string) => {
+  if (!value) return 0;
+  const normalized = value.includes('T') ? value : value.replace(' ', 'T');
+  const parsed = new Date(normalized);
+  return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+};
+
 export default function AdminNotificationsScreen() {
   const { theme } = useAppTheme();
   const headerHeight = useHeaderHeight();
@@ -54,6 +101,7 @@ export default function AdminNotificationsScreen() {
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [sending, setSending] = useState(false);
   const [loadingList, setLoadingList] = useState(false);
+  const sendingLockRef = useRef(false);
   const [notifications, setNotifications] = useState<NotificationListItem[]>(
     [],
   );
@@ -72,7 +120,13 @@ export default function AdminNotificationsScreen() {
         : Array.isArray(res.data?.data)
           ? res.data.data
           : [];
-      setNotifications(rawItems.map(parseNotification));
+      const sorted = rawItems
+        .map(parseNotification)
+        .sort(
+          (left: NotificationListItem, right: NotificationListItem) =>
+            parseDateValue(right.createdAt) - parseDateValue(left.createdAt),
+        );
+      setNotifications(sorted);
     } catch {
       setNotifications([]);
     } finally {
@@ -85,8 +139,9 @@ export default function AdminNotificationsScreen() {
   }, [fetchNotifications]);
 
   const handleConfirmSend = async () => {
-    if (!canSubmit) return;
+    if (!canSubmit || sendingLockRef.current) return;
 
+    sendingLockRef.current = true;
     setConfirmVisible(false);
     setSending(true);
 
@@ -111,8 +166,56 @@ export default function AdminNotificationsScreen() {
     } finally {
       console.log('Test log body:', body);
 
+      sendingLockRef.current = false;
       setSending(false);
     }
+  };
+
+  const renderNotificationItem = ({ item }: { item: NotificationListItem }) => {
+    const typeStyles = getNotificationTypeStyle(item.tipoNoti, theme);
+
+    return (
+      <View
+        style={[
+          styles.notificationCard,
+          {
+            backgroundColor: theme.backgroundCard,
+            borderColor: typeStyles.borderColor,
+          },
+        ]}
+      >
+        <View style={styles.notificationHeader}>
+          <Text
+            style={[
+              styles.notificationType,
+              {
+                color: typeStyles.color,
+                backgroundColor: typeStyles.backgroundColor,
+                borderColor: typeStyles.borderColor,
+                borderWidth: 1,
+                paddingHorizontal: 8,
+                paddingVertical: 4,
+                borderRadius: 999,
+                overflow: 'hidden',
+              },
+            ]}
+          >
+            {item.tipoNoti}
+          </Text>
+          {item.createdAt ? (
+            <Text style={{ color: theme.textBody, fontSize: 12 }}>
+              {new Date(item.createdAt).toLocaleString()}
+            </Text>
+          ) : null}
+        </View>
+        <Text style={[styles.notificationTitle, { color: theme.textTitle }]}>
+          {item.title}
+        </Text>
+        <Text style={[styles.notificationMessage, { color: theme.textBody }]}>
+          {item.message}
+        </Text>
+      </View>
+    );
   };
 
   return (
@@ -266,38 +369,7 @@ export default function AdminNotificationsScreen() {
           paddingBottom: insets.bottom + (Platform.OS === 'web' ? 60 : 120),
           gap: 10,
         }}
-        renderItem={({ item }) => (
-          <View
-            style={[
-              styles.notificationCard,
-              {
-                backgroundColor: theme.backgroundCard,
-                borderColor: theme.primarySoft,
-              },
-            ]}
-          >
-            <View style={styles.notificationHeader}>
-              <Text style={[styles.notificationType, { color: theme.primary }]}>
-                #{item.tipoNoti}
-              </Text>
-              {item.createdAt ? (
-                <Text style={{ color: theme.textBody, fontSize: 12 }}>
-                  {new Date(item.createdAt).toLocaleString()}
-                </Text>
-              ) : null}
-            </View>
-            <Text
-              style={[styles.notificationTitle, { color: theme.textTitle }]}
-            >
-              {item.title}
-            </Text>
-            <Text
-              style={[styles.notificationMessage, { color: theme.textBody }]}
-            >
-              {item.message}
-            </Text>
-          </View>
-        )}
+        renderItem={renderNotificationItem}
       />
 
       <SessionExpiredModal

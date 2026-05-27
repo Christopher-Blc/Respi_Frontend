@@ -222,7 +222,7 @@ export default function HomeScreen() {
           <View style={localStyles.actionsRow}>
             <TouchableOpacity
               style={[localStyles.actionCard, localStyles.actionPrimary]}
-              onPress={() => router.push('/(app)/(tabs)/bookings/courtTypes')}
+              onPress={() => router.push('/(app)/(tabs)/bookings/index')}
             >
               <Ionicons name="calendar" size={18} color={theme.onPrimary} />
               <Text style={localStyles.actionPrimaryText}>
@@ -245,7 +245,9 @@ export default function HomeScreen() {
             <Text style={localStyles.sectionTitle}>
               {t('homeUpcomingBookings')}
             </Text>
-            <TouchableOpacity onPress={() => router.push('/(app)/(tabs)/reservations-history')}>
+            <TouchableOpacity
+              onPress={() => router.push('/(app)/(tabs)/reservations-history')}
+            >
               <Text style={localStyles.sectionLink}>Ver historial</Text>
             </TouchableOpacity>
           </View>

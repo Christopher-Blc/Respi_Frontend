@@ -17,35 +17,33 @@ export const useAdminRoleCheck = () => {
     // Solo verificar si estamos en la pantalla admin y el usuario es admin
     if (role !== 'SUPER_ADMIN') return;
 
-    const checkAdminRole = async () => {
-      try {
-        const response = await api.get('/users/profile/me');
-        const userData = response.data;
-
-        // Si el usuario ya no es admin, invalidar sesión
-        if (userData?.role !== 'SUPER_ADMIN') {
-          console.warn(
-            'Admin role removed while in admin screen, logging out...',
-          );
-          setShowExpiredModal(true);
-
-          // Hacer logout después de mostrar el modal
-          setTimeout(async () => {
-            await signOut();
-            router.replace('/(auth)/login');
-          }, 1500);
-        }
-      } catch (error) {
-        // Silent fail: no interrumpir la experiencia si la verificación falla
-        console.debug('Admin role check failed:', error);
-      }
-    };
-
-    // Verificar inmediatamente al montar
-    checkAdminRole();
-
-    // Luego verificar cada 30 segundos
-    intervalRef.current = setInterval(checkAdminRole, 30000);
+    // Temporalmente desactivado: el polling de 30s estaba haciendo llamadas
+    // periódicas a /users/profile/me. Lo reactivamos cuando haga falta.
+    // const checkAdminRole = async () => {
+    //   try {
+    //     const response = await api.get('/users/profile/me');
+    //     const userData = response.data;
+    //
+    //     // Si el usuario ya no es admin, invalidar sesión
+    //     if (userData?.role !== 'SUPER_ADMIN') {
+    //       console.warn(
+    //         'Admin role removed while in admin screen, logging out...',
+    //       );
+    //       setShowExpiredModal(true);
+    //
+    //       // Hacer logout después de mostrar el modal
+    //       setTimeout(async () => {
+    //         await signOut();
+    //         router.replace('/(auth)/login');
+    //       }, 1500);
+    //     }
+    //   } catch (error) {
+    //     // Silent fail: no interrumpir la experiencia si la verificación falla
+    //     console.debug('Admin role check failed:', error);
+    //   }
+    // };
+    // checkAdminRole();
+    // intervalRef.current = setInterval(checkAdminRole, 30000);
 
     return () => {
       if (intervalRef.current) {
