@@ -95,38 +95,6 @@ export function BookingCard({
         </View>
       </View>
 
-      {item.court?.description ? (
-        <View
-          style={{
-            paddingVertical: 10,
-            paddingHorizontal: 12,
-            backgroundColor: theme.primary + '08',
-            borderRadius: 8,
-            marginBottom: 12,
-          }}
-        >
-          <Text
-            style={{
-              color: theme.textTitle,
-              fontSize: 12,
-              fontWeight: '600',
-              marginBottom: 4,
-            }}
-          >
-            Descripción de la pista
-          </Text>
-          <Text
-            style={{
-              color: theme.textBody,
-              fontSize: 13,
-              lineHeight: 18,
-            }}
-          >
-            {item.court.description}
-          </Text>
-        </View>
-      ) : null}
-
       <View style={styles.actionsRow}>
         <TouchableOpacity
           style={[
