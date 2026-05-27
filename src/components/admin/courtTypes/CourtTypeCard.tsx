@@ -22,7 +22,7 @@ type Props = {
 };
 
 export function TipoCourtCard({ item, theme, onEdit, onDelete }: Props) {
-  const pistasCount = item.courts?.length ?? 0;
+  const pistasCount = item.totalCourts ?? 0;
 
   return (
     <View
