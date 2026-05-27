@@ -22,7 +22,6 @@ import { SessionExpiredModal } from '../../../../components/alert.modal';
 import { CourtsFiltersModal } from '../../../../components/admin/courts/CourtsFiltersModal';
 import { MaintenanceDateModal } from '../../../../components/admin/courts/MaintenanceDateModal';
 import { CourtCard } from '../../../../components/admin/courts/CourtCard';
-import CourtInfoModal from '../../../../components/bookings/CourtInfoModal';
 import { useTranslation } from 'react-i18next';
 import { addSoftBreaks } from '../../../../utils/addSoftBreaks';
 import { API_PUBLIC_URL } from '../../../../constants';
@@ -93,7 +92,6 @@ export default function AdminPistas() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedCourtInfo, setSelectedCourtInfo] = useState<any>(null);
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, filterTipoPistaId, filterPrecioMax, filterEstado]);
@@ -119,7 +117,6 @@ export default function AdminPistas() {
           onEdit={openModal}
           onMaintenance={handleMantenimiento}
           onDelete={handleDelete}
-          onInfo={() => setSelectedCourtInfo(item as any)}
         />
       </View>
     );
@@ -532,11 +529,6 @@ export default function AdminPistas() {
         onChangeHasta={(value) => updateMaintenanceRange('hasta', value)}
         onCancel={cancelMaintenanceDates}
         onContinue={confirmMaintenanceDates}
-      />
-
-      <CourtInfoModal
-        court={selectedCourtInfo}
-        onClose={() => setSelectedCourtInfo(null)}
       />
     </View>
   );
