@@ -13,6 +13,7 @@ type Props = {
   onEdit: (item: Court) => void;
   onMaintenance: (item: Court) => void;
   onDelete: (item: Court) => void;
+  onInfo?: (item: Court) => void;
 };
 
 export function CourtCard({
@@ -21,6 +22,7 @@ export function CourtCard({
   onEdit,
   onMaintenance,
   onDelete,
+  onInfo,
 }: Props) {
   const { t } = useTranslation();
   const imageUri = item.image
@@ -61,6 +63,18 @@ export function CourtCard({
             {item.installation?.name || t('courtCardInstallationFallback')}
           </Text>
         </View>
+        {onInfo && (
+          <TouchableOpacity
+            style={{ marginRight: 12 }}
+            onPress={() => onInfo(item)}
+          >
+            <Ionicons
+              name="information-circle-outline"
+              size={22}
+              color={theme.primary}
+            />
+          </TouchableOpacity>
+        )}
         <View
           style={[
             styles.statusBadge,
