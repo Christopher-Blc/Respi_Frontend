@@ -136,15 +136,12 @@ const Login: React.FC = () => {
 
         <Text
           style={{
-            color: '#1F2937',
+            color: theme.textBody,
             textAlign: 'left',
             fontSize: 12,
             alignSelf: 'flex-start',
             marginBottom: 15,
             textDecorationLine: 'underline',
-            textShadowColor: 'rgba(255, 255, 255, 0.72)',
-            textShadowOffset: { width: 0, height: 0 },
-            textShadowRadius: 7,
           }}
           onPress={() =>
             router.push({
@@ -168,12 +165,9 @@ const Login: React.FC = () => {
         {/* Registro */}
         <Text
           style={{
-            color: '#1F2937',
+            color: theme.textBody,
             textAlign: 'center',
             fontSize: 14,
-            textShadowColor: 'rgba(255, 255, 255, 0.68)',
-            textShadowOffset: { width: 0, height: 0 },
-            textShadowRadius: 6,
           }}
         >
           {t('authLoginNoAccount')}{' '}
