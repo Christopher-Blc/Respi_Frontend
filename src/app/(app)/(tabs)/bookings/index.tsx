@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   FlatList,
   Platform,
+  Pressable,
   Text,
   View,
   useWindowDimensions,
@@ -20,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../../i18n';
 import BookingDateStrip from '../../../../components/bookings/BookingDateStrip';
 import BookingCourtCard from '../../../../components/bookings/BookingCourtCard';
+import CourtInfoModal from '../../../../components/bookings/CourtInfoModal';
 import { BookingStepBar } from '../../../../components/bookings/BookingStepBar';
 import {
   getNext7Days,
@@ -28,7 +30,6 @@ import {
   addHours,
   addMonths,
   formatDateForAPI,
-  buildFreeRanges,
 } from '../../../../utils/bookingUtils';
 
 export default function ReservasTab() {
@@ -57,9 +58,8 @@ export default function ReservasTab() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showDateModal, setShowDateModal] = useState(false);
 
-  const [showInfoModal, setShowInfoModal] = useState(false);
-  const [infoTitle, setInfoTitle] = useState('');
-  const [infoRanges, setInfoRanges] = useState<string[]>([]);
+  const [selectedCourtInfo, setSelectedCourtInfo] =
+    useState<CourtAvailability | null>(null);
   const [showNoSlotsModal, setShowNoSlotsModal] = useState(false);
   const [noSlotsTitle, setNoSlotsTitle] = useState('');
 
@@ -137,14 +137,7 @@ export default function ReservasTab() {
   };
 
   const openInfo = (pista: CourtAvailability) => {
-    const bloques = crearBloquesDisponibilidad(
-      pista.opening_time,
-      pista.closing_time,
-      pista.current_reservations || [],
-    );
-    setInfoTitle(pista.name);
-    setInfoRanges(buildFreeRanges(bloques));
-    setShowInfoModal(true);
+    setSelectedCourtInfo(pista);
   };
 
   const openCreateBooking = (pista: CourtAvailability) => {
@@ -204,34 +197,9 @@ export default function ReservasTab() {
         maximumDate={maximumDate}
       />
 
-      <SessionExpiredModal
-        visible={showInfoModal}
-        onConfirm={() => setShowInfoModal(false)}
-        title={infoTitle || t('bookingTabFreeSlots')}
-        confirmText={t('commonClose')}
-        content={
-          <View>
-            <Text style={reservasTabStyles.infoListTitle}>
-              {t('bookingTabFreeSlots')}
-            </Text>
-            {infoRanges.length === 0 ? (
-              <Text style={reservasTabStyles.infoListEmpty}>
-                {t('bookingTabNoAvailability')}
-              </Text>
-            ) : (
-              <View style={reservasTabStyles.infoListWrap}>
-                {infoRanges.map((range, index) => (
-                  <View
-                    key={range + String(index)}
-                    style={reservasTabStyles.infoRangeChip}
-                  >
-                    <Text style={reservasTabStyles.infoRangeText}>{range}</Text>
-                  </View>
-                ))}
-              </View>
-            )}
-          </View>
-        }
+      <CourtInfoModal
+        court={selectedCourtInfo}
+        onClose={() => setSelectedCourtInfo(null)}
       />
 
       <SessionExpiredModal

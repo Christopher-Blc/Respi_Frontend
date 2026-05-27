@@ -258,6 +258,30 @@ export function CourtFormModal({
                 onChangeText={(t) => setFormData({ ...formData, name: t })}
               />
 
+              <InputLabel
+                label={t('adminCourtDescriptionLabel')}
+                theme={theme}
+              />
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    color: theme.textTitle,
+                    borderColor: theme.primarySoft,
+                    minHeight: 90,
+                    paddingTop: 12,
+                    textAlignVertical: 'top',
+                  },
+                ]}
+                placeholder={t('adminCourtDescriptionPlaceholder')}
+                value={formData.description}
+                multiline
+                numberOfLines={4}
+                onChangeText={(t) =>
+                  setFormData({ ...formData, description: t })
+                }
+              />
+
               <InputLabel label="Imagen de pista" theme={theme} />
               <View
                 style={{
