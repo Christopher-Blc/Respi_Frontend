@@ -34,6 +34,24 @@ import {
 } from '../../../../utils/bookingUtils';
 import { usePullToRefresh } from '../../../../hooks/usePullToRefresh';
 
+function BookingSkeleton({ theme }: { theme: any }) {
+  return (
+    <View style={{ padding: 16, gap: 12 }}>
+      {[1, 2, 3].map(i => (
+        <View
+          key={i}
+          style={{
+            height: 120,
+            borderRadius: 12,
+            backgroundColor: theme.surfaceMuted,
+            opacity: 0.6,
+          }}
+        />
+      ))}
+    </View>
+  );
+}
+
 export default function ReservasTab() {
   const { t, i18n } = useTranslation();
   const { theme, isDarkMode } = useAppTheme();
@@ -225,9 +243,7 @@ export default function ReservasTab() {
       <BookingStepBar currentStep={1} />
 
       {loading ? (
-        <View style={reservasTabStyles.loadingContainer}>
-          <ActivityIndicator size="large" color={theme.primary} />
-        </View>
+        <BookingSkeleton theme={theme} />
       ) : filteredPistas.length === 0 ? (
         <View style={reservasTabStyles.emptyContainer}>
           <Ionicons
@@ -294,6 +310,7 @@ export default function ReservasTab() {
             ) : null
           }
           renderItem={renderCourtCard}
+          initialNumToRender={4}
         />
       )}
     </View>

@@ -33,6 +33,8 @@ export function GlassTextButton({
     <Pressable
       onPress={onPress}
       disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={text}
       style={({ pressed }) => [
         styles.pressable,
         pressed && styles.pressed,

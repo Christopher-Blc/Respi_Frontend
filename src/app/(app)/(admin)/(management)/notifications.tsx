@@ -34,6 +34,7 @@ type NotificationListItem = {
   message: string;
   tipoNoti: string;
   createdAt?: string;
+  userId?: string | null;
 };
 
 const NOTIFICATION_TYPES: NotificationKind[] = [
@@ -49,6 +50,7 @@ const parseNotification = (item: any, index: number): NotificationListItem => ({
   message: String(item?.message ?? item?.mensaje ?? 'Sin mensaje'),
   tipoNoti: String(item?.tipoNoti ?? item?.tipo_noti ?? item?.tipo ?? 'Aviso'),
   createdAt: item?.createdAt ?? item?.created_at,
+  userId: item?.user_id ?? item?.userId ?? null,
 });
 
 const getNotificationTypeStyle = (tipoNoti: string, theme: any) => {
@@ -107,6 +109,8 @@ export default function AdminNotificationsScreen() {
   const [notifications, setNotifications] = useState<NotificationListItem[]>(
     [],
   );
+  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week'>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
 
   const canSubmit = useMemo(
     () => title.trim().length > 0 && message.trim().length > 0 && !sending,
@@ -124,6 +128,7 @@ export default function AdminNotificationsScreen() {
           : [];
       const sorted = rawItems
         .map(parseNotification)
+        .filter((n: NotificationListItem) => n.userId == null)
         .sort(
           (left: NotificationListItem, right: NotificationListItem) =>
             parseDateValue(right.createdAt) - parseDateValue(left.createdAt),
@@ -175,6 +180,44 @@ export default function AdminNotificationsScreen() {
     }
   };
 
+  const uniqueCategories = useMemo(() => {
+    const cats = new Set(notifications.map((n) => n.tipoNoti).filter(Boolean));
+    return Array.from(cats);
+  }, [notifications]);
+
+  const isInDateRange = useCallback(
+    (value?: string): boolean => {
+      if (dateFilter === 'all') return true;
+      if (!value) return false;
+      const date = new Date(value);
+      const now = new Date();
+      if (dateFilter === 'today') {
+        return (
+          date.getFullYear() === now.getFullYear() &&
+          date.getMonth() === now.getMonth() &&
+          date.getDate() === now.getDate()
+        );
+      }
+      if (dateFilter === 'week') {
+        const weekAgo = new Date(now);
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return date >= weekAgo;
+      }
+      return true;
+    },
+    [dateFilter],
+  );
+
+  const filteredNotifications = useMemo(() => {
+    return notifications
+      .filter((n) => isInDateRange(n.createdAt))
+      .filter((n) =>
+        categoryFilter
+          ? n.tipoNoti?.toLowerCase() === categoryFilter.toLowerCase()
+          : true,
+      );
+  }, [notifications, isInDateRange, categoryFilter]);
+
   const renderNotificationItem = ({ item }: { item: NotificationListItem }) => {
     const typeStyles = getNotificationTypeStyle(item.tipoNoti, theme);
 
@@ -225,7 +268,7 @@ export default function AdminNotificationsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.backgroundMain }]}>
       <FlatList
-        data={notifications}
+        data={filteredNotifications}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -358,8 +401,80 @@ export default function AdminNotificationsScreen() {
             </View>
 
             <Text style={[styles.listTitle, { color: theme.textTitle }]}>
-              Listado de notificaciones
+              Notificaciones masivas
             </Text>
+
+            {/* Filtros lista */}
+            <View style={styles.filterRow}>
+              {(['all', 'today', 'week'] as const).map((df) => {
+                const labels = {
+                  all: 'Todas',
+                  today: 'Hoy',
+                  week: 'Esta semana',
+                };
+                const active = dateFilter === df;
+                return (
+                  <TouchableOpacity
+                    key={df}
+                    onPress={() => setDateFilter(df)}
+                    style={[
+                      styles.filterChip,
+                      {
+                        borderColor: active ? theme.primary : theme.primarySoft,
+                        backgroundColor: active
+                          ? theme.primary + '22'
+                          : theme.backgroundMain,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={{
+                        color: active ? theme.primary : theme.textBody,
+                        fontWeight: active ? '700' : '500',
+                        fontSize: 11,
+                      }}
+                    >
+                      {labels[df]}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {uniqueCategories.length > 0 && (
+              <View style={styles.filterRow}>
+                {uniqueCategories.map((cat) => {
+                  const active = categoryFilter === cat;
+                  return (
+                    <TouchableOpacity
+                      key={cat}
+                      onPress={() => setCategoryFilter(active ? null : cat)}
+                      style={[
+                        styles.filterChip,
+                        {
+                          borderColor: active
+                            ? theme.primary
+                            : theme.primarySoft,
+                          backgroundColor: active
+                            ? theme.primary + '22'
+                            : theme.backgroundMain,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={{
+                          color: active ? theme.primary : theme.textBody,
+                          fontWeight: active ? '700' : '500',
+                          fontSize: 11,
+                        }}
+                      >
+                        {cat}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
           </View>
         }
         ListEmptyComponent={

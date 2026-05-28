@@ -12,12 +12,15 @@ export const useProfile = () => {
   // 1. Cargar Perfil
   const fetchUserProfile = async () => {
     try {
+      setLoading(true);
       const response = await api.get('/users/profile/me');
       setUser(response.data);
       setTotalReservas(response.data?.total_reservations || 0);
       return response.data; // Para encadenar si hace falta
     } catch (error) {
       console.error('Error fetching profile:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,12 +61,10 @@ export const useProfile = () => {
   // Ejecución inicial
   useEffect(() => {
     const loadAll = async () => {
-      setLoading(true);
       const userData = await fetchUserProfile();
        if (userData?.membership_id) {
         await fetchMembershipById(userData.membership_id);
       }
-      setLoading(false);
     };
     loadAll();
   }, []);

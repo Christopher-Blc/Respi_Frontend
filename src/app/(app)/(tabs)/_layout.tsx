@@ -117,6 +117,11 @@ export default function tabLayout() {
         tabBarLabelStyle: {
           marginBottom: 0,
         },
+        tabBarItemStyle: {
+          minHeight: 44,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
         animation: 'fade',
       }}
     >
@@ -124,6 +129,7 @@ export default function tabLayout() {
         name="index"
         options={{
           title: t('tabsHome'),
+          tabBarAccessibilityLabel: t('tabsHome'),
           tabBarIcon: ({ color, size }) => (
             <Octicons name="home" size={size} color={color} />
           ),
@@ -133,6 +139,7 @@ export default function tabLayout() {
         name="courts"
         options={{
           title: t('tabsCourts'),
+          tabBarAccessibilityLabel: t('tabsCourts'),
           tabBarIcon: ({ color, size }) => (
             <Octicons name="location" size={size} color={color} />
           ),
@@ -168,6 +175,7 @@ export default function tabLayout() {
               </TouchableOpacity>
             );
           },
+          tabBarAccessibilityLabel: t('tabsBookings'),
           tabBarIcon: ({ color, size }) => (
             <Octicons name="calendar" size={size} color={color} />
           ),
@@ -176,12 +184,8 @@ export default function tabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          tabBarBadge: '1',
-          tabBarBadgeStyle: {
-            backgroundColor: theme.primary,
-            color: theme.onPrimary,
-          },
           title: t('tabsProfile'),
+          tabBarAccessibilityLabel: t('tabsProfile'),
           tabBarIcon: ({ color, size }) => (
             <Octicons name="person" size={size} color={color} />
           ),

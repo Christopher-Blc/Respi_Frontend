@@ -149,7 +149,7 @@ export function useAdminInfo(theme: AppTheme) {
     return counters;
   }, [reservas]);
 
-  const chartData: PieSliceData[] = [
+  const chartData = useMemo<PieSliceData[]>(() => [
     {
       label: t('adminInfoCompleted'),
       value: statusSummary.finalizadas,
@@ -174,7 +174,7 @@ export function useAdminInfo(theme: AppTheme) {
       color: theme.danger,
       gradientCenterColor: '#C93535',
     },
-  ];
+  ], [theme, statusSummary, t]);
 
   const totalReservas =
     statusSummary.finalizadas +
@@ -192,10 +192,9 @@ export function useAdminInfo(theme: AppTheme) {
     visiblePieData[0] || { label: t('adminInfoNoData'), value: 0 },
   );
 
-  const topSliceIndex = Math.max(
-    0,
-    visiblePieData.findIndex((item) => item.label === topSlice.label),
-  );
+  const topSliceIndex = visiblePieData.length === 0
+    ? 0
+    : Math.max(0, visiblePieData.findIndex((item) => item.label === topSlice.label));
 
   useEffect(() => {
     if (!visiblePieData.length) {
@@ -276,10 +275,11 @@ export function useAdminInfo(theme: AppTheme) {
         d.setDate(d.getDate() + 1);
       }
     } else if (lineChartRange === 'all') {
-      for (let i = 89; i >= 0; i -= 1) {
-        const d = new Date(today);
-        d.setDate(today.getDate() - i);
+      const startAll = new Date(today.getFullYear() - 1, 0, 1);
+      const d = new Date(startAll);
+      while (d <= today) {
         dateKeys.push(formatDateToYmd(d));
+        d.setDate(d.getDate() + 1);
       }
     }
 
@@ -408,7 +408,7 @@ export function useAdminInfo(theme: AppTheme) {
       const year = today.getFullYear();
       const points: BarChartData = [];
 
-      for (let month = 0; month < 12; month += 1) {
+      for (let month = 0; month <= today.getMonth(); month += 1) {
         const start = new Date(year, month, 1);
         const end = new Date(year, month + 1, 0);
         const label = start.toLocaleDateString(locale, { month: 'short' });

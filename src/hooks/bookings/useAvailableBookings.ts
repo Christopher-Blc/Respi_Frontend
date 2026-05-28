@@ -1,6 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
+<<<<<<< HEAD:src/hooks/bookings/useAvailableBookings.ts
 import api from '../../services/api';
 import { CourtAvailability } from '../../types/types';
+=======
+import api from '../services/api';
+import { CourtAvailability } from '../types/types';
+>>>>>>> 45064c4666ee7aca8c60e8eb4c2e15eb645486a0:src/hooks/useAvailableBookings.ts
 
 const isDisponible = (value?: string) =>
   String(value || '')
@@ -19,9 +24,6 @@ export function useAvailableBookings(fecha: string) {
 
       const response = await api.get(`/courts/availability?date=${fecha}`);
       const payload = response?.data;
-      console.log('Disponibilidad de pistas:', payload);
-      console.log(`/courts/availability?date=${fecha}`);
-      console.log('Fecha solicitada:', fecha);
 
       const disponibles = Array.isArray(payload)
         ? payload.filter((pista: CourtAvailability) =>
@@ -31,11 +33,11 @@ export function useAvailableBookings(fecha: string) {
 
       setPistas(disponibles);
     } catch (err) {
-      console.error('Error al cargar disponibilidad de pistas:', err);
+      if (__DEV__) {
+        console.error('Error al cargar disponibilidad de pistas:', err);
+      }
       setError('No se pudo cargar la disponibilidad');
       setPistas([]);
-    } finally {
-      setLoading(false);
     }
   }, [fecha]);
 

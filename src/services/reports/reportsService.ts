@@ -305,12 +305,14 @@ async function generateAndShare(html: string, filename: string): Promise<void> {
     printWindow.document.close();
     printWindow.focus();
     // Espera a que el documento esté completamente renderizado antes de imprimir
+    let printed = false;
     printWindow.onload = () => {
+      printed = true;
       printWindow.print();
     };
     // Fallback por si onload no dispara (algunos browsers)
     setTimeout(() => {
-      if (printWindow && !printWindow.closed) {
+      if (!printed && printWindow && !printWindow.closed) {
         printWindow.print();
       }
     }, 800);
