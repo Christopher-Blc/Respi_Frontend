@@ -26,6 +26,7 @@ import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../i18n';
 import { getTipoPistaImage } from '../../../utils/getImage';
 import { API_PUBLIC_URL } from '../../../constants';
+import CourtInfoModal from '../../../components/bookings/CourtInfoModal';
 
 const GAP = 12;
 
@@ -40,6 +41,8 @@ export default function PistasTab() {
   const padding = width >= 768 ? 16 : 12;
   const cols = width >= 1280 ? 3 : width >= 520 ? 2 : 1;
   const [containerWidth, setContainerWidth] = useState(0);
+  const [selectedCourtInfo, setSelectedCourtInfo] =
+    useState<CourtAvailability | null>(null);
   const effective = containerWidth || width;
   const cardWidth = Math.max(
     160,
@@ -96,7 +99,7 @@ export default function PistasTab() {
               style={localStyles.catalogCardOverlay}
             >
               <View style={localStyles.catalogHeaderRow}>
-                <View>
+                <View style={{ flex: 1 }}>
                   <Text style={localStyles.catalogTitle}>{item.name}</Text>
                 </View>
                 <View style={localStyles.statusBadge}>
@@ -216,27 +219,47 @@ export default function PistasTab() {
                 Number(pista.average_rating || 0),
                 pista.total_reviews || 0,
               )}
-              <View style={localStyles.pricePill}>
-                <Text style={localStyles.pricePillText}>
-                  {pista.price_per_hour
-                    ? `${formatPrice(Number(pista.price_per_hour), locale)}/h`
-                    : t('pistasPriceFallback')}
-                </Text>
+              <View
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+              >
+                <View style={localStyles.pricePill}>
+                  <Text style={localStyles.pricePillText}>
+                    {pista.price_per_hour
+                      ? `${formatPrice(Number(pista.price_per_hour), locale)}/h`
+                      : t('pistasPriceFallback')}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => setSelectedCourtInfo(pista)}
+                  style={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: 15,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'rgba(255,255,255,0.18)',
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,255,255,0.35)',
+                  }}
+                >
+                  <Ionicons
+                    name="information-circle-outline"
+                    size={16}
+                    color={theme.onPrimary}
+                  />
+                </TouchableOpacity>
               </View>
             </View>
             <View>
               <Text style={localStyles.sportCardTitle} numberOfLines={1}>
                 {pista.name || t('bookingCreateCourtFallback')}
               </Text>
-              {!!pista.description && (
-                <Text
-                  style={localStyles.sportCardDescription}
-                  numberOfLines={2}
-                >
-                  {pista.description}
-                </Text>
-              )}
-              <View style={localStyles.sportChipsWrap}>
+
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={localStyles.sportChipsWrap}
+              >
                 <View style={localStyles.sportChip}>
                   <Text style={localStyles.sportChipText}>
                     {t('pistasCovered', {
@@ -258,7 +281,7 @@ export default function PistasTab() {
                     {t('pistasBookingsToday', { count: reservasHoy })}
                   </Text>
                 </View>
-              </View>
+              </ScrollView>
             </View>
           </LinearGradient>
         </ImageBackground>
@@ -286,6 +309,11 @@ export default function PistasTab() {
         if (w > 0 && w !== containerWidth) setContainerWidth(w);
       }}
     >
+      <CourtInfoModal
+        court={selectedCourtInfo}
+        onClose={() => setSelectedCourtInfo(null)}
+      />
+
       {loading ? (
         <ActivityIndicator
           size="large"

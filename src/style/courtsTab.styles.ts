@@ -249,8 +249,9 @@ const createPistasTabStyles = (theme: AppTheme) =>
     sportChipsWrap: {
       marginTop: 10,
       flexDirection: 'row',
-      flexWrap: 'wrap',
+      flexWrap: 'nowrap',
       gap: 8,
+      paddingRight: 4,
     },
     sportChip: {
       borderRadius: 999,
