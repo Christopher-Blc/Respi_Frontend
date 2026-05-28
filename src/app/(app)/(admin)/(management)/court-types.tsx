@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -20,7 +20,7 @@ import { useAdminCourtTypes } from '../../../../hooks/admin/useAdminCourtTypes';
 import { tiposPistaStyles as styles } from '../../../../style/admin/courtTypes.styles';
 import { TipoCourtCard } from '../../../../components/admin/courtTypes/CourtTypeCard';
 import { TipoCourtFormModal } from '../../../../components/admin/courtTypes/CourtTypeFormModal';
-import { SessionExpiredModal } from '../../../../components/alert.modal';
+import { SessionExpiredModal } from '../../../../components/general/alert.modal';
 import { useTranslation } from 'react-i18next';
 import { addSoftBreaks } from '../../../../utils/addSoftBreaks';
 import { API_PUBLIC_URL } from '../../../../constants';

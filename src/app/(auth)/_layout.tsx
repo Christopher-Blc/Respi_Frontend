@@ -18,6 +18,7 @@ import { useAppTheme } from '../../context/ThemeContext';
 import { getAppLanguage, setAppLanguage } from '../../i18n';
 import { LanguagePickerModal } from '../../components/login/languagePickerModal';
 import { GlassTextButton } from '../../components/login/glassTextButton';
+import { authLayoutStyles as styles } from '../../style/auth/auth.styles';
 
 const SMALL_WEB_BREAKPOINT = 900;
 
@@ -153,72 +154,3 @@ export default function AuthLayout() {
   );
 }
 
-const styles = StyleSheet.create({
-  background: { flex: 1 },
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  controlsWrap: {
-    position: 'absolute',
-    top: 50,
-    right: 16,
-    width: 170,
-    borderRadius: 16,
-    borderWidth: 0.8,
-    padding: 8,
-    gap: 8,
-    overflow: 'hidden',
-  },
-  controlsWrapCompact: {
-    width: 64,
-    alignItems: 'center',
-  },
-  controlsWrapSmallWeb: {
-    top: 12,
-    right: 12,
-    left: 'auto',
-    flexDirection: 'row',
-    width: 110,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    padding: 4,
-  },
-  controlsWrapLargeWeb: {
-    width: 230,
-    padding: 10,
-    gap: 10,
-  },
-  controlButtonSmallWeb: {
-    width: 44,
-    height: 44,
-    minHeight: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingRight: 0,
-  },
-  controlButton: {
-    width: '100%',
-    minHeight: 42,
-    borderRadius: 12,
-    borderWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingRight: 8,
-  },
-  controlButtonCompact: {
-    width: 48,
-    height: 48,
-    minHeight: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    paddingRight: 0,
-  },
-  controlIcon: {
-    margin: 0,
-  },
-  controlText: {
-    fontSize: 12,
-    fontWeight: '700',
-    flexShrink: 1,
-  },
-});

@@ -19,7 +19,7 @@ import { bookingsAdminStyles as styles } from '../../../../style/admin/bookings.
 import { BookingCard } from '../../../../components/admin/bookings/BookingCard';
 import { BookingFormModal } from '../../../../components/admin/bookings/BookingFormModal';
 import { BookingsFiltersModal } from '../../../../components/admin/bookings/BookingsFiltersModal';
-import { SessionExpiredModal } from '../../../../components/alert.modal';
+import { SessionExpiredModal } from '../../../../components/general/alert.modal';
 import { useAdminBookings } from '../../../../hooks/admin/useAdminBookings';
 import { usePullToRefresh } from '../../../../hooks/usePullToRefresh';
 

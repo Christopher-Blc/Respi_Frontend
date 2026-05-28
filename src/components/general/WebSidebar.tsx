@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
   Image,
   ScrollView,
 } from 'react-native';
@@ -18,6 +17,7 @@ import {
   type NavigationItem,
   type NavigationSection,
 } from '../../utils/navigation';
+import { webSidebarStyles as s } from '../../style/general/generalComponents.styles';
 
 type Props = {
   sections: NavigationSection[];
@@ -192,108 +192,3 @@ export default function WebSidebar({
   );
 }
 
-const s = StyleSheet.create({
-  sidebar: {
-    width: 240,
-    height: '100%' as any,
-    borderRightWidth: 1,
-    flexDirection: 'column',
-  },
-  logoArea: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 16,
-    gap: 12,
-  },
-  logoCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoInitial: {
-    fontSize: 18,
-    fontWeight: '800',
-  },
-  logoAppName: {
-    fontSize: 15,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-  },
-  logoSubtitle: {
-    fontSize: 11,
-    fontWeight: '500',
-    marginTop: 1,
-  },
-  divider: {
-    height: 1,
-  },
-  navContent: {
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    gap: 2,
-  },
-  sectionSpacing: {
-    marginTop: 20,
-  },
-  sectionLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 1.2,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-  },
-  navItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  navIcon: {
-    marginRight: 10,
-    width: 20,
-    textAlign: 'center',
-  },
-  navLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    flex: 1,
-  },
-  bold: {
-    fontWeight: '700',
-  },
-  activeIndicator: {
-    width: 6,
-    height: 6,
-    borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.7)',
-    marginLeft: 4,
-  },
-  childrenWrap: {
-    paddingLeft: 14,
-    gap: 2,
-    marginBottom: 4,
-  },
-  childItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 9,
-    borderRadius: 6,
-    gap: 8,
-  },
-  childDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 999,
-  },
-  childLabel: {
-    fontSize: 13,
-    fontWeight: '500',
-  },
-});

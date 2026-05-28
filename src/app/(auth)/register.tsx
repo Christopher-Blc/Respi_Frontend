@@ -19,11 +19,11 @@ import { GlassTextInput } from '../../components/login/glassTextInput';
 import { CountryPickerModal } from '../../components/login/countryPickerModal';
 import { PasswordStrengthIndicator } from '../../components/login/passwordStrengthIndicator';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
-import createRegisterStyles from '../../style/register.styles';
+import createRegisterStyles from '../../style/auth/register.styles';
 import RespiLogo from '../../components/login/respiLogo';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
-import { useRegister } from '../../hooks/useRegister';
+import { useRegister } from '../../hooks/auth/useRegister';
 
 const Register: React.FC = () => {
   const { t } = useTranslation();

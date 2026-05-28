@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   Modal,
   Pressable,
-  StyleSheet,
 } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import Octicons from '@expo/vector-icons/Octicons';
@@ -14,6 +13,7 @@ import {
   isNavigationRouteActive,
   type BurgerNavItem,
 } from '../../utils/navigation';
+import { webBurgerMenuStyles as styles } from '../../style/general/generalComponents.styles';
 
 type Props = {
   navItems: BurgerNavItem[];
@@ -107,42 +107,3 @@ export default function WebBurgerMenu({
   );
 }
 
-const styles = StyleSheet.create({
-  burgerBtn: {
-    marginLeft: 14,
-    padding: 4,
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'transparent',
-    alignItems: 'flex-start',
-    paddingTop: 64,
-  },
-  dropdown: {
-    borderWidth: 1,
-    borderRadius: 14,
-    paddingVertical: 8,
-    minWidth: 190,
-    marginLeft: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.14,
-    shadowRadius: 14,
-    elevation: 10,
-  },
-  dropdownItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 10,
-    marginHorizontal: 4,
-  },
-  dropdownIcon: {
-    marginRight: 10,
-  },
-  dropdownLabel: {
-    fontSize: 15,
-    fontWeight: '500',
-  },
-});

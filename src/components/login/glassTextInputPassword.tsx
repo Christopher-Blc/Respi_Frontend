@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { View, Text } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
+import { glassTextInputPasswordStyles as styles } from '../../style/auth/loginComponents.styles';
 
 interface Props {
   value: string;
@@ -75,23 +76,3 @@ export const GlassTextInputPassword: React.FC<Props> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    marginBottom: 12, // Un poco menos de margen para que quepa mejor con el teclado
-  },
-  label: {
-    alignSelf: 'flex-start',
-    marginBottom: 5,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  input: {
-    width: '100%',
-    height: 50,
-    borderRadius: 12,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    overflow: 'hidden',
-  },
-});

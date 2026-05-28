@@ -11,7 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BlurViewCompat } from '../general/BlurViewCompat';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useAppTheme } from '../../context/ThemeContext';
-import createReservasTabStyles from '../../style/bookingsTab.styles';
+import createReservasTabStyles from '../../style/bookings/bookingsTab.styles';
 import { sameDay, formatDateDisplay } from '../../utils/bookingUtils';
 
 type Props = {

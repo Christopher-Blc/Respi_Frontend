@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import Octicons from '@expo/vector-icons/Octicons';
 import { useRouter } from 'expo-router';
 import api from '../../services/api';
 import { useAppTheme } from '../../context/ThemeContext';
 import { User } from '../../types/types';
+import { webProfileBadgeStyles as styles } from '../../style/general/generalComponents.styles';
 
 export default function WebProfileBadge({
   profileRoute,
@@ -68,30 +69,3 @@ export default function WebProfileBadge({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginRight: 16,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 999,
-  },
-  avatarCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 999,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  initials: {
-    fontSize: 12,
-    fontWeight: '800',
-  },
-  username: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-});

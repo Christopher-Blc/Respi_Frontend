@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
+import { reservationQrScannerWebStyles as styles } from '../../../style/admin/reservationQrScanner.styles';
 
 type Props = {
   loading?: boolean;
@@ -37,12 +38,3 @@ export default function ReservationQrScanner({
   );
 }
 
-const styles = StyleSheet.create({
-  webNote: {
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    marginBottom: 12,
-  },
-});

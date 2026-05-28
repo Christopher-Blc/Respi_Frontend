@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
+import { View, Text, Modal, TouchableOpacity } from 'react-native';
 import { Platform } from 'react-native';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
+import createDateModalStyles from '../../style/bookings/dateModal.styles';
 
 interface Props {
   visible: boolean;
@@ -32,6 +33,7 @@ export default function DateModal({
 }: Props) {
   const { theme } = useAppTheme();
   const { t } = useTranslation();
+  const styles = useMemo(() => createDateModalStyles(theme), [theme]);
   const safeMinimumDate = minimumDate ?? getDefaultMinimumDate();
   const safeMaximumDate = maximumDate ?? getDefaultMaximumDate();
   const safeInitialDate = initialDate ?? new Date();
@@ -96,39 +98,6 @@ export default function DateModal({
     onClose();
   };
 
-  const styles = StyleSheet.create({
-    headerContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingHorizontal: 20,
-      paddingVertical: 16,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.borderMain,
-      backgroundColor: theme.backgroundMain,
-    },
-    headerText: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: theme.textBody,
-    },
-    saveText: {
-      color: theme.primary,
-      fontWeight: '700',
-    },
-    container: {
-      flex: 1,
-      backgroundColor: theme.backgroundMain,
-      justifyContent: 'center',
-      alignItems: 'center',
-      paddingHorizontal: 20,
-    },
-    datePickerContainer: {
-      width: '100%',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-  });
 
   return (
     <Modal

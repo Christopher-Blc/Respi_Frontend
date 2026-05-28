@@ -15,7 +15,7 @@ import { useAppTheme } from '../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styles from '../../../style/admin/home.styles';
-import { useProfile } from '../../../hooks/useProfile';
+import { useProfile } from '../../../hooks/profile/useProfile';
 import { useTranslation } from 'react-i18next';
 import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
 
