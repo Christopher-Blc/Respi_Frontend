@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    onForceLogout(() => {
+    const cleanupForceLogout = onForceLogout(() => {
       if (
         suppressForcedLogoutModalRef.current ||
         isHandlingForcedLogoutRef.current
@@ -122,6 +122,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     };
     loadToken();
+    return cleanupForceLogout;
   }, []);
 
   const handleConfirmExpired = () => {
