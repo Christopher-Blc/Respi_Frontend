@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import api from '../../services/api';
 import { Reservation, User, Court, CourtType } from '../../types/types';
 
@@ -87,7 +87,7 @@ export function useAdminBookings() {
     message: '',
   });
 
-  const fetchInitialData = async () => {
+  const fetchInitialData = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -97,8 +97,6 @@ export function useAdminBookings() {
         api.get('/courts').catch(() => ({ data: [] })),
         api.get('/court-types').catch(() => ({ data: [] })),
       ]);
-
-      console.log('Fetched reservations:', reservationsRes.data);
 
       setReservations(extractRows(reservationsRes?.data) as Reservation[]);
       setUsers(extractRows(usersRes?.data) as User[]);
@@ -113,7 +111,7 @@ export function useAdminBookings() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchInitialData();
@@ -300,11 +298,7 @@ export function useAdminBookings() {
 
         // Solo enviar si hay cambios
         if (Object.keys(updatePayload).length > 0) {
-          try {
-            await api.put(`/reservations/${reservationToEdit.id}`, updatePayload);
-          } catch {
-            console.log('PUT failed', updatePayload);
-          }
+          await api.put(`/reservations/${reservationToEdit.id}`, updatePayload);
         }
       } else {
         await api.post('/reservations', basePayload);
@@ -362,17 +356,7 @@ export function useAdminBookings() {
 
     try {
       if (confirmModal.actionType === 'cancel') {
-        const payload = { status: 'CANCELADA' };
-
-        try {
-          await api.put(`/reservations/${pendingReservation.id}`, payload);
-        } catch (error) {
-          
-          console.log('PUT failed', payload);
-           console.log('PUT Error:', error);
-        }
-         
-        
+        await api.put(`/reservations/${pendingReservation.id}`, { status: 'CANCELADA' });
       }
 
       if (confirmModal.actionType === 'delete') {

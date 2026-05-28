@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import api from '../services/api';
 import { CourtAvailability } from '../types/types';
 
@@ -19,9 +19,6 @@ export function useAvailableBookings(fecha: string) {
 
       const response = await api.get(`/courts/availability?date=${fecha}`);
       const payload = response?.data;
-      console.log('Disponibilidad de pistas:', payload);
-      console.log(`/courts/availability?date=${fecha}`);
-      console.log('Fecha solicitada:', fecha);
 
       const disponibles = Array.isArray(payload)
         ? payload.filter((pista: CourtAvailability) =>
@@ -31,11 +28,11 @@ export function useAvailableBookings(fecha: string) {
 
       setPistas(disponibles);
     } catch (err) {
-      console.error('Error al cargar disponibilidad de pistas:', err);
+      if (__DEV__) {
+        console.error('Error al cargar disponibilidad de pistas:', err);
+      }
       setError('No se pudo cargar la disponibilidad');
       setPistas([]);
-    } finally {
-      setLoading(false);
     }
   }, [fecha]);
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,13 +10,13 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
 import * as Clipboard from 'expo-clipboard';
 import { useAppTheme } from '../../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import api from '../../../../services/api';
-import { useAuth } from '../../../../context/AuthContext';
 import createConfirmacionReservaStyles from '../../../../style/bookingConfirmation.styles';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../../i18n';
@@ -41,7 +41,6 @@ export default function ConfirmacionReserva() {
   const router = useRouter();
   const { theme } = useAppTheme();
   const headerHeight = useHeaderHeight();
-  useAuth();
   const styles = useMemo(() => createConfirmacionReservaStyles(theme), [theme]);
   const locale = getDateLocale(i18n.resolvedLanguage || i18n.language);
 
@@ -53,6 +52,7 @@ export default function ConfirmacionReserva() {
   const [completedReservation, setCompletedReservation] =
     useState<Reservation | null>(null);
   const [pendingReservationId, setPendingReservationId] = useState<number | null>(null);
+  const paymentCompletedRef = useRef(false);
   const durationMinutes = Number(duracionValue || 60);
 
   const {
@@ -92,6 +92,18 @@ export default function ConfirmacionReserva() {
 
     fetchPista();
   }, [pistaIdValue]);
+
+  // BUG 2: Cancelar reserva pendiente si el usuario abandona la pantalla sin pagar
+  useFocusEffect(
+    React.useCallback(() => {
+      paymentCompletedRef.current = false;
+      return () => {
+        if (pendingReservationId && !paymentCompletedRef.current) {
+          api.put(`/reservations/${pendingReservationId}`, { status: 'CANCELADA' }).catch(() => {});
+        }
+      };
+    }, [pendingReservationId]),
+  );
 
   const handleConfirm = async () => {
     if (!pistaIdValue || !fechaValue || !horaValue) {
@@ -134,6 +146,7 @@ export default function ConfirmacionReserva() {
       const paid = await initAndPay(reservationId, 'ResPi', precioEstimado);
 
       if (paid) {
+        paymentCompletedRef.current = true;
         setPendingReservationId(null);
         try {
           const updated = await api.get(`/reservations/${reservationId}`);
@@ -164,7 +177,7 @@ export default function ConfirmacionReserva() {
       return;
     }
 
-    const verificationUrl = `https://midominio.com/validar/${code}`;
+    const verificationUrl = `${process.env.EXPO_PUBLIC_APP_URL ?? 'https://respi.es'}/validar/${code}`;
     await Clipboard.setStringAsync(verificationUrl);
     showAlert('Enlace copiado', 'El enlace de verificacion se ha copiado al portapapeles.');
   };
@@ -190,7 +203,7 @@ export default function ConfirmacionReserva() {
   const endMinutes = startMinutes + durationMinutes;
   const endHourLabel = `${String(Math.floor(endMinutes / 60)).padStart(2, '0')}:${String(
     endMinutes % 60,
-  ).padStart(2, '00')}`;
+  ).padStart(2, '0')}`;
 
   return (
     <View style={styles.container}>

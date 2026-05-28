@@ -19,23 +19,20 @@ export function useAdminCourts() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const fetchInstalaciones = async () => {
-     const response = await api.get('/installations');
-    const rows = Array.isArray(response?.data)
-      ? response.data
+    try {
+      const response = await api.get('/installations');
+      const rows = Array.isArray(response?.data)
+        ? response.data
         : Array.isArray(response?.data?.data)
           ? response.data.data
-            : Array.isArray(response?.data?.items)
-              ? response.data.items
-              : [];
+          : Array.isArray(response?.data?.items)
+            ? response.data.items
+            : [];
 
-    if (rows.length > 0) {
-      setInstalaciones(rows);
-      return;
+      setInstalaciones(rows.length > 0 ? rows : []);
+    } catch {
+      setInstalaciones([]);
     }
-      
-    
-
-    setInstalaciones([]);
   };
 
   const fetchPistas = async () => {
@@ -44,8 +41,8 @@ export function useAdminCourts() {
       const [pistaRes, tipoRes] = await Promise.all([
         api.get('/courts'),
         api.get('/court-types'),
-        fetchInstalaciones(),
       ]);
+      await fetchInstalaciones();
       setPistas(pistaRes.data);
       setTiposPista(tipoRes.data);
     } catch {

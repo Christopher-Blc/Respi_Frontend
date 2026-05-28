@@ -4,6 +4,7 @@ import api from '../services/api';
 import { Court, CourtAvailability, CourtType } from '../types/types';
 import { useTranslation } from 'react-i18next';
 import { getTipoPistaImage } from '../utils/getImage';
+import { getNext7Days, formatDateForAPI } from '../utils/bookingUtils';
 
 
 export const resolvePistaImageSource = (pista: CourtAvailability) =>
@@ -43,22 +44,6 @@ export const formatDateDisplay = (date: Date, locale = 'es-ES') =>
     month: 'short',
   });
 
-const getNext7Days = () => {
-  const days: Date[] = [];
-  for (let i = 0; i < 7; i++) {
-    const date = new Date();
-    date.setDate(date.getDate() + i);
-    days.push(date);
-  }
-  return days;
-};
-
-const formatDateForAPI = (date: Date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
 
 export function useCourtsTab() {
   const { t } = useTranslation();
