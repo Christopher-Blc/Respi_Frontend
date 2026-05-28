@@ -52,6 +52,8 @@ type Props = {
   toggleSamePrice: (enabled: boolean, price: string) => void;
   imagen: ImagePicker.ImagePickerAsset | null;
   setImagen: (value: ImagePicker.ImagePickerAsset | null) => void;
+  removeExistingImage: boolean;
+  setRemoveExistingImage: (value: boolean) => void;
   existingImageUri?: string;
 };
 
@@ -88,6 +90,8 @@ export function CourtFormModal({
   toggleSamePrice,
   imagen,
   setImagen,
+  removeExistingImage,
+  setRemoveExistingImage,
   existingImageUri,
 }: Props) {
   const { theme } = useAppTheme();
@@ -107,12 +111,13 @@ export function CourtFormModal({
 
     if (!result.canceled && result.assets.length > 0) {
       setImagen(result.assets[0]);
+      setRemoveExistingImage(false);
     }
   };
 
   const previewUri =
     imagen?.uri ||
-    (existingImageUri
+    (!removeExistingImage && existingImageUri
       ? existingImageUri.startsWith('http')
         ? existingImageUri
         : `${API_PUBLIC_URL}/${existingImageUri.replace(/^\//, '')}`
@@ -331,7 +336,7 @@ export function CourtFormModal({
                           marginTop: 2,
                         }}
                       >
-                        Recomendado 16:9, maximo 1MB
+                        Recomendado 16:9, maximo 5MB
                       </Text>
                     </View>
                   </View>
@@ -357,6 +362,24 @@ export function CourtFormModal({
                   />
                 ) : null}
               </View>
+
+              {previewUri && pistaAEditar ? (
+                <TouchableOpacity
+                  style={{
+                    marginTop: -8,
+                    marginBottom: 12,
+                    alignSelf: 'flex-start',
+                  }}
+                  onPress={() => {
+                    setImagen(null);
+                    setRemoveExistingImage(true);
+                  }}
+                >
+                  <Text style={{ color: '#d32f2f', fontWeight: '700' }}>
+                    Eliminar imagen
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
 
               <View style={{ flexDirection: 'row', gap: 12 }}>
                 <View style={{ flex: 1 }}>

@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 
-const MAX_IMAGE_SIZE_BYTES = 950 * 1024;
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 
 const getImageSizeBytes = (asset: ImagePicker.ImagePickerAsset | null) => {
   if (!asset) return 0;
@@ -83,6 +83,7 @@ export function useAdminCourtTypes() {
   const [imagen, setImagen] = useState<ImagePicker.ImagePickerAsset | null>(
     null,
   );
+  const [removeExistingImage, setRemoveExistingImage] = useState(false);
   const [tipoPistaAEditar, setTipoPistaAEditar] = useState<CourtType | null>(
     null,
   );
@@ -136,6 +137,7 @@ export function useAdminCourtTypes() {
     setTipoPistaAEditar(null);
     setNombre('');
     setImagen(null);
+    setRemoveExistingImage(false);
     setModalVisible(true);
   };
 
@@ -143,6 +145,7 @@ export function useAdminCourtTypes() {
     setTipoPistaAEditar(item);
     setNombre(item.name);
     setImagen(null);
+    setRemoveExistingImage(false);
     setModalVisible(true);
   };
 
@@ -151,6 +154,7 @@ export function useAdminCourtTypes() {
     setTipoPistaAEditar(null);
     setNombre('');
     setImagen(null);
+    setRemoveExistingImage(false);
   };
 
   const handleSave = async () => {
@@ -191,7 +195,7 @@ export function useAdminCourtTypes() {
             visible: true,
             title: t('bookingConfirmErrorTitle'),
             message:
-              'La imagen sigue siendo muy pesada. Usa una imagen más ligera (idealmente menor a 1MB).',
+              'La imagen sigue siendo muy pesada. Usa una imagen mas ligera (idealmente menor a 5MB).',
           });
           return;
         }
@@ -204,7 +208,7 @@ export function useAdminCourtTypes() {
             visible: true,
             title: t('bookingConfirmErrorTitle'),
             message:
-              'La imagen es demasiado grande. Usa una imagen menor de 1MB para evitar errores de subida.',
+              'La imagen es demasiado grande. Usa una imagen menor de 5MB para evitar errores de subida.',
           });
           return;
         }
@@ -218,6 +222,8 @@ export function useAdminCourtTypes() {
           } as any,
         );
       }
+    } else if (tipoPistaAEditar && removeExistingImage) {
+      formData.append('remove_image', 'true');
     }
 
     try {
@@ -303,6 +309,8 @@ export function useAdminCourtTypes() {
     setNombre,
     imagen,
     setImagen,
+    removeExistingImage,
+    setRemoveExistingImage,
     tipoPistaAEditar,
     openModal,
     openEditModal,
