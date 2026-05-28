@@ -4,6 +4,7 @@ import {
   FlatList,
   Platform,
   Pressable,
+  RefreshControl,
   Text,
   View,
   useWindowDimensions,
@@ -31,6 +32,7 @@ import {
   addMonths,
   formatDateForAPI,
 } from '../../../../utils/bookingUtils';
+import { usePullToRefresh } from '../../../../hooks/usePullToRefresh';
 
 export default function ReservasTab() {
   const { t, i18n } = useTranslation();
@@ -75,7 +77,8 @@ export default function ReservasTab() {
       .trim();
 
   const formattedDate = formatDateForAPI(selectedDate);
-  const { pistas, loading } = useAvailableBookings(formattedDate);
+  const { pistas, loading, refetch } = useAvailableBookings(formattedDate);
+  const { refreshing, onRefresh } = usePullToRefresh(refetch);
   const availableDays = useMemo(() => getNext7Days(), []);
   const minimumDate = useMemo(
     () => normalizeDay(addHours(new Date(), 2)),
@@ -243,6 +246,13 @@ export default function ReservasTab() {
         <FlatList
           key={`bookings-${cols}`}
           data={filteredPistas}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={theme.primary}
+            />
+          }
           numColumns={cols}
           keyExtractor={(item) => String(item.id)}
           showsVerticalScrollIndicator={false}

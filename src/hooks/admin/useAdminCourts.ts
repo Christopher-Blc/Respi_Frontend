@@ -68,6 +68,7 @@ export function useAdminCourts() {
     tiposPista,
     instalaciones,
     loading,
+    refresh: fetchPistas,
     searchQuery,
     setSearchQuery,
     weeklyCardWidth,

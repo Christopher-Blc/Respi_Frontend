@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
+  RefreshControl,
   ScrollView,
   View,
   Text,
@@ -22,6 +23,7 @@ import { useAdminReviews } from '../../../hooks/admin/useAdminReviews';
 import { CourtsAverageRatingChart } from '../../../components/admin/info/CourtsAverageRatingChart';
 import { useAdminReports } from '../../../hooks/admin/useAdminReports';
 import { ReportType } from '../../../services/reportsService';
+import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
 
 export default function InfoAdmin() {
   const { theme } = useAppTheme();
@@ -39,6 +41,7 @@ export default function InfoAdmin() {
     lineChartTotal,
     loadingChart,
     rangeOptions,
+    refresh,
     selectedSliceIndex,
     setLineChartRange,
     setSelectedSliceIndex,
@@ -46,7 +49,11 @@ export default function InfoAdmin() {
     visiblePieData,
   } = useAdminInfo(theme);
 
-  const { courts, filteredReviews } = useAdminReviews();
+  const {
+    courts,
+    filteredReviews,
+    refresh: refreshReviews,
+  } = useAdminReviews();
   const {
     loading: reportLoading,
     error: reportError,
@@ -54,6 +61,10 @@ export default function InfoAdmin() {
   } = useAdminReports();
 
   const ORANGE = theme.primary;
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([refresh(), refreshReviews()]);
+  }, [refresh, refreshReviews]);
+  const { refreshing, onRefresh } = usePullToRefresh(handleRefresh);
 
   const reportOptions: {
     type: ReportType;
@@ -95,6 +106,13 @@ export default function InfoAdmin() {
     <View style={[styles.page, { backgroundColor: theme.background }]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={theme.primary}
+          />
+        }
         contentContainerStyle={{
           paddingTop: headerHeight + 20,
           paddingBottom: insets.bottom + 120,

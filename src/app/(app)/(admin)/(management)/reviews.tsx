@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  RefreshControl,
   ScrollView,
   Text,
   TextInput,
@@ -23,6 +24,7 @@ import {
   AdminReview,
   useAdminReviews,
 } from '../../../../hooks/admin/useAdminReviews';
+import { usePullToRefresh } from '../../../../hooks/usePullToRefresh';
 
 export default function AdminReviewsScreen() {
   const { theme } = useAppTheme();
@@ -52,6 +54,7 @@ export default function AdminReviewsScreen() {
     courtFilterOptions,
     filteredReviews,
     loading,
+    refresh,
     searchQuery,
     setSearchQuery,
     viewMode,
@@ -73,6 +76,7 @@ export default function AdminReviewsScreen() {
     errorModal,
     setErrorModal,
   } = useAdminReviews();
+  const { refreshing, onRefresh } = usePullToRefresh(refresh);
 
   const [currentPage, setCurrentPage] = useState(1);
   useEffect(() => {
@@ -210,6 +214,13 @@ export default function AdminReviewsScreen() {
           <FlatList
             key={`reviews-cards-${cardsColumns}`}
             data={pagedReviews}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={theme.primary}
+              />
+            }
             renderItem={renderCard}
             numColumns={cardsColumns}
             keyExtractor={(item) => item.id.toString()}
@@ -302,56 +313,73 @@ export default function AdminReviewsScreen() {
               </Text>
             </View>
 
-            {pagedReviews.map((review, index) => (
-              <View
-                key={review.id}
-                style={[
-                  styles.tableRow,
-                  {
-                    borderBottomColor:
-                      index === pagedReviews.length - 1
-                        ? 'transparent'
-                        : theme.primarySoft,
-                  },
-                ]}
-              >
-                <Text
-                  style={[styles.colCourt, { color: theme.textBody }]}
-                  numberOfLines={2}
-                >
-                  {review.court?.name || `#${review.court_id}`}
-                </Text>
-                <Text
-                  style={[styles.colUser, { color: theme.textBody }]}
-                  numberOfLines={2}
-                >
-                  {review.user?.username || `#${review.user_id}`}
-                </Text>
-                <Text
-                  style={[styles.colTitle, { color: theme.textBody }]}
-                  numberOfLines={2}
-                >
-                  {review.title}
-                </Text>
-                <Text style={[styles.colRating, { color: theme.textBody }]}>
-                  {review.rating}/5
-                </Text>
-                <Text style={[styles.colVisibility, { color: theme.textBody }]}>
-                  {review.admin_answer?.trim() ? 'Contestada' : 'Pendiente'}
-                </Text>
+            <FlatList
+              data={pagedReviews}
+              keyExtractor={(item) => item.id.toString()}
+              nestedScrollEnabled
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  tintColor={theme.primary}
+                />
+              }
+              contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+              renderItem={({ item: review, index }) => (
                 <View
-                  style={[styles.colActions, { flexDirection: 'row', gap: 8 }]}
+                  style={[
+                    styles.tableRow,
+                    {
+                      borderBottomColor:
+                        index === pagedReviews.length - 1
+                          ? 'transparent'
+                          : theme.primarySoft,
+                    },
+                  ]}
                 >
-                  <TouchableOpacity onPress={() => openAnswerModal(review)}>
-                    <Ionicons
-                      name="chatbubble-outline"
-                      size={18}
-                      color={theme.textBody}
-                    />
-                  </TouchableOpacity>
+                  <Text
+                    style={[styles.colCourt, { color: theme.textBody }]}
+                    numberOfLines={2}
+                  >
+                    {review.court?.name || `#${review.court_id}`}
+                  </Text>
+                  <Text
+                    style={[styles.colUser, { color: theme.textBody }]}
+                    numberOfLines={2}
+                  >
+                    {review.user?.username || `#${review.user_id}`}
+                  </Text>
+                  <Text
+                    style={[styles.colTitle, { color: theme.textBody }]}
+                    numberOfLines={2}
+                  >
+                    {review.title}
+                  </Text>
+                  <Text style={[styles.colRating, { color: theme.textBody }]}>
+                    {review.rating}/5
+                  </Text>
+                  <Text
+                    style={[styles.colVisibility, { color: theme.textBody }]}
+                  >
+                    {review.admin_answer?.trim() ? 'Contestada' : 'Pendiente'}
+                  </Text>
+                  <View
+                    style={[
+                      styles.colActions,
+                      { flexDirection: 'row', gap: 8 },
+                    ]}
+                  >
+                    <TouchableOpacity onPress={() => openAnswerModal(review)}>
+                      <Ionicons
+                        name="chatbubble-outline"
+                        size={18}
+                        color={theme.textBody}
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
-            ))}
+              )}
+            />
           </View>
         </ScrollView>
       )}

@@ -10,6 +10,7 @@ import {
   Alert,
   FlatList,
   Platform,
+  RefreshControl,
   StyleSheet,
   Text,
   TextInput,
@@ -23,6 +24,7 @@ import { useAppTheme } from '../../../../context/ThemeContext';
 import api from '../../../../services/api';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
 import { notificationsAdminStyles as styles } from '../../../../style/admin/notifications.styles';
+import { usePullToRefresh } from '../../../../hooks/usePullToRefresh';
 
 type NotificationKind = 'Aviso' | 'Recordatorio' | 'Alerta' | 'Promocion';
 
@@ -138,6 +140,8 @@ export default function AdminNotificationsScreen() {
     void fetchNotifications();
   }, [fetchNotifications]);
 
+  const { refreshing, onRefresh } = usePullToRefresh(fetchNotifications);
+
   const handleConfirmSend = async () => {
     if (!canSubmit || sendingLockRef.current) return;
 
@@ -222,6 +226,13 @@ export default function AdminNotificationsScreen() {
     <View style={[styles.container, { backgroundColor: theme.backgroundMain }]}>
       <FlatList
         data={notifications}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={theme.primary}
+          />
+        }
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={

@@ -27,6 +27,8 @@ type Props = {
   setNombre: (value: string) => void;
   imagen: ImagePicker.ImagePickerAsset | null;
   setImagen: (value: ImagePicker.ImagePickerAsset | null) => void;
+  removeExistingImage: boolean;
+  setRemoveExistingImage: (value: boolean) => void;
   existingImageUri?: string;
   onClose: () => void;
   onSave: () => void;
@@ -39,6 +41,8 @@ export function TipoCourtFormModal({
   setNombre,
   imagen,
   setImagen,
+  removeExistingImage,
+  setRemoveExistingImage,
   existingImageUri,
   onClose,
   onSave,
@@ -56,10 +60,12 @@ export function TipoCourtFormModal({
 
     if (!result.canceled && result.assets.length > 0) {
       setImagen(result.assets[0]);
+      setRemoveExistingImage(false);
     }
   };
 
-  const previewUri = imagen?.uri || getImageUri(existingImageUri);
+  const previewUri =
+    imagen?.uri || (removeExistingImage ? null : getImageUri(existingImageUri));
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
@@ -165,6 +171,26 @@ export function TipoCourtFormModal({
               />
             ) : null}
           </View>
+
+          {previewUri && isEditing ? (
+            <TouchableOpacity
+              style={{ marginBottom: 14, alignSelf: 'flex-start' }}
+              onPress={() => {
+                setImagen(null);
+                setRemoveExistingImage(true);
+              }}
+            >
+              <Text style={{ color: '#d32f2f', fontWeight: '700' }}>
+                Eliminar imagen
+              </Text>
+            </TouchableOpacity>
+          ) : null}
+
+          <Text
+            style={{ color: theme.textBody, fontSize: 11, marginBottom: 10 }}
+          >
+            Recomendado 16:9, maximo 5MB
+          </Text>
 
           <TouchableOpacity
             style={[styles.saveBtn, { backgroundColor: theme.primary }]}

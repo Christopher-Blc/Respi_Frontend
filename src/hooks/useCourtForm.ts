@@ -17,6 +17,17 @@ import {
 } from './courtUtils';
 import { useTranslation } from 'react-i18next';
 
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+
+const getImageSizeBytes = (asset: ImagePicker.ImagePickerAsset | null) => {
+  if (!asset) return 0;
+
+  const webFile = (asset as ImagePicker.ImagePickerAsset & { file?: File }).file;
+  if (webFile?.size) return webFile.size;
+
+  return asset.fileSize || 0;
+};
+
 export function useCourtForm(
   pistas: Court[],
   instalaciones: Installation[],
@@ -39,6 +50,7 @@ export function useCourtForm(
   const [imagen, setImagen] = useState<ImagePicker.ImagePickerAsset | null>(
     null,
   );
+  const [removeExistingImage, setRemoveExistingImage] = useState(false);
 
   const openModal = (pista: Court | null = null) => {
     setPistaAEditar(pista);
@@ -71,6 +83,7 @@ export function useCourtForm(
         }),
       );
       setImagen(null);
+      setRemoveExistingImage(false);
     } else {
       setFormData({
         ...DEFAULT_FORM,
@@ -79,6 +92,7 @@ export function useCourtForm(
       });
       setWeeklySchedule(createDefaultWeeklySchedule());
       setImagen(null);
+      setRemoveExistingImage(false);
     }
     setSamePriceMode(false);
     setGlobalPrice('');
@@ -119,6 +133,16 @@ export function useCourtForm(
         return;
       }
 
+      const imageSizeBytes = getImageSizeBytes(imagen);
+      if (imageSizeBytes > MAX_IMAGE_SIZE_BYTES) {
+        setErrorModal({
+          visible: true,
+          title: 'Imagen demasiado grande',
+          message: 'La imagen no puede superar los 5MB.',
+        });
+        return;
+      }
+
       if (samePriceMode && !isValidPrice(globalPrice)) {
         setErrorModal({ visible: true, title: 'Precio invalido', message: 'El precio general debe ser un numero mayor que 0.' });
         return;
@@ -152,6 +176,7 @@ export function useCourtForm(
 
       const createCourtPayload = (day: WeeklyScheduleItem) => ({
         ...bodyBase,
+        ...(removeExistingImage && pistaAEditar ? { image: null } : {}),
         price_per_hour: parseFloat(
           (samePriceMode ? globalPrice : day.price_per_hour)
             .trim()
@@ -251,6 +276,7 @@ export function useCourtForm(
 
       setModalVisible(false);
       setImagen(null);
+      setRemoveExistingImage(false);
       fetchPistas();
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || error.message || 'Error desconocido';
@@ -302,6 +328,8 @@ export function useCourtForm(
     setGlobalPrice,
     imagen,
     setImagen,
+    removeExistingImage,
+    setRemoveExistingImage,
     openModal,
     handleSave,
     updateWeeklySchedule,

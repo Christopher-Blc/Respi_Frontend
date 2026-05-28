@@ -130,6 +130,14 @@ export default function AdminTabLayout() {
       />
 
       <Tabs.Screen
+        name="notifications-history"
+        options={{
+          headerShown: false,
+          href: null,
+        }}
+      />
+
+      <Tabs.Screen
         name="info"
         options={{
           title: t('adminInfo'),
