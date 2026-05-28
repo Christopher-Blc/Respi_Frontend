@@ -96,4 +96,16 @@ export const notificationsAdminStyles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
+  filterRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginBottom: 8,
+  },
+  filterChip: {
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
 });
