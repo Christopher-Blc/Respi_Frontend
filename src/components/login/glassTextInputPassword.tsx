@@ -53,6 +53,7 @@ export const GlassTextInputPassword: React.FC<Props> = ({
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         selectionColor={theme.inputFocus}
+        accessibilityLabel={placeholder || t('examplePassword')}
         style={[
           styles.input,
           {
@@ -68,6 +69,7 @@ export const GlassTextInputPassword: React.FC<Props> = ({
             color={isFocused ? theme.inputFocus : theme.grayPlaceholder}
             onPress={() => setPasswordVisible(!passwordVisible)}
             forceTextInputFocus={false}
+            accessibilityLabel={passwordVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
           />
         }
       />

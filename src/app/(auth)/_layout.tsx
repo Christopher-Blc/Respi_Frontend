@@ -94,6 +94,7 @@ export default function AuthLayout() {
       >
         <Pressable
           onPress={toggleTheme}
+          accessibilityLabel={isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
           style={[
             styles.controlButton,
             isCompactControls && styles.controlButtonCompact,
@@ -119,6 +120,7 @@ export default function AuthLayout() {
 
         <Pressable
           onPress={() => setShowLanguagePicker(true)}
+          accessibilityLabel="Cambiar idioma"
           style={[
             styles.controlButton,
             isCompactControls && styles.controlButtonCompact,
