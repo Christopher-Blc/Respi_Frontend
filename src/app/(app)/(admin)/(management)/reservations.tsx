@@ -154,25 +154,51 @@ export default function AdminReservasGlobal() {
       }}
     >
       <View style={[styles.headerActions, { paddingTop: headerHeight + 10 }]}>
-        <View
-          style={[
-            styles.searchBar,
-            {
-              backgroundColor: theme.backgroundCard,
-              borderColor: theme.primarySoft,
-            },
-          ]}
-        >
-          <Ionicons name="search" size={20} color={theme.textBody} />
+        <View style={{ flex: 1, position: 'relative' }}>
+          <Ionicons
+            name="search"
+            size={20}
+            color={theme.textBody}
+            style={{
+              position: 'absolute',
+              left: 12,
+              top: '50%',
+              transform: [{ translateY: -10 }],
+              zIndex: 1,
+            }}
+          />
           <TextInput
             placeholder="Buscar reserva..."
             placeholderTextColor={theme.textBody + '80'}
-            style={[styles.searchInput, { color: theme.textTitle }]}
+            style={[
+              styles.searchInput,
+              {
+                flex: 1,
+                height: 48,
+                borderRadius: 12,
+                borderWidth: 1,
+                backgroundColor: theme.backgroundCard,
+                borderColor: theme.primarySoft,
+                paddingLeft: 40,
+                paddingRight: searchQuery.length > 0 ? 40 : 12,
+                color: theme.textTitle,
+                outlineWidth: 0,
+              },
+            ]}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
           {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
+            <TouchableOpacity
+              onPress={() => setSearchQuery('')}
+              style={{
+                position: 'absolute',
+                right: 12,
+                top: '50%',
+                transform: [{ translateY: -9 }],
+                zIndex: 1,
+              }}
+            >
               <Ionicons name="close-circle" size={18} color={theme.textBody} />
             </TouchableOpacity>
           )}
