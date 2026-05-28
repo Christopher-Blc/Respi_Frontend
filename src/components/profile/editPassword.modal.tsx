@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { GlassTextInputPassword } from '../login/glassTextInputPassword';
 import { PasswordStrengthIndicator } from '../login/passwordStrengthIndicator';
-import { SessionExpiredModal } from '../alert.modal';
+import { SessionExpiredModal } from '../general/alert.modal';
 import { useChangePassword } from '../../hooks/auth/useChangePassword';
 import createModalCommonStyles from '../../style/general/modalCommon.styles';
 
