@@ -81,6 +81,8 @@ export default function AdminPistas() {
     toggleSamePrice,
     imagen,
     setImagen,
+    removeExistingImage,
+    setRemoveExistingImage,
     filterTipoPistaId,
     setFilterTipoPistaId,
     filterPrecioMax,
@@ -471,6 +473,8 @@ export default function AdminPistas() {
         toggleSamePrice={toggleSamePrice}
         imagen={imagen}
         setImagen={setImagen}
+        removeExistingImage={removeExistingImage}
+        setRemoveExistingImage={setRemoveExistingImage}
         existingImageUri={pistaAEditar?.image}
       />
 

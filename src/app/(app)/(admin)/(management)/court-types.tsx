@@ -65,6 +65,8 @@ export default function AdminTiposPista() {
     setNombre,
     imagen,
     setImagen,
+    removeExistingImage,
+    setRemoveExistingImage,
     tipoPistaAEditar,
     openModal,
     openEditModal,
@@ -378,6 +380,8 @@ export default function AdminTiposPista() {
         setNombre={setNombre}
         imagen={imagen}
         setImagen={setImagen}
+        removeExistingImage={removeExistingImage}
+        setRemoveExistingImage={setRemoveExistingImage}
         existingImageUri={tipoPistaAEditar?.image}
         onClose={closeModal}
         onSave={handleSave}
