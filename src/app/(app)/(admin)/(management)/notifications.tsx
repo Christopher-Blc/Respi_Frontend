@@ -158,7 +158,6 @@ export default function AdminNotificationsScreen() {
       title: title.trim(),
       message: message.trim(),
       notification_type: tipoNoti,
-      user_id: null,
     };
 
     try {

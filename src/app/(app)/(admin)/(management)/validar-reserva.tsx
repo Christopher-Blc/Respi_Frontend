@@ -353,6 +353,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 14,
     fontWeight: '600',
+    outlineWidth: 0,
   },
   searchBtn: {
     borderRadius: 10,
