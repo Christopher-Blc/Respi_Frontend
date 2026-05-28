@@ -32,6 +32,38 @@ function fmtExpiry(text: string): string {
   return d.length >= 3 ? `${d.slice(0, 2)} / ${d.slice(2)}` : d;
 }
 
+function validateFields(
+  card: string,
+  expiry: string,
+  cvc: string,
+  name: string,
+): string | null {
+  const cardDigits = card.replace(/\D/g, '');
+  if (cardDigits.length < 16) {
+    return 'Introduce un número de tarjeta válido (16 dígitos).';
+  }
+
+  const expiryDigits = expiry.replace(/\D/g, '');
+  if (expiryDigits.length < 4) {
+    return 'Introduce la fecha de expiración en formato MM/AA.';
+  }
+
+  const month = Number(expiryDigits.slice(0, 2));
+  if (month < 1 || month > 12) {
+    return 'El mes de expiración no es válido.';
+  }
+
+  if (cvc.length < 3) {
+    return 'Introduce un CVC válido (3-4 dígitos).';
+  }
+
+  if (!name.trim()) {
+    return 'Introduce el nombre que aparece en la tarjeta.';
+  }
+
+  return null;
+}
+
 export default function MockPaymentSheet({
   visible,
   amount,
@@ -44,6 +76,17 @@ export default function MockPaymentSheet({
   const [expiry, setExpiry] = useState('');
   const [cvc, setCvc] = useState('');
   const [name, setName] = useState('');
+  const [validationError, setValidationError] = useState<string | null>(null);
+
+  const handlePay = () => {
+    const error = validateFields(card, expiry, cvc, name);
+    if (error) {
+      setValidationError(error);
+      return;
+    }
+    setValidationError(null);
+    onPay();
+  };
 
   return (
     <Modal visible={visible} animationType="slide" transparent statusBarTranslucent>
@@ -86,7 +129,10 @@ export default function MockPaymentSheet({
                   placeholder="Número de tarjeta"
                   placeholderTextColor="#9CA3AF"
                   value={card}
-                  onChangeText={(t) => setCard(fmtCard(t))}
+                  onChangeText={(t) => {
+                    setCard(fmtCard(t));
+                    setValidationError(null);
+                  }}
                   keyboardType="number-pad"
                   returnKeyType="next"
                 />
@@ -100,7 +146,10 @@ export default function MockPaymentSheet({
                     placeholder="MM / AA"
                     placeholderTextColor="#9CA3AF"
                     value={expiry}
-                    onChangeText={(t) => setExpiry(fmtExpiry(t))}
+                    onChangeText={(t) => {
+                      setExpiry(fmtExpiry(t));
+                      setValidationError(null);
+                    }}
                     keyboardType="number-pad"
                     maxLength={7}
                     returnKeyType="next"
@@ -112,9 +161,12 @@ export default function MockPaymentSheet({
                     placeholder="CVC"
                     placeholderTextColor="#9CA3AF"
                     value={cvc}
-                    onChangeText={(t) => setCvc(t.replace(/\D/g, '').slice(0, 3))}
+                    onChangeText={(t) => {
+                      setCvc(t.replace(/\D/g, '').slice(0, 4));
+                      setValidationError(null);
+                    }}
                     keyboardType="number-pad"
-                    maxLength={3}
+                    maxLength={4}
                     secureTextEntry
                     returnKeyType="next"
                   />
@@ -134,17 +186,25 @@ export default function MockPaymentSheet({
                   placeholder="Nombre Apellido"
                   placeholderTextColor="#9CA3AF"
                   value={name}
-                  onChangeText={setName}
+                  onChangeText={(t) => {
+                    setName(t);
+                    setValidationError(null);
+                  }}
                   autoCapitalize="words"
                   returnKeyType="done"
                 />
               </View>
             </View>
 
+            {/* Mensaje de error de validación */}
+            {validationError ? (
+              <Text style={styles.errorText}>{validationError}</Text>
+            ) : null}
+
             {/* Botón pagar */}
             <TouchableOpacity
               style={[styles.payBtn, loading && { opacity: 0.7 }]}
-              onPress={onPay}
+              onPress={handlePay}
               disabled={loading}
               activeOpacity={0.85}
             >
@@ -241,6 +301,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#111827',
     paddingVertical: 0,
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 13,
+    fontWeight: '500',
+    marginTop: 10,
+    marginBottom: 4,
+    textAlign: 'center',
   },
   payBtn: {
     backgroundColor: STRIPE,

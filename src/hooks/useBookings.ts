@@ -7,9 +7,9 @@ export function useReservas() {
   const [isRefreshing, setRefreshing] = useState(false);
   const [reservas, setReservas] = useState<Reservation[]>([]);
 
-  const fetchReservas = useCallback(async () => {
+  const fetchReservas = useCallback(async (silent = false) => {
     try {
-      setIsLoading(true);
+      if (!silent) setIsLoading(true);
       const response = await api.get('/reservations/my-reservations');
       const payload = response?.data;
       const data: Reservation[] = Array.isArray(payload)
@@ -22,13 +22,13 @@ export function useReservas() {
       console.error('Error al cargar reservas:', error);
       setReservas([]);
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
   }, []);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchReservas();
+    await fetchReservas(true);
     setRefreshing(false);
   }, [fetchReservas]);
 

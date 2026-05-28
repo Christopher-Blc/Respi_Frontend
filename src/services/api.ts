@@ -10,6 +10,19 @@ import {
 // Esta variable vive fuera de la instancia para controlar peticiones simultáneas
 let isRedirecting = false;
 let isRefreshing = false;
+
+let failedQueue: Array<{resolve: (token: string) => void; reject: (err: unknown) => void}> = [];
+
+const processQueue = (error: unknown, token: string | null = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token!);
+    }
+  });
+  failedQueue = [];
+};
  
 const api = axios.create({
   baseURL: 'https://respi.es/api',
@@ -65,7 +78,12 @@ api.interceptors.response.use(
     // C. Si es un 401 en cualquier otra petición (mis-reservas, perfil, etc.)
     if (!originalRequest._retry) {
       if (isRefreshing) {
-        return Promise.reject(error);
+        return new Promise<string>((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then((token) => {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          return api(originalRequest);
+        }).catch((err) => Promise.reject(err));
       }
 
       originalRequest._retry = true;
@@ -85,12 +103,14 @@ api.interceptors.response.use(
           await saveToken(newAccessToken);
           if (res.data.refresh_token) await saveRefreshToken(res.data.refresh_token);
 
-          isRefreshing = false; 
+          isRefreshing = false;
+          processQueue(null, newAccessToken);
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return api(originalRequest);
         }
       } catch (refreshError) {
         isRefreshing = false;
+        processQueue(refreshError);
         if (!isRedirecting) {
           isRedirecting = true;
           console.error("Fallo crítico en refresh. Expulsando...");

@@ -316,8 +316,6 @@ export function useAdminUsers() {
   };
 
   const validateForm = () => {
-    if (userToEdit) return null;
-
     if (!formData.username.trim()) return 'El username es obligatorio.';
     if (!formData.name.trim()) return 'El nombre es obligatorio.';
     if (!formData.surname.trim()) return 'El apellido es obligatorio.';
@@ -378,7 +376,7 @@ export function useAdminUsers() {
 
         if (Object.keys(payload).length > 0) {
           const updateUrl = `/users/${userToEdit.id}`;
-          const res = await api.put(updateUrl, payload);  
+          await api.put(updateUrl, payload);
         }
       } else {
         const payload = {

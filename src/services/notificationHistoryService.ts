@@ -25,7 +25,7 @@ export const addNotificationToHistory = async (
       read: false,
     };
 
-    const updatedNotifications = [newNotification, ...storedNotifications];
+    const updatedNotifications = [newNotification, ...storedNotifications].slice(0, 100);
     await AsyncStorage.setItem(
       NOTIFICATIONS_STORAGE_KEY,
       JSON.stringify(updatedNotifications),

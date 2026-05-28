@@ -174,6 +174,11 @@ function AppProviders() {
     };
   }, []);
 
+  const routerRef = useRef(router);
+  routerRef.current = router;
+  const segmentsRef = useRef<string[]>([]);
+  segmentsRef.current = segments;
+
   useEffect(() => {
     setupNotificationChannelAndroid().catch(console.error);
 
@@ -186,22 +191,22 @@ function AppProviders() {
         | { screen?: string }
         | undefined;
       if (typeof data?.screen === 'string' && data.screen.length > 0) {
-        router.push(data.screen as any);
+        routerRef.current.push(data.screen as any);
         return;
       }
 
-      const fallbackHistoryRoute = segments.includes('(admin)')
+      const fallbackHistoryRoute = segmentsRef.current.includes('(admin)')
         ? ROUTES.admin.notificationsHistory
         : ROUTES.userTabs.notificationsHistory;
 
-      router.push(fallbackHistoryRoute as any);
+      routerRef.current.push(fallbackHistoryRoute as any);
     });
 
     return () => {
       removeNotificationSubscription(notificationListener.current);
       removeNotificationSubscription(responseListener.current);
     };
-  }, [router, segments]);
+  }, []);
 
   if (!isI18nReady) {
     return (

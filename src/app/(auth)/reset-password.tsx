@@ -201,6 +201,14 @@ export default function ResetPasswordScreen() {
           disabled={!isPasswordValid || isSending}
           style={styles.actionButton}
         />
+
+        <GlassTextButton
+          text="Volver al login"
+          textColor={theme.textBody}
+          color="transparent"
+          onPress={handleBackToLogin}
+          style={styles.backButton}
+        />
       </BlurViewCompat>
     </View>
   );
