@@ -300,11 +300,7 @@ export function useAdminBookings() {
 
         // Solo enviar si hay cambios
         if (Object.keys(updatePayload).length > 0) {
-          try {
-            await api.put(`/reservations/${reservationToEdit.id}`, updatePayload);
-          } catch {
-            console.log('PUT failed', updatePayload);
-          }
+          await api.put(`/reservations/${reservationToEdit.id}`, updatePayload);
         }
       } else {
         await api.post('/reservations', basePayload);
@@ -362,17 +358,7 @@ export function useAdminBookings() {
 
     try {
       if (confirmModal.actionType === 'cancel') {
-        const payload = { status: 'CANCELADA' };
-
-        try {
-          await api.put(`/reservations/${pendingReservation.id}`, payload);
-        } catch (error) {
-          
-          console.log('PUT failed', payload);
-           console.log('PUT Error:', error);
-        }
-         
-        
+        await api.put(`/reservations/${pendingReservation.id}`, { status: 'CANCELADA' });
       }
 
       if (confirmModal.actionType === 'delete') {
