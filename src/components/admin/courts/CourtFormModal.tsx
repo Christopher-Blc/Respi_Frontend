@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { pistasStyles as styles } from '../../../style/admin/courts.styles';
-import { SessionExpiredModal } from '../../alert.modal';
+import { SessionExpiredModal } from '../../general/alert.modal';
 import {
   Installation,
   Court,
