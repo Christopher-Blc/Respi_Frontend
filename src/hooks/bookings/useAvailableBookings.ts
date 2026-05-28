@@ -1,11 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
-<<<<<<< HEAD:src/hooks/bookings/useAvailableBookings.ts
 import api from '../../services/api';
 import { CourtAvailability } from '../../types/types';
-=======
-import api from '../services/api';
-import { CourtAvailability } from '../types/types';
->>>>>>> 45064c4666ee7aca8c60e8eb4c2e15eb645486a0:src/hooks/useAvailableBookings.ts
 
 const isDisponible = (value?: string) =>
   String(value || '')

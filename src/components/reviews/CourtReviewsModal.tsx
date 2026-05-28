@@ -3,11 +3,7 @@ import {
   ActivityIndicator,
   FlatList,
   Modal,
-<<<<<<< HEAD
-=======
   Pressable,
-  StyleSheet,
->>>>>>> 45064c4666ee7aca8c60e8eb4c2e15eb645486a0
   Text,
   TouchableOpacity,
   View,
