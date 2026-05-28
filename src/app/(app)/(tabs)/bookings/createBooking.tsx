@@ -9,15 +9,15 @@ import {
 } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Snackbar } from 'react-native-paper';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useAppTheme } from '../../../../context/ThemeContext';
 import { createCreateBookingStyles } from '../../../../style/create-booking.styles';
 import { useTranslation } from 'react-i18next';
 import api from '../../../../services/api';
 import { getDateLocale } from '../../../../i18n';
-import { CourtAvailability } from '../../../../types/types';
+import { CourtAvailability, Membership, User } from '../../../../types/types';
 import { BookingStepBar } from '../../../../components/bookings/BookingStepBar';
+import { SessionExpiredModal } from '../../../../components/alert.modal';
 
 type ReservaActual = CourtAvailability['current_reservations'][number];
 
@@ -100,8 +100,7 @@ export default function CreateBooking() {
   const [horaInicioMin, setHoraInicioMin] = useState<number | null>(null);
   const [showStartDropdown, setShowStartDropdown] = useState(false);
   const [nota, setNota] = useState('');
-  const [snackbarVisible, setSnackbarVisible] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [alertModal, setAlertModal] = useState({ visible: false, title: '', message: '' });
   const [membershipName, setMembershipName] = useState('');
   const [membershipDiscountPct, setMembershipDiscountPct] = useState(0);
   const [loadingMembership, setLoadingMembership] = useState(true);
@@ -242,8 +241,7 @@ export default function CreateBooking() {
   const hasMembershipDiscount = membershipDiscountPct > 0;
 
   const showError = (message: string) => {
-    setSnackbarMessage(message);
-    setSnackbarVisible(true);
+    setAlertModal({ visible: true, title: t('bookingConfirmErrorTitle'), message });
   };
 
   const handleSubmit = () => {
@@ -469,14 +467,13 @@ export default function CreateBooking() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-      <Snackbar
-        visible={snackbarVisible}
-        onDismiss={() => setSnackbarVisible(false)}
-        duration={3000}
-        action={{ label: 'OK', onPress: () => setSnackbarVisible(false) }}
-      >
-        {snackbarMessage}
-      </Snackbar>
+      <SessionExpiredModal
+        visible={alertModal.visible}
+        title={alertModal.title}
+        message={alertModal.message}
+        confirmText={t('commonUnderstood')}
+        onConfirm={() => setAlertModal({ visible: false, title: '', message: '' })}
+      />
     </View>
   );
 }

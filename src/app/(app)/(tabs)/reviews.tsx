@@ -49,7 +49,7 @@ export default function ReviewsScreen() {
   const [editText, setEditText] = useState('');
   const [saving, setSaving] = useState(false);
 
-  // "Crear reseña" state (only for feature users)
+  // "Crear reseña" state (solo para feature users)
   const [availableCourts, setAvailableCourts] = useState<Court[]>([]);
   const [selectedCourtId, setSelectedCourtId] = useState('');
   const [reviewTitle, setReviewTitle] = useState('');
@@ -57,7 +57,7 @@ export default function ReviewsScreen() {
   const [reviewRating, setReviewRating] = useState(5);
   const [submitting, setSubmitting] = useState(false);
 
-  const styles = useMemo(() => createStyles(theme), [theme]);
+  const styles = useMemo(() => createStyles(), []);
 
   const loadData = useCallback(async () => {
     if (userId === null) return;
@@ -65,7 +65,9 @@ export default function ReviewsScreen() {
     try {
       const [reviewsRes, reservationsRes] = await Promise.allSettled([
         api.get('/reviews'),
-        isReviewFeatureEnabled ? api.get('/reservations/my-reservations') : Promise.resolve(null),
+        isReviewFeatureEnabled
+          ? api.get('/reservations/my-reservations')
+          : Promise.resolve(null),
       ]);
 
       let mine: Review[] = [];
@@ -91,7 +93,11 @@ export default function ReviewsScreen() {
         reviewedCourtIds = new Set(mine.map((r) => Number(r.court_id)));
       }
 
-      if (isReviewFeatureEnabled && reservationsRes.status === 'fulfilled' && reservationsRes.value) {
+      if (
+        isReviewFeatureEnabled &&
+        reservationsRes.status === 'fulfilled' &&
+        reservationsRes.value
+      ) {
         const data = reservationsRes.value.data;
         const allRes: Reservation[] = Array.isArray(data)
           ? data
@@ -103,7 +109,11 @@ export default function ReviewsScreen() {
 
         const finalisedCourts = new Map<number, Court>();
         for (const r of allRes) {
-          if (r.status === 'FINALIZADA' && r.court && !reviewedCourtIds.has(r.court_id)) {
+          if (
+            r.status === 'FINALIZADA' &&
+            r.court &&
+            !reviewedCourtIds.has(r.court_id)
+          ) {
             finalisedCourts.set(r.court_id, r.court);
           }
         }
@@ -376,7 +386,9 @@ export default function ReviewsScreen() {
                   styles.chip,
                   {
                     borderColor: selected ? theme.primary : theme.primarySoft,
-                    backgroundColor: selected ? theme.primary + '20' : 'transparent',
+                    backgroundColor: selected
+                      ? theme.primary + '20'
+                      : 'transparent',
                   },
                 ]}
               >
@@ -395,9 +407,7 @@ export default function ReviewsScreen() {
         )}
       </View>
 
-      <Text style={[styles.createLabel, { color: theme.textBody }]}>
-        Título
-      </Text>
+      <Text style={[styles.createLabel, { color: theme.textBody }]}>Título</Text>
       <TextInput
         value={reviewTitle}
         onChangeText={setReviewTitle}
@@ -509,17 +519,12 @@ export default function ReviewsScreen() {
           }
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Ionicons
-                name="star-outline"
-                size={52}
-                color={theme.textMuted}
-              />
+              <Ionicons name="star-outline" size={52} color={theme.textMuted} />
               <Text style={[styles.emptyTitle, { color: theme.textTitle }]}>
                 Sin reseñas
               </Text>
               <Text style={[styles.emptySubtitle, { color: theme.textMuted }]}>
-                Finaliza una reserva para poder dejar una valoración en la
-                pista
+                Finaliza una reserva para poder dejar una valoración en la pista
               </Text>
             </View>
           }
@@ -529,7 +534,7 @@ export default function ReviewsScreen() {
   );
 }
 
-const createStyles = (theme: any) =>
+const createStyles = () =>
   StyleSheet.create({
     container: { flex: 1 },
     centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
@@ -641,7 +646,6 @@ const createStyles = (theme: any) =>
     },
     emptyTitle: { fontSize: 18, fontWeight: '800' },
     emptySubtitle: { fontSize: 14, textAlign: 'center', lineHeight: 20 },
-    // Create section
     createCard: {
       borderRadius: 16,
       borderWidth: 1,
@@ -650,7 +654,12 @@ const createStyles = (theme: any) =>
     },
     createTitle: { fontSize: 20, fontWeight: '800', marginBottom: 14 },
     createLabel: { fontSize: 13, fontWeight: '700', marginBottom: 6 },
-    chipsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14 },
+    chipsWrap: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+      marginBottom: 14,
+    },
     chip: {
       borderWidth: 1,
       borderRadius: 999,
