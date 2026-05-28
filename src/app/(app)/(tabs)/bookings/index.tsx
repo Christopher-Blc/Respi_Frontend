@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -12,12 +12,12 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAppTheme } from '../../../../context/ThemeContext';
-import { useAvailableBookings } from '../../../../hooks/useAvailableBookings';
+import { useAvailableBookings } from '../../../../hooks/bookings/useAvailableBookings';
 import { CourtAvailability } from '../../../../types/types';
 import DateModal from '../../../../components/bookings/date.modal';
 import { crearBloquesDisponibilidad } from '../../../../components/bookings/AvailabilityBar';
-import { SessionExpiredModal } from '../../../../components/alert.modal';
-import createReservasTabStyles from '../../../../style/bookingsTab.styles';
+import { SessionExpiredModal } from '../../../../components/general/alert.modal';
+import createReservasTabStyles from '../../../../style/bookings/bookingsTab.styles';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../../i18n';
 import BookingDateStrip from '../../../../components/bookings/BookingDateStrip';

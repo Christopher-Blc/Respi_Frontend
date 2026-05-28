@@ -18,7 +18,7 @@ import { membershipsStyles as styles } from '../../../../style/admin/memberships
 import { useAdminMemberships } from '../../../../hooks/admin/useAdminMemberships';
 import { MembershipCard } from '../../../../components/admin/memberships/MembershipCard';
 import { MembershipFormModal } from '../../../../components/admin/memberships/MembershipFormModal';
-import { SessionExpiredModal } from '../../../../components/alert.modal';
+import { SessionExpiredModal } from '../../../../components/general/alert.modal';
 import { Membership } from '../../../../types/types';
 import { addSoftBreaks } from '../../../../utils/addSoftBreaks';
 import { usePullToRefresh } from '../../../../hooks/usePullToRefresh';

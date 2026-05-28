@@ -5,7 +5,7 @@ import { useAppTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { getAppLanguage, LANGUAGE_OPTIONS, setAppLanguage } from '../../i18n';
 import { Ionicons } from '@expo/vector-icons';
-import createModalCommonStyles from '../../style/modalCommon.styles';
+import createModalCommonStyles from '../../style/general/modalCommon.styles';
 
 interface Props {
   visible: boolean;

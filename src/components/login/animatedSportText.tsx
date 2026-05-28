@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Animated, Text, StyleSheet, Platform } from 'react-native';
+import { Animated, Text, Platform } from 'react-native';
 import { useAppTheme } from '../../context/ThemeContext';
+import { animatedSportTextStyles as styles } from '../../style/auth/loginComponents.styles';
 
 const sportSentences = [
   'Train like a pro, play like a champion.',
@@ -55,28 +56,5 @@ const AnimatedSportText = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    top: '8%',
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000,
-    paddingHorizontal: 30,
-  },
-  text: {
-    fontSize: 28,
-    fontWeight: '900', // Muy negrita para que destaque
-    textAlign: 'center',
-    textTransform: 'uppercase', // Estilo deportivo tipográfico
-    letterSpacing: 1,
-    // Sombra mínima para profundidad en web
-    // textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    // textShadowOffset: { width: 1, height: 1 },
-    // textShadowRadius: 2,
-  },
-});
 
 export default AnimatedSportText;

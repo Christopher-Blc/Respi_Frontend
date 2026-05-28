@@ -19,7 +19,7 @@ import { Installation } from '../../../../types/types';
 import { useAdminInstallations } from '../../../../hooks/admin/useAdminInstallations';
 import { InstallationCard } from '../../../../components/admin/installations/InstallationCard';
 import { InstallationFormModal } from '../../../../components/admin/installations/InstallationFormModal';
-import { SessionExpiredModal } from '../../../../components/alert.modal';
+import { SessionExpiredModal } from '../../../../components/general/alert.modal';
 import { addSoftBreaks } from '../../../../utils/addSoftBreaks';
 import { usePullToRefresh } from '../../../../hooks/usePullToRefresh';
 

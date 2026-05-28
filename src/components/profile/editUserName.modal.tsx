@@ -7,7 +7,7 @@ import api from '../../services/api';
 import { Ionicons } from '@expo/vector-icons';
 import { GlassTextInput } from '../login/glassTextInput';
 import { SessionExpiredModal } from '../alert.modal';
-import createModalCommonStyles from '../../style/modalCommon.styles';
+import createModalCommonStyles from '../../style/general/modalCommon.styles';
 
 interface Props {
   visible: boolean;

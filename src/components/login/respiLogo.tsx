@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Image } from 'expo-image'; // <--- Cambia el import
 import { useAppTheme } from '../../context/ThemeContext';
-import createLoginStyles from '../../style/login.styles';
+import createLoginStyles from '../../style/auth/login.styles';
 
 const RespiLogo = () => {
   const { theme } = useAppTheme();

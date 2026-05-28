@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   ActivityIndicator,
   ImageBackground,
@@ -14,11 +14,11 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Reservation } from '../../../types/types';
-import createReservationsStyles from '../../../style/reservations.styles';
+import createReservationsStyles from '../../../style/bookings/reservations.styles';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useHome } from '../../../hooks/useHome';
-import { createHomeStyles } from '../../../style/home.styles';
+import { createHomeStyles } from '../../../style/home/home.styles';
 import DateModal from '../../../components/bookings/date.modal';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../i18n';

@@ -16,8 +16,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { GlassTextInputPassword } from '../login/glassTextInputPassword';
 import { PasswordStrengthIndicator } from '../login/passwordStrengthIndicator';
 import { SessionExpiredModal } from '../alert.modal';
-import { useChangePassword } from '../../hooks/useChangePassword';
-import createModalCommonStyles from '../../style/modalCommon.styles';
+import { useChangePassword } from '../../hooks/auth/useChangePassword';
+import createModalCommonStyles from '../../style/general/modalCommon.styles';
 
 interface Props {
   visible: boolean;

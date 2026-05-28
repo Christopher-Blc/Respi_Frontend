@@ -1,7 +1,8 @@
 import React from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, Text, View } from 'react-native';
 import { BlurViewCompat } from '../general/BlurViewCompat';
 import { useAppTheme } from '../../context/ThemeContext';
+import { glassTextButtonStyles as styles } from '../../style/auth/loginComponents.styles';
 
 type Props = {
   text: string;
@@ -79,29 +80,3 @@ export function GlassTextButton({
   );
 }
 
-const styles = StyleSheet.create({
-  glass: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 25,
-    overflow: 'hidden',
-    backgroundColor: 'rgba(221, 151, 0, 0.3)',
-    borderWidth: 0.9,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  pressable: {
-    width: '100%',
-  },
-  text: {
-    fontWeight: '700',
-    fontSize: 16,
-    letterSpacing: 0.3,
-  },
-  pressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.98 }],
-  },
-  disabled: {
-    opacity: 0.5,
-  },
-});

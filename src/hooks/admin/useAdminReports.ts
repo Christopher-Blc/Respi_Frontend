@@ -7,7 +7,7 @@
  */
 
 import { useCallback, useState } from 'react';
-import { generateReport, ReportType } from '../../services/reportsService';
+import { generateReport, ReportType } from '../../services/reports/reportsService';
 
 type LoadingState = Record<ReportType, boolean>;
 

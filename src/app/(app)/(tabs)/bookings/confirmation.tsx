@@ -7,7 +7,6 @@ import {
   Platform,
   ActivityIndicator,
   TextInput,
-  StyleSheet,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,13 +16,13 @@ import { useAppTheme } from '../../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import api from '../../../../services/api';
 import { useAuth } from '../../../../context/AuthContext';
-import createConfirmacionReservaStyles from '../../../../style/bookingConfirmation.styles';
+import createConfirmacionReservaStyles from '../../../../style/bookings/bookingConfirmation.styles';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../../i18n';
-import { useStripePayment } from '../../../../hooks/useStripePayment';
+import { useStripePayment } from '../../../../hooks/payment/useStripePayment';
 import { BookingStepBar } from '../../../../components/bookings/BookingStepBar';
 import { Reservation } from '../../../../types/types';
-import { SessionExpiredModal } from '../../../../components/alert.modal';
+import { SessionExpiredModal } from '../../../../components/general/alert.modal';
 
 export default function ConfirmacionReserva() {
   const { t, i18n } = useTranslation();
@@ -222,32 +221,32 @@ export default function ConfirmacionReserva() {
         {completedReservation ? (
           <View
             style={[
-              localStyles.successWrap,
+              styles.successWrap,
               {
                 backgroundColor: theme.backgroundCard,
                 borderColor: theme.primarySoft,
               },
             ]}
           >
-            <View style={localStyles.successTitleRow}>
+            <View style={styles.successTitleRow}>
               <Ionicons
                 name="checkmark-circle"
                 size={24}
                 color={theme.success}
               />
               <Text
-                style={[localStyles.successTitle, { color: theme.textTitle }]}
+                style={[styles.successTitle, { color: theme.textTitle }]}
               >
                 Reserva completada con exito
               </Text>
             </View>
             <Text
-              style={[localStyles.successSubtitle, { color: theme.textBody }]}
+              style={[styles.successSubtitle, { color: theme.textBody }]}
             >
               Muestra este QR en el polideportivo para validar tu reserva.
             </Text>
 
-            <View style={localStyles.qrBox}>
+            <View style={styles.qrBox}>
               <QRCode
                 value={completedReservation.verification_code}
                 size={190}
@@ -256,16 +255,16 @@ export default function ConfirmacionReserva() {
               />
             </View>
 
-            <Text style={[localStyles.codeLabel, { color: theme.textMuted }]}>
+            <Text style={[styles.codeLabel, { color: theme.textMuted }]}>
               Codigo
             </Text>
-            <Text style={[localStyles.codeValue, { color: theme.textTitle }]}>
+            <Text style={[styles.codeValue, { color: theme.textTitle }]}>
               {completedReservation.verification_code.toUpperCase()}
             </Text>
 
             <TouchableOpacity
               style={[
-                localStyles.copyBtn,
+                styles.copyBtn,
                 {
                   backgroundColor: theme.primaryButton,
                   borderColor: theme.primary,
@@ -275,7 +274,7 @@ export default function ConfirmacionReserva() {
             >
               <Ionicons name="copy-outline" size={18} color={theme.onPrimary} />
               <Text
-                style={[localStyles.copyBtnText, { color: theme.onPrimary }]}
+                style={[styles.copyBtnText, { color: theme.onPrimary }]}
               >
                 Copiar enlace de verificacion
               </Text>
@@ -283,7 +282,7 @@ export default function ConfirmacionReserva() {
 
             <TouchableOpacity
               style={[
-                localStyles.homeBtn,
+                styles.homeBtn,
                 {
                   borderColor: theme.borderInput,
                   backgroundColor: theme.inputBackground,
@@ -292,7 +291,7 @@ export default function ConfirmacionReserva() {
               onPress={() => router.push('/(app)/(tabs)')}
             >
               <Text
-                style={[localStyles.homeBtnText, { color: theme.textTitle }]}
+                style={[styles.homeBtnText, { color: theme.textTitle }]}
               >
                 Volver al inicio
               </Text>
@@ -513,77 +512,3 @@ export default function ConfirmacionReserva() {
     </View>
   );
 }
-
-const localStyles = StyleSheet.create({
-  successWrap: {
-    marginHorizontal: 16,
-    borderRadius: 18,
-    borderWidth: 1,
-    paddingVertical: 18,
-    paddingHorizontal: 14,
-    marginTop: 6,
-    alignItems: 'center',
-  },
-  successTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 8,
-  },
-  successTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    textAlign: 'center',
-  },
-  successSubtitle: {
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 14,
-  },
-  qrBox: {
-    borderRadius: 14,
-    backgroundColor: '#fff',
-    padding: 12,
-    marginBottom: 12,
-  },
-  codeLabel: {
-    fontSize: 12,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-  },
-  codeValue: {
-    fontSize: 20,
-    fontWeight: '800',
-    letterSpacing: 1.2,
-    marginBottom: 14,
-  },
-  copyBtn: {
-    width: '100%',
-    borderRadius: 12,
-    borderWidth: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    marginBottom: 10,
-  },
-  copyBtnText: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  homeBtn: {
-    width: '100%',
-    borderRadius: 12,
-    borderWidth: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  homeBtnText: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-});

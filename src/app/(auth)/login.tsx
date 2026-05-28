@@ -16,7 +16,7 @@ import { GlassTextInputPassword } from '../../components/login/glassTextInputPas
 import { GlassTextInput } from '../../components/login/glassTextInput';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import createLoginStyles from '../../style/login.styles';
+import createLoginStyles from '../../style/auth/login.styles';
 import RespiLogo from '../../components/login/respiLogo';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';

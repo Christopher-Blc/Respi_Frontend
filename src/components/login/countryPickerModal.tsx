@@ -3,12 +3,12 @@ import {
   FlatList,
   Modal,
   Pressable,
-  StyleSheet,
   Text,
   View,
 } from 'react-native';
 import { BlurViewCompat } from '../general/BlurViewCompat';
 import { useAppTheme } from '../../context/ThemeContext';
+import { countryPickerModalStyles as styles } from '../../style/auth/loginComponents.styles';
 import { GlassTextInput } from './glassTextInput';
 import { Country, EUROPEAN_COUNTRIES } from '../../types/utilsTypes';
 
@@ -142,58 +142,3 @@ export const CountryPickerModal: React.FC<Props> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 30,
-  },
-  card: {
-    width: 300,
-    maxHeight: 420,
-    borderRadius: 22,
-    borderWidth: 0.8,
-    overflow: 'hidden',
-  },
-  title: {
-    fontWeight: '700',
-    fontSize: 16,
-    textAlign: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 18,
-  },
-  searchWrapper: {
-    paddingHorizontal: 14,
-    paddingBottom: 4,
-  },
-  list: {
-    maxHeight: 300,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 18,
-    paddingVertical: 11,
-    borderBottomWidth: 0.3,
-    gap: 10,
-  },
-  flag: {
-    fontSize: 20,
-    width: 28,
-    textAlign: 'center',
-  },
-  countryName: {
-    flex: 1,
-    fontSize: 14,
-  },
-  code: {
-    fontSize: 13,
-  },
-  emptyText: {
-    textAlign: 'center',
-    paddingVertical: 20,
-    fontSize: 14,
-  },
-});

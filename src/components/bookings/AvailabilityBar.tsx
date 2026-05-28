@@ -1,8 +1,8 @@
-﻿import React, { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { CourtAvailability } from '../../types/types';
 import { useAppTheme } from '../../context/ThemeContext';
-import createAvailabilityBarStyles from '../../style/availabilityBar.styles';
+import createAvailabilityBarStyles from '../../style/bookings/availabilityBar.styles';
 
 type ReservaActual = CourtAvailability['current_reservations'][number];
 

@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
+import { passwordStrengthStyles as styles } from '../../style/auth/loginComponents.styles';
 
 type PasswordRequirement = {
   id: string;
@@ -95,45 +96,3 @@ export const PasswordStrengthIndicator: React.FC<Props> = ({ password }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    marginTop: 8,
-    marginBottom: 12,
-    gap: 8,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 10,
-  },
-  circle: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 2,
-    flexShrink: 0,
-  },
-  checkmark: {
-    fontSize: 10,
-    fontWeight: '700',
-    lineHeight: 12,
-  },
-  label: {
-    fontSize: 13,
-    lineHeight: 18,
-    flex: 1,
-  },
-  successMessage: {
-    marginTop: 4,
-    paddingVertical: 6,
-  },
-  successText: {
-    fontSize: 13,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-});
