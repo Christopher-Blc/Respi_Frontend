@@ -104,7 +104,7 @@ export function BookingFormModal({
     (reservationStatus === 'FINALIZADA' || reservationStatus === 'CANCELADA');
 
   return (
-    <Modal visible={visible} animationType="slide" transparent>
+    <Modal visible={visible} animationType="none" transparent onRequestClose={onClose}>
       <Animated.View style={[styles.modalOverlay, { opacity: overlayOpacity }]}>
         <View
           style={[

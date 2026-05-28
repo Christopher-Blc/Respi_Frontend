@@ -6,7 +6,6 @@ import {
   ScrollView,
   Platform,
   ActivityIndicator,
-  Alert,
   TextInput,
   StyleSheet,
 } from 'react-native';
@@ -24,6 +23,7 @@ import { getDateLocale } from '../../../../i18n';
 import { useStripePayment } from '../../../../hooks/useStripePayment';
 import { BookingStepBar } from '../../../../components/bookings/BookingStepBar';
 import { Reservation } from '../../../../types/types';
+import { SessionExpiredModal } from '../../../../components/alert.modal';
 
 export default function ConfirmacionReserva() {
   const { t, i18n } = useTranslation();
@@ -45,6 +45,7 @@ export default function ConfirmacionReserva() {
   const styles = useMemo(() => createConfirmacionReservaStyles(theme), [theme]);
   const locale = getDateLocale(i18n.resolvedLanguage || i18n.language);
 
+  const [alertModal, setAlertModal] = useState({ visible: false, title: '', message: '' });
   const [pista, setPista] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(false);
@@ -60,10 +61,14 @@ export default function ConfirmacionReserva() {
     PaymentModal,
   } = useStripePayment();
 
+  const showAlert = (title: string, message: string) => {
+    setAlertModal({ visible: true, title, message });
+  };
+
   // Mostrar error de Stripe si ocurre fuera del flujo de pago
   useEffect(() => {
     if (stripeError) {
-      Alert.alert(t('bookingConfirmErrorTitle'), stripeError);
+      showAlert(t('bookingConfirmErrorTitle'), stripeError);
     }
   }, [stripeError]);
 
@@ -89,10 +94,7 @@ export default function ConfirmacionReserva() {
 
   const handleConfirm = async () => {
     if (!pistaIdValue || !fechaValue || !horaValue) {
-      Alert.alert(
-        t('bookingConfirmErrorTitle'),
-        t('bookingConfirmMissingData'),
-      );
+      showAlert(t('bookingConfirmErrorTitle'), t('bookingConfirmMissingData'));
       return;
     }
 
@@ -154,7 +156,7 @@ export default function ConfirmacionReserva() {
         '[DEBUG] Error completo:',
         JSON.stringify(error?.response?.data),
       );
-      Alert.alert(t('bookingConfirmErrorTitle'), message);
+      showAlert(t('bookingConfirmErrorTitle'), message);
     } finally {
       setConfirming(false);
     }
@@ -167,19 +169,13 @@ export default function ConfirmacionReserva() {
   const handleCopyVerificationLink = async () => {
     const code = completedReservation?.verification_code;
     if (!code) {
-      Alert.alert(
-        'Codigo no disponible',
-        'No hay codigo de verificacion para copiar.',
-      );
+      showAlert('Codigo no disponible', 'No hay codigo de verificacion para copiar.');
       return;
     }
 
     const verificationUrl = `https://midominio.com/validar/${code}`;
     await Clipboard.setStringAsync(verificationUrl);
-    Alert.alert(
-      'Enlace copiado',
-      'El enlace de verificacion se ha copiado al portapapeles.',
-    );
+    showAlert('Enlace copiado', 'El enlace de verificacion se ha copiado al portapapeles.');
   };
 
   const isProcessing = confirming || stripeLoading;
@@ -208,6 +204,13 @@ export default function ConfirmacionReserva() {
   return (
     <View style={styles.container}>
       {PaymentModal}
+      <SessionExpiredModal
+        visible={alertModal.visible}
+        title={alertModal.title}
+        message={alertModal.message}
+        confirmText={t('commonUnderstood')}
+        onConfirm={() => setAlertModal({ visible: false, title: '', message: '' })}
+      />
       <ScrollView
         contentContainerStyle={{
           paddingTop: headerHeight,

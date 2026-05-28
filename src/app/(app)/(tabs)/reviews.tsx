@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   RefreshControl,
   ScrollView,
   Text,
@@ -17,6 +16,7 @@ import { useProfile } from '../../../hooks/useProfile';
 import { Court, Reservation, Review } from '../../../types/types';
 import api from '../../../services/api';
 import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
+import { SessionExpiredModal } from '../../../components/alert.modal';
 
 const extractRows = (payload: unknown) => {
   if (Array.isArray(payload)) return payload;
@@ -49,6 +49,7 @@ export default function ReviewsScreen() {
   const { user, loading: profileLoading } = useProfile();
   const headerHeight = useHeaderHeight();
 
+  const [alertModal, setAlertModal] = useState({ visible: false, title: '', message: '' });
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [reservedCourts, setReservedCourts] = useState<Court[]>([]);
@@ -61,6 +62,10 @@ export default function ReviewsScreen() {
   const [editingReviewId, setEditingReviewId] = useState<number | null>(null);
   const [editingText, setEditingText] = useState('');
   const [updatingReview, setUpdatingReview] = useState(false);
+
+  const showAlert = (title: string, message: string) => {
+    setAlertModal({ visible: true, title, message });
+  };
 
   const isReviewFeatureEnabled =
     Number(user?.id) === 41 || Number(user?.id) === 31;
@@ -122,7 +127,7 @@ export default function ReviewsScreen() {
       );
     } catch (error) {
       console.error('Error loading reviews data', error);
-      Alert.alert('Reseñas', 'No se pudieron cargar tus reseñas.');
+      showAlert('Reseñas', 'No se pudieron cargar tus reseñas.');
     } finally {
       setLoading(false);
     }
@@ -136,17 +141,17 @@ export default function ReviewsScreen() {
 
   const handleCreateReview = async () => {
     if (!selectedCourtId) {
-      Alert.alert('Reseñas', 'Selecciona una pista para continuar.');
+      showAlert('Reseñas', 'Selecciona una pista para continuar.');
       return;
     }
 
     if (!reviewTitle.trim()) {
-      Alert.alert('Reseñas', 'El titulo de la reseña es obligatorio.');
+      showAlert('Reseñas', 'El titulo de la reseña es obligatorio.');
       return;
     }
 
     if (!reviewText.trim()) {
-      Alert.alert('Reseñas', 'Escribe un comentario para la reseña.');
+      showAlert('Reseñas', 'Escribe un comentario para la reseña.');
       return;
     }
 
@@ -167,7 +172,7 @@ export default function ReviewsScreen() {
       setReviewRating(5);
       await loadData();
       console.log('Review creada correctamente');
-      Alert.alert('Reseñas', 'Tu reseña se ha guardado correctamente.');
+      showAlert('Reseñas', 'Tu reseña se ha guardado correctamente.');
     } catch (error) {
       let backendMessage = 'No se pudo guardar la reseña.';
 
@@ -191,7 +196,7 @@ export default function ReviewsScreen() {
         console.error('Error creating review', error);
       }
 
-      Alert.alert('Reseñas', backendMessage);
+      showAlert('Reseñas', backendMessage);
     } finally {
       setSubmitting(false);
     }
@@ -211,7 +216,7 @@ export default function ReviewsScreen() {
     const text = editingText.trim();
 
     if (!text) {
-      Alert.alert('Reseñas', 'El contenido de la reseña no puede estar vacio.');
+      showAlert('Reseñas', 'El contenido de la reseña no puede estar vacio.');
       return;
     }
 
@@ -232,10 +237,10 @@ export default function ReviewsScreen() {
 
       setEditingReviewId(null);
       setEditingText('');
-      Alert.alert('Reseñas', 'Contenido actualizado correctamente.');
+      showAlert('Reseñas', 'Contenido actualizado correctamente.');
     } catch (error) {
       console.error('Error updating review text', error);
-      Alert.alert('Reseñas', 'No se pudo actualizar la reseña.');
+      showAlert('Reseñas', 'No se pudo actualizar la reseña.');
     } finally {
       setUpdatingReview(false);
     }
@@ -283,8 +288,16 @@ export default function ReviewsScreen() {
   }
 
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: theme.background }}
+    <>
+      <SessionExpiredModal
+        visible={alertModal.visible}
+        title={alertModal.title}
+        message={alertModal.message}
+        confirmText="Entendido"
+        onConfirm={() => setAlertModal({ visible: false, title: '', message: '' })}
+      />
+      <ScrollView
+        style={{ flex: 1, backgroundColor: theme.background }}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
@@ -720,5 +733,6 @@ export default function ReviewsScreen() {
         ))
       )}
     </ScrollView>
+    </>
   );
 }
