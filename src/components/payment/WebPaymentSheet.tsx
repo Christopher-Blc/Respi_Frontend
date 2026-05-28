@@ -10,9 +10,10 @@ import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-
 import { loadStripe } from '@stripe/stripe-js';
 import { webPaymentSheetStyles as styles } from '../../style/payment/webPaymentSheet.styles';
 
+const STRIPE_KEY = process.env.EXPO_PUBLIC_STRIPE_KEY ?? '';
 const stripePromise =
-  typeof window !== 'undefined'
-    ? loadStripe(process.env.EXPO_PUBLIC_STRIPE_KEY ?? '')
+  typeof window !== 'undefined' && STRIPE_KEY
+    ? loadStripe(STRIPE_KEY)
     : null;
 
 type Props = {
@@ -38,8 +39,13 @@ function CheckoutForm({
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const stripeReady = !!stripe && !!elements;
+
   const handlePay = async () => {
-    if (!stripe || !elements) return;
+    if (!stripeReady) {
+      setErrorMsg('La pasarela de pago no está disponible. Recarga la página.');
+      return;
+    }
     setLoading(true);
     setErrorMsg(null);
 
@@ -60,12 +66,21 @@ function CheckoutForm({
 
   return (
     <View style={styles.form}>
-      <PaymentElement />
+      {!stripeReady ? (
+        <View style={{ alignItems: 'center', paddingVertical: 24, gap: 8 }}>
+          <ActivityIndicator size="small" color="#0ea5e9" />
+          <Text style={{ color: '#6b7280', fontSize: 13, textAlign: 'center' }}>
+            Cargando pasarela de pago...
+          </Text>
+        </View>
+      ) : (
+        <PaymentElement />
+      )}
       {errorMsg ? <Text style={styles.error}>{errorMsg}</Text> : null}
       <TouchableOpacity
-        style={[styles.btn, styles.payBtn]}
+        style={[styles.btn, styles.payBtn, (!stripeReady || loading) && { opacity: 0.6 }]}
         onPress={handlePay}
-        disabled={loading}
+        disabled={!stripeReady || loading}
       >
         {loading ? (
           <ActivityIndicator color="#fff" size="small" />
@@ -92,7 +107,25 @@ export default function WebPaymentSheet({
   onSuccess,
   onCancel,
 }: Props) {
-  if (!stripePromise || !clientSecret) return null;
+  if (!stripePromise) {
+    return (
+      <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
+        <View style={styles.backdrop}>
+          <View style={styles.card}>
+            <Text style={styles.title}>Error de configuración</Text>
+            <Text style={{ color: '#ef4444', textAlign: 'center', marginBottom: 16, fontSize: 14 }}>
+              La clave pública de Stripe no está configurada (EXPO_PUBLIC_STRIPE_KEY).
+            </Text>
+            <TouchableOpacity style={[styles.btn, styles.cancelBtn]} onPress={onCancel}>
+              <Text style={styles.cancelBtnText}>Cerrar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+
+  if (!clientSecret) return null;
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
@@ -107,4 +140,3 @@ export default function WebPaymentSheet({
     </Modal>
   );
 }
-
