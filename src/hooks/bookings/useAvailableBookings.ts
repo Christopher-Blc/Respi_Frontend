@@ -33,6 +33,8 @@ export function useAvailableBookings(fecha: string) {
       }
       setError('No se pudo cargar la disponibilidad');
       setPistas([]);
+    } finally {
+      setLoading(false);
     }
   }, [fecha]);
 
