@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import api from '../../services/api';
 import { Reservation, User, Court, CourtType } from '../../types/types';
 
@@ -87,7 +87,7 @@ export function useAdminBookings() {
     message: '',
   });
 
-  const fetchInitialData = async () => {
+  const fetchInitialData = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -97,8 +97,6 @@ export function useAdminBookings() {
         api.get('/courts').catch(() => ({ data: [] })),
         api.get('/court-types').catch(() => ({ data: [] })),
       ]);
-
-      console.log('Fetched reservations:', reservationsRes.data);
 
       setReservations(extractRows(reservationsRes?.data) as Reservation[]);
       setUsers(extractRows(usersRes?.data) as User[]);
@@ -113,7 +111,7 @@ export function useAdminBookings() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchInitialData();

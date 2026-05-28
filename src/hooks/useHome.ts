@@ -59,7 +59,6 @@ export function useHome() {
       try {
         if (!silent) setLoading(true);
         const response = await api.get('/reservations/my-reservations');
-        console.log('Reservas raw response:', response);
         const allReservas = extractReservas(response?.data);
 
         const userScoped = allReservas.filter((reserva) => {
@@ -102,8 +101,12 @@ export function useHome() {
 
   const handleCancelReserva = useCallback(
     async (id: number) => {
-      await api.put(`/reservations/${id}`, { status: 'CANCELADA' });
-      await fetchUserReservas(true);
+      try {
+        await api.put(`/reservations/${id}`, { status: 'CANCELADA' });
+        await fetchUserReservas(true);
+      } catch (error) {
+        console.error('Error al cancelar reserva:', error);
+      }
     },
     [fetchUserReservas],
   );

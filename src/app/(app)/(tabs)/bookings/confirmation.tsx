@@ -17,7 +17,6 @@ import * as Clipboard from 'expo-clipboard';
 import { useAppTheme } from '../../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import api from '../../../../services/api';
-import { useAuth } from '../../../../context/AuthContext';
 import createConfirmacionReservaStyles from '../../../../style/bookingConfirmation.styles';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../../i18n';
@@ -42,7 +41,6 @@ export default function ConfirmacionReserva() {
   const router = useRouter();
   const { theme } = useAppTheme();
   const headerHeight = useHeaderHeight();
-  useAuth();
   const styles = useMemo(() => createConfirmacionReservaStyles(theme), [theme]);
   const locale = getDateLocale(i18n.resolvedLanguage || i18n.language);
 
@@ -205,7 +203,7 @@ export default function ConfirmacionReserva() {
   const endMinutes = startMinutes + durationMinutes;
   const endHourLabel = `${String(Math.floor(endMinutes / 60)).padStart(2, '0')}:${String(
     endMinutes % 60,
-  ).padStart(2, '00')}`;
+  ).padStart(2, '0')}`;
 
   return (
     <View style={styles.container}>

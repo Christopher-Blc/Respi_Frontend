@@ -5,10 +5,11 @@ const TOKEN_KEY = 'user_auth_token';
 const REFRESH_TOKEN_KEY = 'user_refresh_token';
 
 type LogoutCallback = () => void;
-let logoutListener: LogoutCallback | null = null;
+const logoutListeners: Set<LogoutCallback> = new Set();
 
-export const onForceLogout = (callback: LogoutCallback) => {
-  logoutListener = callback;
+export const onForceLogout = (callback: LogoutCallback): (() => void) => {
+  logoutListeners.add(callback);
+  return () => logoutListeners.delete(callback);
 };
 
 
@@ -72,8 +73,8 @@ export const logout = async (isForced: boolean = false) => {
      
   await deleteToken();
   await deleteRefreshToken(); 
-  if (isForced && logoutListener) {
-    logoutListener();
+  if (isForced) {
+    logoutListeners.forEach(listener => listener());
   }
 };
 

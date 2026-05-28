@@ -22,6 +22,12 @@ export const linking = {
               token: (value: string) => parseToken(value),
             },
           },
+          'reset-password': {
+            path: 'reset-password',
+            parse: {
+              token: (value: string) => parseToken(value),
+            },
+          },
         },
       },
     },

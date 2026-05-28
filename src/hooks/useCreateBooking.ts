@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { jwtDecode } from 'jwt-decode';
@@ -148,24 +148,28 @@ export function useCreateBooking() {
     };
   }, [tipoPistaId]);
 
+  const profileLoadedRef = useRef(false);
+
   useEffect(() => {
+    if (!userToken) { profileLoadedRef.current = false; return; }
+    if (profileLoadedRef.current) return;
     let mounted = true;
 
     const tryProfile = async () => {
-      if (!userToken) return;
       const api = (await import('../services/api')).default;
       const endpoints = ['/auth/me', '/me', '/users/me', '/profile'];
 
       for (const endpoint of endpoints) {
         try {
           const response = await api.get(endpoint);
-          if (!mounted || !response?.data) continue;
+          if (!mounted || !response?.data) return;
           const data = response.data;
           if (!email && (data.email || data.mail))
             setEmail(data.email || data.mail);
           if (!nombre && (data.name || data.nombre || data.displayName)) {
             setNombre(data.name || data.nombre || data.displayName);
           }
+          profileLoadedRef.current = true;
           return;
         } catch {
           // probar siguiente endpoint
@@ -177,7 +181,7 @@ export function useCreateBooking() {
     return () => {
       mounted = false;
     };
-  }, [userToken, email, nombre]);
+  }, [userToken]); // solo depende del token
 
   useEffect(() => {
     const start = fechaInicio.getTime();

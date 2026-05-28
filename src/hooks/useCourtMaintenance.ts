@@ -44,16 +44,21 @@ export function useCourtMaintenance(pistas: Court[], fetchPistas: () => void) {
       );
       return countUniqueReservas(results);
     } catch {
-      const from = parseDateInput(fromDate);
-      const to = parseDateInput(toDate);
-      if (!from || !to) return 0;
-      const days = eachDateInclusive(from, to);
-      const results = await Promise.all(
-        ids.flatMap((id) =>
-          days.map((fecha) => api.get('/reservations', { params: { fecha, pista_id: id } })),
-        ),
-      );
-      return countUniqueReservas(results);
+      try {
+        const from = parseDateInput(fromDate);
+        const to = parseDateInput(toDate);
+        if (!from || !to) return 0;
+        const days = eachDateInclusive(from, to);
+        const results = await Promise.all(
+          ids.flatMap((id) =>
+            days.map((fecha) => api.get('/reservations', { params: { fecha, pista_id: id } })),
+          ),
+        );
+        return countUniqueReservas(results);
+      } catch (fallbackError) {
+        console.error('Error fetching reservations by range (fallback):', fallbackError);
+        return 0;
+      }
     }
   };
 
@@ -166,12 +171,8 @@ export function useCourtMaintenance(pistas: Court[], fetchPistas: () => void) {
               `/courts/${id}`,
               {
                 status: 'MANTENIMIENTO',
-              },
-              {
-                headers: {
-                  maintenance_from: deleteModal.mantenimientoDesde,
-                  maintenance_until: deleteModal.mantenimientoHasta,
-                },
+                maintenance_from: deleteModal.mantenimientoDesde,
+                maintenance_until: deleteModal.mantenimientoHasta,
               },
             ),
           ),

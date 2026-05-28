@@ -154,7 +154,6 @@ export function useAdminMemberships() {
       setFormData(EMPTY_FORM);
       fetchMemberships();
     } catch {
-      console.log('Error.... Lamentable  :', payload);
       setErrorModal({
         visible: true,
         title: 'Error',
@@ -166,20 +165,12 @@ export function useAdminMemberships() {
   };
 
   const fetchUsersForDeleteCheck = async (): Promise<BasicUser[]> => {
-    const endpoints = ['/users', '/usuario', '/usuarios'];
-
-    for (const endpoint of endpoints) {
-      try {
-        const res = await api.get(endpoint);
-        if (Array.isArray(res.data)) {
-          return res.data as BasicUser[];
-        }
-      } catch {
-        // Try next endpoint
-      }
+    try {
+      const res = await api.get('/users');
+      return Array.isArray(res.data) ? (res.data as BasicUser[]) : [];
+    } catch {
+      return [];
     }
-
-    return [];
   };
 
   const handleDelete = async (item: Membership) => {
