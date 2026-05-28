@@ -45,7 +45,7 @@ export function MembershipFormModal({
   const { theme } = useAppTheme();
 
   return (
-    <Modal visible={visible} animationType="slide" transparent>
+    <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <View
           style={[

@@ -17,6 +17,7 @@ import { useAppTheme } from '../../../context/ThemeContext';
 import api from '../../../services/api';
 import { Reservation } from '../../../types/types';
 import ReservationDetailModal from '../../../components/bookings/ReservationDetailModal';
+import { SessionExpiredModal } from '../../../components/alert.modal';
 
 const STATUS_COLOR: Record<string, string> = {
   CONFIRMADA: '#22c55e',
@@ -69,6 +70,7 @@ export default function ReservationsHistory() {
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
+  const [alertModal, setAlertModal] = useState({ visible: false, title: '', message: '' });
   const [allReservations, setAllReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -96,6 +98,7 @@ export default function ReservationsHistory() {
       setAllReservations(sorted);
     } catch {
       setAllReservations([]);
+      if (!silent) setAlertModal({ visible: true, title: 'Error', message: 'No se pudieron cargar las reservas. Inténtalo de nuevo.' });
     } finally {
       if (!silent) setLoading(false);
     }
@@ -119,8 +122,12 @@ export default function ReservationsHistory() {
 
   const handleCancel = useCallback(
     async (id: number) => {
-      await api.put(`/reservations/${id}`, { status: 'CANCELADA' });
-      await fetch(true);
+      try {
+        await api.put(`/reservations/${id}`, { status: 'CANCELADA' });
+        await fetch(true);
+      } catch {
+        setAlertModal({ visible: true, title: 'Error', message: 'No se pudo cancelar la reserva. Inténtalo de nuevo.' });
+      }
     },
     [fetch],
   );
@@ -217,6 +224,13 @@ export default function ReservationsHistory() {
         reservation={selected}
         onClose={() => setSelected(null)}
         onCancel={handleCancel}
+      />
+      <SessionExpiredModal
+        visible={alertModal.visible}
+        title={alertModal.title}
+        message={alertModal.message}
+        confirmText="Entendido"
+        onConfirm={() => setAlertModal({ visible: false, title: '', message: '' })}
       />
 
       <View style={[styles.container, { paddingTop: insets.top }]}>
