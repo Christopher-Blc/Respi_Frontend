@@ -28,11 +28,8 @@ import { getDateLocale } from '../../../i18n';
 import { getTipoPistaImage } from '../../../utils/getImage';
 import { API_PUBLIC_URL } from '../../../constants';
 import CourtInfoModal from '../../../components/bookings/CourtInfoModal';
-<<<<<<< HEAD
 import CourtReviewsModal from '../../../components/reviews/CourtReviewsModal';
-=======
 import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
->>>>>>> d3c03d371cbe9660d1f057b9b15e9bc4ecb31fad
 
 const GAP = 12;
 
