@@ -52,6 +52,7 @@ export default function ConfirmacionReserva() {
   const [notes, setNotes] = useState('');
   const [completedReservation, setCompletedReservation] =
     useState<Reservation | null>(null);
+  const [pendingReservationId, setPendingReservationId] = useState<number | null>(null);
   const durationMinutes = Number(duracionValue || 60);
 
   const {
@@ -101,61 +102,51 @@ export default function ConfirmacionReserva() {
     try {
       setConfirming(true);
 
-      // 1. Calcular hora de fin según la duración elegida
-      const [hourStr, minStr] = horaValue.split(':');
-      const startMinutes = parseInt(hourStr) * 60 + parseInt(minStr);
-      const endMinutes = startMinutes + durationMinutes;
-      const endHour = String(Math.floor(endMinutes / 60)).padStart(2, '0');
-      const endMin = String(endMinutes % 60).padStart(2, '0');
-      const endTime = `${endHour}:${endMin}`;
-
-      const payload = {
-        court_id: parseInt(pistaIdValue),
-        reservation_date: fechaValue,
-        start_time: horaValue,
-        end_time: endTime,
-        note: notes,
-      };
-
-      console.log('[DEBUG] Enviando reserva:', JSON.stringify(payload));
-
-      // 2. Crear la reserva en el backend (queda en estado PENDIENTE)
-      const response = await api.post('/reservations', payload);
-      console.log('[DEBUG] Reserva creada:', JSON.stringify(response.data));
-      const createdReservation = response.data as Reservation;
-      const reservationId: number = response.data?.id;
+      let reservationId = pendingReservationId;
+      let createdReservation: Reservation | null = null;
 
       if (!reservationId) {
-        throw new Error('El servidor no devolvió el ID de la reserva');
+        const [hourStr, minStr] = horaValue.split(':');
+        const startMinutes = parseInt(hourStr) * 60 + parseInt(minStr);
+        const endMinutes = startMinutes + durationMinutes;
+        const endHour = String(Math.floor(endMinutes / 60)).padStart(2, '0');
+        const endMin = String(endMinutes % 60).padStart(2, '0');
+        const endTime = `${endHour}:${endMin}`;
+
+        const response = await api.post('/reservations', {
+          court_id: parseInt(pistaIdValue),
+          reservation_date: fechaValue,
+          start_time: horaValue,
+          end_time: endTime,
+          note: notes,
+        });
+
+        createdReservation = response.data as Reservation;
+        reservationId = response.data?.id;
+
+        if (!reservationId) {
+          throw new Error('El servidor no devolvió el ID de la reserva');
+        }
+
+        setPendingReservationId(reservationId);
       }
 
-      console.log('[DEBUG] Abriendo payment sheet para reserva', reservationId);
-      // 3. Iniciar flujo de pago con Stripe
       const paid = await initAndPay(reservationId, 'ResPi', precioEstimado);
-      console.log('[DEBUG] paid =', paid);
 
       if (paid) {
-        // Intentar obtener la reserva actualizada (el webhook puede haberla confirmado ya)
+        setPendingReservationId(null);
         try {
           const updated = await api.get(`/reservations/${reservationId}`);
           setCompletedReservation(updated.data as Reservation);
         } catch {
-          // Si falla el refresh, mostramos los datos originales (PENDIENTE)
-          setCompletedReservation(createdReservation);
+          if (createdReservation) setCompletedReservation(createdReservation);
         }
       }
-      // Si paid === false, el usuario canceló el pago — la reserva queda PENDIENTE
-      // No mostramos error: el usuario volvió atrás voluntariamente
     } catch (error: any) {
       const message =
         error.response?.data?.message ||
         error.message ||
         t('bookingConfirmErrorMessage');
-      console.error('[DEBUG] ERROR en handleConfirm:', message);
-      console.error(
-        '[DEBUG] Error completo:',
-        JSON.stringify(error?.response?.data),
-      );
       showAlert(t('bookingConfirmErrorTitle'), message);
     } finally {
       setConfirming(false);
