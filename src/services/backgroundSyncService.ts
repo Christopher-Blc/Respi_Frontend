@@ -12,11 +12,14 @@
  *  4. Si detecta canvis, envia una notificació local a l'usuari
  */
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as BackgroundTask from 'expo-background-task';
 import * as Notifications from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
 import { Platform } from 'react-native';
 import { getToken } from './authStorage';
+
+const LAST_COUNT_KEY = 'background_sync_last_count';
 
 export const BOOKING_SYNC_TASK = 'BOOKING_SYNC_TASK';
 
@@ -69,8 +72,14 @@ TaskManager.defineTask(BOOKING_SYNC_TASK, async () => {
   try {
     const count = await fetchReservationsInBackground();
 
-    if (count > 0) {
-      await sendSyncNotification(count);
+    const lastCountStr = await AsyncStorage.getItem(LAST_COUNT_KEY);
+    const lastCount = lastCountStr !== null ? parseInt(lastCountStr, 10) : -1;
+
+    if (count !== lastCount) {
+      if (count > 0) {
+        await sendSyncNotification(count);
+      }
+      await AsyncStorage.setItem(LAST_COUNT_KEY, String(count));
     }
 
     return BackgroundTask.BackgroundTaskResult.Success;
