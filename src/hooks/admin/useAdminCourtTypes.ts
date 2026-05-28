@@ -300,6 +300,7 @@ export function useAdminCourtTypes() {
     tiposPista,
     filteredTiposPista,
     loading,
+    refresh: fetchTiposPista,
     searchQuery,
     setSearchQuery,
     modalVisible,

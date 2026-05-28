@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   FlatList,
+  RefreshControl,
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
@@ -25,6 +26,7 @@ import { CourtCard } from '../../../../components/admin/courts/CourtCard';
 import { useTranslation } from 'react-i18next';
 import { addSoftBreaks } from '../../../../utils/addSoftBreaks';
 import { API_PUBLIC_URL } from '../../../../constants';
+import { usePullToRefresh } from '../../../../hooks/usePullToRefresh';
 
 export default function AdminPistas() {
   const { theme } = useAppTheme();
@@ -49,6 +51,7 @@ export default function AdminPistas() {
 
   const {
     loading,
+    refresh,
     searchQuery,
     setSearchQuery,
     modalVisible,
@@ -93,6 +96,7 @@ export default function AdminPistas() {
 
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
+  const { refreshing, onRefresh } = usePullToRefresh(refresh);
   const [currentPage, setCurrentPage] = useState(1);
   useEffect(() => {
     setCurrentPage(1);
@@ -220,6 +224,13 @@ export default function AdminPistas() {
           <FlatList
             key={`courts-cards-${cardsColumns}`}
             data={pagedPistas}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={theme.primary}
+              />
+            }
             renderItem={renderCourtCard}
             numColumns={cardsColumns}
             keyExtractor={(item) => item.id.toString()}
@@ -311,6 +322,13 @@ export default function AdminPistas() {
             </View>
             <FlatList
               data={pagedPistas}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  tintColor={theme.primary}
+                />
+              }
               keyExtractor={(item) => item.id.toString()}
               nestedScrollEnabled
               contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}

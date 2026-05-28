@@ -256,6 +256,7 @@ export function useAdminReviews() {
     courtFilterOptions,
     filteredReviews,
     loading,
+    refresh: fetchReviews,
     searchQuery,
     setSearchQuery,
     viewMode,

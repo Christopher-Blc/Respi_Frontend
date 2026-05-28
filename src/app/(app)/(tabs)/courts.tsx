@@ -4,6 +4,7 @@ import {
   FlatList,
   ImageBackground,
   Platform,
+  RefreshControl,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -27,6 +28,7 @@ import { getDateLocale } from '../../../i18n';
 import { getTipoPistaImage } from '../../../utils/getImage';
 import { API_PUBLIC_URL } from '../../../constants';
 import CourtInfoModal from '../../../components/bookings/CourtInfoModal';
+import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
 
 const GAP = 12;
 
@@ -64,7 +66,9 @@ export default function PistasTab() {
     availableDays,
     formattedDate,
     clearSportFilter,
+    refresh,
   } = useCourtsTab();
+  const { refreshing, onRefresh } = usePullToRefresh(refresh);
 
   const renderModel = ({ item }: { item: CourtType }) => {
     const src = item.image
@@ -324,6 +328,13 @@ export default function PistasTab() {
         <FlatList
           key={`tipos-${cols}`}
           data={tipos}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={theme.primary}
+            />
+          }
           numColumns={cols}
           keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={false}
@@ -358,6 +369,13 @@ export default function PistasTab() {
         <ScrollView
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={theme.primary}
+            />
+          }
           contentContainerStyle={{
             paddingTop: headerHeight + 18,
             paddingBottom: Platform.OS === 'web' ? 96 : 140,

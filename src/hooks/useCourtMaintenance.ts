@@ -35,38 +35,39 @@ export function useCourtMaintenance(pistas: Court[], fetchPistas: () => void) {
   const [deleteModal, setDeleteModal] = useState(EMPTY_DELETE_MODAL);
   const [maintenanceDateModal, setMaintenanceDateModal] = useState(EMPTY_MAINTENANCE_MODAL);
 
+  const fetchReservasByRange = async (ids: number[], fromDate: string, toDate: string) => {
+    try {
+      const results = await Promise.all(
+        ids.map((id) =>
+          api.get('/reservations', { params: { pista_id: id, fecha_inicio: fromDate, fecha_fin: toDate } }),
+        ),
+      );
+      return countUniqueReservas(results);
+    } catch {
+      const from = parseDateInput(fromDate);
+      const to = parseDateInput(toDate);
+      if (!from || !to) return 0;
+      const days = eachDateInclusive(from, to);
+      const results = await Promise.all(
+        ids.flatMap((id) =>
+          days.map((fecha) => api.get('/reservations', { params: { fecha, pista_id: id } })),
+        ),
+      );
+      return countUniqueReservas(results);
+    }
+  };
+
   const fetchReservasCount = async (
     ids: number[],
     maintenanceDesde?: string,
     maintenanceHasta?: string,
   ): Promise<number> => {
     if (maintenanceDesde && maintenanceHasta) {
-      try {
-        const results = await Promise.all(
-          ids.map((id) =>
-            api.get('/reservations', { params: { pista_id: id, fecha_inicio: maintenanceDesde, fecha_fin: maintenanceHasta } }),
-          ),
-        );
-        return countUniqueReservas(results);
-      } catch {
-        const from = parseDateInput(maintenanceDesde);
-        const to = parseDateInput(maintenanceHasta);
-        if (!from || !to) return 0;
-        const days = eachDateInclusive(from, to);
-        const results = await Promise.all(
-          ids.flatMap((id) =>
-            days.map((fecha) => api.get('/reservations', { params: { fecha, pista_id: id } })),
-          ),
-        );
-        return countUniqueReservas(results);
-      }
+      return fetchReservasByRange(ids, maintenanceDesde, maintenanceHasta);
     }
 
-    const today = new Date().toISOString().slice(0, 10);
-    const results = await Promise.all(
-      ids.map((id) => api.get('/reservations', { params: { fecha: today, pista_id: id } })),
-    );
-    return results.reduce((sum, r) => sum + (Array.isArray(r.data) ? r.data.length : 0), 0);
+    const today = toDateInputValue(new Date());
+    return fetchReservasByRange(ids, today, '2100-12-31');
   };
 
   const openConfirmModal = async ({
