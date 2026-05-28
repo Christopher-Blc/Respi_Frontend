@@ -204,7 +204,7 @@ export default function CourtReviewsModal({ court, onClose }: Props) {
       <Modal
         visible
         transparent
-        animationType="slide"
+        animationType="fade"
         onRequestClose={onClose}
       >
         <View style={styles.backdrop}>

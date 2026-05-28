@@ -4,21 +4,19 @@ import {
   Alert,
   RefreshControl,
   ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  StyleSheet,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useAppTheme } from '../../../context/ThemeContext';
 import api from '../../../services/api';
 import { useProfile } from '../../../hooks/useProfile';
 import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
-import { SessionExpiredModal } from '../../../components/alert.modal';
 import { Court, Reservation, Review } from '../../../types/types';
 
 const extractRows = (payload: unknown) => {
@@ -66,7 +64,7 @@ export default function ReviewsScreen() {
   const [updatingReview, setUpdatingReview] = useState(false);
 
   const isReviewFeatureEnabled =
-    Number(user?.id) === 41 || Number(user?.id) === 31;
+    Number(user?.id) === 41 || Number(user?.id) === 31 || Number(user?.id) === 39 || Number(user?.id) === 43;
 
   const selectedCourtName = useMemo(() => {
     const found = reservedCourts.find(
