@@ -33,7 +33,7 @@ export function getTipoPistaImage(
     typeof entityOrTipoPistaId === 'string'
   ) {
     return api
-      .get(`/tipo_court/${entityOrTipoPistaId}`)
+      .get(`/court-types/${entityOrTipoPistaId}`)
       .then((response) => response?.data as CourtType | undefined)
       .then((courtType) => toImageSource(courtType?.image))
       .catch(() => undefined);

@@ -125,7 +125,7 @@ export function useCreateBooking() {
           return;
         }
 
-        const response = await api.get(`/tipo_court/${tipoPistaId}`);
+        const response = await api.get(`/court-types/${tipoPistaId}`);
         const tipoPista = response?.data as CourtType | undefined;
 
         if (!mounted) return;
