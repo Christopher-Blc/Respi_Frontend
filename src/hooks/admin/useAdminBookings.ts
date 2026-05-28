@@ -407,6 +407,7 @@ export function useAdminBookings() {
     courtTypes,
     filteredReservations,
     loading,
+    refresh: fetchInitialData,
     searchQuery,
     setSearchQuery,
     viewMode,

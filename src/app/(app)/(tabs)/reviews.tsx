@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  RefreshControl,
   ScrollView,
   Text,
   TextInput,
@@ -15,6 +16,7 @@ import { useAppTheme } from '../../../context/ThemeContext';
 import { useProfile } from '../../../hooks/useProfile';
 import { Court, Reservation, Review } from '../../../types/types';
 import api from '../../../services/api';
+import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
 
 const extractRows = (payload: unknown) => {
   if (Array.isArray(payload)) return payload;
@@ -70,7 +72,7 @@ export default function ReviewsScreen() {
     return found?.name || '';
   }, [reservedCourts, selectedCourtId]);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!isReviewFeatureEnabled || !user?.id) return;
 
     try {
@@ -124,11 +126,13 @@ export default function ReviewsScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isReviewFeatureEnabled, user?.id]);
 
   useEffect(() => {
     void loadData();
-  }, [isReviewFeatureEnabled, user?.id]);
+  }, [loadData]);
+
+  const { refreshing, onRefresh } = usePullToRefresh(loadData);
 
   const handleCreateReview = async () => {
     if (!selectedCourtId) {
@@ -281,6 +285,13 @@ export default function ReviewsScreen() {
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: theme.background }}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor={theme.primary}
+        />
+      }
       contentContainerStyle={{
         paddingTop: headerHeight + 12,
         paddingHorizontal: 16,

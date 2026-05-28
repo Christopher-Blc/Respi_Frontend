@@ -2,6 +2,7 @@ import React from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  RefreshControl,
   ScrollView,
   Text,
   TextInput,
@@ -20,6 +21,7 @@ import { InstallationCard } from '../../../../components/admin/installations/Ins
 import { InstallationFormModal } from '../../../../components/admin/installations/InstallationFormModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
 import { addSoftBreaks } from '../../../../utils/addSoftBreaks';
+import { usePullToRefresh } from '../../../../hooks/usePullToRefresh';
 
 export default function AdminInstallations() {
   const { theme } = useAppTheme();
@@ -45,6 +47,7 @@ export default function AdminInstallations() {
   const {
     filteredInstallations,
     loading,
+    refresh,
     searchQuery,
     setSearchQuery,
     modalVisible,
@@ -62,6 +65,7 @@ export default function AdminInstallations() {
     errorModal,
     setErrorModal,
   } = useAdminInstallations();
+  const { refreshing, onRefresh } = usePullToRefresh(refresh);
 
   const [currentPage, setCurrentPage] = React.useState(1);
   React.useEffect(() => {
@@ -172,6 +176,13 @@ export default function AdminInstallations() {
           <FlatList
             key={`installations-cards-${cardsColumns}`}
             data={pagedInstallations}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={theme.primary}
+              />
+            }
             renderItem={renderCard}
             numColumns={cardsColumns}
             keyExtractor={(item) => String(item.id)}
@@ -247,6 +258,13 @@ export default function AdminInstallations() {
             </View>
             <FlatList
               data={pagedInstallations}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  tintColor={theme.primary}
+                />
+              }
               keyExtractor={(item) => String(item.id)}
               nestedScrollEnabled
               contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}

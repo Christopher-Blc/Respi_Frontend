@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   FlatList,
+  RefreshControl,
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
@@ -20,6 +21,7 @@ import { MembershipFormModal } from '../../../../components/admin/memberships/Me
 import { SessionExpiredModal } from '../../../../components/alert.modal';
 import { Membership } from '../../../../types/types';
 import { addSoftBreaks } from '../../../../utils/addSoftBreaks';
+import { usePullToRefresh } from '../../../../hooks/usePullToRefresh';
 
 export default function AdminMembresias() {
   const { theme } = useAppTheme();
@@ -45,6 +47,7 @@ export default function AdminMembresias() {
   const {
     filteredMemberships,
     loading,
+    refresh,
     searchQuery,
     setSearchQuery,
     modalVisible,
@@ -62,6 +65,7 @@ export default function AdminMembresias() {
     errorModal,
     setErrorModal,
   } = useAdminMemberships();
+  const { refreshing, onRefresh } = usePullToRefresh(refresh);
 
   const [currentPage, setCurrentPage] = React.useState(1);
   React.useEffect(() => {
@@ -178,6 +182,13 @@ export default function AdminMembresias() {
           <FlatList
             key={`memberships-cards-${cardsColumns}`}
             data={pagedMemberships}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={theme.primary}
+              />
+            }
             renderItem={renderCard}
             numColumns={cardsColumns}
             keyExtractor={(item) => item.id.toString()}
@@ -261,6 +272,13 @@ export default function AdminMembresias() {
             </View>
             <FlatList
               data={pagedMemberships}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  tintColor={theme.primary}
+                />
+              }
               keyExtractor={(item) => item.id.toString()}
               nestedScrollEnabled
               contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}

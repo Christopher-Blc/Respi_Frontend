@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  RefreshControl,
   ScrollView,
   Text,
   TextInput,
@@ -21,6 +22,7 @@ import { UsersFiltersModal } from '../../../../components/admin/users/UsersFilte
 import { SessionExpiredModal } from '../../../../components/alert.modal';
 import { useAdminUsers } from '../../../../hooks/admin/useAdminUsers';
 import { addSoftBreaks } from '../../../../utils/addSoftBreaks';
+import { usePullToRefresh } from '../../../../hooks/usePullToRefresh';
 
 type AdminUser = User & {
   membership?: Membership | null;
@@ -51,6 +53,7 @@ export default function AdminUsuarios() {
     filteredUsers,
     memberships,
     loading,
+    refresh,
     searchQuery,
     setSearchQuery,
     viewMode,
@@ -81,6 +84,7 @@ export default function AdminUsuarios() {
     errorModal,
     setErrorModal,
   } = useAdminUsers();
+  const { refreshing, onRefresh } = usePullToRefresh(refresh);
 
   const [currentPage, setCurrentPage] = useState(1);
   useEffect(() => {
@@ -231,6 +235,13 @@ export default function AdminUsuarios() {
           <FlatList
             key={`users-cards-${cardsColumns}`}
             data={pagedUsers}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={theme.primary}
+              />
+            }
             renderItem={renderCard}
             numColumns={cardsColumns}
             keyExtractor={(item) => item.id.toString()}
@@ -314,6 +325,13 @@ export default function AdminUsuarios() {
             </View>
             <FlatList
               data={pagedUsers}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  tintColor={theme.primary}
+                />
+              }
               keyExtractor={(item) => item.id.toString()}
               nestedScrollEnabled
               contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
