@@ -108,31 +108,3 @@ export const GlassTextInput: React.FC<Props> = ({
   );
 };
 
-<<<<<<< HEAD
-=======
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    marginBottom: 12,
-  },
-  label: {
-    alignSelf: 'flex-start',
-    marginBottom: 5,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  input: {
-    width: '100%',
-    height: 50,
-    borderRadius: 12,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    overflow: 'hidden',
-  },
-  errorText: {
-    fontSize: 12,
-    marginTop: 4,
-    alignSelf: 'flex-start',
-  },
-});
->>>>>>> 45064c4666ee7aca8c60e8eb4c2e15eb645486a0

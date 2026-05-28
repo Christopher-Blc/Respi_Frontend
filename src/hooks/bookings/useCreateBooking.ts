@@ -1,8 +1,4 @@
-<<<<<<< HEAD:src/hooks/bookings/useCreateBooking.ts
-import { useEffect, useMemo, useState } from 'react';
-=======
-﻿import { useEffect, useMemo, useRef, useState } from 'react';
->>>>>>> 45064c4666ee7aca8c60e8eb4c2e15eb645486a0:src/hooks/useCreateBooking.ts
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { jwtDecode } from 'jwt-decode';

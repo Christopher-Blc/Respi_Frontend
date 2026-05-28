@@ -3,12 +3,8 @@ import { API_PUBLIC_URL } from '../../constants';
 import api from '../../services/api';
 import { Court, CourtAvailability, CourtType } from '../../types/types';
 import { useTranslation } from 'react-i18next';
-<<<<<<< HEAD:src/hooks/courts/useCourtsTab.ts
 import { getTipoPistaImage } from '../../utils/getImage';
-=======
-import { getTipoPistaImage } from '../utils/getImage';
-import { getNext7Days, formatDateForAPI } from '../utils/bookingUtils';
->>>>>>> 45064c4666ee7aca8c60e8eb4c2e15eb645486a0:src/hooks/useCourtsTab.ts
+import { getNext7Days, formatDateForAPI } from '../../utils/bookingUtils';
 
 
 export const resolvePistaImageSource = (pista: CourtAvailability) =>
