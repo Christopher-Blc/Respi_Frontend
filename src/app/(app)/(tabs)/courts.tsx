@@ -28,7 +28,11 @@ import { getDateLocale } from '../../../i18n';
 import { getTipoPistaImage } from '../../../utils/getImage';
 import { API_PUBLIC_URL } from '../../../constants';
 import CourtInfoModal from '../../../components/bookings/CourtInfoModal';
+<<<<<<< HEAD
+import CourtReviewsModal from '../../../components/reviews/CourtReviewsModal';
+=======
 import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
+>>>>>>> d3c03d371cbe9660d1f057b9b15e9bc4ecb31fad
 
 const GAP = 12;
 
@@ -44,6 +48,8 @@ export default function PistasTab() {
   const cols = width >= 1280 ? 3 : width >= 520 ? 2 : 1;
   const [containerWidth, setContainerWidth] = useState(0);
   const [selectedCourtInfo, setSelectedCourtInfo] =
+    useState<CourtAvailability | null>(null);
+  const [selectedCourtReviews, setSelectedCourtReviews] =
     useState<CourtAvailability | null>(null);
   const effective = containerWidth || width;
   const cardWidth = Math.max(
@@ -219,10 +225,15 @@ export default function PistasTab() {
             style={localStyles.sportCardOverlay}
           >
             <View style={localStyles.sportCardHeader}>
-              {renderStars(
-                Number(pista.average_rating || 0),
-                pista.total_reviews || 0,
-              )}
+              <TouchableOpacity
+                onPress={() => setSelectedCourtReviews(pista)}
+                activeOpacity={0.75}
+              >
+                {renderStars(
+                  Number(pista.average_rating || 0),
+                  pista.total_reviews || 0,
+                )}
+              </TouchableOpacity>
               <View
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
               >
@@ -317,6 +328,13 @@ export default function PistasTab() {
         court={selectedCourtInfo}
         onClose={() => setSelectedCourtInfo(null)}
       />
+
+      {selectedCourtReviews && (
+        <CourtReviewsModal
+          court={selectedCourtReviews}
+          onClose={() => setSelectedCourtReviews(null)}
+        />
+      )}
 
       {loading ? (
         <ActivityIndicator

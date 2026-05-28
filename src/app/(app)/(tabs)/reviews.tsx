@@ -1,22 +1,25 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   RefreshControl,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
+  StyleSheet,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useHeaderHeight } from '@react-navigation/elements';
 import axios from 'axios';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useHeaderHeight } from '@react-navigation/elements';
 import { useAppTheme } from '../../../context/ThemeContext';
-import { useProfile } from '../../../hooks/useProfile';
-import { Court, Reservation, Review } from '../../../types/types';
 import api from '../../../services/api';
+import { useProfile } from '../../../hooks/useProfile';
 import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
 import { SessionExpiredModal } from '../../../components/alert.modal';
+import { Court, Reservation, Review } from '../../../types/types';
 
 const extractRows = (payload: unknown) => {
   if (Array.isArray(payload)) return payload;
@@ -49,7 +52,6 @@ export default function ReviewsScreen() {
   const { user, loading: profileLoading } = useProfile();
   const headerHeight = useHeaderHeight();
 
-  const [alertModal, setAlertModal] = useState({ visible: false, title: '', message: '' });
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [reservedCourts, setReservedCourts] = useState<Court[]>([]);
@@ -62,10 +64,6 @@ export default function ReviewsScreen() {
   const [editingReviewId, setEditingReviewId] = useState<number | null>(null);
   const [editingText, setEditingText] = useState('');
   const [updatingReview, setUpdatingReview] = useState(false);
-
-  const showAlert = (title: string, message: string) => {
-    setAlertModal({ visible: true, title, message });
-  };
 
   const isReviewFeatureEnabled =
     Number(user?.id) === 41 || Number(user?.id) === 31;
@@ -127,7 +125,7 @@ export default function ReviewsScreen() {
       );
     } catch (error) {
       console.error('Error loading reviews data', error);
-      showAlert('Reseñas', 'No se pudieron cargar tus reseñas.');
+      Alert.alert('Reseñas', 'No se pudieron cargar tus reseñas.');
     } finally {
       setLoading(false);
     }
@@ -141,17 +139,17 @@ export default function ReviewsScreen() {
 
   const handleCreateReview = async () => {
     if (!selectedCourtId) {
-      showAlert('Reseñas', 'Selecciona una pista para continuar.');
+      Alert.alert('Reseñas', 'Selecciona una pista para continuar.');
       return;
     }
 
     if (!reviewTitle.trim()) {
-      showAlert('Reseñas', 'El titulo de la reseña es obligatorio.');
+      Alert.alert('Reseñas', 'El titulo de la reseña es obligatorio.');
       return;
     }
 
     if (!reviewText.trim()) {
-      showAlert('Reseñas', 'Escribe un comentario para la reseña.');
+      Alert.alert('Reseñas', 'Escribe un comentario para la reseña.');
       return;
     }
 
@@ -172,7 +170,7 @@ export default function ReviewsScreen() {
       setReviewRating(5);
       await loadData();
       console.log('Review creada correctamente');
-      showAlert('Reseñas', 'Tu reseña se ha guardado correctamente.');
+      Alert.alert('Reseñas', 'Tu reseña se ha guardado correctamente.');
     } catch (error) {
       let backendMessage = 'No se pudo guardar la reseña.';
 
@@ -196,7 +194,7 @@ export default function ReviewsScreen() {
         console.error('Error creating review', error);
       }
 
-      showAlert('Reseñas', backendMessage);
+      Alert.alert('Reseñas', backendMessage);
     } finally {
       setSubmitting(false);
     }
@@ -216,7 +214,7 @@ export default function ReviewsScreen() {
     const text = editingText.trim();
 
     if (!text) {
-      showAlert('Reseñas', 'El contenido de la reseña no puede estar vacio.');
+      Alert.alert('Reseñas', 'El contenido de la reseña no puede estar vacio.');
       return;
     }
 
@@ -237,10 +235,10 @@ export default function ReviewsScreen() {
 
       setEditingReviewId(null);
       setEditingText('');
-      showAlert('Reseñas', 'Contenido actualizado correctamente.');
+      Alert.alert('Reseñas', 'Contenido actualizado correctamente.');
     } catch (error) {
       console.error('Error updating review text', error);
-      showAlert('Reseñas', 'No se pudo actualizar la reseña.');
+      Alert.alert('Reseñas', 'No se pudo actualizar la reseña.');
     } finally {
       setUpdatingReview(false);
     }
@@ -288,16 +286,8 @@ export default function ReviewsScreen() {
   }
 
   return (
-    <>
-      <SessionExpiredModal
-        visible={alertModal.visible}
-        title={alertModal.title}
-        message={alertModal.message}
-        confirmText="Entendido"
-        onConfirm={() => setAlertModal({ visible: false, title: '', message: '' })}
-      />
-      <ScrollView
-        style={{ flex: 1, backgroundColor: theme.background }}
+    <ScrollView
+      style={{ flex: 1, backgroundColor: theme.background }}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
@@ -571,168 +561,297 @@ export default function ReviewsScreen() {
                   marginBottom: 8,
                 }}
               >
-                <Text
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: theme.textTitle, fontWeight: '800' }}>
+                    {review.court?.name ?? `Pista #${review.court_id}`}
+                  </Text>
+                  <Text style={{ color: theme.textMuted, marginTop: 4 }}>
+                    {review.court?.courtType?.name ?? ''}
+                  </Text>
+                </View>
+
+                <View
                   style={{
-                    color: theme.textTitle,
-                    fontWeight: '700',
+                    borderWidth: 1,
+                    borderRadius: 999,
+                    paddingHorizontal: 8,
+                    paddingVertical: 4,
+                    backgroundColor: review.is_visible ? '#22c55e18' : '#f59e0b18',
+                    borderColor: review.is_visible ? '#22c55e' : '#f59e0b',
                   }}
                 >
-                  Reseña
-                </Text>
-
-                {editingReviewId !== review.id ? (
-                  <TouchableOpacity
-                    onPress={() => startEditingReview(review)}
+                  <Text
                     style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: 6,
-                      paddingHorizontal: 8,
-                      paddingVertical: 6,
-                      borderRadius: 8,
-                      borderWidth: 1,
-                      borderColor: theme.primarySoft,
+                      fontSize: 10,
+                      fontWeight: '800',
+                      textTransform: 'uppercase',
+                      color: review.is_visible ? '#22c55e' : '#f59e0b',
                     }}
                   >
-                    <Ionicons name="pencil" size={14} color={theme.primary} />
-                    <Text style={{ color: theme.primary, fontWeight: '600' }}>
-                      Editar
-                    </Text>
-                  </TouchableOpacity>
-                ) : null}
+                    {review.is_visible ? 'Visible' : 'Pendiente'}
+                  </Text>
+                </View>
               </View>
 
-              <View
-                style={{
-                  borderWidth: 1,
-                  borderColor: theme.primarySoft,
-                  borderRadius: 10,
-                  padding: 10,
-                  backgroundColor: theme.surface,
-                }}
-              >
-                <Text style={{ color: theme.textTitle, fontWeight: '700' }}>
-                  {review.title || 'Sin titulo'} ·{' '}
-                  {review.court?.name || `Pista #${review.court_id}`}
-                </Text>
-
-                {editingReviewId === review.id ? (
-                  <>
-                    <TextInput
-                      value={editingText}
-                      onChangeText={setEditingText}
-                      multiline
-                      placeholder="Edita el contenido de tu reseña"
-                      placeholderTextColor={theme.textBody + '80'}
-                      style={{
-                        marginTop: 8,
-                        minHeight: 90,
-                        textAlignVertical: 'top',
-                        borderWidth: 1,
-                        borderColor: theme.primarySoft,
-                        borderRadius: 10,
-                        paddingHorizontal: 10,
-                        paddingVertical: 8,
-                        color: theme.textTitle,
-                        backgroundColor: theme.backgroundCard,
-                      }}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <View style={{ flexDirection: 'row', gap: 4 }}>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <Ionicons
+                      key={i}
+                      name={i <= review.rating ? 'star' : 'star-outline'}
+                      size={13}
+                      color={i <= review.rating ? '#FFD700' : theme.textMuted}
                     />
+                  ))}
+                </View>
+                <Text style={{ color: theme.textMuted, fontSize: 12 }}>
+                  {review.comment_date ? review.comment_date.slice(0, 10) : ''}
+                </Text>
+              </View>
 
-                    <View
+              {!!review.title && (
+                <Text style={{ color: theme.textTitle, fontWeight: '700', marginTop: 8 }}>
+                  {review.title}
+                </Text>
+              )}
+
+              {editingReviewId === review.id ? (
+                <View style={{ marginTop: 8 }}>
+                  <TextInput
+                    value={editingText}
+                    onChangeText={setEditingText}
+                    multiline
+                    style={{
+                      borderWidth: 1.5,
+                      borderRadius: 12,
+                      padding: 12,
+                      fontSize: 14,
+                      minHeight: 90,
+                      backgroundColor: theme.surface,
+                      color: theme.textTitle,
+                    }}
+                    textAlignVertical="top"
+                  />
+                  <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
+                    <TouchableOpacity
                       style={{
-                        marginTop: 10,
-                        flexDirection: 'row',
-                        gap: 8,
+                        flex: 1,
+                        paddingVertical: 10,
+                        borderRadius: 10,
+                        borderWidth: 1,
+                        borderColor: theme.borderSoft,
+                        alignItems: 'center',
                       }}
+                      onPress={cancelEditingReview}
                     >
-                      <TouchableOpacity
-                        onPress={cancelEditingReview}
-                        disabled={updatingReview}
-                        style={{
-                          flex: 1,
-                          height: 40,
-                          borderRadius: 8,
-                          borderWidth: 1,
-                          borderColor: theme.primarySoft,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <Text
-                          style={{ color: theme.textBody, fontWeight: '600' }}
-                        >
-                          Cancelar
-                        </Text>
-                      </TouchableOpacity>
+                      <Text style={{ color: theme.textMuted, fontWeight: '700' }}>
+                        Cancelar
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{
+                        flex: 1,
+                        paddingVertical: 10,
+                        borderRadius: 10,
+                        backgroundColor: theme.primary,
+                        alignItems: 'center',
+                      }}
+                      onPress={() => void handleSaveReviewText(review.id)}
+                      disabled={updatingReview}
+                    >
+                      {updatingReview ? (
+                        <ActivityIndicator size="small" color={theme.onPrimary} />
+                      ) : (
+                        <Text style={{ color: theme.onPrimary, fontWeight: '700' }}>Guardar</Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ) : (
+                <Text style={{ color: theme.textBody, marginTop: 8 }}>{review.text}</Text>
+              )}
 
-                      <TouchableOpacity
-                        onPress={() => handleSaveReviewText(review.id)}
-                        disabled={updatingReview}
-                        style={{
-                          flex: 1,
-                          height: 40,
-                          borderRadius: 8,
-                          backgroundColor: theme.primary,
-                          opacity: updatingReview ? 0.6 : 1,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <Text
-                          style={{ color: theme.onPrimary, fontWeight: '700' }}
-                        >
-                          {updatingReview ? 'Guardando...' : 'Guardar'}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </>
-                ) : (
-                  <Text style={{ color: theme.textBody, marginTop: 6 }}>
-                    {review.text}
-                  </Text>
-                )}
-
-                <Text
+              {!!review.admin_answer && (
+                <View
                   style={{
-                    color: theme.textSubtitle,
-                    marginTop: 6,
-                    fontWeight: '600',
+                    marginTop: 10,
+                    borderRadius: 10,
+                    borderWidth: 1,
+                    padding: 10,
+                    backgroundColor: theme.primary + '0D',
+                    borderColor: theme.primarySoft,
                   }}
                 >
-                  Valoracion: {review.rating}/5
-                </Text>
-              </View>
+                  <Text style={{ fontSize: 11, fontWeight: '700', textTransform: 'uppercase', color: theme.primary }}>
+                    Respuesta del equipo
+                  </Text>
+                  <Text style={{ color: theme.textBody, marginTop: 4 }}>{review.admin_answer}</Text>
+                </View>
+              )}
+
+              {!editingReviewId && (
+                <TouchableOpacity
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 6,
+                    alignSelf: 'flex-start',
+                    paddingVertical: 6,
+                    paddingHorizontal: 10,
+                    borderRadius: 8,
+                    borderWidth: 1,
+                    borderColor: theme.borderSoft,
+                    marginTop: 10,
+                  }}
+                  onPress={() => startEditingReview(review)}
+                >
+                  <Ionicons name="create-outline" size={14} color={theme.textMuted} />
+                  <Text style={{ color: theme.textMuted, fontSize: 12, fontWeight: '600' }}>Editar reseña</Text>
+                </TouchableOpacity>
+              )}
             </View>
 
             <View style={{ padding: 12 }}>
-              <Text
-                style={{
-                  color: theme.textTitle,
-                  fontWeight: '700',
-                  marginBottom: 8,
-                }}
-              >
-                Respuesta
-              </Text>
-              <View
-                style={{
-                  borderWidth: 1,
-                  borderColor: theme.primarySoft,
-                  borderRadius: 10,
-                  padding: 10,
-                  backgroundColor: theme.surface,
-                }}
-              >
-                <Text style={{ color: theme.textBody }}>
-                  {review.admin_answer?.trim() ||
-                    'Pendiente de respuesta del administrador.'}
-                </Text>
-              </View>
+              {/* extra actions could go here */}
             </View>
           </View>
         ))
       )}
     </ScrollView>
-    </>
   );
 }
+
+const createStyles = (theme: any) =>
+  StyleSheet.create({
+    container: { flex: 1 },
+    centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+    listContent: { paddingHorizontal: 16, gap: 12 },
+    pageTitle: {
+      fontSize: 26,
+      fontWeight: '900',
+      marginBottom: 4,
+    },
+    card: {
+      borderRadius: 16,
+      borderWidth: 1,
+      padding: 16,
+      gap: 10,
+    },
+    cardHeader: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: 10,
+    },
+    courtName: {
+      fontSize: 15,
+      fontWeight: '800',
+    },
+    courtType: {
+      fontSize: 12,
+      marginTop: 2,
+    },
+    statusBadge: {
+      borderWidth: 1,
+      borderRadius: 999,
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+    },
+    statusText: {
+      fontSize: 10,
+      fontWeight: '800',
+      textTransform: 'uppercase',
+      letterSpacing: 0.4,
+    },
+    metaRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+    dateText: {
+      fontSize: 12,
+      fontWeight: '500',
+    },
+    reviewTitle: {
+      fontSize: 14,
+      fontWeight: '700',
+    },
+    reviewText: {
+      fontSize: 13,
+      lineHeight: 19,
+    },
+    adminReply: {
+      borderRadius: 10,
+      borderWidth: 1,
+      padding: 10,
+      gap: 4,
+    },
+    adminReplyLabel: {
+      fontSize: 11,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    adminReplyText: {
+      fontSize: 13,
+      lineHeight: 18,
+    },
+    editSection: {
+      gap: 10,
+    },
+    editInput: {
+      borderWidth: 1.5,
+      borderRadius: 12,
+      padding: 12,
+      fontSize: 14,
+      minHeight: 90,
+    },
+    editActions: {
+      flexDirection: 'row',
+      gap: 10,
+    },
+    editBtn: {
+      flex: 1,
+      paddingVertical: 10,
+      borderRadius: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    editBtnCancel: {
+      borderWidth: 1,
+      backgroundColor: 'transparent',
+    },
+    editBtnSave: {},
+    editBtnText: {
+      fontSize: 14,
+      fontWeight: '700',
+    },
+    editTrigger: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      alignSelf: 'flex-start',
+      paddingVertical: 6,
+      paddingHorizontal: 10,
+      borderRadius: 8,
+      borderWidth: 1,
+    },
+    editTriggerText: {
+      fontSize: 12,
+      fontWeight: '600',
+    },
+    emptyState: {
+      paddingTop: 60,
+      alignItems: 'center',
+      gap: 12,
+      paddingHorizontal: 20,
+    },
+    emptyTitle: {
+      fontSize: 18,
+      fontWeight: '800',
+    },
+    emptySubtitle: {
+      fontSize: 14,
+      textAlign: 'center',
+      lineHeight: 20,
+    },
+  });

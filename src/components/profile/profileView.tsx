@@ -121,7 +121,7 @@ export default function ProfileView({ profileState }: ProfileViewProps) {
   );
   const showMariaCard = Number(user?.id) === 41;
   const isReviewFeatureEnabled =
-    Number(user?.id) === 41 || Number(user?.id) === 31;
+    Number(user?.id) === 41 || Number(user?.id) === 31 || Number(user?.id) === 39 || Number(user?.id) === 43;
   const showRoleOption = canToggleRole;
   const showMembershipOption = effectiveRole !== 'SUPER_ADMIN';
   const showReviewsOption = isReviewFeatureEnabled;

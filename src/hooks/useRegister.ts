@@ -119,6 +119,7 @@ export const useRegister = () => {
         phone: `${selectedCountry.code}${sanitizedPhone}`,
         password,
         date_of_birth: formatLocalDateForApi(parsedBirthDate),
+        address: '-',
       });
 
       if (response.status === 201) {
