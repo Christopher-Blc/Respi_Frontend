@@ -49,7 +49,7 @@ export const useChangePassword = (visible: boolean) => {
       duration: 280,
       useNativeDriver: true,
     }).start();
-  }, [currentPassword.length > 0]);
+  }, [currentPassword]);
 
   const passwordValid = useMemo(() => isPasswordValid(newPassword), [newPassword]);
   const passwordsMatch = newPassword === confirmPassword;

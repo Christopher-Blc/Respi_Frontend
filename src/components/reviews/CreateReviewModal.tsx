@@ -78,7 +78,7 @@ export default function CreateReviewModal({ court, onClose, onCreated }: Props) 
   const ratingLabels = ['', 'Muy mala', 'Mala', 'Regular', 'Buena', 'Excelente'];
 
   return (
-    <Modal visible transparent animationType="slide" onRequestClose={handleClose}>
+    <Modal visible transparent animationType="fade" onRequestClose={handleClose}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}

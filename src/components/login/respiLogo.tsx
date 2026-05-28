@@ -15,6 +15,8 @@ const RespiLogo = () => {
       transition={0} // 0 para que no haya fundido, que salga de golpe
       priority="high" // Prioridad máxima de carga
       cachePolicy="memory" // Forzamos a que no salga de la RAM
+      accessible={true}
+      accessibilityLabel="Respi logo"
     />
   );
 };

@@ -48,20 +48,20 @@ function applyFilter(reservations: Reservation[], filter: FilterKey): Reservatio
   switch (filter) {
     case 'upcoming':
       return reservations.filter((r) => {
-        if (r.status === 'CANCELADA' || r.status === 'FINALIZADA') return false;
+        if (r.status === 'CANCELADA' || r.status === 'FINALIZADA' || r.status === 'PENDIENTE') return false;
         const t = new Date(`${r.reservation_date}T${r.start_time.slice(0, 5)}:00`).getTime();
         return isNaN(t) || t >= now;
       });
     case 'past':
       return reservations.filter((r) => {
-        if (r.status === 'CANCELADA') return false;
+        if (r.status === 'CANCELADA' || r.status === 'PENDIENTE') return false;
         const t = new Date(`${r.reservation_date}T${r.start_time.slice(0, 5)}:00`).getTime();
         return !isNaN(t) && t < now;
       });
     case 'cancelled':
       return reservations.filter((r) => r.status === 'CANCELADA');
     default:
-      return reservations;
+      return reservations.filter((r) => r.status !== 'PENDIENTE');
   }
 }
 

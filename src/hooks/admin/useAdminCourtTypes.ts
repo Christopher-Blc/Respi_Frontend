@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Court, CourtType } from '../../types/types';
 import api from '../../services/api';
 import { useTranslation } from 'react-i18next';
@@ -108,7 +108,8 @@ export function useAdminCourtTypes() {
       setLoading(true);
       const res = await api.get('/court-types');
 
-      const normalizedTipos: CourtType[] = res.data.map((tipo: CourtType) => ({
+      const data = Array.isArray(res.data) ? res.data : [];
+      const normalizedTipos: CourtType[] = data.map((tipo: CourtType) => ({
         ...tipo,
         courts: getUniquePistasByNombre(tipo.courts),
       }));

@@ -64,7 +64,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const canToggleRole = userId === 31 || userId === 41;
+  const toggleRoleIds = (process.env.EXPO_PUBLIC_TOGGLE_ROLE_IDS ?? '31,41')
+    .split(',')
+    .map(id => parseInt(id.trim(), 10))
+    .filter(id => !isNaN(id));
+  const canToggleRole = toggleRoleIds.includes(userId ?? -1);
   const effectiveRole =
     canToggleRole && roleViewOverride ? roleViewOverride : role;
 
@@ -76,7 +80,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    onForceLogout(() => {
+    const cleanupForceLogout = onForceLogout(() => {
       if (
         suppressForcedLogoutModalRef.current ||
         isHandlingForcedLogoutRef.current
@@ -118,6 +122,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     };
     loadToken();
+    return cleanupForceLogout;
   }, []);
 
   const handleConfirmExpired = () => {

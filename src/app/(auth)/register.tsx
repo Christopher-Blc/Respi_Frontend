@@ -25,6 +25,9 @@ import { useAppTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { useRegister } from '../../hooks/auth/useRegister';
 
+const sanitizeInput = (text: string) =>
+  text.replace(/[<>'"&]/g, (c) => ({ '<': '', '>': '', "'": '', '"': '', '&': '' }[c] ?? c));
+
 const Register: React.FC = () => {
   const { t } = useTranslation();
   const router = useRouter();
@@ -125,6 +128,7 @@ const Register: React.FC = () => {
         >
           <RespiLogo />
           <Text
+            accessibilityRole="header"
             style={[
               styles.title,
               {
@@ -150,7 +154,7 @@ const Register: React.FC = () => {
             placeholder={t('authRegisterName')}
             placeholderTextColor={registerTextColor}
             value={name}
-            onChangeText={setName}
+            onChangeText={(v) => setName(sanitizeInput(v))}
           />
 
           <Text
@@ -168,7 +172,7 @@ const Register: React.FC = () => {
             placeholder={t('authRegisterSurname')}
             placeholderTextColor={registerTextColor}
             value={surname}
-            onChangeText={setSurname}
+            onChangeText={(v) => setSurname(sanitizeInput(v))}
           />
 
           <Text
@@ -186,7 +190,7 @@ const Register: React.FC = () => {
             placeholder={t('authRegisterUsername')}
             placeholderTextColor={registerTextColor}
             value={username}
-            onChangeText={setUsername}
+            onChangeText={(v) => setUsername(sanitizeInput(v))}
           />
 
           <Text
@@ -205,7 +209,7 @@ const Register: React.FC = () => {
             placeholder={t('exampleEmail')}
             placeholderTextColor={registerTextColor}
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(v) => setEmail(sanitizeInput(v))}
           />
 
           <Text
@@ -332,6 +336,7 @@ const Register: React.FC = () => {
             />
             <IconButton
               icon="calendar-edit"
+              accessibilityLabel="Seleccionar fecha de nacimiento"
               style={styles.calendarIcon}
               iconColor={theme.primary}
               size={24}

@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Modal,
+  Pressable,
+} from 'react-native';
 import { BlurViewCompat } from '../../general/BlurViewCompat';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../context/ThemeContext';
@@ -65,13 +72,11 @@ export function UsersFiltersModal({
 }: Props) {
   const { theme, isDarkMode } = useAppTheme();
 
-  const overlayColor = isDarkMode ? theme.overlayDark : 'rgba(0,0,0,0.42)';
+  const overlayColor = 'rgba(0,0,0,0.5)';
   const cardBackground = isDarkMode
-    ? 'rgba(18,18,18,0.82)'
-    : 'rgba(255,255,255,0.84)';
-  const borderColor = isDarkMode
-    ? theme.borderAccentSoft
-    : 'rgba(255, 255, 255, 0.55)';
+    ? 'rgba(16,20,32,0.78)'
+    : 'rgba(255,255,255,0.8)';
+  const borderColor = theme.primarySoft;
   const pillInactiveBg = theme.inputBackground;
   const pillInactiveBorder = theme.borderInput;
   const pillActiveBg = theme.primaryButton;
@@ -100,32 +105,32 @@ export function UsersFiltersModal({
       animationType="fade"
       onRequestClose={onClose}
     >
-      <TouchableOpacity
-        activeOpacity={1}
-        onPress={onClose}
+      <View
         style={{
           flex: 1,
           backgroundColor: overlayColor,
           justifyContent: 'center',
-          paddingHorizontal: 18,
+          alignItems: 'center',
+          paddingHorizontal: 16,
           paddingVertical: 24,
         }}
       >
-        <TouchableOpacity
-          activeOpacity={1}
-          onPress={() => {}}
+        <Pressable
+          onPress={onClose}
+          style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}
+        />
+        <View
           style={{
             width: '100%',
-            maxWidth: 560,
-            alignSelf: 'center',
-            borderRadius: 22,
-            maxHeight: '82%',
+            maxWidth: 520,
+            borderRadius: 18,
+            maxHeight: '84%',
             overflow: 'hidden',
             shadowColor: '#000',
-            shadowOpacity: 0.22,
-            shadowRadius: 18,
-            shadowOffset: { width: 0, height: 8 },
-            elevation: 12,
+            shadowOpacity: 0.28,
+            shadowRadius: 20,
+            shadowOffset: { width: 0, height: 10 },
+            elevation: 14,
           }}
         >
           <BlurViewCompat
@@ -135,13 +140,13 @@ export function UsersFiltersModal({
               backgroundColor: cardBackground,
               borderWidth: 1,
               borderColor,
-              borderRadius: 22,
+              borderRadius: 18,
             }}
           >
             {/* Header */}
             <View
               style={{
-                paddingHorizontal: 18,
+                paddingHorizontal: 16,
                 paddingTop: 16,
                 paddingBottom: 12,
                 borderBottomWidth: 1,
@@ -154,13 +159,25 @@ export function UsersFiltersModal({
               <Text
                 style={{
                   color: theme.textTitle,
-                  fontSize: 20,
-                  fontWeight: '700',
+                  fontSize: 18,
+                  fontWeight: '800',
                 }}
               >
                 Filtros
               </Text>
-              <TouchableOpacity onPress={onClose}>
+              <TouchableOpacity
+                onPress={onClose}
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: 15,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: theme.inputBackground,
+                  borderWidth: 1,
+                  borderColor: theme.borderInput,
+                }}
+              >
                 <Ionicons name="close" size={22} color={theme.textBody} />
               </TouchableOpacity>
             </View>
@@ -168,9 +185,9 @@ export function UsersFiltersModal({
             <ScrollView
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{
-                paddingHorizontal: 18,
+                paddingHorizontal: 16,
                 paddingTop: 14,
-                paddingBottom: 18,
+                paddingBottom: 16,
               }}
             >
               {/* Registration date range */}
@@ -349,8 +366,8 @@ export function UsersFiltersModal({
               <View
                 style={{
                   flexDirection: 'row',
-                  gap: 10,
-                  paddingTop: 14,
+                  gap: 12,
+                  paddingTop: 16,
                   borderTopWidth: 1,
                   borderTopColor: theme.primarySoft,
                 }}
@@ -360,7 +377,7 @@ export function UsersFiltersModal({
                     text="Limpiar"
                     onPress={clearFilters}
                     textColor={theme.textBody}
-                    color={theme.inputBackground}
+                    color={theme.backgroundAlt}
                     borderColor={theme.borderInput}
                     borderWidth={1}
                     height={46}
@@ -371,7 +388,7 @@ export function UsersFiltersModal({
                     text="Aplicar"
                     onPress={onClose}
                     textColor={theme.onPrimary}
-                    color={theme.primaryButton}
+                    color={theme.primary}
                     borderColor={theme.primary}
                     borderWidth={1}
                     height={46}
@@ -380,8 +397,8 @@ export function UsersFiltersModal({
               </View>
             </ScrollView>
           </BlurViewCompat>
-        </TouchableOpacity>
-      </TouchableOpacity>
+        </View>
+      </View>
     </Modal>
   );
 }

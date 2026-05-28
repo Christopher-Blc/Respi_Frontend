@@ -3,16 +3,25 @@ import {
   ActivityIndicator,
   FlatList,
   Modal,
+<<<<<<< HEAD
+=======
+  Pressable,
+  StyleSheet,
+>>>>>>> 45064c4666ee7aca8c60e8eb4c2e15eb645486a0
   Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { jwtDecode } from 'jwt-decode';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
-import { CourtAvailability, JWTPayload, Reservation, Review } from '../../types/types';
+import {
+  CourtAvailability,
+  JWTPayload,
+  Reservation,
+  Review,
+} from '../../types/types';
 import api from '../../services/api';
 import CreateReviewModal from './CreateReviewModal';
 import createCourtReviewsModalStyles from '../../style/reviews/courtReviewsModal.styles';
@@ -33,7 +42,12 @@ function StarRow({ rating, size = 14 }: { rating: number; size?: number }) {
       ))}
       {half && <Ionicons name="star-half" size={size} color="#FFD700" />}
       {Array.from({ length: empty }).map((_, i) => (
-        <Ionicons key={`e${i}`} name="star-outline" size={size} color="#FFD700" />
+        <Ionicons
+          key={`e${i}`}
+          name="star-outline"
+          size={size}
+          color="#FFD700"
+        />
       ))}
     </View>
   );
@@ -65,7 +79,8 @@ function ReviewItem({
             {review.user?.username ?? `Usuario #${review.user_id}`}
             {isOwn && (
               <Text style={{ color: theme.primary, fontWeight: '700' }}>
-                {' '}(tú)
+                {' '}
+                (tú)
               </Text>
             )}
           </Text>
@@ -188,11 +203,10 @@ export default function CourtReviewsModal({ court, onClose }: Props) {
     }
   }, [court?.id, userId]);
 
-  const avgRating =
-    visibleReviews.length
-      ? visibleReviews.reduce((sum, r) => sum + r.rating, 0) /
-        visibleReviews.length
-      : 0;
+  const avgRating = visibleReviews.length
+    ? visibleReviews.reduce((sum, r) => sum + r.rating, 0) /
+      visibleReviews.length
+    : 0;
 
   const isCourtAvailable = court?.status === 'DISPONIBLE';
   const canCreateReview =
@@ -202,182 +216,154 @@ export default function CourtReviewsModal({ court, onClose }: Props) {
 
   return (
     <>
-      <Modal
-        visible
-        transparent
-        animationType="slide"
-        onRequestClose={onClose}
-      >
+      <Modal visible transparent animationType="fade" onRequestClose={onClose}>
         <View style={styles.backdrop}>
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={onClose}
-            style={styles.backdropTouch}
-          />
-          <TouchableWithoutFeedback>
+          <Pressable onPress={onClose} style={styles.backdropTouch} />
+          <View
+            style={[
+              styles.sheet,
+              {
+                backgroundColor: theme.backgroundCard,
+                borderColor: theme.primarySoft,
+              },
+            ]}
+          >
             <View
-              style={[
-                styles.sheet,
-                {
-                  backgroundColor: theme.backgroundCard,
-                  borderColor: theme.primarySoft,
-                },
-              ]}
-            >
-              <View
-                style={[styles.handle, { backgroundColor: theme.borderSoft }]}
-              />
+              style={[styles.handle, { backgroundColor: theme.borderSoft }]}
+            />
 
-              {/* Header */}
-              <View style={styles.sheetHeader}>
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.sheetTitle, { color: theme.textTitle }]}>
-                    {court.name}
+            {/* Header */}
+            <View style={styles.sheetHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.sheetTitle, { color: theme.textTitle }]}>
+                  {court.name}
+                </Text>
+                <View style={styles.summaryRow}>
+                  <StarRow rating={avgRating} size={14} />
+                  <Text
+                    style={[styles.summaryText, { color: theme.textMuted }]}
+                  >
+                    {visibleReviews.length > 0
+                      ? `${avgRating.toFixed(1)} · ${visibleReviews.length} reseña${visibleReviews.length !== 1 ? 's' : ''}`
+                      : 'Sin reseñas'}
                   </Text>
-                  <View style={styles.summaryRow}>
-                    <StarRow rating={avgRating} size={14} />
-                    <Text
-                      style={[styles.summaryText, { color: theme.textMuted }]}
-                    >
-                      {visibleReviews.length > 0
-                        ? `${avgRating.toFixed(1)} · ${visibleReviews.length} reseña${visibleReviews.length !== 1 ? 's' : ''}`
-                        : 'Sin reseñas'}
-                    </Text>
-                  </View>
                 </View>
+              </View>
+              <TouchableOpacity
+                onPress={onClose}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons
+                  name="close-circle"
+                  size={28}
+                  color={theme.textMuted}
+                />
+              </TouchableOpacity>
+            </View>
+
+            {/* CTA section */}
+            <View
+              style={[styles.ctaSection, { borderTopColor: theme.borderSoft }]}
+            >
+              {canCreateReview && (
                 <TouchableOpacity
-                  onPress={onClose}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  style={[styles.ctaBtn, { backgroundColor: theme.primary }]}
+                  onPress={() => setCreateVisible(true)}
+                  activeOpacity={0.85}
                 >
                   <Ionicons
-                    name="close-circle"
-                    size={28}
-                    color={theme.textMuted}
+                    name="create-outline"
+                    size={18}
+                    color={theme.onPrimary}
                   />
-                </TouchableOpacity>
-              </View>
-
-              {/* CTA section */}
-              <View
-                style={[
-                  styles.ctaSection,
-                  { borderTopColor: theme.borderSoft },
-                ]}
-              >
-                {canCreateReview && (
-                  <TouchableOpacity
-                    style={[
-                      styles.ctaBtn,
-                      { backgroundColor: theme.primary },
-                    ]}
-                    onPress={() => setCreateVisible(true)}
-                    activeOpacity={0.85}
-                  >
-                    <Ionicons
-                      name="create-outline"
-                      size={18}
-                      color={theme.onPrimary}
-                    />
-                    <Text
-                      style={[styles.ctaBtnText, { color: theme.onPrimary }]}
-                    >
-                      Escribir reseña
-                    </Text>
-                  </TouchableOpacity>
-                )}
-                {userHasReviewed && (
-                  <View
-                    style={[
-                      styles.infoNote,
-                      {
-                        backgroundColor: theme.primary + '12',
-                        borderColor: theme.primarySoft,
-                      },
-                    ]}
-                  >
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={16}
-                      color={theme.primary}
-                    />
-                    <Text
-                      style={[styles.infoNoteText, { color: theme.primary }]}
-                    >
-                      Ya has valorado esta pista
-                    </Text>
-                  </View>
-                )}
-                {!userHasReviewed && !hasFinalisedReservation && !loading && (
-                  <View
-                    style={[
-                      styles.lockedNote,
-                      {
-                        backgroundColor: theme.backgroundAlt,
-                        borderColor: theme.borderSoft,
-                      },
-                    ]}
-                  >
-                    <Ionicons
-                      name="lock-closed-outline"
-                      size={15}
-                      color={theme.textMuted}
-                    />
-                    <Text
-                      style={[styles.lockedText, { color: theme.textMuted }]}
-                    >
-                      Podrás añadir una reseña después de finalizar una reserva
-                    </Text>
-                  </View>
-                )}
-              </View>
-
-              {/* Reviews list */}
-              {loading ? (
-                <ActivityIndicator
-                  size="small"
-                  color={theme.primary}
-                  style={{ marginVertical: 30 }}
-                />
-              ) : visibleReviews.length === 0 ? (
-                <View style={styles.emptyState}>
-                  <Ionicons
-                    name="star-outline"
-                    size={44}
-                    color={theme.textMuted}
-                  />
-                  <Text
-                    style={[styles.emptyTitle, { color: theme.textTitle }]}
-                  >
-                    Sin reseñas aún
+                  <Text style={[styles.ctaBtnText, { color: theme.onPrimary }]}>
+                    Escribir reseña
                   </Text>
-                  {canCreateReview && (
-                    <Text
-                      style={[
-                        styles.emptySubtitle,
-                        { color: theme.textMuted },
-                      ]}
-                    >
-                      ¡Sé el primero en valorar esta pista!
-                    </Text>
-                  )}
+                </TouchableOpacity>
+              )}
+              {userHasReviewed && (
+                <View
+                  style={[
+                    styles.infoNote,
+                    {
+                      backgroundColor: theme.primary + '12',
+                      borderColor: theme.primarySoft,
+                    },
+                  ]}
+                >
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={16}
+                    color={theme.primary}
+                  />
+                  <Text style={[styles.infoNoteText, { color: theme.primary }]}>
+                    Ya has valorado esta pista
+                  </Text>
                 </View>
-              ) : (
-                <FlatList
-                  data={visibleReviews}
-                  keyExtractor={(item) => String(item.id)}
-                  contentContainerStyle={styles.list}
-                  showsVerticalScrollIndicator={false}
-                  renderItem={({ item }) => (
-                    <ReviewItem
-                      review={item}
-                      theme={theme}
-                      isOwn={Number(item.user_id) === Number(userId)}
-                    />
-                  )}
-                />
+              )}
+              {!userHasReviewed && !hasFinalisedReservation && !loading && (
+                <View
+                  style={[
+                    styles.lockedNote,
+                    {
+                      backgroundColor: theme.backgroundAlt,
+                      borderColor: theme.borderSoft,
+                    },
+                  ]}
+                >
+                  <Ionicons
+                    name="lock-closed-outline"
+                    size={15}
+                    color={theme.textMuted}
+                  />
+                  <Text style={[styles.lockedText, { color: theme.textMuted }]}>
+                    Podrás añadir una reseña después de finalizar una reserva
+                  </Text>
+                </View>
               )}
             </View>
-          </TouchableWithoutFeedback>
+
+            {/* Reviews list */}
+            {loading ? (
+              <ActivityIndicator
+                size="small"
+                color={theme.primary}
+                style={{ marginVertical: 30 }}
+              />
+            ) : visibleReviews.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Ionicons
+                  name="star-outline"
+                  size={44}
+                  color={theme.textMuted}
+                />
+                <Text style={[styles.emptyTitle, { color: theme.textTitle }]}>
+                  Sin reseñas aún
+                </Text>
+                {canCreateReview && (
+                  <Text
+                    style={[styles.emptySubtitle, { color: theme.textMuted }]}
+                  >
+                    ¡Sé el primero en valorar esta pista!
+                  </Text>
+                )}
+              </View>
+            ) : (
+              <FlatList
+                data={visibleReviews}
+                keyExtractor={(item) => String(item.id)}
+                contentContainerStyle={styles.list}
+                showsVerticalScrollIndicator={false}
+                renderItem={({ item }) => (
+                  <ReviewItem
+                    review={item}
+                    theme={theme}
+                    isOwn={Number(item.user_id) === Number(userId)}
+                  />
+                )}
+              />
+            )}
+          </View>
         </View>
       </Modal>
 

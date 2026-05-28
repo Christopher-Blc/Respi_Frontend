@@ -17,7 +17,7 @@ export const bookingsAdminStyles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
   },
-  searchInput: { flex: 1, marginLeft: 8 },
+  searchInput: { flex: 1, marginLeft: 8, outlineWidth: 0, borderWidth: 0 },
   filtersWrap: {
     paddingHorizontal: 16,
     marginBottom: 14,

@@ -12,7 +12,6 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
 import { GlassTextInputPassword } from '../login/glassTextInputPassword';
 import { PasswordStrengthIndicator } from '../login/passwordStrengthIndicator';
 import { SessionExpiredModal } from '../general/alert.modal';
@@ -101,33 +100,18 @@ export default function EditPasswordModal({ visible, onClose }: Props) {
             justifyContent: 'center',
             alignItems: 'center',
             paddingHorizontal: 18,
-            paddingTop: 70,
-            paddingBottom: 40,
+            paddingVertical: 24,
           }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
           <View style={{ width: '100%', maxWidth: 410 }}>
             <View style={styles.settingsCard}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View
-                  style={[
-                    styles.titleIcon,
-                    { backgroundColor: `${theme.primaryButton}22` },
-                  ]}
-                >
-                  <Ionicons
-                    name="lock-closed-outline"
-                    size={22}
-                    color={theme.primaryButton}
-                  />
-                </View>
-                <Text style={styles.titleText}>
-                  {t('profileChangePassword', {
-                    defaultValue: 'Cambiar contraseña',
-                  })}
-                </Text>
-              </View>
+              <Text style={styles.titleText}>
+                {t('profileChangePassword', {
+                  defaultValue: 'Cambiar contraseña',
+                })}
+              </Text>
 
               <Text style={styles.description}>
                 {t('profileChangePasswordDescription', {
