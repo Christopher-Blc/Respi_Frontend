@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../../services/api';
 import { getDateLocale } from '../../i18n';
@@ -97,21 +97,21 @@ export function useAdminInfo(theme: AppTheme) {
     { key: 'all', label: t('adminInfoRangeAll') },
   ];
 
-  useEffect(() => {
-    const fetchReservas = async () => {
-      try {
-        setLoadingChart(true);
-        const response = await api.get('/reservations');
-        setReservas(extractReservas(response?.data));
-      } catch {
-        setReservas([]);
-      } finally {
-        setLoadingChart(false);
-      }
-    };
-
-    fetchReservas();
+  const refresh = useCallback(async () => {
+    try {
+      setLoadingChart(true);
+      const response = await api.get('/reservations');
+      setReservas(extractReservas(response?.data));
+    } catch {
+      setReservas([]);
+    } finally {
+      setLoadingChart(false);
+    }
   }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   const statusSummary = useMemo(() => {
     const counters = {
@@ -546,6 +546,7 @@ export function useAdminInfo(theme: AppTheme) {
 
   return {
     loadingChart,
+    refresh,
     selectedSliceIndex,
     setSelectedSliceIndex,
     lineChartRange,

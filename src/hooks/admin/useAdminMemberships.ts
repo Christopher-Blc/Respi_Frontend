@@ -239,6 +239,7 @@ export function useAdminMemberships() {
     memberships,
     filteredMemberships,
     loading,
+    refresh: fetchMemberships,
     searchQuery,
     setSearchQuery,
     modalVisible,

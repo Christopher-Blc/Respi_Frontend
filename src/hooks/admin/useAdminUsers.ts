@@ -458,6 +458,7 @@ export function useAdminUsers() {
     filteredUsers,
     memberships,
     loading,
+    refresh: fetchUsers,
     searchQuery,
     setSearchQuery,
     viewMode,

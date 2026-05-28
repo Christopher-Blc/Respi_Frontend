@@ -251,6 +251,7 @@ export function useAdminInstallations() {
     installations,
     filteredInstallations,
     loading,
+    refresh: fetchInstallations,
     searchQuery,
     setSearchQuery,
     modalVisible,

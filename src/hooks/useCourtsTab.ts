@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+﻿import { useCallback, useEffect, useMemo, useState } from 'react';
 import { API_PUBLIC_URL } from '../constants';
 import api from '../services/api';
 import { Court, CourtAvailability, CourtType } from '../types/types';
@@ -75,6 +75,25 @@ export function useCourtsTab() {
   const availableDays = useMemo(() => getNext7Days(), []);
   const formattedDate = formatDateForAPI(selectedDate);
 
+  const refreshCatalog = useCallback(async () => {
+    try {
+      setLoading(true);
+      const [tiposRes, pistasRes] = await Promise.all([
+        api.get('/court-types'),
+        api.get('/courts'),
+      ]);
+
+      setTipos(Array.isArray(tiposRes.data) ? (tiposRes.data as CourtType[]) : []);
+      setPistas(Array.isArray(pistasRes.data) ? (pistasRes.data as Court[]) : []);
+    } catch (error) {
+      console.error('Error al cargar tipos de pista', error);
+      setTipos([]);
+      setPistas([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const displayedModelos = useMemo<Court[]>(
     () => {
       const grouped = new Map<string, Court>();
@@ -100,31 +119,10 @@ export function useCourtsTab() {
   };
 
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const [tiposRes, pistasRes] = await Promise.all([
-          api.get( '/court-types'),
-          api.get('/courts'),
-        ]);
-        if (mounted && Array.isArray(tiposRes.data)) {
-          setTipos(tiposRes.data as CourtType[]);
-        }
-        if (mounted && Array.isArray(pistasRes.data)) {
-          setPistas(pistasRes.data as Court[]);
-        }
-      } catch (error) {
-        console.error('Error al cargar tipos de pista', error);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, []);
+    refreshCatalog();
+  }, [refreshCatalog]);
 
-  useEffect(() => {
+  const refreshSportInfo = useCallback(async () => {
     if (!selectedModel) {
       setSportType(null);
       setSportPistas([]);
@@ -132,77 +130,71 @@ export function useCourtsTab() {
       return;
     }
 
-    let mounted = true;
+    try {
+      setLoadingSportInfo(true);
+      setSportError(null);
 
-    const fetchSportInfo = async () => {
-      try {
-        setLoadingSportInfo(true);
-        setSportError(null);
+      const [disponibilidadRes, pistasRes] = await Promise.allSettled([
+        api.get(`/courts/availability?date=${formattedDate}`),
+        api.get('/courts'),
+      ]);
 
-        const [disponibilidadRes, pistasRes] = await Promise.allSettled([
-          api.get(`/courts/availability?date=${formattedDate}`),
-          api.get('/courts'),
-        ]);
+      const disponibilidadPayload =
+        disponibilidadRes.status === 'fulfilled' &&
+        Array.isArray(disponibilidadRes.value?.data)
+          ? (disponibilidadRes.value.data as CourtAvailability[])
+          : [];
 
-        const disponibilidadPayload =
-          disponibilidadRes.status === 'fulfilled' &&
-          Array.isArray(disponibilidadRes.value?.data)
-            ? (disponibilidadRes.value.data as CourtAvailability[])
-            : [];
+      const pistasPayload =
+        pistasRes.status === 'fulfilled' &&
+        Array.isArray(pistasRes.value?.data)
+          ? (pistasRes.value.data as Court[])
+          : [];
 
-        const pistasPayload =
-          pistasRes.status === 'fulfilled' &&
-          Array.isArray(pistasRes.value?.data)
-            ? (pistasRes.value.data as Court[])
-            : [];
-
-        const selectedType = selectedModel;
-
-        const fullMap = new Map<string, Court>();
-        for (const pista of pistasPayload) {
-          const id = String(pista.id ?? '');
-          if (id) fullMap.set(id, pista);
-        }
-
-        const filtered = disponibilidadPayload.filter(
-          (pista) =>
-            String(pista.court_type_id) === String(selectedModel.id),
-        );
-
-        const merged = filtered.map((pista) => {
-          const id = String(pista.id ?? '');
-          const full = fullMap.get(id);
-          return {
-            ...full,
-            ...pista,
-            description: pista.description || full?.description,
-            capacity: pista.capacity ?? full?.capacity,
-            is_covered: pista.is_covered ?? full?.is_covered,
-            has_lighting: pista.has_lighting ?? full?.has_lighting,
-            status: pista.status || full?.status,
-            price_per_hour: pista.price_per_hour ?? full?.price_per_hour,
-          } as CourtAvailability;
-        });
-
-        if (!mounted) return;
-        setSportType(selectedType);
-        setSportPistas(merged);
-      } catch (error) {
-        if (!mounted) return;
-        console.error('Error al cargar detalles del deporte', error);
-        setSportError(t('authConnectionError'));
-        setSportPistas([]);
-      } finally {
-        if (mounted) setLoadingSportInfo(false);
+      const fullMap = new Map<string, Court>();
+      for (const pista of pistasPayload) {
+        const id = String(pista.id ?? '');
+        if (id) fullMap.set(id, pista);
       }
-    };
 
-    fetchSportInfo();
+      const filtered = disponibilidadPayload.filter(
+        (pista) => String(pista.court_type_id) === String(selectedModel.id),
+      );
 
-    return () => {
-      mounted = false;
-    };
+      const merged = filtered.map((pista) => {
+        const id = String(pista.id ?? '');
+        const full = fullMap.get(id);
+        return {
+          ...full,
+          ...pista,
+          description: pista.description || full?.description,
+          capacity: pista.capacity ?? full?.capacity,
+          is_covered: pista.is_covered ?? full?.is_covered,
+          has_lighting: pista.has_lighting ?? full?.has_lighting,
+          status: pista.status || full?.status,
+          price_per_hour: pista.price_per_hour ?? full?.price_per_hour,
+        } as CourtAvailability;
+      });
+
+      setSportType(selectedModel);
+      setSportPistas(merged);
+    } catch (error) {
+      console.error('Error al cargar detalles del deporte', error);
+      setSportError(t('authConnectionError'));
+      setSportPistas([]);
+    } finally {
+      setLoadingSportInfo(false);
+    }
   }, [formattedDate, selectedModel, t]);
+
+  useEffect(() => {
+    refreshSportInfo();
+  }, [refreshSportInfo]);
+
+  const refresh = useCallback(async () => {
+    await refreshCatalog();
+    await refreshSportInfo();
+  }, [refreshCatalog, refreshSportInfo]);
 
   const clearSportFilter = () => {
     setSelectedModel(null);
@@ -211,6 +203,7 @@ export function useCourtsTab() {
 
   return {
     loading,
+    refresh,
     tipos,
     selectedModel,
     setSelectedModel,

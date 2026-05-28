@@ -1,25 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { ScrollView, StyleSheet, RefreshControl, View } from 'react-native';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import ProfileView from '../../../components/profile/profileView';
 import { useProfile } from '../../../hooks/useProfile';
+import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
 
 export default function ProfileClientes() {
   const { theme } = useAppTheme();
-  const { refreshProfile } = useProfile();
-  const [refreshing, setRefreshing] = useState(false);
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    try {
-      await refreshProfile();
-    } catch (error) {
-      console.error('Error refreshing profile:', error);
-    } finally {
-      setRefreshing(false);
-    }
-  };
+  const profileState = useProfile();
+  const { refreshing, onRefresh } = usePullToRefresh(
+    profileState.refreshProfile,
+  );
 
   return (
     <LinearGradient
@@ -35,14 +27,14 @@ export default function ProfileClientes() {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={handleRefresh}
+            onRefresh={onRefresh}
             tintColor={theme.primaryButton}
             colors={[theme.primaryButton]}
             progressBackgroundColor="#fff"
           />
         }
       >
-        <ProfileView></ProfileView>
+        <ProfileView profileState={profileState}></ProfileView>
       </ScrollView>
     </LinearGradient>
   );

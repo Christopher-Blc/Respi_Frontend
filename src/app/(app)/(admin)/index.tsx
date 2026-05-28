@@ -2,6 +2,7 @@ import React from 'react';
 import {
   View,
   Text,
+  RefreshControl,
   ScrollView,
   TouchableOpacity,
   Platform,
@@ -16,6 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styles from '../../../style/admin/home.styles';
 import { useProfile } from '../../../hooks/useProfile';
 import { useTranslation } from 'react-i18next';
+import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
 
 export default function AdminManagementScreen() {
   const { t } = useTranslation();
@@ -24,7 +26,9 @@ export default function AdminManagementScreen() {
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const { user } = useProfile();
+  const profileState = useProfile();
+  const { user, refreshProfile } = profileState;
+  const { refreshing, onRefresh } = usePullToRefresh(refreshProfile);
 
   const horizontalPadding = width >= 1280 ? 40 : width >= 768 ? 28 : 20;
   const gridGap = 16;
@@ -187,6 +191,13 @@ export default function AdminManagementScreen() {
     <View style={[styles.pageContainer, { backgroundColor: theme.background }]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={theme.primary}
+          />
+        }
         contentContainerStyle={{
           paddingTop: headerHeight + 20,
           paddingBottom: insets.bottom + (Platform.OS === 'web' ? 100 : 120),

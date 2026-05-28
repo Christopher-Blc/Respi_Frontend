@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   FlatList,
+  RefreshControl,
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
@@ -20,6 +21,7 @@ import { BookingFormModal } from '../../../../components/admin/bookings/BookingF
 import { BookingsFiltersModal } from '../../../../components/admin/bookings/BookingsFiltersModal';
 import { SessionExpiredModal } from '../../../../components/alert.modal';
 import { useAdminBookings } from '../../../../hooks/admin/useAdminBookings';
+import { usePullToRefresh } from '../../../../hooks/usePullToRefresh';
 
 const statusColorMap: Record<string, string> = {
   CONFIRMADA: '#1E88E5',
@@ -73,6 +75,7 @@ export default function AdminReservasGlobal() {
     courtTypes,
     filteredReservations,
     loading,
+    refresh,
     searchQuery,
     setSearchQuery,
     viewMode,
@@ -104,6 +107,7 @@ export default function AdminReservasGlobal() {
     errorModal,
     setErrorModal,
   } = useAdminBookings();
+  const { refreshing, onRefresh } = usePullToRefresh(refresh);
 
   const [currentPage, setCurrentPage] = useState(1);
   useEffect(() => {
@@ -245,6 +249,13 @@ export default function AdminReservasGlobal() {
         <FlatList
           key={`bookings-cards-${cardsColumns}`}
           data={pagedReservations}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={theme.primary}
+            />
+          }
           renderItem={renderCard}
           numColumns={cardsColumns}
           keyExtractor={(item) => item.id.toString()}
@@ -336,6 +347,13 @@ export default function AdminReservasGlobal() {
 
             <FlatList
               data={pagedReservations}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  tintColor={theme.primary}
+                />
+              }
               keyExtractor={(item) => item.id.toString()}
               nestedScrollEnabled
               contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}

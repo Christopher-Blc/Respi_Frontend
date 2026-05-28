@@ -17,6 +17,7 @@ import {
 import api from '../services/api';
 import { registerBackgroundSync } from '../services/backgroundSyncService';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ROUTES } from '../utils/routes';
 
 // Importamos el Wrapper inteligente en lugar del StripeProvider nativo
 import StripeWrapper from '../components/StripeWrapper';
@@ -155,6 +156,7 @@ function AppProviders() {
   const [isI18nReady, setIsI18nReady] = useState(false);
   const paperTheme = buildPaperTheme(isDarkMode, themePalette);
   const router = useRouter();
+  const segments = useSegments() as string[];
   const notificationListener = useRef<Notifications.EventSubscription | null>(
     null,
   );
@@ -187,14 +189,19 @@ function AppProviders() {
         router.push(data.screen as any);
         return;
       }
-      router.push('/(app)/(admin)/notificaciones');
+
+      const fallbackHistoryRoute = segments.includes('(admin)')
+        ? ROUTES.admin.notificationsHistory
+        : ROUTES.userTabs.notificationsHistory;
+
+      router.push(fallbackHistoryRoute as any);
     });
 
     return () => {
       removeNotificationSubscription(notificationListener.current);
       removeNotificationSubscription(responseListener.current);
     };
-  }, []);
+  }, [router, segments]);
 
   if (!isI18nReady) {
     return (

@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   FlatList,
+  RefreshControl,
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
@@ -23,6 +24,7 @@ import { SessionExpiredModal } from '../../../../components/alert.modal';
 import { useTranslation } from 'react-i18next';
 import { addSoftBreaks } from '../../../../utils/addSoftBreaks';
 import { API_PUBLIC_URL } from '../../../../constants';
+import { usePullToRefresh } from '../../../../hooks/usePullToRefresh';
 
 const getImageUri = (
   imagePath: string | null | undefined,
@@ -57,6 +59,7 @@ export default function AdminTiposPista() {
   const {
     filteredTiposPista,
     loading,
+    refresh,
     searchQuery,
     setSearchQuery,
     modalVisible,
@@ -65,6 +68,8 @@ export default function AdminTiposPista() {
     setNombre,
     imagen,
     setImagen,
+    removeExistingImage,
+    setRemoveExistingImage,
     tipoPistaAEditar,
     openModal,
     openEditModal,
@@ -76,6 +81,7 @@ export default function AdminTiposPista() {
     errorModal,
     setErrorModal,
   } = useAdminCourtTypes();
+  const { refreshing, onRefresh } = usePullToRefresh(refresh);
 
   const [currentPage, setCurrentPage] = React.useState(1);
   React.useEffect(() => {
@@ -189,6 +195,13 @@ export default function AdminTiposPista() {
           <FlatList
             key={`court-types-cards-${cardsColumns}`}
             data={pagedTiposPista}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={theme.primary}
+              />
+            }
             renderItem={renderCard}
             numColumns={cardsColumns}
             keyExtractor={(item) => item.id.toString()}
@@ -255,6 +268,13 @@ export default function AdminTiposPista() {
             </View>
             <FlatList
               data={pagedTiposPista}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  tintColor={theme.primary}
+                />
+              }
               keyExtractor={(item) => item.id.toString()}
               nestedScrollEnabled
               contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
@@ -378,6 +398,8 @@ export default function AdminTiposPista() {
         setNombre={setNombre}
         imagen={imagen}
         setImagen={setImagen}
+        removeExistingImage={removeExistingImage}
+        setRemoveExistingImage={setRemoveExistingImage}
         existingImageUri={tipoPistaAEditar?.image}
         onClose={closeModal}
         onSave={handleSave}

@@ -21,7 +21,11 @@ import { getAppLanguage } from '../../i18n';
 import api from '../../services/api';
 import { ROUTES } from '../../utils/routes';
 
-export default function ProfileView() {
+type ProfileViewProps = {
+  profileState?: ReturnType<typeof useProfile>;
+};
+
+export default function ProfileView({ profileState }: ProfileViewProps) {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { signOut, effectiveRole, canToggleRole, toggleRoleView } = useAuth();
@@ -38,6 +42,7 @@ export default function ProfileView() {
   } = useAppTheme();
 
   // Estados y lógica de Datos centralizados en el Hook
+  const profile = profileState ?? useProfile();
   const {
     user,
     totalReservas,
@@ -45,7 +50,7 @@ export default function ProfileView() {
     avatarInitials,
     userMembershipLabel,
     refreshProfile,
-  } = useProfile();
+  } = profile;
 
   //styles
   const styles = React.useMemo(() => createProfileStyles(theme), [theme]);
