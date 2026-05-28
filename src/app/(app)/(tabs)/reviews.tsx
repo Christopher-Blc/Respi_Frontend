@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  FlatList,
+  Platform,
   RefreshControl,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -11,715 +12,529 @@ import {
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
+import { useFocusEffect } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useAppTheme } from '../../../context/ThemeContext';
+import { useAuth } from '../../../context/AuthContext';
 import api from '../../../services/api';
-import { useProfile } from '../../../hooks/useProfile';
-import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
-import { Court, Reservation, Review } from '../../../types/types';
+import { Court, JWTPayload, Reservation, Review } from '../../../types/types';
 
-const extractRows = (payload: unknown) => {
-  if (Array.isArray(payload)) return payload;
-  if (
-    payload &&
-    typeof payload === 'object' &&
-    Array.isArray((payload as { data?: unknown[] }).data)
-  ) {
-    return (payload as { data: unknown[] }).data;
-  }
-  return [];
-};
-
-const normalizeReview = (item: any, index: number): Review => ({
-  id: Number(item?.id ?? item?.review_id ?? index),
-  user_id: Number(item?.user_id ?? item?.user?.id ?? 0),
-  court_id: Number(item?.court_id ?? item?.court?.id ?? 0),
-  title: String(item?.title ?? ''),
-  text: String(item?.text ?? item?.comment ?? ''),
-  rating: Number(item?.rating ?? 0),
-  comment_date: String(item?.comment_date ?? item?.created_at ?? ''),
-  is_visible: Boolean(item?.is_visible ?? true),
-  admin_answer: item?.admin_answer ? String(item.admin_answer) : null,
-  user: item?.user,
-  court: item?.court,
-});
+const FEATURE_USER_IDS = [41, 31, 39, 43];
 
 export default function ReviewsScreen() {
   const { theme } = useAppTheme();
-  const { user, loading: profileLoading } = useProfile();
+  const insets = useSafeAreaInsets();
   const headerHeight = useHeaderHeight();
+  const { userToken } = useAuth();
 
+  const userId = useMemo<number | null>(() => {
+    if (!userToken) return null;
+    try {
+      const decoded = jwtDecode(userToken) as unknown as JWTPayload;
+      return decoded.sub ?? null;
+    } catch {
+      return null;
+    }
+  }, [userToken]);
+
+  const isReviewFeatureEnabled = userId !== null && FEATURE_USER_IDS.includes(userId);
+
+  // "Mis reseñas" state
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [reservedCourts, setReservedCourts] = useState<Court[]>([]);
-  const [myReviews, setMyReviews] = useState<Review[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editText, setEditText] = useState('');
+  const [saving, setSaving] = useState(false);
 
+  // "Crear reseña" state (solo para feature users)
+  const [availableCourts, setAvailableCourts] = useState<Court[]>([]);
   const [selectedCourtId, setSelectedCourtId] = useState('');
   const [reviewTitle, setReviewTitle] = useState('');
   const [reviewText, setReviewText] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
-  const [editingReviewId, setEditingReviewId] = useState<number | null>(null);
-  const [editingText, setEditingText] = useState('');
-  const [updatingReview, setUpdatingReview] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const isReviewFeatureEnabled =
-    Number(user?.id) === 41 || Number(user?.id) === 31 || Number(user?.id) === 39 || Number(user?.id) === 43;
-
-  const selectedCourtName = useMemo(() => {
-    const found = reservedCourts.find(
-      (court) => String(court.id) === String(selectedCourtId),
-    );
-    return found?.name || '';
-  }, [reservedCourts, selectedCourtId]);
+  const styles = useMemo(() => createStyles(), []);
 
   const loadData = useCallback(async () => {
-    if (!isReviewFeatureEnabled || !user?.id) return;
-
+    if (userId === null) return;
+    setLoading(true);
     try {
-      setLoading(true);
-      const [reservationsRes, reviewsRes] = await Promise.all([
-        api.get('/reservations/my-reservations').catch(() => ({ data: [] })),
-        api.get('/reviews').catch(() => ({ data: [] })),
+      const [reviewsRes, reservationsRes] = await Promise.allSettled([
+        api.get('/reviews'),
+        isReviewFeatureEnabled
+          ? api.get('/reservations/my-reservations')
+          : Promise.resolve(null),
       ]);
 
-      const reservations = extractRows(reservationsRes?.data) as Reservation[];
-      const reviews = extractRows(reviewsRes?.data)
-        .map((item, index) => normalizeReview(item, index))
-        .filter((item) => item.user_id === Number(user.id));
-      const reviewedCourtIds = new Set(
-        reviews
-          .map((review) => Number(review.court_id))
-          .filter((courtId) => Number.isFinite(courtId) && courtId > 0),
-      );
+      let mine: Review[] = [];
+      let reviewedCourtIds = new Set<number>();
 
-      const uniqueCourts = new Map<number, Court>();
-      reservations.forEach((reservation) => {
-        const courtId = Number(reservation.court_id);
-        if (!Number.isFinite(courtId) || courtId <= 0) return;
+      if (reviewsRes.status === 'fulfilled') {
+        const payload = reviewsRes.value.data;
+        const all: Review[] = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.data)
+            ? payload.data
+            : Array.isArray(payload?.items)
+              ? payload.items
+              : [];
+        mine = all
+          .filter((r) => Number(r.user_id) === Number(userId))
+          .sort(
+            (a, b) =>
+              new Date(b.comment_date).getTime() -
+              new Date(a.comment_date).getTime(),
+          );
+        setReviews(mine);
+        reviewedCourtIds = new Set(mine.map((r) => Number(r.court_id)));
+      }
 
-        if (!uniqueCourts.has(courtId)) {
-          uniqueCourts.set(courtId, {
-            ...(reservation.court || ({} as Court)),
-            id: courtId,
-            name: reservation.court?.name || `Pista #${courtId}`,
-          });
+      if (
+        isReviewFeatureEnabled &&
+        reservationsRes.status === 'fulfilled' &&
+        reservationsRes.value
+      ) {
+        const data = reservationsRes.value.data;
+        const allRes: Reservation[] = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.data)
+            ? data.data
+            : Array.isArray(data?.items)
+              ? data.items
+              : [];
+
+        const finalisedCourts = new Map<number, Court>();
+        for (const r of allRes) {
+          if (
+            r.status === 'FINALIZADA' &&
+            r.court &&
+            !reviewedCourtIds.has(r.court_id)
+          ) {
+            finalisedCourts.set(r.court_id, r.court);
+          }
         }
-      });
-
-      const courts = Array.from(uniqueCourts.values());
-      const availableCourts = courts.filter(
-        (court) => !reviewedCourtIds.has(Number(court.id)),
-      );
-
-      setReservedCourts(availableCourts);
-      setMyReviews(reviews);
-      setSelectedCourtId((prev) =>
-        availableCourts.some((court) => String(court.id) === String(prev))
-          ? prev
-          : availableCourts[0]?.id
-            ? String(availableCourts[0].id)
-            : '',
-      );
-    } catch (error) {
-      console.error('Error loading reviews data', error);
-      Alert.alert('Reseñas', 'No se pudieron cargar tus reseñas.');
+        setAvailableCourts(Array.from(finalisedCourts.values()));
+      }
+    } catch {
+      setReviews([]);
     } finally {
       setLoading(false);
     }
-  }, [isReviewFeatureEnabled, user?.id]);
+  }, [userId, isReviewFeatureEnabled]);
 
-  useEffect(() => {
-    void loadData();
-  }, [loadData]);
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [loadData]),
+  );
 
-  const { refreshing, onRefresh } = usePullToRefresh(loadData);
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
+  };
 
   const handleCreateReview = async () => {
     if (!selectedCourtId) {
       Alert.alert('Reseñas', 'Selecciona una pista para continuar.');
       return;
     }
-
     if (!reviewTitle.trim()) {
-      Alert.alert('Reseñas', 'El titulo de la reseña es obligatorio.');
+      Alert.alert('Reseñas', 'El título de la reseña es obligatorio.');
       return;
     }
-
     if (!reviewText.trim()) {
       Alert.alert('Reseñas', 'Escribe un comentario para la reseña.');
       return;
     }
-
-    const body = {
-      court_id: Number(selectedCourtId),
-      title: reviewTitle.trim(),
-      text: reviewText.trim(),
-      rating: reviewRating,
-    };
-
     try {
       setSubmitting(true);
-
-      await api.post('/reviews', body);
-
+      await api.post('/reviews', {
+        court_id: Number(selectedCourtId),
+        title: reviewTitle.trim(),
+        text: reviewText.trim(),
+        rating: reviewRating,
+      });
+      setSelectedCourtId('');
       setReviewTitle('');
       setReviewText('');
       setReviewRating(5);
       await loadData();
-      console.log('Review creada correctamente');
       Alert.alert('Reseñas', 'Tu reseña se ha guardado correctamente.');
-    } catch (error) {
-      let backendMessage = 'No se pudo guardar la reseña.';
-
-      if (axios.isAxiosError(error)) {
-        const rawMessage = error.response?.data?.message;
-        if (Array.isArray(rawMessage) && rawMessage.length > 0) {
-          backendMessage = rawMessage.join(' | ');
-        } else if (
-          typeof rawMessage === 'string' &&
-          rawMessage.trim().length > 0
-        ) {
-          backendMessage = rawMessage;
-        }
-
-        console.error('Error creating review', {
-          status: error.response?.status,
-          payload: body,
-          message: rawMessage,
-        });
-      } else {
-        console.error('Error creating review', error);
-      }
-
-      Alert.alert('Reseñas', backendMessage);
+    } catch (error: any) {
+      const msg = error?.response?.data?.message;
+      Alert.alert(
+        'Reseñas',
+        Array.isArray(msg) ? msg.join(' ') : msg || 'No se pudo guardar la reseña.',
+      );
     } finally {
       setSubmitting(false);
     }
   };
 
-  const startEditingReview = (review: Review) => {
-    setEditingReviewId(review.id);
-    setEditingText(review.text || '');
-  };
-
-  const cancelEditingReview = () => {
-    setEditingReviewId(null);
-    setEditingText('');
-  };
-
-  const handleSaveReviewText = async (reviewId: number) => {
-    const text = editingText.trim();
-
-    if (!text) {
-      Alert.alert('Reseñas', 'El contenido de la reseña no puede estar vacio.');
-      return;
-    }
-
+  const handleEditSave = async (id: number) => {
+    if (!editText.trim()) return;
+    setSaving(true);
     try {
-      setUpdatingReview(true);
-      await api.put(`/reviews/${reviewId}`, { text });
-
-      setMyReviews((prev) =>
-        prev.map((item) =>
-          item.id === reviewId
-            ? {
-                ...item,
-                text,
-              }
-            : item,
-        ),
-      );
-
-      setEditingReviewId(null);
-      setEditingText('');
-      Alert.alert('Reseñas', 'Contenido actualizado correctamente.');
-    } catch (error) {
-      console.error('Error updating review text', error);
-      Alert.alert('Reseñas', 'No se pudo actualizar la reseña.');
+      await api.put(`/reviews/${id}`, { text: editText.trim() });
+      setEditingId(null);
+      setEditText('');
+      await loadData();
     } finally {
-      setUpdatingReview(false);
+      setSaving(false);
     }
   };
 
-  const handleRefresh = async () => {
-    await loadData();
+  const renderStars = (rating: number) => (
+    <View style={{ flexDirection: 'row', gap: 2 }}>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <Ionicons
+          key={i}
+          name={i <= rating ? 'star' : 'star-outline'}
+          size={13}
+          color={i <= rating ? '#FFD700' : theme.textMuted}
+        />
+      ))}
+    </View>
+  );
+
+  const renderItem = ({ item }: { item: Review }) => {
+    const isEditing = editingId === item.id;
+    const dateStr = item.comment_date ? item.comment_date.slice(0, 10) : '';
+    const visibilityColor = item.is_visible ? '#22c55e' : '#f59e0b';
+    const visibilityLabel = item.is_visible ? 'Visible' : 'Pendiente';
+
+    return (
+      <View
+        style={[
+          styles.card,
+          {
+            backgroundColor: theme.backgroundCard,
+            borderColor: theme.borderSoft,
+          },
+        ]}
+      >
+        <View style={styles.cardHeader}>
+          <View style={{ flex: 1 }}>
+            <Text
+              style={[styles.courtName, { color: theme.textTitle }]}
+              numberOfLines={1}
+            >
+              {item.court?.name ?? `Pista #${item.court_id}`}
+            </Text>
+            <Text
+              style={[styles.courtType, { color: theme.textMuted }]}
+              numberOfLines={1}
+            >
+              {item.court?.courtType?.name ?? ''}
+            </Text>
+          </View>
+          <View
+            style={[
+              styles.statusBadge,
+              {
+                backgroundColor: visibilityColor + '18',
+                borderColor: visibilityColor,
+              },
+            ]}
+          >
+            <Text style={[styles.statusText, { color: visibilityColor }]}>
+              {visibilityLabel}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.metaRow}>
+          {renderStars(item.rating)}
+          <Text style={[styles.dateText, { color: theme.textMuted }]}>
+            {dateStr}
+          </Text>
+        </View>
+
+        {!!item.title && (
+          <Text style={[styles.reviewTitle, { color: theme.textTitle }]}>
+            {item.title}
+          </Text>
+        )}
+
+        {isEditing ? (
+          <View style={styles.editSection}>
+            <TextInput
+              style={[
+                styles.editInput,
+                {
+                  backgroundColor: theme.surface,
+                  borderColor: theme.primary,
+                  color: theme.textTitle,
+                },
+              ]}
+              value={editText}
+              onChangeText={setEditText}
+              multiline
+              textAlignVertical="top"
+              autoFocus
+            />
+            <View style={styles.editActions}>
+              <TouchableOpacity
+                style={[
+                  styles.editBtn,
+                  styles.editBtnCancel,
+                  { borderColor: theme.borderSoft },
+                ]}
+                onPress={() => {
+                  setEditingId(null);
+                  setEditText('');
+                }}
+              >
+                <Text style={[styles.editBtnText, { color: theme.textMuted }]}>
+                  Cancelar
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.editBtn,
+                  styles.editBtnSave,
+                  { backgroundColor: theme.primary },
+                ]}
+                onPress={() => handleEditSave(item.id)}
+                disabled={saving}
+              >
+                {saving ? (
+                  <ActivityIndicator size="small" color={theme.onPrimary} />
+                ) : (
+                  <Text style={[styles.editBtnText, { color: theme.onPrimary }]}>
+                    Guardar
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : (
+          <Text style={[styles.reviewText, { color: theme.textBody }]}>
+            {item.text}
+          </Text>
+        )}
+
+        {!!item.admin_answer && (
+          <View
+            style={[
+              styles.adminReply,
+              {
+                backgroundColor: theme.primary + '0D',
+                borderColor: theme.primarySoft,
+              },
+            ]}
+          >
+            <Text style={[styles.adminReplyLabel, { color: theme.primary }]}>
+              Respuesta del equipo
+            </Text>
+            <Text style={[styles.adminReplyText, { color: theme.textBody }]}>
+              {item.admin_answer}
+            </Text>
+          </View>
+        )}
+
+        {!isEditing && (
+          <TouchableOpacity
+            style={[styles.editTrigger, { borderColor: theme.borderSoft }]}
+            onPress={() => {
+              setEditingId(item.id);
+              setEditText(item.text);
+            }}
+          >
+            <Ionicons name="create-outline" size={14} color={theme.textMuted} />
+            <Text style={[styles.editTriggerText, { color: theme.textMuted }]}>
+              Editar reseña
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    );
   };
 
-  if (profileLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color={theme.primary} />
-      </View>
-    );
-  }
-
-  if (!isReviewFeatureEnabled) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: theme.background,
-          padding: 24,
-        }}
-      >
-        <Text
-          style={{ color: theme.textTitle, fontWeight: '700', fontSize: 18 }}
-        >
-          Reseñas
-        </Text>
-        <Text
-          style={{
-            color: theme.textBody,
-            textAlign: 'center',
-            marginTop: 8,
-          }}
-        >
-          Esta pantalla no está habilitada para tu usuario.
-        </Text>
-      </View>
-    );
-  }
-
-  return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: theme.background }}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          tintColor={theme.primary}
-        />
-      }
-      contentContainerStyle={{
-        paddingTop: headerHeight + 12,
-        paddingHorizontal: 16,
-        paddingBottom: 120,
-        gap: 14,
-      }}
-      showsVerticalScrollIndicator={false}
+  const renderCreateSection = () => (
+    <View
+      style={[
+        styles.createCard,
+        { backgroundColor: theme.backgroundCard, borderColor: theme.primarySoft },
+      ]}
     >
-      <View
-        style={{
-          backgroundColor: theme.backgroundCard,
-          borderRadius: 14,
-          borderWidth: 1,
-          borderColor: theme.primarySoft,
-          padding: 14,
-        }}
-      >
-        <Text
-          style={{ color: theme.textTitle, fontSize: 16, fontWeight: '800' }}
-        >
-          Centro de reseñas
-        </Text>
-        <Text style={{ color: theme.textBody, marginTop: 6, lineHeight: 20 }}>
-          Aqui podras crear reseñas para tus pistas y ver las respuestas del
-          administrador.
-        </Text>
-      </View>
+      <Text style={[styles.createTitle, { color: theme.textTitle }]}>
+        Crear reseña
+      </Text>
 
-      <View
-        style={{
-          backgroundColor: theme.backgroundCard,
-          borderRadius: 14,
-          borderWidth: 1,
-          borderColor: theme.primarySoft,
-          padding: 14,
-        }}
-      >
-        <Text
-          style={{ color: theme.textTitle, fontSize: 20, fontWeight: '800' }}
-        >
-          Crear reseña
-        </Text>
-
-        <Text
-          style={{ color: theme.textBody, marginTop: 10, fontWeight: '600' }}
-        >
-          Pista reservada
-        </Text>
-        <View
-          style={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            gap: 8,
-            marginTop: 8,
-          }}
-        >
-          {reservedCourts.length === 0 ? (
-            <Text style={{ color: theme.textBody }}>
-              No tienes pistas pendientes de reseñar.
-            </Text>
-          ) : (
-            reservedCourts.map((court) => {
-              const selected = selectedCourtId === String(court.id);
-              return (
-                <TouchableOpacity
-                  key={court.id}
-                  onPress={() => setSelectedCourtId(String(court.id))}
-                  style={{
-                    borderWidth: 1,
+      <Text style={[styles.createLabel, { color: theme.textBody }]}>
+        Pista reservada
+      </Text>
+      <View style={styles.chipsWrap}>
+        {availableCourts.length === 0 ? (
+          <Text style={[styles.noCourtText, { color: theme.textMuted }]}>
+            No tienes pistas pendientes de reseñar.
+          </Text>
+        ) : (
+          availableCourts.map((court) => {
+            const selected = selectedCourtId === String(court.id);
+            return (
+              <TouchableOpacity
+                key={court.id}
+                onPress={() => setSelectedCourtId(String(court.id))}
+                style={[
+                  styles.chip,
+                  {
                     borderColor: selected ? theme.primary : theme.primarySoft,
                     backgroundColor: selected
                       ? theme.primary + '20'
                       : 'transparent',
-                    borderRadius: 999,
-                    paddingHorizontal: 12,
-                    paddingVertical: 7,
+                  },
+                ]}
+              >
+                <Text
+                  style={{
+                    color: selected ? theme.primary : theme.textBody,
+                    fontWeight: selected ? '700' : '500',
+                    fontSize: 13,
                   }}
                 >
-                  <Text
-                    style={{
-                      color: selected ? theme.primary : theme.textBody,
-                      fontWeight: selected ? '700' : '500',
-                    }}
-                  >
-                    {court.name}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })
-          )}
-        </View>
+                  {court.name}
+                </Text>
+              </TouchableOpacity>
+            );
+          })
+        )}
+      </View>
 
-        <Text
-          style={{ color: theme.textBody, marginTop: 12, fontWeight: '600' }}
-        >
-          Titulo
-        </Text>
-        <TextInput
-          value={reviewTitle}
-          onChangeText={setReviewTitle}
-          placeholder="Escribe un titulo"
-          placeholderTextColor={theme.textBody + '80'}
-          style={{
-            marginTop: 6,
-            borderWidth: 1,
-            borderColor: theme.primarySoft,
-            borderRadius: 10,
-            paddingHorizontal: 12,
-            paddingVertical: 10,
+      <Text style={[styles.createLabel, { color: theme.textBody }]}>Título</Text>
+      <TextInput
+        value={reviewTitle}
+        onChangeText={setReviewTitle}
+        placeholder="Resume tu experiencia..."
+        placeholderTextColor={theme.textMuted}
+        style={[
+          styles.createInput,
+          {
+            backgroundColor: theme.surface,
+            borderColor: theme.borderSoft,
             color: theme.textTitle,
-          }}
-        />
+          },
+        ]}
+        maxLength={100}
+      />
 
-        <Text
-          style={{ color: theme.textBody, marginTop: 12, fontWeight: '600' }}
-        >
-          Comentario
-        </Text>
-        <TextInput
-          value={reviewText}
-          onChangeText={setReviewText}
-          placeholder="Cuenta tu experiencia"
-          placeholderTextColor={theme.textBody + '80'}
-          multiline
-          style={{
-            marginTop: 6,
-            minHeight: 90,
-            textAlignVertical: 'top',
-            borderWidth: 1,
-            borderColor: theme.primarySoft,
-            borderRadius: 10,
-            paddingHorizontal: 12,
-            paddingVertical: 10,
+      <Text style={[styles.createLabel, { color: theme.textBody }]}>
+        Comentario
+      </Text>
+      <TextInput
+        value={reviewText}
+        onChangeText={setReviewText}
+        placeholder="Cuéntanos tu experiencia..."
+        placeholderTextColor={theme.textMuted}
+        multiline
+        textAlignVertical="top"
+        style={[
+          styles.createInput,
+          styles.createTextarea,
+          {
+            backgroundColor: theme.surface,
+            borderColor: theme.borderSoft,
             color: theme.textTitle,
-          }}
-        />
+          },
+        ]}
+        maxLength={500}
+      />
 
-        <Text
-          style={{ color: theme.textBody, marginTop: 12, fontWeight: '600' }}
-        >
-          Valoracion
-        </Text>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 8,
-            marginTop: 8,
-          }}
-        >
-          {[1, 2, 3, 4, 5].map((star) => (
-            <TouchableOpacity key={star} onPress={() => setReviewRating(star)}>
-              <Ionicons
-                name={reviewRating >= star ? 'star' : 'star-outline'}
-                size={24}
-                color={reviewRating >= star ? '#F4B400' : theme.textBody}
-              />
-            </TouchableOpacity>
-          ))}
-        </View>
+      <Text style={[styles.createLabel, { color: theme.textBody }]}>
+        Valoración
+      </Text>
+      <View style={{ flexDirection: 'row', gap: 8, marginBottom: 14 }}>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <TouchableOpacity key={star} onPress={() => setReviewRating(star)}>
+            <Ionicons
+              name={reviewRating >= star ? 'star' : 'star-outline'}
+              size={26}
+              color={reviewRating >= star ? '#FFD700' : theme.textMuted}
+            />
+          </TouchableOpacity>
+        ))}
+      </View>
 
-        <TouchableOpacity
-          onPress={handleCreateReview}
-          disabled={submitting || reservedCourts.length === 0}
-          style={{
-            marginTop: 14,
-            height: 46,
-            borderRadius: 10,
-            alignItems: 'center',
-            justifyContent: 'center',
+      <TouchableOpacity
+        onPress={handleCreateReview}
+        disabled={submitting || availableCourts.length === 0}
+        style={[
+          styles.createBtn,
+          {
             backgroundColor: theme.primary,
-            opacity: submitting || reservedCourts.length === 0 ? 0.6 : 1,
-          }}
-        >
-          <Text style={{ color: theme.onPrimary, fontWeight: '700' }}>
-            {submitting ? 'Guardando...' : 'Crear reseña'}
-          </Text>
-        </TouchableOpacity>
-
-        {selectedCourtName ? (
-          <Text
-            style={{ color: theme.textSubtitle, marginTop: 8, fontSize: 12 }}
-          >
-            Pista seleccionada: {selectedCourtName}
-          </Text>
-        ) : null}
-      </View>
-
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
+            opacity: submitting || availableCourts.length === 0 ? 0.6 : 1,
+          },
+        ]}
       >
-        <Text
-          style={{ color: theme.textTitle, fontSize: 17, fontWeight: '800' }}
-        >
-          Mis reseñas
-        </Text>
-
-        <TouchableOpacity
-          onPress={handleRefresh}
-          disabled={loading}
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 6,
-            borderWidth: 1,
-            borderColor: theme.primarySoft,
-            borderRadius: 8,
-            paddingHorizontal: 10,
-            paddingVertical: 6,
-            opacity: loading ? 0.6 : 1,
-          }}
-        >
-          <Ionicons name="refresh" size={14} color={theme.primary} />
-          <Text style={{ color: theme.primary, fontWeight: '600' }}>
-            {loading ? 'Actualizando...' : 'Actualizar'}
+        {submitting ? (
+          <ActivityIndicator size="small" color={theme.onPrimary} />
+        ) : (
+          <Text style={[styles.createBtnText, { color: theme.onPrimary }]}>
+            Crear reseña
           </Text>
-        </TouchableOpacity>
-      </View>
+        )}
+      </TouchableOpacity>
+    </View>
+  );
 
-      {loading ? (
-        <ActivityIndicator size="small" color={theme.primary} />
-      ) : myReviews.length === 0 ? (
-        <View
-          style={{
-            backgroundColor: theme.backgroundCard,
-            borderRadius: 12,
-            borderWidth: 1,
-            borderColor: theme.primarySoft,
-            padding: 12,
-          }}
-        >
-          <Text style={{ color: theme.textBody }}>
-            Aun no has creado reseñas.
-          </Text>
+  return (
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      {loading && reviews.length === 0 ? (
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={theme.primary} />
         </View>
       ) : (
-        myReviews.map((review) => (
-          <View
-            key={review.id}
-            style={{
-              backgroundColor: theme.backgroundCard,
-              borderRadius: 14,
-              borderWidth: 1,
-              borderColor: theme.primarySoft,
-              overflow: 'hidden',
-            }}
-          >
-            <View
-              style={{
-                padding: 12,
-                borderBottomWidth: 1,
-                borderBottomColor: theme.primarySoft,
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginBottom: 8,
-                }}
-              >
-                <View style={{ flex: 1 }}>
-                  <Text style={{ color: theme.textTitle, fontWeight: '800' }}>
-                    {review.court?.name ?? `Pista #${review.court_id}`}
-                  </Text>
-                  <Text style={{ color: theme.textMuted, marginTop: 4 }}>
-                    {review.court?.courtType?.name ?? ''}
-                  </Text>
-                </View>
-
-                <View
-                  style={{
-                    borderWidth: 1,
-                    borderRadius: 999,
-                    paddingHorizontal: 8,
-                    paddingVertical: 4,
-                    backgroundColor: review.is_visible ? '#22c55e18' : '#f59e0b18',
-                    borderColor: review.is_visible ? '#22c55e' : '#f59e0b',
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: 10,
-                      fontWeight: '800',
-                      textTransform: 'uppercase',
-                      color: review.is_visible ? '#22c55e' : '#f59e0b',
-                    }}
-                  >
-                    {review.is_visible ? 'Visible' : 'Pendiente'}
-                  </Text>
-                </View>
-              </View>
-
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <View style={{ flexDirection: 'row', gap: 4 }}>
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <Ionicons
-                      key={i}
-                      name={i <= review.rating ? 'star' : 'star-outline'}
-                      size={13}
-                      color={i <= review.rating ? '#FFD700' : theme.textMuted}
-                    />
-                  ))}
-                </View>
-                <Text style={{ color: theme.textMuted, fontSize: 12 }}>
-                  {review.comment_date ? review.comment_date.slice(0, 10) : ''}
-                </Text>
-              </View>
-
-              {!!review.title && (
-                <Text style={{ color: theme.textTitle, fontWeight: '700', marginTop: 8 }}>
-                  {review.title}
-                </Text>
-              )}
-
-              {editingReviewId === review.id ? (
-                <View style={{ marginTop: 8 }}>
-                  <TextInput
-                    value={editingText}
-                    onChangeText={setEditingText}
-                    multiline
-                    style={{
-                      borderWidth: 1.5,
-                      borderRadius: 12,
-                      padding: 12,
-                      fontSize: 14,
-                      minHeight: 90,
-                      backgroundColor: theme.surface,
-                      color: theme.textTitle,
-                    }}
-                    textAlignVertical="top"
-                  />
-                  <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
-                    <TouchableOpacity
-                      style={{
-                        flex: 1,
-                        paddingVertical: 10,
-                        borderRadius: 10,
-                        borderWidth: 1,
-                        borderColor: theme.borderSoft,
-                        alignItems: 'center',
-                      }}
-                      onPress={cancelEditingReview}
-                    >
-                      <Text style={{ color: theme.textMuted, fontWeight: '700' }}>
-                        Cancelar
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={{
-                        flex: 1,
-                        paddingVertical: 10,
-                        borderRadius: 10,
-                        backgroundColor: theme.primary,
-                        alignItems: 'center',
-                      }}
-                      onPress={() => void handleSaveReviewText(review.id)}
-                      disabled={updatingReview}
-                    >
-                      {updatingReview ? (
-                        <ActivityIndicator size="small" color={theme.onPrimary} />
-                      ) : (
-                        <Text style={{ color: theme.onPrimary, fontWeight: '700' }}>Guardar</Text>
-                      )}
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ) : (
-                <Text style={{ color: theme.textBody, marginTop: 8 }}>{review.text}</Text>
-              )}
-
-              {!!review.admin_answer && (
-                <View
-                  style={{
-                    marginTop: 10,
-                    borderRadius: 10,
-                    borderWidth: 1,
-                    padding: 10,
-                    backgroundColor: theme.primary + '0D',
-                    borderColor: theme.primarySoft,
-                  }}
-                >
-                  <Text style={{ fontSize: 11, fontWeight: '700', textTransform: 'uppercase', color: theme.primary }}>
-                    Respuesta del equipo
-                  </Text>
-                  <Text style={{ color: theme.textBody, marginTop: 4 }}>{review.admin_answer}</Text>
-                </View>
-              )}
-
-              {!editingReviewId && (
-                <TouchableOpacity
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 6,
-                    alignSelf: 'flex-start',
-                    paddingVertical: 6,
-                    paddingHorizontal: 10,
-                    borderRadius: 8,
-                    borderWidth: 1,
-                    borderColor: theme.borderSoft,
-                    marginTop: 10,
-                  }}
-                  onPress={() => startEditingReview(review)}
-                >
-                  <Ionicons name="create-outline" size={14} color={theme.textMuted} />
-                  <Text style={{ color: theme.textMuted, fontSize: 12, fontWeight: '600' }}>Editar reseña</Text>
-                </TouchableOpacity>
-              )}
+        <FlatList
+          data={reviews}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={renderItem}
+          contentContainerStyle={[
+            styles.listContent,
+            {
+              paddingTop: headerHeight + 16,
+              paddingBottom:
+                insets.bottom + (Platform.OS === 'web' ? 100 : 120),
+            },
+          ]}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              tintColor={theme.primary}
+            />
+          }
+          ListHeaderComponent={
+            <>
+              {isReviewFeatureEnabled && renderCreateSection()}
+              <Text style={[styles.pageTitle, { color: theme.textTitle }]}>
+                Mis reseñas
+              </Text>
+            </>
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Ionicons name="star-outline" size={52} color={theme.textMuted} />
+              <Text style={[styles.emptyTitle, { color: theme.textTitle }]}>
+                Sin reseñas
+              </Text>
+              <Text style={[styles.emptySubtitle, { color: theme.textMuted }]}>
+                Finaliza una reserva para poder dejar una valoración en la pista
+              </Text>
             </View>
-
-            <View style={{ padding: 12 }}>
-              {/* extra actions could go here */}
-            </View>
-          </View>
-        ))
+          }
+        />
       )}
-    </ScrollView>
+    </View>
   );
 }
 
-const createStyles = (theme: any) =>
+const createStyles = () =>
   StyleSheet.create({
     container: { flex: 1 },
     centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
@@ -793,9 +608,7 @@ const createStyles = (theme: any) =>
       fontSize: 13,
       lineHeight: 18,
     },
-    editSection: {
-      gap: 10,
-    },
+    editSection: { gap: 10 },
     editInput: {
       borderWidth: 1.5,
       borderRadius: 12,
@@ -803,10 +616,7 @@ const createStyles = (theme: any) =>
       fontSize: 14,
       minHeight: 90,
     },
-    editActions: {
-      flexDirection: 'row',
-      gap: 10,
-    },
+    editActions: { flexDirection: 'row', gap: 10 },
     editBtn: {
       flex: 1,
       paddingVertical: 10,
@@ -814,15 +624,9 @@ const createStyles = (theme: any) =>
       alignItems: 'center',
       justifyContent: 'center',
     },
-    editBtnCancel: {
-      borderWidth: 1,
-      backgroundColor: 'transparent',
-    },
+    editBtnCancel: { borderWidth: 1, backgroundColor: 'transparent' },
     editBtnSave: {},
-    editBtnText: {
-      fontSize: 14,
-      fontWeight: '700',
-    },
+    editBtnText: { fontSize: 14, fontWeight: '700' },
     editTrigger: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -833,23 +637,50 @@ const createStyles = (theme: any) =>
       borderRadius: 8,
       borderWidth: 1,
     },
-    editTriggerText: {
-      fontSize: 12,
-      fontWeight: '600',
-    },
+    editTriggerText: { fontSize: 12, fontWeight: '600' },
     emptyState: {
       paddingTop: 60,
       alignItems: 'center',
       gap: 12,
       paddingHorizontal: 20,
     },
-    emptyTitle: {
-      fontSize: 18,
-      fontWeight: '800',
+    emptyTitle: { fontSize: 18, fontWeight: '800' },
+    emptySubtitle: { fontSize: 14, textAlign: 'center', lineHeight: 20 },
+    createCard: {
+      borderRadius: 16,
+      borderWidth: 1,
+      padding: 16,
+      marginBottom: 20,
     },
-    emptySubtitle: {
+    createTitle: { fontSize: 20, fontWeight: '800', marginBottom: 14 },
+    createLabel: { fontSize: 13, fontWeight: '700', marginBottom: 6 },
+    chipsWrap: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+      marginBottom: 14,
+    },
+    chip: {
+      borderWidth: 1,
+      borderRadius: 999,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+    },
+    noCourtText: { fontSize: 13, marginBottom: 14 },
+    createInput: {
+      borderWidth: 1,
+      borderRadius: 12,
+      paddingHorizontal: 14,
+      paddingVertical: 12,
       fontSize: 14,
-      textAlign: 'center',
-      lineHeight: 20,
+      marginBottom: 14,
     },
+    createTextarea: { minHeight: 90, paddingTop: 12 },
+    createBtn: {
+      height: 46,
+      borderRadius: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    createBtnText: { fontSize: 15, fontWeight: '800' },
   });
