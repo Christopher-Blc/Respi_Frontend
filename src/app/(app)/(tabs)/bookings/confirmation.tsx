@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
 import * as Clipboard from 'expo-clipboard';
@@ -53,6 +54,7 @@ export default function ConfirmacionReserva() {
   const [completedReservation, setCompletedReservation] =
     useState<Reservation | null>(null);
   const [pendingReservationId, setPendingReservationId] = useState<number | null>(null);
+  const paymentCompletedRef = useRef(false);
   const durationMinutes = Number(duracionValue || 60);
 
   const {
@@ -92,6 +94,18 @@ export default function ConfirmacionReserva() {
 
     fetchPista();
   }, [pistaIdValue]);
+
+  // BUG 2: Cancelar reserva pendiente si el usuario abandona la pantalla sin pagar
+  useFocusEffect(
+    React.useCallback(() => {
+      paymentCompletedRef.current = false;
+      return () => {
+        if (pendingReservationId && !paymentCompletedRef.current) {
+          api.put(`/reservations/${pendingReservationId}`, { status: 'CANCELADA' }).catch(() => {});
+        }
+      };
+    }, [pendingReservationId]),
+  );
 
   const handleConfirm = async () => {
     if (!pistaIdValue || !fechaValue || !horaValue) {
@@ -134,6 +148,7 @@ export default function ConfirmacionReserva() {
       const paid = await initAndPay(reservationId, 'ResPi', precioEstimado);
 
       if (paid) {
+        paymentCompletedRef.current = true;
         setPendingReservationId(null);
         try {
           const updated = await api.get(`/reservations/${reservationId}`);
@@ -164,7 +179,7 @@ export default function ConfirmacionReserva() {
       return;
     }
 
-    const verificationUrl = `https://midominio.com/validar/${code}`;
+    const verificationUrl = `${process.env.EXPO_PUBLIC_APP_URL ?? 'https://respi.es'}/validar/${code}`;
     await Clipboard.setStringAsync(verificationUrl);
     showAlert('Enlace copiado', 'El enlace de verificacion se ha copiado al portapapeles.');
   };
