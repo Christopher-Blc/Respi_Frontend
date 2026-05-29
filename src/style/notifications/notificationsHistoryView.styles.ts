@@ -29,6 +29,18 @@ const createNotificationsHistoryStyles = (theme: any) =>
       marginBottom: 12,
       gap: 10,
     },
+    audienceTabsRow: {
+      flexDirection: 'row',
+      gap: 8,
+      flexWrap: 'wrap',
+    },
+    audienceTab: {
+      borderWidth: 1,
+      borderRadius: 999,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      alignSelf: 'flex-start',
+    },
     filterRow: {
       flexDirection: 'row',
       gap: 8,
