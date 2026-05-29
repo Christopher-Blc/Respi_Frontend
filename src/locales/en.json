@@ -332,7 +332,7 @@
   "pistasSportsAvailable": "Available sports",
   "pistasSportsAvailableSubtitle": "Select one to view its courts without leaving this screen",
   "pistasCourtsAvailable": "Available courts",
-  "pistasNoCourtsForSport": "No courts available for this sport on the selected date.",
+  "pistasNoCourtsForSport": "No time slots available for the selected date. Try a different date or another court.",
   "pistaTypesScreenTitle": "New booking",
   "pistaTypesHeaderKicker": "NEW BOOKING",
   "pistaTypesHeaderTitle": "Book your ideal court",

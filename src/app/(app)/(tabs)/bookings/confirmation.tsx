@@ -54,6 +54,8 @@ export default function ConfirmacionReserva() {
     useState<Reservation | null>(null);
   const [pendingReservationId, setPendingReservationId] = useState<number | null>(null);
   const paymentCompletedRef = useRef(false);
+  const paymentInitiatedRef = useRef(false);
+  const isPayingRef = useRef(false);
   const durationMinutes = Number(duracionValue || 60);
 
   const {
@@ -94,12 +96,17 @@ export default function ConfirmacionReserva() {
     fetchPista();
   }, [pistaIdValue]);
 
-  // BUG 2: Cancelar reserva pendiente si el usuario abandona la pantalla sin pagar
+  // BUG-UX-002: Cancelar reserva pendiente si el usuario abandona la pantalla sin pagar.
+  // Guard: only cancel if payment was never initiated OR was initiated but not completed.
   useFocusEffect(
     React.useCallback(() => {
       paymentCompletedRef.current = false;
+      paymentInitiatedRef.current = false;
       return () => {
-        if (pendingReservationId && !paymentCompletedRef.current) {
+        // Only cancel if a reservation exists, payment was never completed,
+        // AND payment was never initiated (avoids race when user navigates back
+        // in the brief window between initAndPay starting and paymentCompletedRef being set).
+        if (pendingReservationId && !paymentCompletedRef.current && !paymentInitiatedRef.current) {
           api.put(`/reservations/${pendingReservationId}`, { status: 'CANCELADA' }).catch(() => {});
         }
       };
@@ -107,10 +114,21 @@ export default function ConfirmacionReserva() {
   );
 
   const handleConfirm = async () => {
+    // BUG-EDGE-006: Prevent double-tap from creating two PaymentIntents.
+    if (isPayingRef.current) return;
+
     if (!pistaIdValue || !fechaValue || !horaValue) {
       showAlert(t('bookingConfirmErrorTitle'), t('bookingConfirmMissingData'));
       return;
     }
+
+    // BUG-UX-005: Guard against missing or zero price before initiating payment.
+    if (!precioEstimado || parseFloat(precioEstimado) <= 0) {
+      showAlert(t('bookingConfirmErrorTitle'), 'No se pudo calcular el precio. Inténtalo de nuevo.');
+      return;
+    }
+
+    isPayingRef.current = true;
 
     try {
       setConfirming(true);
@@ -144,9 +162,16 @@ export default function ConfirmacionReserva() {
         setPendingReservationId(reservationId);
       }
 
+      // BUG-UX-002: Mark payment as initiated BEFORE calling initAndPay so the
+      // useFocusEffect cleanup doesn't cancel the reservation if the user navigates
+      // back during the payment flow.
+      paymentInitiatedRef.current = true;
+
       const paid = await initAndPay(reservationId, 'ResPi', precioEstimado);
 
       if (paid) {
+        // BUG-UX-002: Set paymentCompletedRef SYNCHRONOUSLY as the very first action
+        // after confirmed success, before any subsequent async operations.
         paymentCompletedRef.current = true;
         setPendingReservationId(null);
         try {
@@ -155,8 +180,14 @@ export default function ConfirmacionReserva() {
         } catch {
           if (createdReservation) setCompletedReservation(createdReservation);
         }
+      } else {
+        // Payment was not completed (cancelled or failed); allow retry.
+        paymentInitiatedRef.current = false;
+        isPayingRef.current = false;
       }
     } catch (error: any) {
+      paymentInitiatedRef.current = false;
+      isPayingRef.current = false;
       const message =
         error.response?.data?.message ||
         error.message ||

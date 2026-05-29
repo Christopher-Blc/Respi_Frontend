@@ -19,7 +19,7 @@ export type UserFormData = {
   email: string;
   phone: string;
   password: string;
-  role: 'SUPER_ADMIN' | 'CLIENTE';
+  role: 'SUPER_ADMIN' | 'ADMIN' | 'USER' | 'CLIENTE';
   isActive: boolean;
   email_verified: boolean;
   fecha_nacimiento: string;
@@ -33,6 +33,7 @@ type Props = {
   formData: UserFormData;
   setFormData: (value: UserFormData) => void;
   memberships: Membership[];
+  membershipsLoading?: boolean;
   onClose: () => void;
   onSave: () => void;
 };
@@ -56,6 +57,7 @@ export function UserFormModal({
   formData,
   setFormData,
   memberships,
+  membershipsLoading = false,
   onClose,
   onSave,
 }: Props) {
@@ -92,6 +94,7 @@ export function UserFormModal({
                 { color: theme.textTitle, borderColor: theme.primarySoft },
               ]}
               value={formData.username}
+              maxLength={100}
               onChangeText={(v) => setFormData({ ...formData, username: v })}
             />
 
@@ -102,6 +105,7 @@ export function UserFormModal({
                 { color: theme.textTitle, borderColor: theme.primarySoft },
               ]}
               value={formData.name}
+              maxLength={100}
               onChangeText={(v) => setFormData({ ...formData, name: v })}
             />
 
@@ -112,6 +116,7 @@ export function UserFormModal({
                 { color: theme.textTitle, borderColor: theme.primarySoft },
               ]}
               value={formData.surname}
+              maxLength={100}
               onChangeText={(v) => setFormData({ ...formData, surname: v })}
             />
 
@@ -156,7 +161,7 @@ export function UserFormModal({
 
             <InputLabel label="Rol" theme={theme} />
             <View style={styles.segmentedRow}>
-              {(['CLIENTE', 'SUPER_ADMIN'] as const).map((role) => {
+              {(['CLIENTE', 'USER', 'ADMIN', 'SUPER_ADMIN'] as const).map((role) => {
                 const selected = formData.role === role;
                 return (
                   <TouchableOpacity
@@ -273,66 +278,73 @@ export function UserFormModal({
                 { color: theme.textTitle, borderColor: theme.primarySoft },
               ]}
               value={formData.direccion}
+              maxLength={200}
               onChangeText={(v) => setFormData({ ...formData, direccion: v })}
             />
 
             <InputLabel label="Membresia" theme={theme} />
-            <View style={styles.segmentedRow}>
-              <TouchableOpacity
-                onPress={() => setFormData({ ...formData, membresia_id: '' })}
-                style={[
-                  styles.segment,
-                  segmentBase,
-                  !formData.membresia_id && {
-                    backgroundColor: theme.primary + '20',
-                    borderColor: theme.primary,
-                  },
-                ]}
-              >
-                <Text
-                  style={{
-                    color: !formData.membresia_id
-                      ? theme.primary
-                      : theme.textBody,
-                    fontWeight: !formData.membresia_id ? '700' : '500',
-                  }}
+            {membershipsLoading ? (
+              <Text style={{ color: theme.textBody, fontSize: 12, marginBottom: 8 }}>
+                Cargando membresias...
+              </Text>
+            ) : (
+              <View style={styles.segmentedRow}>
+                <TouchableOpacity
+                  onPress={() => setFormData({ ...formData, membresia_id: '' })}
+                  style={[
+                    styles.segment,
+                    segmentBase,
+                    !formData.membresia_id && {
+                      backgroundColor: theme.primary + '20',
+                      borderColor: theme.primary,
+                    },
+                  ]}
                 >
-                  Sin membresia
-                </Text>
-              </TouchableOpacity>
-              {memberships.map((membership) => {
-                const selected =
-                  formData.membresia_id === String(membership.id);
-                return (
-                  <TouchableOpacity
-                    key={membership.id}
-                    onPress={() =>
-                      setFormData({
-                        ...formData,
-                        membresia_id: String(membership.id),
-                      })
-                    }
-                    style={[
-                      styles.segment,
-                      segmentBase,
-                      selected && {
-                        backgroundColor: theme.primary + '20',
-                        borderColor: theme.primary,
-                      },
-                    ]}
+                  <Text
+                    style={{
+                      color: !formData.membresia_id
+                        ? theme.primary
+                        : theme.textBody,
+                      fontWeight: !formData.membresia_id ? '700' : '500',
+                    }}
                   >
-                    <Text
-                      style={{
-                        color: selected ? theme.primary : theme.textBody,
-                        fontWeight: selected ? '700' : '500',
-                      }}
+                    Sin membresia
+                  </Text>
+                </TouchableOpacity>
+                {memberships.map((membership) => {
+                  const selected =
+                    formData.membresia_id === String(membership.id);
+                  return (
+                    <TouchableOpacity
+                      key={membership.id}
+                      onPress={() =>
+                        setFormData({
+                          ...formData,
+                          membresia_id: String(membership.id),
+                        })
+                      }
+                      style={[
+                        styles.segment,
+                        segmentBase,
+                        selected && {
+                          backgroundColor: theme.primary + '20',
+                          borderColor: theme.primary,
+                        },
+                      ]}
                     >
-                      {membership.name}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+                      <Text
+                        style={{
+                          color: selected ? theme.primary : theme.textBody,
+                          fontWeight: selected ? '700' : '500',
+                        }}
+                      >
+                        {membership.name}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
 
             <TouchableOpacity
               style={[styles.saveBtn, { backgroundColor: theme.primary }]}

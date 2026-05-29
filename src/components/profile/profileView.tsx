@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ActivityIndicator, Platform, Image } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
@@ -189,14 +189,7 @@ export default function ProfileView({ profileState }: ProfileViewProps) {
     }
   };
 
-  return loading ? (
-    <View style={[{ flex: 1, justifyContent: 'center', alignItems: 'center' }]}>
-      <Image
-        source={require('../../../assets/animacionCarga.gif')}
-        style={{ width: 80, height: 80 }}
-      />
-    </View>
-  ) : (
+  return (
     <>
       <View
         style={[
@@ -207,29 +200,43 @@ export default function ProfileView({ profileState }: ProfileViewProps) {
           },
         ]}
       >
-        {/*Header*/}
+        {/*Header — skeleton while loading, real content once loaded */}
         <View style={styles.header}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarInitials}>{avatarInitials}</Text>
-          </View>
-
-          {/* <Text style={styles.userName}>
-            {user?.username || t('profileUserFallback')}
-          </Text>
-          <Text style={styles.userEmail}>
-            {user?.email || t('profileEmailFallback')}
-          </Text> */}
-          <View style={{ height: 15 }} />
-
-          {effectiveRole !== 'SUPER_ADMIN' && (
-            <View style={styles.reservasCountCard}>
-              <Text style={[styles.reservasNumber, { color: theme.textTitle }]}>
-                {totalReservas || 0}
-              </Text>
-              <Text style={[styles.reservasLabel, { color: theme.textBody }]}>
-                {t('profileReservations')}
-              </Text>
-            </View>
+          {loading ? (
+            <>
+              <View
+                style={[
+                  styles.avatar,
+                  { backgroundColor: theme.borderSoft },
+                ]}
+              />
+              <View style={{ height: 15 }} />
+              {effectiveRole !== 'SUPER_ADMIN' && (
+                <View
+                  style={[
+                    styles.reservasCountCard,
+                    { backgroundColor: theme.borderSoft, opacity: 0.5 },
+                  ]}
+                />
+              )}
+            </>
+          ) : (
+            <>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarInitials}>{avatarInitials}</Text>
+              </View>
+              <View style={{ height: 15 }} />
+              {effectiveRole !== 'SUPER_ADMIN' && (
+                <View style={styles.reservasCountCard}>
+                  <Text style={[styles.reservasNumber, { color: theme.textTitle }]}>
+                    {totalReservas || 0}
+                  </Text>
+                  <Text style={[styles.reservasLabel, { color: theme.textBody }]}>
+                    {t('profileReservations')}
+                  </Text>
+                </View>
+              )}
+            </>
           )}
         </View>
 
@@ -248,19 +255,46 @@ export default function ProfileView({ profileState }: ProfileViewProps) {
           <View
             style={[styles.card, { backgroundColor: theme.backgroundCard }]}
           >
-            <MenuOption
-              icon="person-outline"
-              title={t('profileUsername')}
-              value={user?.username || t('profileUserFallback')}
-              onPress={() => {
-                setModalEditUserNameVisible(true);
-              }}
-            />
-            <MenuOption
-              icon="mail-outline"
-              title={t('authLoginEmail')}
-              value={user?.email || t('profileEmailFallback')}
-            />
+            {loading ? (
+              <>
+                <View
+                  style={{
+                    height: 44,
+                    marginHorizontal: 16,
+                    marginVertical: 6,
+                    borderRadius: 8,
+                    backgroundColor: theme.borderSoft,
+                    opacity: 0.5,
+                  }}
+                />
+                <View
+                  style={{
+                    height: 44,
+                    marginHorizontal: 16,
+                    marginVertical: 6,
+                    borderRadius: 8,
+                    backgroundColor: theme.borderSoft,
+                    opacity: 0.5,
+                  }}
+                />
+              </>
+            ) : (
+              <>
+                <MenuOption
+                  icon="person-outline"
+                  title={t('profileUsername')}
+                  value={user?.username || t('profileUserFallback')}
+                  onPress={() => {
+                    setModalEditUserNameVisible(true);
+                  }}
+                />
+                <MenuOption
+                  icon="mail-outline"
+                  title={t('authLoginEmail')}
+                  value={user?.email || t('profileEmailFallback')}
+                />
+              </>
+            )}
             <MenuOption
               icon="key-outline"
               title={t('authLoginPassword', { defaultValue: 'Contraseña' })}
@@ -343,15 +377,6 @@ export default function ProfileView({ profileState }: ProfileViewProps) {
 
         <Text style={styles.RespiText}>ResPi®</Text>
         <Text style={styles.versionText}>{t('profileVersion')} 1.0.0</Text>
-
-        {loading && (
-          <View style={styles.loadingOverlayList} pointerEvents="none">
-            <Image
-              source={require('../../../assets/animacionCarga.gif')}
-              style={{ width: 80, height: 80 }}
-            />
-          </View>
-        )}
       </View>
 
       <MembresiaModal

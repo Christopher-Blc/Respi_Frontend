@@ -31,7 +31,10 @@ const IOS_BACKGROUND_MISCONFIG_REGEX =
 /** Comprova reserves noves des del background thread */
 async function fetchReservationsInBackground(): Promise<number> {
   const token = await getToken();
-  if (!token) return 0;
+  if (!token || token.trim().length === 0) {
+    // No stored auth token — skip sync entirely rather than sending an unauthenticated request.
+    return 0;
+  }
 
   const response = await fetch(`${BASE_URL}/reservations/my-reservations`, {
     headers: {
@@ -39,6 +42,11 @@ async function fetchReservationsInBackground(): Promise<number> {
       'Content-Type': 'application/json',
     },
   });
+
+  if (response.status === 401 || response.status === 403) {
+    console.warn('[BackgroundSync] Auth error during background sync — stored token may be expired or invalid.');
+    return 0;
+  }
 
   if (!response.ok) return 0;
 

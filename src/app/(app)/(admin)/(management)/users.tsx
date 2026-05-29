@@ -52,6 +52,7 @@ export default function AdminUsuarios() {
   const {
     filteredUsers,
     memberships,
+    membershipsLoading,
     loading,
     refresh,
     searchQuery,
@@ -478,6 +479,7 @@ export default function AdminUsuarios() {
         formData={formData}
         setFormData={setFormData}
         memberships={memberships}
+        membershipsLoading={membershipsLoading}
         onClose={() => setModalVisible(false)}
         onSave={handleSave}
       />

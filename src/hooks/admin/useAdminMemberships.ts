@@ -114,8 +114,15 @@ export function useAdminMemberships() {
     if (!formData.name.trim()) return 'El nombre de la membresia es obligatorio.';
     if (!Number.isFinite(level) || level <= 0)
       return 'El nivel debe ser un numero mayor a 0.';
-    if (!Number.isFinite(discount) || discount < 0 || discount >= 100)
-      return 'El descuento debe estar entre 0 y 99.';
+    const discountInt = parseInt(formData.discount, 10);
+    if (
+      !Number.isFinite(discount) ||
+      isNaN(discountInt) ||
+      formData.discount.toString() !== discountInt.toString() ||
+      discountInt < 0 ||
+      discountInt > 99
+    )
+      return 'El descuento debe ser un número entero entre 0 y 99.';
     if (!Number.isFinite(requiredReservations) || requiredReservations < 0)
       return 'Las reservas requeridas no pueden ser negativas.';
     if (!formData.benefits.trim()) return 'Los beneficios son obligatorios.';
@@ -169,7 +176,13 @@ export function useAdminMemberships() {
       const res = await api.get('/users');
       return Array.isArray(res.data) ? (res.data as BasicUser[]) : [];
     } catch {
-      return [];
+      setErrorModal({
+        visible: true,
+        title: 'Error',
+        message:
+          'No se pudo verificar si hay usuarios con esta membresía. La eliminación fue bloqueada por seguridad.',
+      });
+      throw new Error('fetch_users_failed');
     }
   };
 
