@@ -343,6 +343,7 @@ export function useAdminUsers() {
         const surname = formData.surname.trim();
         const email = formData.email.trim();
         const phone = formData.phone.trim();
+        const password = formData.password.trim();
         const fechaNacimiento = formData.fecha_nacimiento.trim();
         const direccion = formData.direccion.trim();
         const membresiaId = formData.membresia_id
@@ -375,6 +376,7 @@ export function useAdminUsers() {
         if (formData.email_verified !== Boolean(userToEdit.email_verified)) {
           payload.email_verified = formData.email_verified;
         }
+        if (password) payload.password = password;
 
         if (Object.keys(payload).length > 0) {
           const updateUrl = `/users/${userToEdit.id}`;
