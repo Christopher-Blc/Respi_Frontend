@@ -45,14 +45,20 @@ export default function ConfirmacionReserva() {
   const styles = useMemo(() => createConfirmacionReservaStyles(theme), [theme]);
   const locale = getDateLocale(i18n.resolvedLanguage || i18n.language);
 
-  const [alertModal, setAlertModal] = useState({ visible: false, title: '', message: '' });
+  const [alertModal, setAlertModal] = useState({
+    visible: false,
+    title: '',
+    message: '',
+  });
   const [pista, setPista] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(false);
   const [notes, setNotes] = useState('');
   const [completedReservation, setCompletedReservation] =
     useState<Reservation | null>(null);
-  const [pendingReservationId, setPendingReservationId] = useState<number | null>(null);
+  const [pendingReservationId, setPendingReservationId] = useState<
+    number | null
+  >(null);
   const paymentCompletedRef = useRef(false);
   const paymentInitiatedRef = useRef(false);
   const isPayingRef = useRef(false);
@@ -112,6 +118,17 @@ export default function ConfirmacionReserva() {
       };
     }, [pendingReservationId]),
   );
+
+  const cancelPendingReservation = async (reservationId: number | null) => {
+    if (!reservationId) return;
+    try {
+      await api.put(`/reservations/${reservationId}`, { status: 'CANCELADA' });
+    } catch {
+      // Si falla, el cleanup del useFocusEffect lo reintenta al salir.
+    } finally {
+      setPendingReservationId(null);
+    }
+  };
 
   const handleConfirm = async () => {
     // BUG-EDGE-006: Prevent double-tap from creating two PaymentIntents.
@@ -198,20 +215,27 @@ export default function ConfirmacionReserva() {
     }
   };
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
+    await cancelPendingReservation(pendingReservationId);
     router.back();
   };
 
   const handleCopyVerificationLink = async () => {
     const code = completedReservation?.verification_code;
     if (!code) {
-      showAlert('Codigo no disponible', 'No hay codigo de verificacion para copiar.');
+      showAlert(
+        'Codigo no disponible',
+        'No hay codigo de verificacion para copiar.',
+      );
       return;
     }
 
     const verificationUrl = `${process.env.EXPO_PUBLIC_APP_URL ?? 'https://respi.es'}/validar/${code}`;
     await Clipboard.setStringAsync(verificationUrl);
-    showAlert('Enlace copiado', 'El enlace de verificacion se ha copiado al portapapeles.');
+    showAlert(
+      'Enlace copiado',
+      'El enlace de verificacion se ha copiado al portapapeles.',
+    );
   };
 
   const isProcessing = confirming || stripeLoading;
@@ -245,7 +269,9 @@ export default function ConfirmacionReserva() {
         title={alertModal.title}
         message={alertModal.message}
         confirmText={t('commonUnderstood')}
-        onConfirm={() => setAlertModal({ visible: false, title: '', message: '' })}
+        onConfirm={() =>
+          setAlertModal({ visible: false, title: '', message: '' })
+        }
       />
       <ScrollView
         contentContainerStyle={{
@@ -271,15 +297,11 @@ export default function ConfirmacionReserva() {
                 size={24}
                 color={theme.success}
               />
-              <Text
-                style={[styles.successTitle, { color: theme.textTitle }]}
-              >
+              <Text style={[styles.successTitle, { color: theme.textTitle }]}>
                 Reserva completada con exito
               </Text>
             </View>
-            <Text
-              style={[styles.successSubtitle, { color: theme.textBody }]}
-            >
+            <Text style={[styles.successSubtitle, { color: theme.textBody }]}>
               Muestra este QR en el polideportivo para validar tu reserva.
             </Text>
 
@@ -310,9 +332,7 @@ export default function ConfirmacionReserva() {
               onPress={handleCopyVerificationLink}
             >
               <Ionicons name="copy-outline" size={18} color={theme.onPrimary} />
-              <Text
-                style={[styles.copyBtnText, { color: theme.onPrimary }]}
-              >
+              <Text style={[styles.copyBtnText, { color: theme.onPrimary }]}>
                 Copiar enlace de verificacion
               </Text>
             </TouchableOpacity>
@@ -327,9 +347,7 @@ export default function ConfirmacionReserva() {
               ]}
               onPress={() => router.push('/(app)/(tabs)')}
             >
-              <Text
-                style={[styles.homeBtnText, { color: theme.textTitle }]}
-              >
+              <Text style={[styles.homeBtnText, { color: theme.textTitle }]}>
                 Volver al inicio
               </Text>
             </TouchableOpacity>
