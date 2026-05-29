@@ -69,7 +69,12 @@ export function UserFormModal({
   };
 
   return (
-    <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      animationType="fade"
+      transparent
+      onRequestClose={onClose}
+    >
       <View style={styles.modalOverlay}>
         <View
           style={[
@@ -142,22 +147,19 @@ export function UserFormModal({
               onChangeText={(v) => setFormData({ ...formData, phone: v })}
             />
 
-            {!isEditing && (
-              <>
-                <InputLabel label="Password" theme={theme} />
-                <TextInput
-                  style={[
-                    styles.input,
-                    { color: theme.textTitle, borderColor: theme.primarySoft },
-                  ]}
-                  secureTextEntry
-                  value={formData.password}
-                  onChangeText={(v) =>
-                    setFormData({ ...formData, password: v })
-                  }
-                />
-              </>
-            )}
+            <InputLabel
+              label={isEditing ? 'Nueva password (opcional)' : 'Password'}
+              theme={theme}
+            />
+            <TextInput
+              style={[
+                styles.input,
+                { color: theme.textTitle, borderColor: theme.primarySoft },
+              ]}
+              secureTextEntry
+              value={formData.password}
+              onChangeText={(v) => setFormData({ ...formData, password: v })}
+            />
 
             <InputLabel label="Rol" theme={theme} />
             <View style={styles.segmentedRow}>
