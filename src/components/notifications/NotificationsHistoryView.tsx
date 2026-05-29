@@ -327,7 +327,9 @@ export default function NotificationsHistoryView({
               backgroundColor: theme.primaryButton,
             }}
           >
-            <Text style={{ color: theme.onPrimary ?? '#fff', fontWeight: '600' }}>
+            <Text
+              style={{ color: theme.onPrimary ?? '#fff', fontWeight: '600' }}
+            >
               Reintentar
             </Text>
           </TouchableOpacity>
@@ -528,6 +530,63 @@ export default function NotificationsHistoryView({
     </View>
   );
 
+  const renderPagination = () => {
+    if (loading || totalPages <= 1) return null;
+
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingVertical: 10,
+          paddingHorizontal: 16,
+          gap: 16,
+          backgroundColor: theme.backgroundCard,
+          borderTopWidth: 1,
+          borderTopColor: theme.primarySoft,
+          marginTop: 8,
+        }}
+      >
+        <TouchableOpacity
+          onPress={() => setCurrentPage((p) => Math.max(1, p - 1))}
+          disabled={currentPage === 1}
+        >
+          <Ionicons
+            name="chevron-back"
+            size={22}
+            color={
+              currentPage === 1 ? theme.textBody + '40' : theme.primaryButton
+            }
+          />
+        </TouchableOpacity>
+        <Text
+          style={{
+            color: theme.textTitle,
+            fontWeight: '700',
+            fontSize: 14,
+          }}
+        >
+          {currentPage} / {totalPages}
+        </Text>
+        <TouchableOpacity
+          onPress={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+          disabled={currentPage === totalPages}
+        >
+          <Ionicons
+            name="chevron-forward"
+            size={22}
+            color={
+              currentPage === totalPages
+                ? theme.textBody + '40'
+                : theme.primaryButton
+            }
+          />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   return (
     <LinearGradient
       colors={[
@@ -571,6 +630,7 @@ export default function NotificationsHistoryView({
               renderItem={renderNotificationItem}
               keyExtractor={(item) => String(item.id)}
               ListHeaderComponent={renderListHeader}
+              ListFooterComponent={renderPagination}
               contentContainerStyle={[
                 styles.listContent,
                 {
@@ -588,61 +648,6 @@ export default function NotificationsHistoryView({
               }
               scrollEnabled={filteredNotifications.length > 0}
             />
-            {!loading && totalPages > 1 && (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  paddingVertical: 10,
-                  paddingHorizontal: 16,
-                  gap: 16,
-                  backgroundColor: theme.backgroundCard,
-                  borderTopWidth: 1,
-                  borderTopColor: theme.primarySoft,
-                }}
-              >
-                <TouchableOpacity
-                  onPress={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                >
-                  <Ionicons
-                    name="chevron-back"
-                    size={22}
-                    color={
-                      currentPage === 1
-                        ? theme.textBody + '40'
-                        : theme.primaryButton
-                    }
-                  />
-                </TouchableOpacity>
-                <Text
-                  style={{
-                    color: theme.textTitle,
-                    fontWeight: '700',
-                    fontSize: 14,
-                  }}
-                >
-                  {currentPage} / {totalPages}
-                </Text>
-                <TouchableOpacity
-                  onPress={() =>
-                    setCurrentPage((p) => Math.min(totalPages, p + 1))
-                  }
-                  disabled={currentPage === totalPages}
-                >
-                  <Ionicons
-                    name="chevron-forward"
-                    size={22}
-                    color={
-                      currentPage === totalPages
-                        ? theme.textBody + '40'
-                        : theme.primaryButton
-                    }
-                  />
-                </TouchableOpacity>
-              </View>
-            )}
           </>
         )}
       </View>
