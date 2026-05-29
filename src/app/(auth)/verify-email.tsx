@@ -63,7 +63,6 @@ const extractApiErrorMessage = (error: unknown) => {
 };
 
 const verifyEmailToken = async (token: string) => {
-  console.log('Verifying token:', token);
   console.log('ruta:', VERIFY_EMAIL_ENDPOINT);
   return await api.post(VERIFY_EMAIL_ENDPOINT, { token });
 };

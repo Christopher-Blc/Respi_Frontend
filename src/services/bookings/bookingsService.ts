@@ -99,8 +99,16 @@ export const bookingsService = {
         json?.reservation_id ??
         json?.reserva_id ??
         json?.insertId ??
-        json?._id ??
-        Math.floor(Math.random() * 1000000).toString();
+        json?._id;
+
+      // BUG-EDGE-014: Never generate a random client-side fallback ID.
+      // A random ID would not correspond to any real reservation in the backend,
+      // causing silent data corruption. Instead, throw so the caller can surface
+      // a proper error to the user.
+      if (id == null) {
+        throw new Error('El servidor no devolvió un ID de reserva válido.');
+      }
+
       return String(id);
     } catch {
       throw new Error('No se pudo crear la reserva en el servidor');

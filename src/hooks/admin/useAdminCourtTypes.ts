@@ -261,20 +261,31 @@ export function useAdminCourtTypes() {
     }
   };
 
-  const handleDelete = (item: CourtType) => {
-    const courtsCount = item.courts?.length ?? 0;
-    const hasPistas = courtsCount > 0;
-    setDeleteModal({
-      visible: true,
-      item,
-      canDelete: !hasPistas,
-      message: hasPistas
-        ? t('adminTypeDeleteBlocked', {
-            name: item.name,
-            count: courtsCount,
-          })
-        : t('adminTypeDeleteConfirm', { name: item.name }),
-    });
+  const handleDelete = async (item: CourtType) => {
+    try {
+      const res = await api.get(`/court-types/${item.id}`);
+      const freshData = res.data as CourtType;
+      const courtsCount = freshData.courts?.length ?? 0;
+      const hasPistas = courtsCount > 0;
+      setDeleteModal({
+        visible: true,
+        item,
+        canDelete: !hasPistas,
+        message: hasPistas
+          ? t('adminTypeDeleteBlocked', {
+              name: item.name,
+              count: courtsCount,
+            })
+          : t('adminTypeDeleteConfirm', { name: item.name }),
+      });
+    } catch {
+      setErrorModal({
+        visible: true,
+        title: t('bookingConfirmErrorTitle'),
+        message:
+          'No se pudo verificar si el tipo de pista tiene pistas asociadas. La eliminación fue bloqueada por seguridad.',
+      });
+    }
   };
 
   const confirmDelete = async () => {

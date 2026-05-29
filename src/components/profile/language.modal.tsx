@@ -3,6 +3,7 @@ import { View, Text, Modal, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
+import i18next from 'i18next';
 import { getAppLanguage, LANGUAGE_OPTIONS, setAppLanguage } from '../../i18n';
 import { Ionicons } from '@expo/vector-icons';
 import createModalCommonStyles from '../../style/general/modalCommon.styles';
@@ -63,7 +64,10 @@ export default function IdiomaModal({ visible, onClose }: Props) {
                 saveActive ? styles.saveText : undefined,
               ]}
             >
-              {saveActive ? t('commonSave') : t('commonClose')}
+              {/* BUG-UX-013: Use selected language for the save button label */}
+              {saveActive
+                ? i18next.t('commonSave', { lng: selectedLanguage })
+                : t('commonClose')}
             </Text>
           </TouchableOpacity>
         </View>

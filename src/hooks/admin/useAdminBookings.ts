@@ -189,8 +189,8 @@ export function useAdminBookings() {
     setFormData({
       ...EMPTY_FORM,
       reservation_date: today,
-      user_id: users[0]?.id ? String(users[0].id) : '',
-      court_id: courts[0]?.id ? String(courts[0].id) : '',
+      user_id: '',
+      court_id: '',
     });
     setModalVisible(true);
   };
@@ -232,9 +232,8 @@ export function useAdminBookings() {
       changes.end_time = updated.end_time;
     }
 
-    if ((original.status || 'PENDIENTE') !== updated.status) {
-      changes.status = updated.status;
-    }
+    // Always include status so a status-only change is never silently dropped
+    changes.status = updated.status;
 
     if ((original.note || '') !== updated.note.trim()) {
       changes.note = updated.note.trim();
@@ -244,16 +243,25 @@ export function useAdminBookings() {
   };
 
   const validateForm = () => {
+    const isValidDate = (d: string) =>
+      /^\d{4}-\d{2}-\d{2}$/.test(d) && !isNaN(Date.parse(d));
+    const isValidTime = (t: string) =>
+      /^([01]\d|2[0-3]):[0-5]\d$/.test(t);
+
     const userId = Number(formData.user_id);
     const courtId = Number(formData.court_id);
 
-    if (!Number.isFinite(userId) || userId <= 0)
-      return 'El usuario es obligatorio.';
-    if (!Number.isFinite(courtId) || courtId <= 0)
-      return 'La pista es obligatoria.';
+    if (!formData.user_id || !Number.isFinite(userId) || userId <= 0)
+      return 'Debes seleccionar un usuario.';
+    if (!formData.court_id || !Number.isFinite(courtId) || courtId <= 0)
+      return 'Debes seleccionar una pista.';
     if (!formData.reservation_date.trim()) return 'La fecha es obligatoria.';
+    if (!isValidDate(formData.reservation_date))
+      return 'Formato de fecha inválido (YYYY-MM-DD).';
     if (!formData.start_time.trim()) return 'La hora inicio es obligatoria.';
     if (!formData.end_time.trim()) return 'La hora fin es obligatoria.';
+    if (!isValidTime(formData.start_time) || !isValidTime(formData.end_time))
+      return 'Formato de hora inválido (HH:MM).';
     if (formData.start_time >= formData.end_time)
       return 'La hora fin debe ser posterior a la hora inicio.';
 

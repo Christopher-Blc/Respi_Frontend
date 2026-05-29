@@ -282,10 +282,22 @@ export function CourtFormModal({
                 value={formData.description}
                 multiline
                 numberOfLines={4}
+                maxLength={1000}
                 onChangeText={(t) =>
                   setFormData({ ...formData, description: t })
                 }
               />
+              <Text
+                style={{
+                  color: theme.textBody,
+                  fontSize: 11,
+                  textAlign: 'right',
+                  marginTop: -8,
+                  marginBottom: 8,
+                }}
+              >
+                {(formData.description || '').length}/1000
+              </Text>
 
               <InputLabel label="Imagen de pista" theme={theme} />
               <View

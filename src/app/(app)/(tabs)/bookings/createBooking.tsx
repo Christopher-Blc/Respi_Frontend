@@ -240,19 +240,32 @@ export default function CreateBooking() {
 
   const hasMembershipDiscount = membershipDiscountPct > 0;
 
-  const showError = (message: string) => {
-    setAlertModal({ visible: true, title: t('bookingConfirmErrorTitle'), message });
+  const showError = (title: string, message: string) => {
+    setAlertModal({ visible: true, title, message });
   };
 
   const handleSubmit = () => {
     if (!pistaId || !fechaReserva) {
-      showError(t('bookingCreateMissingData'));
+      showError('Datos incompletos', t('bookingCreateMissingData'));
       return;
     }
 
     if (horaInicioMin == null) {
-      showError(t('bookingCreateNoSlots'));
+      showError('Sin disponibilidad', t('bookingCreateNoSlots'));
       return;
+    }
+
+    // BUG-UX-004 + BUG-EDGE-005: Prevent booking a past time on today's date
+    if (fechaReserva) {
+      const now = new Date();
+      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      if (fechaReserva === today) {
+        const nowMinutes = now.getHours() * 60 + now.getMinutes();
+        if (horaInicioMin <= nowMinutes) {
+          showError('Horario inválido', 'No puedes reservar un horario en el pasado. Por favor selecciona una hora futura.');
+          return;
+        }
+      }
     }
 
     router.push({
@@ -427,7 +440,11 @@ export default function CreateBooking() {
               {t('bookingCreateEstimatedTotal')}
             </Text>
 
-            {hasMembershipDiscount ? (
+            {loadingMembership ? (
+              <Text style={styles.totalMeta}>
+                Calculando precio...
+              </Text>
+            ) : hasMembershipDiscount ? (
               <>
                 <Text style={styles.totalOldValue}>
                   {totalBase.toFixed(2)} EUR
@@ -442,12 +459,6 @@ export default function CreateBooking() {
               </>
             ) : (
               <Text style={styles.totalValue}>{totalBase.toFixed(2)} EUR</Text>
-            )}
-
-            {loadingMembership && (
-              <Text style={styles.totalMeta}>
-                Comprobando descuento de membresia...
-              </Text>
             )}
 
             <Text style={styles.totalMeta}>

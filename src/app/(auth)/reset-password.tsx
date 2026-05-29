@@ -56,6 +56,7 @@ export default function ResetPasswordScreen() {
     null,
   );
 
+  const redirectAfterSuccessRef = useRef(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const riseAnim = useRef(new Animated.Value(8)).current;
 
@@ -109,8 +110,11 @@ export default function ResetPasswordScreen() {
         'Contraseña restablecida correctamente. Redirigiendo al login...',
       );
       setFeedbackType('success');
+      redirectAfterSuccessRef.current = true;
       setTimeout(() => {
-        router.replace('/(auth)/login');
+        if (redirectAfterSuccessRef.current) {
+          router.replace('/(auth)/login');
+        }
       }, 2000);
     } catch (error) {
       setFeedback(getResetPasswordErrorMessage(error));
@@ -201,6 +205,19 @@ export default function ResetPasswordScreen() {
           disabled={!isPasswordValid || isSending}
           style={styles.actionButton}
         />
+
+        {feedbackType === 'success' && (
+          <GlassTextButton
+            text="Ir al login"
+            textColor={theme.onPrimary}
+            color={theme.primary}
+            onPress={() => {
+              redirectAfterSuccessRef.current = false;
+              router.replace('/(auth)/login');
+            }}
+            style={styles.actionButton}
+          />
+        )}
 
         <GlassTextButton
           text="Volver al login"

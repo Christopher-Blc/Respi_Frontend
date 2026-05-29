@@ -15,6 +15,7 @@ import { useAppTheme } from '../../context/ThemeContext';
 import { Court } from '../../types/types';
 import api from '../../services/api';
 import createCreateReviewModalStyles from '../../style/reviews/createReviewModal.styles';
+import { sanitizeInput } from '../../utils/sanitize';
 
 type Props = {
   court: Court;
@@ -57,8 +58,8 @@ export default function CreateReviewModal({ court, onClose, onCreated }: Props) 
     try {
       await api.post('/reviews', {
         court_id: court.id,
-        title: title.trim(),
-        text: text.trim(),
+        title: sanitizeInput(title.trim()),
+        text: sanitizeInput(text.trim()),
         rating,
       });
       setRating(0);
@@ -177,6 +178,18 @@ export default function CreateReviewModal({ court, onClose, onCreated }: Props) 
                   onChangeText={setTitle}
                   maxLength={100}
                 />
+                {title.length > 0 && (
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      color: theme.textMuted,
+                      textAlign: 'right',
+                      marginTop: 2,
+                    }}
+                  >
+                    {100 - title.length} caracteres restantes
+                  </Text>
+                )}
               </View>
 
               {/* Text */}
@@ -203,6 +216,18 @@ export default function CreateReviewModal({ court, onClose, onCreated }: Props) 
                   textAlignVertical="top"
                   maxLength={500}
                 />
+                {text.length > 0 && (
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      color: theme.textMuted,
+                      textAlign: 'right',
+                      marginTop: 2,
+                    }}
+                  >
+                    {500 - text.length} caracteres restantes
+                  </Text>
+                )}
               </View>
 
               {!!error && (

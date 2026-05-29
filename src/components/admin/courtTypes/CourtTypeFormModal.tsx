@@ -49,6 +49,11 @@ export function TipoCourtFormModal({
 }: Props) {
   const { theme } = useAppTheme();
   const { t } = useTranslation();
+  const [compressionInfo, setCompressionInfo] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!visible) setCompressionInfo(false);
+  }, [visible]);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -61,6 +66,7 @@ export function TipoCourtFormModal({
     if (!result.canceled && result.assets.length > 0) {
       setImagen(result.assets[0]);
       setRemoveExistingImage(false);
+      setCompressionInfo(true);
     }
   };
 
@@ -171,6 +177,14 @@ export function TipoCourtFormModal({
               />
             ) : null}
           </View>
+
+          {compressionInfo && (
+            <Text
+              style={{ color: theme.textBody, fontSize: 11, marginBottom: 6 }}
+            >
+              Imagen comprimida para optimizar el tamaño.
+            </Text>
+          )}
 
           {previewUri && isEditing ? (
             <TouchableOpacity
