@@ -117,10 +117,9 @@ export function InfoLineChartCard({
     chartMaxWidth,
     Math.max(targetWidthByRange, barsNaturalWidth),
   );
-  const enableHorizontalScroll =
-    isYtd || desiredChartWidth > chartInnerWidth + 4;
+  const enableHorizontalScroll = true;
   const chartWidth = enableHorizontalScroll
-    ? desiredChartWidth
+    ? Math.max(desiredChartWidth, chartInnerWidth + 120)
     : chartInnerWidth;
 
   const handleWebWheelScroll = (event: any) => {
@@ -203,11 +202,10 @@ export function InfoLineChartCard({
             <ScrollView
               ref={chartScrollRef}
               horizontal
-              showsHorizontalScrollIndicator={false}
-              style={[
-                styles.lineChartScroll,
-                { width: '100%', overflow: 'hidden' },
-              ]}
+              showsHorizontalScrollIndicator
+              persistentScrollbar
+              style={[styles.lineChartScroll, { width: '100%' }]}
+              contentContainerStyle={{ paddingBottom: 6 }}
               onScroll={handleChartScroll}
               scrollEventThrottle={16}
               {...(Platform.OS === 'web'

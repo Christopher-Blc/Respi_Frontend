@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Text, View, Modal, TouchableOpacity } from 'react-native';
+import { Text, View, Modal, TouchableOpacity, ScrollView } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { Court } from '../../../types/types';
 import { AppTheme } from '../../../theme';
@@ -29,6 +29,10 @@ export function CourtsAverageRatingChart({
   } | null>(null);
 
   const chartInternalWidth = (cardWidth || 300) - 70;
+  const BAR_WIDTH = 32;
+  const BAR_SPACING = 45;
+  const INITIAL_SPACING = 25;
+  const END_SPACING = 25;
 
   const barData = useMemo(() => {
     const reviewedCourtIds = new Set(reviews.map((r) => r.court_id));
@@ -65,7 +69,7 @@ export function CourtsAverageRatingChart({
           topLabelComponent: () => (
             <Text
               style={{
-                color: isSelected ? '#FFFFFF' : theme.textSubtitle,
+                color: isSelected ? '#FFFFFF' : theme.textTitle,
                 fontSize: 11,
                 fontWeight: 'bold',
                 marginBottom: 4,
@@ -93,6 +97,11 @@ export function CourtsAverageRatingChart({
 
   if (barData.length === 0) return null;
 
+  const chartContentWidth = Math.max(
+    chartInternalWidth,
+    barData.length * (BAR_WIDTH + BAR_SPACING) + INITIAL_SPACING + END_SPACING,
+  );
+
   return (
     <View
       style={[
@@ -108,18 +117,24 @@ export function CourtsAverageRatingChart({
         Valoraciones por Pista
       </Text>
 
-      <View style={{ marginTop: 25, alignItems: 'center' }}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator
+        persistentScrollbar
+        style={{ marginTop: 25 }}
+        contentContainerStyle={{ paddingBottom: 6 }}
+      >
         <BarChart
           data={barData}
-          width={chartInternalWidth}
+          width={chartContentWidth}
           height={140}
-          barWidth={32}
-          spacing={45}
+          barWidth={BAR_WIDTH}
+          spacing={BAR_SPACING}
           yAxisLabelWidth={35}
           noOfSections={5}
-          maxValue={5}
-          initialSpacing={25}
-          endSpacing={25}
+          maxValue={5.6}
+          initialSpacing={INITIAL_SPACING}
+          endSpacing={END_SPACING}
           hideRules={false}
           rulesType="dash"
           rulesColor={`${theme.borderAccentSoft}44`}
@@ -128,7 +143,7 @@ export function CourtsAverageRatingChart({
           yAxisColor={theme.borderAccentSoft}
           xAxisLabelsHeight={35} // Altura limpia, estándar y sin bugs abajo
         />
-      </View>
+      </ScrollView>
 
       {/* --- POPUP / MODAL PARA EL NOMBRE ENTERO --- */}
       <Modal
