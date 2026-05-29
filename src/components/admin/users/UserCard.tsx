@@ -93,27 +93,6 @@ export function UserCard({ item, theme, onEdit, onToggleActive }: Props) {
           style={[
             styles.pill,
             {
-              backgroundColor: '#2196F320',
-              borderColor: '#2196F3',
-              marginLeft: 6,
-            },
-          ]}
-        >
-          <Text
-            style={{
-              color: '#2196F3',
-              fontWeight: '700',
-            }}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {item.role}
-          </Text>
-        </View>
-        <View
-          style={[
-            styles.pill,
-            {
               backgroundColor: item.is_active ? '#4CAF5020' : '#F4433620',
               borderColor: item.is_active ? '#4CAF50' : '#F44336',
               marginLeft: 6,
@@ -160,7 +139,6 @@ export function UserCard({ item, theme, onEdit, onToggleActive }: Props) {
         contentContainerStyle={styles.pillsScrollContent}
         style={styles.rowWrap}
       >
-        <MetaPill label={item.role} theme={theme} />
         <MetaPill label={membershipLabel} theme={theme} />
         <MetaPill label={item.phone || 'Sin telefono'} theme={theme} />
         <MetaPill
