@@ -131,7 +131,7 @@ export interface Reservation {
 // ─── Notification ─────────────────────────────────────────────────
 export interface Notification {
   id: number;
-  user_id: number;
+  user_id: number | null;
   title: string | null;
   message: string;
   notification_type: string;

@@ -32,34 +32,34 @@ const extractRows = (payload: unknown): AppNotification[] => {
   return [];
 };
 
-const getNotificationTypeStyle = (tipoNoti?: string, theme?: any) => {
+const getNotificationTypeStyle = (tipoNoti?: string) => {
   const normalized = (tipoNoti || '').trim().toLowerCase();
 
   if (normalized.includes('alert')) {
     return {
-      color: '#FF99CC', // pastel pink
-      backgroundColor: '#FFE6F0', // pastel pink background
+      color: '#FF99CC',
+      backgroundColor: '#FFE6F0',
       borderColor: '#FF99CC',
     };
   }
   if (normalized.includes('promo')) {
     return {
-      color: '#A8D8EA', // sky blue
-      backgroundColor: '#E1F5FF', // sky blue background
+      color: '#A8D8EA',
+      backgroundColor: '#E1F5FF',
       borderColor: '#A8D8EA',
     };
   }
   if (normalized.includes('record')) {
     return {
-      color: '#FFB366', // pastel orange
-      backgroundColor: '#FFECCF', // pastel orange background
+      color: '#FFB366',
+      backgroundColor: '#FFECCF',
       borderColor: '#FFB366',
     };
   }
 
   return {
-    color: '#A8D8EA', // sky blue
-    backgroundColor: '#E1F5FF', // sky blue background
+    color: '#A8D8EA',
+    backgroundColor: '#E1F5FF',
     borderColor: '#A8D8EA',
   };
 };
@@ -68,6 +68,14 @@ interface NotificationsHistoryViewProps {
   backRoute: string;
   showTypeFilter?: boolean;
 }
+
+const getTargetUserId = (item: AppNotification): number | null => {
+  const candidate = (item as any)?.user_id ?? (item as any)?.userId ?? null;
+  if (candidate == null || candidate === '') return null;
+
+  const parsed = Number(candidate);
+  return Number.isFinite(parsed) ? parsed : null;
+};
 
 export default function NotificationsHistoryView({
   backRoute,
@@ -84,6 +92,7 @@ export default function NotificationsHistoryView({
   const [currentPage, setCurrentPage] = useState(1);
   const [showOnlyToday, setShowOnlyToday] = useState(false);
   const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [audienceTab, setAudienceTab] = useState<'mine' | 'general'>('mine');
 
   const currentUserId = useMemo(() => {
     if (!userToken) return null;
@@ -96,30 +105,23 @@ export default function NotificationsHistoryView({
   }, [userToken]);
 
   const loadNotifications = useCallback(async () => {
-    if (!currentUserId) {
-      setNotifications([]);
-      return;
-    }
-
     setLoading(true);
     try {
       const res = await api.get('/notifications');
       const rows = extractRows(res?.data);
-      const onlyMine = rows
-        .filter((item) => Number(item.user_id) === currentUserId)
-        .sort(
-          (left, right) =>
-            new Date(right.created_at).getTime() -
-            new Date(left.created_at).getTime(),
-        );
-      setNotifications(onlyMine);
+      const sorted = rows.sort(
+        (left, right) =>
+          new Date(right.created_at).getTime() -
+          new Date(left.created_at).getTime(),
+      );
+      setNotifications(sorted);
     } catch (error) {
       console.error('Error loading notifications from backend:', error);
       setNotifications([]);
     } finally {
       setLoading(false);
     }
-  }, [currentUserId]);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -142,8 +144,21 @@ export default function NotificationsHistoryView({
     );
   }, []);
 
+  const audienceNotifications = useMemo(() => {
+    return notifications.filter((item) => {
+      const targetUserId = getTargetUserId(item);
+
+      if (audienceTab === 'general') {
+        return targetUserId == null;
+      }
+
+      if (!currentUserId) return false;
+      return targetUserId === currentUserId;
+    });
+  }, [notifications, audienceTab, currentUserId]);
+
   const filteredNotifications = useMemo(() => {
-    let result = notifications;
+    let result = audienceNotifications;
 
     if (showOnlyToday) {
       result = result.filter((item) => isToday(item.created_at));
@@ -157,11 +172,17 @@ export default function NotificationsHistoryView({
     }
 
     return result;
-  }, [notifications, showOnlyToday, selectedType, isToday, showTypeFilter]);
+  }, [
+    audienceNotifications,
+    showOnlyToday,
+    selectedType,
+    isToday,
+    showTypeFilter,
+  ]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filteredNotifications.length, showOnlyToday, selectedType]);
+  }, [filteredNotifications.length, showOnlyToday, selectedType, audienceTab]);
 
   const PAGE_SIZE = 10;
   const totalPages = Math.ceil(filteredNotifications.length / PAGE_SIZE) || 1;
@@ -170,40 +191,45 @@ export default function NotificationsHistoryView({
     currentPage * PAGE_SIZE,
   );
 
-  const styles = useMemo(() => createNotificationsHistoryStyles(theme), [theme]);
+  const styles = useMemo(
+    () => createNotificationsHistoryStyles(theme),
+    [theme],
+  );
 
   const formatDate = useCallback(
     (value?: string | number) => {
       const date = new Date(value || 0);
-      if (Number.isNaN(date.getTime())) return '—';
+      if (Number.isNaN(date.getTime())) return '--';
       const today = new Date();
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
 
       if (date.toDateString() === today.toDateString()) {
         return `${t('today', { defaultValue: 'Hoy' })} ${date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`;
-      } else if (date.toDateString() === yesterday.toDateString()) {
-        return `${t('yesterday', { defaultValue: 'Ayer' })} ${date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`;
-      } else {
-        return date.toLocaleDateString('es-ES', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        });
       }
+
+      if (date.toDateString() === yesterday.toDateString()) {
+        return `${t('yesterday', { defaultValue: 'Ayer' })} ${date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`;
+      }
+
+      return date.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
     },
     [t],
   );
 
   const uniqueTypes = useMemo(() => {
     const types = new Set(
-      notifications.map((n) => n.notification_type).filter(Boolean),
+      audienceNotifications.map((n) => n.notification_type).filter(Boolean),
     );
     return Array.from(types);
-  }, [notifications]);
+  }, [audienceNotifications]);
 
   const renderNotificationItem = ({ item }: { item: AppNotification }) => {
-    const typeStyles = getNotificationTypeStyle(item.notification_type, theme);
+    const typeStyles = getNotificationTypeStyle(item.notification_type);
 
     return (
       <View
@@ -285,15 +311,85 @@ export default function NotificationsHistoryView({
       <Text style={[styles.emptySubtitle, { color: theme.textBody }]}>
         {showOnlyToday || selectedType
           ? 'Sin resultados con estos filtros.'
-          : t('noNotificationsDescription', {
-              defaultValue: 'No hay notificaciones para mostrar',
-            })}
+          : audienceTab === 'general'
+            ? 'No hay notificaciones generales para mostrar.'
+            : t('noNotificationsDescription', {
+                defaultValue: 'No hay notificaciones para mostrar',
+              })}
       </Text>
     </View>
   );
 
   const renderListHeader = () => (
     <View style={styles.listHeaderWrap}>
+      <View style={styles.audienceTabsRow}>
+        <TouchableOpacity
+          onPress={() => {
+            setAudienceTab('mine');
+            setSelectedType(null);
+            setShowOnlyToday(false);
+          }}
+          style={[
+            styles.audienceTab,
+            {
+              borderColor:
+                audienceTab === 'mine'
+                  ? theme.primaryButton
+                  : theme.primarySoft,
+              backgroundColor:
+                audienceTab === 'mine'
+                  ? theme.primaryButton + '25'
+                  : theme.backgroundCard,
+            },
+          ]}
+        >
+          <Text
+            style={{
+              color:
+                audienceTab === 'mine' ? theme.primaryButton : theme.textBody,
+              fontWeight: '700',
+              fontSize: 12,
+            }}
+          >
+            {t('profileNotifications', { defaultValue: 'Mis notificaciones' })}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => {
+            setAudienceTab('general');
+            setSelectedType(null);
+            setShowOnlyToday(false);
+          }}
+          style={[
+            styles.audienceTab,
+            {
+              borderColor:
+                audienceTab === 'general'
+                  ? theme.primaryButton
+                  : theme.primarySoft,
+              backgroundColor:
+                audienceTab === 'general'
+                  ? theme.primaryButton + '25'
+                  : theme.backgroundCard,
+            },
+          ]}
+        >
+          <Text
+            style={{
+              color:
+                audienceTab === 'general'
+                  ? theme.primaryButton
+                  : theme.textBody,
+              fontWeight: '700',
+              fontSize: 12,
+            }}
+          >
+            {t('adminSectionGeneral', { defaultValue: 'General' })}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <View style={styles.filterRow}>
         <TouchableOpacity
           onPress={() => setShowOnlyToday((prev) => !prev)}
@@ -515,4 +611,3 @@ export default function NotificationsHistoryView({
     </LinearGradient>
   );
 }
-
