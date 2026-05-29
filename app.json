@@ -23,6 +23,7 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": [
+          "processing",
           "processing"
         ]
       },
@@ -98,7 +99,7 @@
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/0fda7759-726c-4a3b-a748-28fbbbb1493c"
+      "url": "https://u.expo.dev/5252a828-417c-473b-83a3-7d93493fbb8e"
     },
     "owner": "respiteam"
   }
