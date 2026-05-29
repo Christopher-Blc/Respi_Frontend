@@ -198,9 +198,9 @@ export default function AdminTabLayout() {
       )}
       <SessionExpiredModal
         visible={showExpiredModal}
-        title="Acceso revocado"
-        message="Tu rol de administrador ha sido removido. Por favor inicia sesión nuevamente."
-        confirmText="Entendido"
+        title={t('adminAccessRevoked')}
+        message={t('adminAccessRevokedMessage')}
+        confirmText={t('commonUnderstood')}
         onConfirm={() => setShowExpiredModal(false)}
       />
     </React.Fragment>

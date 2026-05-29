@@ -47,16 +47,13 @@ export default function ManagementLayout() {
       /> */}
       <Stack.Screen
         name="reservas-global"
-        options={{ title: t('tabsBookings') }}
+        options={{ title: t('adminReservations') }}
       />
       <Stack.Screen
         name="validar-reserva"
-        options={{ title: 'Validar reserva' }}
+        options={{ title: t('adminValidateReservation') }}
       />
-      <Stack.Screen
-        name="pagos"
-        options={{ title: 'Pagos' }}
-      />
+      <Stack.Screen name="pagos" options={{ title: t('adminPayments') }} />
     </Stack>
   );
 }

@@ -6,34 +6,34 @@ import { passwordStrengthStyles as styles } from '../../style/auth/loginComponen
 
 type PasswordRequirement = {
   id: string;
-  label: string;
+  labelKey: string;
   validate: (password: string) => boolean;
 };
 
 const REQUIREMENTS: PasswordRequirement[] = [
   {
     id: 'length',
-    label: 'Longitud: Entre 8 y 128 caracteres',
+    labelKey: 'authRegisterPasswordLength',
     validate: (pwd) => pwd.length >= 8 && pwd.length <= 128,
   },
   {
     id: 'lowercase',
-    label: 'Minúscula: (a-z)',
+    labelKey: 'authRegisterPasswordLowercase',
     validate: (pwd) => /[a-z]/.test(pwd),
   },
   {
     id: 'uppercase',
-    label: 'Mayúscula: (A-Z)',
+    labelKey: 'authRegisterPasswordUppercase',
     validate: (pwd) => /[A-Z]/.test(pwd),
   },
   {
     id: 'number',
-    label: 'Número: min 1 - (0-9)',
+    labelKey: 'authRegisterPasswordNumber',
     validate: (pwd) => /\d/.test(pwd),
   },
   {
     id: 'symbol',
-    label: 'Símbolo: (!@#$%&*)',
+    labelKey: 'authRegisterPasswordSpecial',
     validate: (pwd) => /[!@#$%&*_\-+=\[\]{};:'",.<>?/\\|`~^()]/.test(pwd),
   },
 ];
@@ -80,7 +80,7 @@ export const PasswordStrengthIndicator: React.FC<Props> = ({ password }) => {
               },
             ]}
           >
-            {req.label}
+            {t(req.labelKey)}
           </Text>
         </View>
       ))}
@@ -88,11 +88,10 @@ export const PasswordStrengthIndicator: React.FC<Props> = ({ password }) => {
       {allMet && password.length > 0 && (
         <View style={styles.successMessage}>
           <Text style={[styles.successText, { color: theme.primaryButton }]}>
-            ✓ Contraseña válida
+            ✓ {t('authRegisterPasswordValid')}
           </Text>
         </View>
       )}
     </View>
   );
 };
-

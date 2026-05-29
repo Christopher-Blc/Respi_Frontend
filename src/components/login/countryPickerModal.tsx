@@ -1,16 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import {
-  FlatList,
-  Modal,
-  Pressable,
-  Text,
-  View,
-} from 'react-native';
+import { FlatList, Modal, Pressable, Text, View } from 'react-native';
 import { BlurViewCompat } from '../general/BlurViewCompat';
 import { useAppTheme } from '../../context/ThemeContext';
 import { countryPickerModalStyles as styles } from '../../style/auth/loginComponents.styles';
 import { GlassTextInput } from './glassTextInput';
 import { Country, EUROPEAN_COUNTRIES } from '../../types/utilsTypes';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   visible: boolean;
@@ -26,6 +21,7 @@ export const CountryPickerModal: React.FC<Props> = ({
   onClose,
 }) => {
   const { theme, isDarkMode } = useAppTheme();
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
@@ -64,7 +60,7 @@ export const CountryPickerModal: React.FC<Props> = ({
           >
             {/* Header */}
             <Text style={[styles.title, { color: theme.textTitle }]}>
-              Prefijo de país
+              {t('countryPickerTitle')}
             </Text>
 
             {/* Search bar */}
@@ -72,7 +68,7 @@ export const CountryPickerModal: React.FC<Props> = ({
               <GlassTextInput
                 value={query}
                 onChangeText={setQuery}
-                placeholder="Buscar país o prefijo…"
+                placeholder={t('countryPickerSearchPlaceholder')}
                 autoComplete="off"
               />
             </View>
@@ -88,7 +84,7 @@ export const CountryPickerModal: React.FC<Props> = ({
                 <Text
                   style={[styles.emptyText, { color: theme.grayLabelText }]}
                 >
-                  Sin resultados
+                  {t('countryPickerNoResults')}
                 </Text>
               }
               renderItem={({ item }) => {
@@ -141,4 +137,3 @@ export const CountryPickerModal: React.FC<Props> = ({
     </Modal>
   );
 };
-
