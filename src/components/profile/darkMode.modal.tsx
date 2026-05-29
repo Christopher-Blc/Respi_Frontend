@@ -11,7 +11,7 @@ import {
 import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
-import createModalDarkModeStyles from '../../style/modalDarkMode.styles';
+import createModalDarkModeStyles from '../../style/profile/modalDarkMode.styles';
 import { useTranslation } from 'react-i18next';
 import { ThemePalette } from '../../theme';
 

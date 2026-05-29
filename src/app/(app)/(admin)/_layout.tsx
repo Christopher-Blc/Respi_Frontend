@@ -17,7 +17,7 @@ import WebProfileBadge from '../../../components/general/WebProfileBadge';
 import { useTranslation } from 'react-i18next';
 import { RESPONSIVE_NAVIGATION_BREAKPOINT } from '../../../constants';
 import { useAdminRoleCheck } from '../../../hooks/admin/useAdminRoleCheck';
-import { SessionExpiredModal } from '../../../components/alert.modal';
+import { SessionExpiredModal } from '../../../components/general/alert.modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   flattenNavigationItems,

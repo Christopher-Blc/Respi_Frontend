@@ -19,7 +19,7 @@ import { usersAdminStyles as styles } from '../../../../style/admin/users.styles
 import { UserCard } from '../../../../components/admin/users/UserCard';
 import { UserFormModal } from '../../../../components/admin/users/UserFormModal';
 import { UsersFiltersModal } from '../../../../components/admin/users/UsersFiltersModal';
-import { SessionExpiredModal } from '../../../../components/alert.modal';
+import { SessionExpiredModal } from '../../../../components/general/alert.modal';
 import { useAdminUsers } from '../../../../hooks/admin/useAdminUsers';
 import { addSoftBreaks } from '../../../../utils/addSoftBreaks';
 import { usePullToRefresh } from '../../../../hooks/usePullToRefresh';

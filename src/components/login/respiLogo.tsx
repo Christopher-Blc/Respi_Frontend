@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Image } from 'expo-image'; // <--- Cambia el import
 import { useAppTheme } from '../../context/ThemeContext';
-import createLoginStyles from '../../style/login.styles';
+import createLoginStyles from '../../style/auth/login.styles';
 
 const RespiLogo = () => {
   const { theme } = useAppTheme();
@@ -15,6 +15,8 @@ const RespiLogo = () => {
       transition={0} // 0 para que no haya fundido, que salga de golpe
       priority="high" // Prioridad máxima de carga
       cachePolicy="memory" // Forzamos a que no salga de la RAM
+      accessible={true}
+      accessibilityLabel="Respi logo"
     />
   );
 };

@@ -2,7 +2,7 @@ import { RefreshControl, ScrollView, StyleSheet } from 'react-native';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import ProfileView from '../../../components/profile/profileView';
-import { useProfile } from '../../../hooks/useProfile';
+import { useProfile } from '../../../hooks/profile/useProfile';
 import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
 
 export default function ProfileClientes() {

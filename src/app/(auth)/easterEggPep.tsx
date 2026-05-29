@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  StyleSheet,
   Text,
   View,
   Dimensions,
@@ -12,6 +11,7 @@ import { BlurViewCompat } from '../../components/general/BlurViewCompat';
 import { GlassTextButton } from '../../components/login/glassTextButton';
 import { router } from 'expo-router';
 import { useAppTheme } from '../../context/ThemeContext';
+import { easterEggPepStyles as styles } from '../../style/auth/auth.styles';
 
 const { width, height } = Dimensions.get('window');
 const { theme } = useAppTheme();
@@ -212,7 +212,7 @@ const PepeBirthdayScreen = () => {
         <FloatingBall key={i} index={i} />
       ))}
 
-      <BlurViewCompat intensity={80} tint="light" style={styles.glassCard}>
+      <BlurViewCompat intensity={80} tint="light" style={[styles.glassCard, { width: width * 0.85 }]}>
         <View style={styles.photoFrame}>
           <Image
             source={
@@ -246,71 +246,5 @@ const PepeBirthdayScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  confetti: {
-    position: 'absolute',
-    top: -20,
-  },
-  floatingBall: {
-    position: 'absolute',
-  },
-  glassCard: {
-    width: width * 0.85,
-    padding: 25,
-    borderRadius: 30,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.6)',
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-  photoFrame: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    borderWidth: 6,
-    borderColor: '#95ADEE', // El azul de tu botón Pepe
-    overflow: 'hidden',
-    backgroundColor: '#ddd',
-    marginBottom: 20,
-  },
-  profeImage: {
-    width: '100%',
-    height: '100%',
-  },
-  congrats: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
-  },
-  phraseWrapper: {
-    height: 110,
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  innerPhrase: {
-    alignItems: 'center',
-  },
-  jokeText: {
-    fontSize: 19,
-    textAlign: 'center',
-    color: '#444',
-    lineHeight: 26,
-    fontWeight: '500',
-    fontStyle: 'italic',
-  },
-  signature: {
-    marginTop: 20,
-    fontSize: 14,
-    color: '#95ADEE',
-    fontWeight: 'bold',
-  },
-});
 
 export default PepeBirthdayScreen;

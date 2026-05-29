@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -16,12 +16,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppTheme } from '../../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
-import createPistasTabStyles from '../../../style/courtsTab.styles';
+import createPistasTabStyles from '../../../style/courts/courtsTab.styles';
 import {
   formatDateDisplay,
   formatPrice,
   useCourtsTab,
-} from '../../../hooks/useCourtsTab';
+} from '../../../hooks/courts/useCourtsTab';
 import { CourtAvailability, CourtType } from '../../../types/types';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../i18n';

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { reservationQrScannerNativeStyles as styles } from '../../../style/admin/reservationQrScanner.styles';
 import { Camera, CameraView, BarcodeScanningResult } from 'expo-camera';
 
 type Props = {
@@ -102,35 +103,3 @@ export default function ReservationQrScanner({
   );
 }
 
-const styles = StyleSheet.create({
-  permissionBtn: {
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    alignItems: 'center',
-  },
-  permissionBtnText: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  cameraWrap: {
-    width: '100%',
-    height: 260,
-    borderRadius: 14,
-    overflow: 'hidden',
-    position: 'relative',
-    marginBottom: 12,
-  },
-  reScanBtn: {
-    position: 'absolute',
-    bottom: 10,
-    alignSelf: 'center',
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  reScanText: {
-    fontWeight: '700',
-    fontSize: 13,
-  },
-});

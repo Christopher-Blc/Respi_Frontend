@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -12,12 +12,12 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAppTheme } from '../../../../context/ThemeContext';
-import { useAvailableBookings } from '../../../../hooks/useAvailableBookings';
+import { useAvailableBookings } from '../../../../hooks/bookings/useAvailableBookings';
 import { CourtAvailability } from '../../../../types/types';
 import DateModal from '../../../../components/bookings/date.modal';
 import { crearBloquesDisponibilidad } from '../../../../components/bookings/AvailabilityBar';
-import { SessionExpiredModal } from '../../../../components/alert.modal';
-import createReservasTabStyles from '../../../../style/bookingsTab.styles';
+import { SessionExpiredModal } from '../../../../components/general/alert.modal';
+import createReservasTabStyles from '../../../../style/bookings/bookingsTab.styles';
 import { useTranslation } from 'react-i18next';
 import { getDateLocale } from '../../../../i18n';
 import BookingDateStrip from '../../../../components/bookings/BookingDateStrip';
@@ -33,6 +33,24 @@ import {
   formatDateForAPI,
 } from '../../../../utils/bookingUtils';
 import { usePullToRefresh } from '../../../../hooks/usePullToRefresh';
+
+function BookingSkeleton({ theme }: { theme: any }) {
+  return (
+    <View style={{ padding: 16, gap: 12 }}>
+      {[1, 2, 3].map(i => (
+        <View
+          key={i}
+          style={{
+            height: 120,
+            borderRadius: 12,
+            backgroundColor: theme.surfaceMuted,
+            opacity: 0.6,
+          }}
+        />
+      ))}
+    </View>
+  );
+}
 
 export default function ReservasTab() {
   const { t, i18n } = useTranslation();
@@ -225,9 +243,7 @@ export default function ReservasTab() {
       <BookingStepBar currentStep={1} />
 
       {loading ? (
-        <View style={reservasTabStyles.loadingContainer}>
-          <ActivityIndicator size="large" color={theme.primary} />
-        </View>
+        <BookingSkeleton theme={theme} />
       ) : filteredPistas.length === 0 ? (
         <View style={reservasTabStyles.emptyContainer}>
           <Ionicons
@@ -294,6 +310,7 @@ export default function ReservasTab() {
             ) : null
           }
           renderItem={renderCourtCard}
+          initialNumToRender={4}
         />
       )}
     </View>

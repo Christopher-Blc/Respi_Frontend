@@ -22,7 +22,7 @@ import { InfoLineChartCard } from '../../../components/admin/info/InfoLineChartC
 import { useAdminReviews } from '../../../hooks/admin/useAdminReviews';
 import { CourtsAverageRatingChart } from '../../../components/admin/info/CourtsAverageRatingChart';
 import { useAdminReports } from '../../../hooks/admin/useAdminReports';
-import { ReportType } from '../../../services/reportsService';
+import { ReportType } from '../../../services/reports/reportsService';
 import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
 
 export default function InfoAdmin() {

@@ -1,8 +1,9 @@
 import React from 'react';
-import { FlatList, Modal, Pressable, StyleSheet, Text } from 'react-native';
+import { FlatList, Modal, Pressable, Text } from 'react-native';
 import { BlurViewCompat } from '../general/BlurViewCompat';
 import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '../../context/ThemeContext';
+import { languagePickerModalStyles as styles } from '../../style/auth/loginComponents.styles';
 import { AppLanguage, LANGUAGE_OPTIONS } from '../../i18n';
 
 type Props = {
@@ -109,44 +110,3 @@ export const LanguagePickerModal: React.FC<Props> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 30,
-  },
-  card: {
-    width: 300,
-    maxHeight: 420,
-    borderRadius: 22,
-    borderWidth: 0.8,
-    overflow: 'hidden',
-  },
-  title: {
-    fontWeight: '700',
-    fontSize: 16,
-    textAlign: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 18,
-  },
-  list: {
-    maxHeight: 300,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 18,
-    paddingVertical: 11,
-    borderBottomWidth: 0.3,
-    gap: 10,
-  },
-  languageName: {
-    flex: 1,
-    fontSize: 14,
-  },
-  code: {
-    fontSize: 13,
-  },
-});

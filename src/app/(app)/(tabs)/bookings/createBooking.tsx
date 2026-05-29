@@ -11,13 +11,13 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useAppTheme } from '../../../../context/ThemeContext';
-import { createCreateBookingStyles } from '../../../../style/create-booking.styles';
+import { createCreateBookingStyles } from '../../../../style/bookings/create-booking.styles';
 import { useTranslation } from 'react-i18next';
 import api from '../../../../services/api';
 import { getDateLocale } from '../../../../i18n';
 import { CourtAvailability, Membership, User } from '../../../../types/types';
 import { BookingStepBar } from '../../../../components/bookings/BookingStepBar';
-import { SessionExpiredModal } from '../../../../components/alert.modal';
+import { SessionExpiredModal } from '../../../../components/general/alert.modal';
 
 type ReservaActual = CourtAvailability['current_reservations'][number];
 

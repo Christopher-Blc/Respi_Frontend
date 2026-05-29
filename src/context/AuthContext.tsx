@@ -5,14 +5,14 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
-import { SessionExpiredModal } from '../components/alert.modal';
+import { SessionExpiredModal } from '../components/general/alert.modal';
 import {
   getToken,
   logout,
   onForceLogout,
   saveRefreshToken,
   saveToken,
-} from '../services/authStorage';
+} from '../services/auth/authStorage';
 import { jwtDecode } from 'jwt-decode';
 import { router } from 'expo-router';
 import { JWTPayload } from '../types/types';

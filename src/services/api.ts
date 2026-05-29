@@ -5,7 +5,7 @@ import {
   getRefreshToken, 
   saveRefreshToken, 
   logout 
-} from './authStorage';
+} from './auth/authStorage';
 
 // Esta variable vive fuera de la instancia para controlar peticiones simultáneas
 let isRedirecting = false;

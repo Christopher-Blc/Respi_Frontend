@@ -22,7 +22,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../../../context/ThemeContext';
 import api from '../../../../services/api';
-import { SessionExpiredModal } from '../../../../components/alert.modal';
+import { SessionExpiredModal } from '../../../../components/general/alert.modal';
 import { notificationsAdminStyles as styles } from '../../../../style/admin/notifications.styles';
 import { usePullToRefresh } from '../../../../hooks/usePullToRefresh';
 
