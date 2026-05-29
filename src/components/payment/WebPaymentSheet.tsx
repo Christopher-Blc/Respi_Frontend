@@ -7,15 +7,18 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
+import {
+  Elements,
+  PaymentElement,
+  useElements,
+  useStripe,
+} from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { webPaymentSheetStyles as styles } from '../../style/payment/webPaymentSheet.styles';
 
 const STRIPE_KEY = process.env.EXPO_PUBLIC_STRIPE_KEY ?? '';
 const stripePromise =
-  typeof window !== 'undefined' && STRIPE_KEY
-    ? loadStripe(STRIPE_KEY)
-    : null;
+  typeof window !== 'undefined' && STRIPE_KEY ? loadStripe(STRIPE_KEY) : null;
 
 type Props = {
   visible: boolean;
@@ -79,7 +82,11 @@ function CheckoutForm({
       )}
       {errorMsg ? <Text style={styles.error}>{errorMsg}</Text> : null}
       <TouchableOpacity
-        style={[styles.btn, styles.payBtn, (!stripeReady || loading) && { opacity: 0.6 }]}
+        style={[
+          styles.btn,
+          styles.payBtn,
+          (!stripeReady || loading) && { opacity: 0.6 },
+        ]}
         onPress={handlePay}
         disabled={!stripeReady || loading}
       >
@@ -110,7 +117,12 @@ export default function WebPaymentSheet({
 }: Props) {
   if (!stripePromise) {
     return (
-      <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
+      <Modal
+        visible={visible}
+        transparent
+        animationType="fade"
+        onRequestClose={onCancel}
+      >
         <View style={styles.backdrop}>
           <ScrollView
             style={styles.modalScroll}
@@ -119,10 +131,21 @@ export default function WebPaymentSheet({
           >
             <View style={styles.card}>
               <Text style={styles.title}>Error de configuración</Text>
-              <Text style={{ color: '#ef4444', textAlign: 'center', marginBottom: 16, fontSize: 14 }}>
-                La clave pública de Stripe no está configurada (EXPO_PUBLIC_STRIPE_KEY).
+              <Text
+                style={{
+                  color: '#ef4444',
+                  textAlign: 'center',
+                  marginBottom: 16,
+                  fontSize: 14,
+                }}
+              >
+                La clave pública de Stripe no está configurada
+                (EXPO_PUBLIC_STRIPE_KEY).
               </Text>
-              <TouchableOpacity style={[styles.btn, styles.cancelBtn]} onPress={onCancel}>
+              <TouchableOpacity
+                style={[styles.btn, styles.cancelBtn]}
+                onPress={onCancel}
+              >
                 <Text style={styles.cancelBtnText}>Cerrar</Text>
               </TouchableOpacity>
             </View>
@@ -135,7 +158,12 @@ export default function WebPaymentSheet({
   if (!clientSecret) return null;
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onCancel}
+    >
       <View style={styles.backdrop}>
         <ScrollView
           style={styles.modalScroll}
@@ -145,7 +173,11 @@ export default function WebPaymentSheet({
           <View style={styles.card}>
             <Text style={styles.title}>{merchantName}</Text>
             <Elements stripe={stripePromise} options={{ clientSecret }}>
-              <CheckoutForm amount={amount} onSuccess={onSuccess} onCancel={onCancel} />
+              <CheckoutForm
+                amount={amount}
+                onSuccess={onSuccess}
+                onCancel={onCancel}
+              />
             </Elements>
           </View>
         </ScrollView>
