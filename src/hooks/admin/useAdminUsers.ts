@@ -322,7 +322,9 @@ export function useAdminUsers() {
     if (!formData.email.trim()) return 'El email es obligatorio.';
     if (!formData.fecha_nacimiento.trim()) return 'La fecha de nacimiento es obligatoria.';
     if (!formData.direccion.trim()) return 'La direccion es obligatoria.';
-    if (!formData.password.trim()) return 'La password es obligatoria.';
+    if (!userToEdit && !formData.password.trim()) {
+      return 'La password es obligatoria.';
+    }
     return null;
   };
 
