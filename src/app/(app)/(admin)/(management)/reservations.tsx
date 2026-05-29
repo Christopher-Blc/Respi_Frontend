@@ -143,6 +143,55 @@ export default function AdminReservasGlobal() {
     );
   };
 
+  const renderPagination = () => {
+    if (loading || totalPages <= 1) return null;
+
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingVertical: 10,
+          paddingHorizontal: 16,
+          gap: 16,
+          backgroundColor: theme.backgroundCard,
+          borderTopWidth: 1,
+          borderTopColor: theme.primarySoft,
+          marginTop: 8,
+        }}
+      >
+        <TouchableOpacity
+          onPress={() => setCurrentPage((p) => Math.max(1, p - 1))}
+          disabled={currentPage === 1}
+        >
+          <Ionicons
+            name="chevron-back"
+            size={22}
+            color={currentPage === 1 ? theme.textBody + '40' : theme.primary}
+          />
+        </TouchableOpacity>
+        <Text
+          style={{ color: theme.textTitle, fontWeight: '700', fontSize: 14 }}
+        >
+          {currentPage} / {totalPages}
+        </Text>
+        <TouchableOpacity
+          onPress={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+          disabled={currentPage === totalPages}
+        >
+          <Ionicons
+            name="chevron-forward"
+            size={22}
+            color={
+              currentPage === totalPages ? theme.textBody + '40' : theme.primary
+            }
+          />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   return (
     <View
       style={[styles.container, { backgroundColor: theme.backgroundMain }]}
@@ -286,6 +335,7 @@ export default function AdminReservasGlobal() {
           numColumns={cardsColumns}
           keyExtractor={(item) => item.id.toString()}
           columnWrapperStyle={cardsColumns > 1 ? styles.gridRow : undefined}
+          ListFooterComponent={renderPagination}
           contentContainerStyle={[
             styles.gridContent,
             { paddingBottom: insets.bottom + 100 },
@@ -382,6 +432,7 @@ export default function AdminReservasGlobal() {
               }
               keyExtractor={(item) => item.id.toString()}
               nestedScrollEnabled
+              ListFooterComponent={renderPagination}
               contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
               renderItem={({ item }) => {
                 const statusColor =
@@ -486,52 +537,6 @@ export default function AdminReservasGlobal() {
         onClose={() => setModalVisible(false)}
         onSave={handleSave}
       />
-
-      {!loading && filteredReservations.length > 0 && totalPages > 1 && (
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingVertical: 10,
-            paddingHorizontal: 16,
-            gap: 16,
-            backgroundColor: theme.backgroundCard,
-            borderTopWidth: 1,
-            borderTopColor: theme.primarySoft,
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-          >
-            <Ionicons
-              name="chevron-back"
-              size={22}
-              color={currentPage === 1 ? theme.textBody + '40' : theme.primary}
-            />
-          </TouchableOpacity>
-          <Text
-            style={{ color: theme.textTitle, fontWeight: '700', fontSize: 14 }}
-          >
-            {currentPage} / {totalPages}
-          </Text>
-          <TouchableOpacity
-            onPress={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages}
-          >
-            <Ionicons
-              name="chevron-forward"
-              size={22}
-              color={
-                currentPage === totalPages
-                  ? theme.textBody + '40'
-                  : theme.primary
-              }
-            />
-          </TouchableOpacity>
-        </View>
-      )}
 
       <BookingsFiltersModal
         visible={filtersOpen}
