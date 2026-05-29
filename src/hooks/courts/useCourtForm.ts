@@ -129,7 +129,12 @@ export function useCourtForm(
 
       const activeDays = weeklySchedule.filter((day) => !day.closed);
       if (activeDays.length === 0) {
-        setErrorModal({ visible: true, title: 'Horario invalido', message: 'Debes dejar al menos un dia abierto para la pista.' });
+        setErrorModal({
+          visible: true,
+          title: 'Horario invalido',
+          message:
+            'La pista debe tener al menos un día de la semana configurado con horario de apertura y cierre.',
+        });
         return;
       }
 

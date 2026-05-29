@@ -337,7 +337,7 @@
   "pistasSportsAvailable": "Deportes disponibles",
   "pistasSportsAvailableSubtitle": "Selecciona uno para ver sus pistas sin salir de esta pantalla",
   "pistasCourtsAvailable": "Pistas disponibles",
-  "pistasNoCourtsForSport": "No hay pistas disponibles para este deporte en la fecha seleccionada.",
+  "pistasNoCourtsForSport": "No hay horarios disponibles para la fecha seleccionada. Prueba con otra fecha u otra pista.",
   "pistaTypesScreenTitle": "Nueva reserva",
   "pistaTypesHeaderKicker": "NUEVA RESERVA",
   "pistaTypesHeaderTitle": "Reserva tu pista ideal",

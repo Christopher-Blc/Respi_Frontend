@@ -21,8 +21,10 @@ import RespiLogo from '../../components/login/respiLogo';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 
-const sanitizeInput = (text: string) =>
-  text.replace(/[<>'"&]/g, (c) => ({ '<': '', '>': '', "'": '', '"': '', '&': '' }[c] ?? c));
+const sanitizeInput = (text: string): string =>
+  text
+    .replace(/javascript:/gi, '')
+    .replace(/[<>"&;`]/g, '');
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -212,7 +214,13 @@ const Login: React.FC = () => {
                     }}
                   >
                     {isResendDisabled
-                      ? t('authResendDisabled', { timer })
+                      ? (() => {
+                          const key = 'authResendDisabled';
+                          const translated = t(key, { timer });
+                          return translated === key
+                            ? `Reenviar en ${timer}s`
+                            : translated;
+                        })()
                       : t('authResend')}
                   </Text>
                 </Pressable>

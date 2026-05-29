@@ -96,6 +96,7 @@ export function useAdminUsers() {
   const [modalVisible, setModalVisible] = useState(false);
   const [userToEdit, setUserToEdit] = useState<AdminUser | null>(null);
   const [formData, setFormData] = useState<UserFormData>(EMPTY_FORM);
+  const [originalMembresiaId, setOriginalMembresiaId] = useState<string>('');
 
   const [confirmModal, setConfirmModal] = useState({
     visible: false,
@@ -302,6 +303,8 @@ export function useAdminUsers() {
 
   const openEditModal = (user: AdminUser) => {
     setUserToEdit(user);
+    const membresiaId = user.membership_id ? String(user.membership_id) : '';
+    setOriginalMembresiaId(membresiaId);
     setFormData({
       username: user.username || '',
       name: user.name || '',
@@ -309,12 +312,12 @@ export function useAdminUsers() {
       email: user.email || '',
       phone: user.phone || '',
       password: '',
-      role: user.role === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 'CLIENTE',
+      role: user.role,
       isActive: Boolean(user.is_active),
       email_verified: Boolean(user.email_verified),
       fecha_nacimiento: normalizeDateOnly(user.date_of_birth),
       direccion: user.address || '',
-      membresia_id: user.membership_id ? String(user.membership_id) : '',
+      membresia_id: membresiaId,
     });
     setModalVisible(true);
   };
@@ -324,7 +327,30 @@ export function useAdminUsers() {
     if (!formData.name.trim()) return 'El nombre es obligatorio.';
     if (!formData.surname.trim()) return 'El apellido es obligatorio.';
     if (!formData.email.trim()) return 'El email es obligatorio.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      return 'El formato del email es invalido.';
+    }
+    if (formData.phone.trim() && !/^[+]?[\d\s\-().]{7,20}$/.test(formData.phone.trim())) {
+      return 'Formato de teléfono inválido.';
+    }
     if (!formData.fecha_nacimiento.trim()) return 'La fecha de nacimiento es obligatoria.';
+    const dateStr = formData.fecha_nacimiento.trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      return 'La fecha de nacimiento debe tener el formato YYYY-MM-DD.';
+    }
+    const parsedDate = new Date(dateStr);
+    if (
+      Number.isNaN(parsedDate.getTime()) ||
+      parsedDate.toISOString().slice(0, 10) !== dateStr
+    ) {
+      return 'La fecha de nacimiento no es una fecha valida.';
+    }
+    const today = new Date();
+    const ageMs = today.getTime() - parsedDate.getTime();
+    const ageYears = ageMs / (1000 * 60 * 60 * 24 * 365.25);
+    if (ageYears < 5 || ageYears > 120) {
+      return 'La edad debe estar entre 5 y 120 años.';
+    }
     if (!formData.direccion.trim()) return 'La direccion es obligatoria.';
     if (!userToEdit && !formData.password.trim()) {
       return 'La password es obligatoria.';
@@ -350,15 +376,20 @@ export function useAdminUsers() {
         const password = formData.password.trim();
         const fechaNacimiento = formData.fecha_nacimiento.trim();
         const direccion = formData.direccion.trim();
-        const membresiaId = formData.membresia_id
-          ? Number(formData.membresia_id)
+        // BUG-CRUD-022: if memberships haven't loaded yet and the form field is
+        // empty, fall back to the original membership_id captured at modal open.
+        const effectiveMembresiaId =
+          memberships.length === 0 && !formData.membresia_id
+            ? originalMembresiaId
+            : formData.membresia_id;
+        const membresiaId = effectiveMembresiaId
+          ? Number(effectiveMembresiaId)
           : null;
         const currentMembresiaId =
           userToEdit.membership_id === undefined || userToEdit.membership_id === null
             ? null
             : Number(userToEdit.membership_id);
-        const currentRole =
-          userToEdit.role === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 'CLIENTE';
+        const currentRole = userToEdit.role;
         const currentFechaNacimiento = (userToEdit.date_of_birth || '').slice(0, 10);
 
         if (username !== (userToEdit.username || '')) payload.username = username;
@@ -463,6 +494,7 @@ export function useAdminUsers() {
   return {
     filteredUsers,
     memberships,
+    membershipsLoading: loading,
     loading,
     refresh: fetchUsers,
     searchQuery,

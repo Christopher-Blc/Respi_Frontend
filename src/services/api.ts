@@ -52,8 +52,26 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // --- RETRY LOGIC FOR TRANSIENT ERRORS (BUG-EDGE-011) ---
+    // Retry on network errors (no response) or 5xx server errors.
+    // Never retry 401 (handled below) or any /stripe/ endpoint (prevent double-charges).
+    const isNetworkError = !error.response;
+    const isServerError = error.response?.status >= 500;
+    const isStripeEndpoint = originalRequest?.url?.includes('/stripe/');
+
+    if ((isNetworkError || isServerError) && !isStripeEndpoint) {
+      originalRequest.__retryCount = originalRequest.__retryCount ?? 0;
+      const MAX_RETRIES = 2;
+      if (originalRequest.__retryCount < MAX_RETRIES) {
+        originalRequest.__retryCount += 1;
+        return new Promise((resolve) => setTimeout(resolve, 1000)).then(() =>
+          api(originalRequest)
+        );
+      }
+    }
+
     // --- FILTRO DE SEGURIDAD ---
-    // Si NO es un 401, no es cosa de "sesión caducada". 
+    // Si NO es un 401, no es cosa de "sesión caducada".
     // Lo devolvemos para que el componente (Login) maneje su error 400, 500, etc.
     if (error.response?.status !== 401) {
       return Promise.reject(error);

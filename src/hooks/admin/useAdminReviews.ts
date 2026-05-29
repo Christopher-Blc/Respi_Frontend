@@ -220,14 +220,14 @@ export function useAdminReviews() {
     if (!reviewToAnswer) return;
 
     const trimmedAnswer = adminAnswerText.trim();
-    // if (!trimmedAnswer) {
-    //   setErrorModal({
-    //     visible: true,
-    //     title: 'Campo invalido',
-    //     message: 'La respuesta del admin no puede estar vacia.',
-    //   });
-    //   return;
-    // }
+    if (!trimmedAnswer) {
+      setErrorModal({
+        visible: true,
+        title: 'Campo invalido',
+        message: 'La respuesta del administrador no puede estar vacía.',
+      });
+      return;
+    }
 
     try {
       await updateReviewRequest(reviewToAnswer.id, {

@@ -125,7 +125,12 @@ function AuthNavigation() {
     }
   }, [userToken, isLoading, segments, effectiveRole]);
 
-  if (isLoading || !isThemeReady) {
+  // BUG-SEC-009: While a token is present but the role has not yet been resolved,
+  // render a loading screen to prevent any protected route (including admin) from
+  // briefly flashing before the role-based redirect completes.
+  const roleIsPending = !isLoading && userToken !== null && effectiveRole === null;
+
+  if (isLoading || !isThemeReady || roleIsPending) {
     return (
       <View
         style={{
