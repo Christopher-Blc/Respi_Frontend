@@ -167,3 +167,10 @@ scp ResPi_dev1.0.1.apk respi@respi.es:/home/respi/ProyectoApp_Acceso_A_Datos/pub
 Proyecto realizado por **Javi**, **Mauro** y **Christopher**, como parte del **TFG**.
 
 ---
+
+## Update eas
+
+eas update --branch preview --message "Añadido login"
+---
+
+ 
