@@ -108,6 +108,14 @@ export default function CreateBooking() {
   const openingMinutes = useMemo(() => toMinutes(horaApertura), [horaApertura]);
   const closingMinutes = useMemo(() => toMinutes(horaCierre), [horaCierre]);
 
+  // Minutes since midnight that must have already passed for today's bookings
+  const minStartMinutes = useMemo(() => {
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    if (fechaReserva !== today) return 0;
+    return now.getHours() * 60 + now.getMinutes();
+  }, [fechaReserva]);
+
   const reservedRanges = useMemo(
     () =>
       reservasActuales
@@ -147,6 +155,7 @@ export default function CreateBooking() {
       start + duration <= closingMinutes;
       start += 30
     ) {
+      if (start <= minStartMinutes) continue;
       const end = start + duration;
       const hasOverlap = reservedRanges.some(
         (range) => start < range.end && end > range.start,
@@ -156,7 +165,7 @@ export default function CreateBooking() {
     }
 
     return slots;
-  }, [openingMinutes, closingMinutes, duration, reservedRanges]);
+  }, [openingMinutes, closingMinutes, duration, reservedRanges, minStartMinutes]);
 
   useEffect(() => {
     if (availableStarts.length === 0) {
