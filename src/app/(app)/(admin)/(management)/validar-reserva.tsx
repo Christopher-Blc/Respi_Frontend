@@ -237,6 +237,28 @@ export default function AdminReservationValidationScreen() {
             {result.kind === 'success' ? 'RESERVA VALIDA' : 'RESERVA NO VALIDA'}
           </Text>
 
+          {/* BUG-UX-012: Allow scanning another reservation after a result */}
+          <TouchableOpacity
+            style={[
+              styles.searchBtn,
+              {
+                backgroundColor: theme.primaryButton,
+                alignSelf: 'center',
+                marginBottom: 12,
+                paddingHorizontal: 18,
+              },
+            ]}
+            onPress={() => {
+              setResult(null);
+              setManualCode('');
+              setScanEnabled(true);
+            }}
+          >
+            <Text style={[styles.searchBtnText, { color: theme.onPrimary }]}>
+              Escanear otra reserva
+            </Text>
+          </TouchableOpacity>
+
           {result.kind === 'success' && reservation ? (
             <View style={styles.resultData}>
               <ResultRow

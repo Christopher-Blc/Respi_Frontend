@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Platform,
   RefreshControl,
@@ -121,7 +122,7 @@ export default function ReservationsHistory() {
     setRefreshing(false);
   }, [fetch]);
 
-  const handleCancel = useCallback(
+  const doCancelReserva = useCallback(
     async (id: number) => {
       try {
         await api.put(`/reservations/${id}`, { status: 'CANCELADA' });
@@ -131,6 +132,21 @@ export default function ReservationsHistory() {
       }
     },
     [fetch],
+  );
+
+  // BUG-UX-007: Confirm before cancelling
+  const handleCancel = useCallback(
+    (id: number) => {
+      Alert.alert(
+        'Cancelar reserva',
+        '¿Estás seguro de que quieres cancelar esta reserva? Esta acción no se puede deshacer.',
+        [
+          { text: 'No', style: 'cancel' },
+          { text: 'Sí, cancelar', style: 'destructive', onPress: () => doCancelReserva(id) },
+        ],
+      );
+    },
+    [doCancelReserva],
   );
 
   const filtered = useMemo(() => applyFilter(allReservations, filter), [allReservations, filter]);

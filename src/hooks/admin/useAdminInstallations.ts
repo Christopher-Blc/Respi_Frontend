@@ -140,6 +140,11 @@ export function useAdminInstallations() {
       return 'El estado debe ser activa o inactiva.';
     }
 
+    if (formData.phone.trim()) {
+      const isValidPhone = /^[+]?[\d\s\-().]{7,20}$/.test(formData.phone.trim());
+      if (!isValidPhone) return 'Formato de teléfono inválido';
+    }
+
     if (formData.email.trim()) {
       const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
         formData.email.trim(),

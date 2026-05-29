@@ -33,6 +33,7 @@ export const useRegister = () => {
     name: 'España',
   });
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
   const { t } = useTranslation();
@@ -110,6 +111,7 @@ export const useRegister = () => {
 
     try {
       setError('');
+      setIsLoading(true);
 
       const response = await api.post('/auth/register', {
         username,
@@ -132,6 +134,7 @@ export const useRegister = () => {
       const message = err.response?.data?.message || t('authConnectionError');
       console.log('Error en registro:', err.response?.data || err.message);
       setError(Array.isArray(message) ? message[0] : message);
+      setIsLoading(false);
     }
   };
 
@@ -163,6 +166,7 @@ export const useRegister = () => {
     maxBirthDateForApi,
     parseWebDateInput,
     error,
+    isLoading,
     handleTextChange,
     onDateChange,
     handleSubmit,

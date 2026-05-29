@@ -86,6 +86,7 @@ export default function NotificationsHistoryView({
   const { userToken } = useAuth();
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const insets = useSafeAreaInsets();
   const headerHeight = useHeaderHeight();
   const router = useRouter();
@@ -106,6 +107,7 @@ export default function NotificationsHistoryView({
 
   const loadNotifications = useCallback(async () => {
     setLoading(true);
+    setLoadError(false);
     try {
       const res = await api.get('/notifications');
       const rows = extractRows(res?.data);
@@ -117,6 +119,7 @@ export default function NotificationsHistoryView({
       setNotifications(sorted);
     } catch (error) {
       console.error('Error loading notifications from backend:', error);
+      setLoadError(true);
       setNotifications([]);
     } finally {
       setLoading(false);
@@ -298,27 +301,62 @@ export default function NotificationsHistoryView({
     );
   };
 
-  const renderEmptyState = () => (
-    <View style={styles.emptyContainer}>
-      <Ionicons
-        name="notifications-off-outline"
-        size={64}
-        color={theme.textSecondary}
-      />
-      <Text style={[styles.emptyTitle, { color: theme.textTitle }]}>
-        {t('noNotifications', { defaultValue: 'Sin notificaciones' })}
-      </Text>
-      <Text style={[styles.emptySubtitle, { color: theme.textBody }]}>
-        {showOnlyToday || selectedType
-          ? 'Sin resultados con estos filtros.'
-          : audienceTab === 'general'
-            ? 'No hay notificaciones generales para mostrar.'
-            : t('noNotificationsDescription', {
-                defaultValue: 'No hay notificaciones para mostrar',
-              })}
-      </Text>
-    </View>
-  );
+  // BUG-UX-015: Differentiate error state from truly empty
+  const renderEmptyState = () => {
+    if (loadError) {
+      return (
+        <View style={styles.emptyContainer}>
+          <Ionicons
+            name="cloud-offline-outline"
+            size={64}
+            color={theme.textSecondary}
+          />
+          <Text style={[styles.emptyTitle, { color: theme.textTitle }]}>
+            Error al cargar
+          </Text>
+          <Text style={[styles.emptySubtitle, { color: theme.textBody }]}>
+            No se pudieron cargar las notificaciones.
+          </Text>
+          <TouchableOpacity
+            onPress={refresh}
+            style={{
+              marginTop: 12,
+              paddingHorizontal: 20,
+              paddingVertical: 10,
+              borderRadius: 8,
+              backgroundColor: theme.primaryButton,
+            }}
+          >
+            <Text style={{ color: theme.onPrimary ?? '#fff', fontWeight: '600' }}>
+              Reintentar
+            </Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.emptyContainer}>
+        <Ionicons
+          name="notifications-off-outline"
+          size={64}
+          color={theme.textSecondary}
+        />
+        <Text style={[styles.emptyTitle, { color: theme.textTitle }]}>
+          {t('noNotifications', { defaultValue: 'Sin notificaciones' })}
+        </Text>
+        <Text style={[styles.emptySubtitle, { color: theme.textBody }]}>
+          {showOnlyToday || selectedType
+            ? 'Sin resultados con estos filtros.'
+            : audienceTab === 'general'
+              ? 'No hay notificaciones generales para mostrar.'
+              : t('noNotificationsDescription', {
+                  defaultValue: 'No hay notificaciones para mostrar',
+                })}
+        </Text>
+      </View>
+    );
+  };
 
   const renderListHeader = () => (
     <View style={styles.listHeaderWrap}>

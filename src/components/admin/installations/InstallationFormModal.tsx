@@ -127,16 +127,36 @@ export function InstallationFormModal({
             />
 
             <InputLabel label="Estado" theme={theme} />
-            <TextInput
-              style={[
-                styles.input,
-                { color: theme.textTitle, borderColor: theme.primarySoft },
-              ]}
-              placeholder="activa o inactiva"
-              placeholderTextColor={theme.textBody + '80'}
-              value={formData.status}
-              onChangeText={(v) => setFormData({ ...formData, status: v })}
-            />
+            <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
+              {(['activa', 'inactiva'] as const).map((option) => {
+                const selected = formData.status === option;
+                return (
+                  <TouchableOpacity
+                    key={option}
+                    onPress={() => setFormData({ ...formData, status: option })}
+                    style={{
+                      flex: 1,
+                      paddingVertical: 10,
+                      borderRadius: 20,
+                      borderWidth: 1,
+                      borderColor: selected ? theme.primary : theme.primarySoft,
+                      backgroundColor: selected ? theme.primary + '20' : 'transparent',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: selected ? theme.primary : theme.textBody,
+                        fontWeight: selected ? '700' : '400',
+                        fontSize: 13,
+                      }}
+                    >
+                      {option}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
 
             <TouchableOpacity
               style={[styles.saveBtn, { backgroundColor: theme.primary }]}

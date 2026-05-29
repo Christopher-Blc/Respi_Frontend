@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  ActivityIndicator,
   Text,
   View,
   ScrollView,
@@ -25,8 +26,10 @@ import { useAppTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { useRegister } from '../../hooks/auth/useRegister';
 
-const sanitizeInput = (text: string) =>
-  text.replace(/[<>'"&]/g, (c) => ({ '<': '', '>': '', "'": '', '"': '', '&': '' }[c] ?? c));
+const sanitizeInput = (text: string): string =>
+  text
+    .replace(/javascript:/gi, '')
+    .replace(/[<>"&;`]/g, '');
 
 const Register: React.FC = () => {
   const { t } = useTranslation();
@@ -59,6 +62,7 @@ const Register: React.FC = () => {
     maxBirthDateForApi,
     parseWebDateInput,
     error,
+    isLoading,
     handleTextChange,
     onDateChange,
     handleSubmit,
@@ -392,12 +396,20 @@ const Register: React.FC = () => {
           )}
 
           <GlassTextButton
-            text={t('authRegisterButton')}
+            text={isLoading ? 'Registrando...' : t('authRegisterButton')}
             textColor={theme.onPrimary}
             onPress={handleSubmit}
-            color={theme.primaryButton}
+            color={isLoading ? theme.textSubtle : theme.primaryButton}
+            disabled={isLoading}
             //isDarkMode={isDarkMode}
           />
+          {isLoading && (
+            <ActivityIndicator
+              size="small"
+              color={theme.primary}
+              style={{ marginTop: 8 }}
+            />
+          )}
 
           <View style={{ height: 16 }} />
           <Text

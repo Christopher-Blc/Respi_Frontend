@@ -95,7 +95,7 @@ export default function ReservasTab() {
       .trim();
 
   const formattedDate = formatDateForAPI(selectedDate);
-  const { pistas, loading, refetch } = useAvailableBookings(formattedDate);
+  const { pistas, loading, error, refetch } = useAvailableBookings(formattedDate);
   const { refreshing, onRefresh } = usePullToRefresh(refetch);
   const availableDays = useMemo(() => getNext7Days(), []);
   const minimumDate = useMemo(
@@ -244,6 +244,35 @@ export default function ReservasTab() {
 
       {loading ? (
         <BookingSkeleton theme={theme} />
+      ) : error ? (
+        // BUG-EDGE-012: Distinct error state with retry button
+        <View style={reservasTabStyles.emptyContainer}>
+          <Ionicons
+            name="cloud-offline-outline"
+            size={48}
+            color={theme.textMuted}
+          />
+          <Text style={reservasTabStyles.emptyTitle}>
+            Error al cargar las pistas
+          </Text>
+          <Text style={reservasTabStyles.emptySubtitle}>
+            Error al cargar la disponibilidad. Tira hacia abajo para intentar de nuevo.
+          </Text>
+          <Pressable
+            onPress={refetch}
+            style={{
+              marginTop: 12,
+              paddingHorizontal: 20,
+              paddingVertical: 10,
+              borderRadius: 8,
+              backgroundColor: theme.primary,
+            }}
+          >
+            <Text style={{ color: theme.onPrimary, fontWeight: '600' }}>
+              Reintentar
+            </Text>
+          </Pressable>
+        </View>
       ) : filteredPistas.length === 0 ? (
         <View style={reservasTabStyles.emptyContainer}>
           <Ionicons

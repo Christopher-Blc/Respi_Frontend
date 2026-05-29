@@ -104,10 +104,9 @@ export default function ForgotPasswordScreen() {
     try {
       await api.post(FORGOT_PASSWORD_ENDPOINT, { email });
       setFeedback(
-        'Hemos enviado un enlace de recuperación a tu email. Revisa tu bandeja de entrada.',
+        `Hemos enviado un enlace de recuperación a ${email}. Revisa tu bandeja de entrada.`,
       );
       setFeedbackType('success');
-      setEmail('');
     } catch (error) {
       setFeedback(getForgotPasswordErrorMessage(error));
       setFeedbackType('error');

@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { Alert, Platform } from 'react-native';
 import WebPaymentSheet from '../../components/payment/WebPaymentSheet';
 import api from '../../services/api';
 
@@ -55,7 +56,23 @@ export function useStripePayment(): UseStripePaymentResult {
         paymentIntentId,
       });
     } catch (e) {
-      console.warn('[Stripe] manual-confirm failed, webhook may handle it', e);
+      // BUG-EDGE-003: Stripe charged successfully but our backend confirm failed.
+      // Do NOT retry automatically (risk of double-confirm). Inform the user so
+      // they can contact support. The payment ID (pi_xxx) is non-sensitive.
+      console.warn('[Stripe] manual-confirm failed. Payment ID:', paymentIntentId, 'Reservation ID:', reservationIdRef.current, e);
+      const reservationId = reservationIdRef.current;
+      const message =
+        `Tu pago fue procesado correctamente pero hubo un error al confirmar la reserva. ` +
+        `Por favor contacta con soporte indicando tu ID de reserva: ${reservationId} ` +
+        `(referencia de pago: ${paymentIntentId}).`;
+      if (Platform.OS === 'web') {
+        // On web, Alert.alert is not always available; use window.alert as fallback.
+        if (typeof window !== 'undefined' && window.alert) {
+          window.alert(message);
+        }
+      } else {
+        Alert.alert('Error al confirmar reserva', message);
+      }
     }
     resolveRef.current?.(true);
     resolveRef.current = null;

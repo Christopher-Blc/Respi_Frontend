@@ -339,6 +339,20 @@ export function useCreateBooking() {
       return;
     }
 
+    // BUG-EDGE-005: Prevent booking a past time slot on today's date
+    const now = new Date();
+    const isToday =
+      fechaInicio.getFullYear() === now.getFullYear() &&
+      fechaInicio.getMonth() === now.getMonth() &&
+      fechaInicio.getDate() === now.getDate();
+    if (isToday && fechaInicio <= now) {
+      Alert.alert(
+        'Horario inválido',
+        'No puedes reservar un horario en el pasado. Por favor selecciona una hora futura.',
+      );
+      return;
+    }
+
     if (!selectedCourt) {
       setSnackbarMessage('Selecciona una pista para continuar');
       setSnackbarVisible(true);
@@ -371,12 +385,22 @@ export function useCreateBooking() {
       setTimeout(() => router.replace('/bookings'), 900);
     } catch (error: any) {
       console.error('createReserva error', error);
-      setSnackbarMessage(
-        error?.response?.data?.message ||
-          error?.message ||
-          'No se pudo crear la reserva',
-      );
-      setSnackbarVisible(true);
+      // BUG-CRUD-011: Map conflict/overlap errors to a user-friendly message
+      const status = error?.response?.status;
+      const apiMessage: string =
+        (error?.response?.data?.message as string) || (error?.message as string) || '';
+      const isConflict =
+        status === 409 ||
+        /already.?booked|conflict|occupied|solapamiento|ya.?reservad/i.test(apiMessage);
+      if (isConflict) {
+        Alert.alert(
+          'Horario no disponible',
+          'Este horario ya está reservado. Por favor selecciona otro horario disponible.',
+        );
+      } else {
+        setSnackbarMessage(apiMessage || 'No se pudo crear la reserva');
+        setSnackbarVisible(true);
+      }
     } finally {
       setLoading(false);
     }

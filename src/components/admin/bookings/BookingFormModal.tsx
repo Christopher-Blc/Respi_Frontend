@@ -99,9 +99,12 @@ export function BookingFormModal({
     });
   }, [courts]);
 
-  const isStatusLocked =
+  const isLocked =
     isEditing &&
     (reservationStatus === 'FINALIZADA' || reservationStatus === 'CANCELADA');
+
+  // Keep backward-compat name for the status segment block
+  const isStatusLocked = isLocked;
 
   return (
     <Modal visible={visible} animationType="none" transparent onRequestClose={onClose}>
@@ -122,6 +125,22 @@ export function BookingFormModal({
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false}>
+            {isLocked && (
+              <View
+                style={{
+                  backgroundColor: '#f5a62330',
+                  borderColor: '#f5a623',
+                  borderWidth: 1,
+                  borderRadius: 10,
+                  padding: 10,
+                  marginBottom: 14,
+                }}
+              >
+                <Text style={{ color: '#c47d00', fontSize: 13, fontWeight: '600' }}>
+                  Esta reserva está finalizada y no puede modificarse.
+                </Text>
+              </View>
+            )}
             <View style={styles.twoColumnsRow}>
               <View style={styles.column}>
                 <InputLabel label="Usuario" theme={theme} />
@@ -129,11 +148,15 @@ export function BookingFormModal({
                   style={[
                     styles.selectButton,
                     {
-                      backgroundColor: theme.backgroundMain,
+                      backgroundColor: isLocked
+                        ? theme.backgroundMain + '80'
+                        : theme.backgroundMain,
                       borderColor: theme.primarySoft,
+                      opacity: isLocked ? 0.6 : 1,
                     },
                   ]}
-                  onPress={() => setShowUserPicker(true)}
+                  onPress={() => !isLocked && setShowUserPicker(true)}
+                  disabled={isLocked}
                 >
                   <Text
                     style={[
@@ -162,11 +185,15 @@ export function BookingFormModal({
                   style={[
                     styles.selectButton,
                     {
-                      backgroundColor: theme.backgroundMain,
+                      backgroundColor: isLocked
+                        ? theme.backgroundMain + '80'
+                        : theme.backgroundMain,
                       borderColor: theme.primarySoft,
+                      opacity: isLocked ? 0.6 : 1,
                     },
                   ]}
-                  onPress={() => setShowCourtPicker(true)}
+                  onPress={() => !isLocked && setShowCourtPicker(true)}
+                  disabled={isLocked}
                 >
                   <Text
                     style={[
@@ -197,6 +224,7 @@ export function BookingFormModal({
                   style={[
                     styles.input,
                     { color: theme.textTitle, borderColor: theme.primarySoft },
+                    isLocked && { opacity: 0.5 },
                   ]}
                   value={formData.reservation_date}
                   onChangeText={(v) =>
@@ -204,6 +232,7 @@ export function BookingFormModal({
                   }
                   placeholder="2026-05-08"
                   placeholderTextColor={theme.textBody + '70'}
+                  editable={!isLocked}
                 />
               </View>
 
@@ -283,6 +312,7 @@ export function BookingFormModal({
                   style={[
                     styles.input,
                     { color: theme.textTitle, borderColor: theme.primarySoft },
+                    isLocked && { opacity: 0.5 },
                   ]}
                   value={formData.start_time}
                   onChangeText={(v) =>
@@ -290,6 +320,7 @@ export function BookingFormModal({
                   }
                   placeholder="10:00"
                   placeholderTextColor={theme.textBody + '70'}
+                  editable={!isLocked}
                 />
               </View>
 
@@ -299,6 +330,7 @@ export function BookingFormModal({
                   style={[
                     styles.input,
                     { color: theme.textTitle, borderColor: theme.primarySoft },
+                    isLocked && { opacity: 0.5 },
                   ]}
                   value={formData.end_time}
                   onChangeText={(v) =>
@@ -306,6 +338,7 @@ export function BookingFormModal({
                   }
                   placeholder="11:00"
                   placeholderTextColor={theme.textBody + '70'}
+                  editable={!isLocked}
                 />
               </View>
             </View>
@@ -320,17 +353,23 @@ export function BookingFormModal({
                   minHeight: 90,
                   textAlignVertical: 'top',
                 },
+                isLocked && { opacity: 0.5 },
               ]}
               multiline
               value={formData.note}
               onChangeText={(v) => setFormData({ ...formData, note: v })}
               placeholder="Detalles de la reserva"
               placeholderTextColor={theme.textBody + '70'}
+              editable={!isLocked}
             />
 
             <TouchableOpacity
-              style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-              onPress={onSave}
+              style={[
+                styles.saveBtn,
+                { backgroundColor: isLocked ? theme.primarySoft : theme.primary },
+              ]}
+              onPress={isLocked ? undefined : onSave}
+              disabled={isLocked}
             >
               <Text style={styles.saveBtnText}>
                 {isEditing ? 'Guardar cambios' : 'Crear reserva'}
@@ -364,41 +403,54 @@ export function BookingFormModal({
               Selecciona una pista
             </Text>
             <ScrollView style={styles.dropdownList}>
-              {uniqueCourts.map((court) => {
-                const selected = String(court.id) === String(formData.court_id);
-                return (
-                  <TouchableOpacity
-                    key={court.id}
-                    style={[
-                      styles.dropdownOption,
-                      {
-                        backgroundColor: selected
-                          ? theme.primary + '12'
-                          : theme.backgroundMain,
-                        borderColor: selected
-                          ? theme.primary
-                          : theme.primarySoft,
-                      },
-                      selected && styles.dropdownOptionSelected,
-                    ]}
-                    onPress={() => {
-                      setFormData({ ...formData, court_id: String(court.id) });
-                      setShowCourtPicker(false);
-                    }}
-                  >
-                    <Text
+              {uniqueCourts.length === 0 ? (
+                <View
+                  style={[
+                    styles.dropdownOption,
+                    { backgroundColor: theme.backgroundMain, borderColor: theme.primarySoft },
+                  ]}
+                >
+                  <Text style={[styles.dropdownOptionText, { color: theme.textBody }]}>
+                    No hay pistas disponibles
+                  </Text>
+                </View>
+              ) : (
+                uniqueCourts.map((court) => {
+                  const selected = String(court.id) === String(formData.court_id);
+                  return (
+                    <TouchableOpacity
+                      key={court.id}
                       style={[
-                        selected
-                          ? styles.dropdownOptionTextSelected
-                          : styles.dropdownOptionText,
-                        { color: selected ? theme.primary : theme.textTitle },
+                        styles.dropdownOption,
+                        {
+                          backgroundColor: selected
+                            ? theme.primary + '12'
+                            : theme.backgroundMain,
+                          borderColor: selected
+                            ? theme.primary
+                            : theme.primarySoft,
+                        },
+                        selected && styles.dropdownOptionSelected,
                       ]}
+                      onPress={() => {
+                        setFormData({ ...formData, court_id: String(court.id) });
+                        setShowCourtPicker(false);
+                      }}
                     >
-                      {court.name}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+                      <Text
+                        style={[
+                          selected
+                            ? styles.dropdownOptionTextSelected
+                            : styles.dropdownOptionText,
+                          { color: selected ? theme.primary : theme.textTitle },
+                        ]}
+                      >
+                        {court.name}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })
+              )}
             </ScrollView>
           </Pressable>
         </Pressable>
@@ -428,50 +480,63 @@ export function BookingFormModal({
               Selecciona un usuario
             </Text>
             <ScrollView style={styles.dropdownList}>
-              {users.map((user) => {
-                const selected = String(user.id) === String(formData.user_id);
-                return (
-                  <TouchableOpacity
-                    key={user.id}
-                    style={[
-                      styles.dropdownOption,
-                      {
-                        backgroundColor: selected
-                          ? theme.primary + '12'
-                          : theme.backgroundMain,
-                        borderColor: selected
-                          ? theme.primary
-                          : theme.primarySoft,
-                      },
-                      selected && styles.dropdownOptionSelected,
-                    ]}
-                    onPress={() => {
-                      setFormData({ ...formData, user_id: String(user.id) });
-                      setShowUserPicker(false);
-                    }}
-                  >
-                    <Text
+              {users.length === 0 ? (
+                <View
+                  style={[
+                    styles.dropdownOption,
+                    { backgroundColor: theme.backgroundMain, borderColor: theme.primarySoft },
+                  ]}
+                >
+                  <Text style={[styles.dropdownOptionText, { color: theme.textBody }]}>
+                    No hay usuarios disponibles
+                  </Text>
+                </View>
+              ) : (
+                users.map((user) => {
+                  const selected = String(user.id) === String(formData.user_id);
+                  return (
+                    <TouchableOpacity
+                      key={user.id}
                       style={[
-                        selected
-                          ? styles.dropdownOptionTextSelected
-                          : styles.dropdownOptionText,
-                        { color: selected ? theme.primary : theme.textTitle },
+                        styles.dropdownOption,
+                        {
+                          backgroundColor: selected
+                            ? theme.primary + '12'
+                            : theme.backgroundMain,
+                          borderColor: selected
+                            ? theme.primary
+                            : theme.primarySoft,
+                        },
+                        selected && styles.dropdownOptionSelected,
                       ]}
-                    >
-                      {user.username}
-                    </Text>
-                    <Text
-                      style={{
-                        color: theme.textBody,
-                        fontSize: 12,
-                        marginTop: 4,
+                      onPress={() => {
+                        setFormData({ ...formData, user_id: String(user.id) });
+                        setShowUserPicker(false);
                       }}
                     >
-                      {user.email}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+                      <Text
+                        style={[
+                          selected
+                            ? styles.dropdownOptionTextSelected
+                            : styles.dropdownOptionText,
+                          { color: selected ? theme.primary : theme.textTitle },
+                        ]}
+                      >
+                        {user.username}
+                      </Text>
+                      <Text
+                        style={{
+                          color: theme.textBody,
+                          fontSize: 12,
+                          marginTop: 4,
+                        }}
+                      >
+                        {user.email}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })
+              )}
             </ScrollView>
           </Pressable>
         </Pressable>

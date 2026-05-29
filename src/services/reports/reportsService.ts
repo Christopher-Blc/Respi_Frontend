@@ -110,6 +110,11 @@ async function buildReservationsHtml(): Promise<string> {
   const res = await api.get('/reservations');
   const reservations: Reservation[] = extractRows(res.data);
 
+  // BUG-EDGE-008: Prevent generating an empty PDF when there is no data.
+  if (reservations.length === 0) {
+    throw new Error('No hay datos disponibles para generar el reporte.');
+  }
+
   const total = reservations.length;
   const confirmed = reservations.filter((r) => r.status === 'CONFIRMADA').length;
   const pending = reservations.filter((r) => r.status === 'PENDIENTE').length;
@@ -163,6 +168,11 @@ async function buildUsersHtml(): Promise<string> {
   const res = await api.get('/users');
   const users: User[] = extractRows(res.data);
 
+  // BUG-EDGE-008: Prevent generating an empty PDF when there is no data.
+  if (users.length === 0) {
+    throw new Error('No hay datos disponibles para generar el reporte.');
+  }
+
   const total = users.length;
   const active = users.filter((u) => u.is_active).length;
   const withMembership = users.filter((u) => u.membership_id).length;
@@ -212,6 +222,11 @@ async function buildUsersHtml(): Promise<string> {
 async function buildRevenueHtml(): Promise<string> {
   const res = await api.get('/reservations');
   const reservations: Reservation[] = extractRows(res.data);
+
+  // BUG-EDGE-008: Prevent generating an empty PDF when there is no data.
+  if (reservations.length === 0) {
+    throw new Error('No hay datos disponibles para generar el reporte.');
+  }
 
   const paid = reservations.filter((r) => r.status !== 'CANCELADA');
   const totalRevenue = paid.reduce((acc, r) => acc + parseFloat(r.total_price || '0'), 0);
