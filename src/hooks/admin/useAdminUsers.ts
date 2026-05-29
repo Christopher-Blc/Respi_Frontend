@@ -247,6 +247,10 @@ export function useAdminUsers() {
     const qUser = userFilter.trim().toLowerCase();
 
     return users.filter((user) => {
+      if ((user.username || '').toLowerCase().includes('deleted_user_')) {
+        return false;
+      }
+
       if (q) {
         const text = [
           user.username,

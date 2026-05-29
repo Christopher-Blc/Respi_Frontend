@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Modal,
   ScrollView,
@@ -60,6 +60,7 @@ export function UserFormModal({
   onSave,
 }: Props) {
   const { theme } = useAppTheme();
+  const [showPassword, setShowPassword] = useState(false);
 
   const segmentBase = {
     borderColor: theme.primarySoft,
@@ -143,18 +144,41 @@ export function UserFormModal({
             />
 
             <InputLabel
-              label={isEditing ? 'Nueva password (opcional)' : 'Password'}
+              label={isEditing ? 'Nueva password' : 'Password'}
               theme={theme}
             />
-            <TextInput
-              style={[
-                styles.input,
-                { color: theme.textTitle, borderColor: theme.primarySoft },
-              ]}
-              secureTextEntry
-              value={formData.password}
-              onChangeText={(v) => setFormData({ ...formData, password: v })}
-            />
+            <View style={{ position: 'relative' }}>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    color: theme.textTitle,
+                    borderColor: theme.primarySoft,
+                    paddingRight: 44,
+                  },
+                ]}
+                secureTextEntry={!showPassword}
+                value={formData.password}
+                onChangeText={(v) => setFormData({ ...formData, password: v })}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword((prev) => !prev)}
+                style={{
+                  position: 'absolute',
+                  right: 12,
+                  top: 0,
+                  bottom: 0,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <Ionicons
+                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  size={20}
+                  color={theme.textBody}
+                />
+              </TouchableOpacity>
+            </View>
 
             <InputLabel label="Rol" theme={theme} />
             <View style={styles.segmentedRow}>
