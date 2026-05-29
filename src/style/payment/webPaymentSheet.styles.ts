@@ -8,6 +8,15 @@ export const webPaymentSheetStyles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
+  modalScroll: {
+    width: '100%',
+    maxHeight: '92%',
+  },
+  modalScrollContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+  },
   card: {
     backgroundColor: '#fff',
     borderRadius: 16,

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Modal,
+  ScrollView,
   Text,
   TouchableOpacity,
   View,
@@ -111,15 +112,21 @@ export default function WebPaymentSheet({
     return (
       <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
         <View style={styles.backdrop}>
-          <View style={styles.card}>
-            <Text style={styles.title}>Error de configuración</Text>
-            <Text style={{ color: '#ef4444', textAlign: 'center', marginBottom: 16, fontSize: 14 }}>
-              La clave pública de Stripe no está configurada (EXPO_PUBLIC_STRIPE_KEY).
-            </Text>
-            <TouchableOpacity style={[styles.btn, styles.cancelBtn]} onPress={onCancel}>
-              <Text style={styles.cancelBtnText}>Cerrar</Text>
-            </TouchableOpacity>
-          </View>
+          <ScrollView
+            style={styles.modalScroll}
+            contentContainerStyle={styles.modalScrollContent}
+            showsVerticalScrollIndicator
+          >
+            <View style={styles.card}>
+              <Text style={styles.title}>Error de configuración</Text>
+              <Text style={{ color: '#ef4444', textAlign: 'center', marginBottom: 16, fontSize: 14 }}>
+                La clave pública de Stripe no está configurada (EXPO_PUBLIC_STRIPE_KEY).
+              </Text>
+              <TouchableOpacity style={[styles.btn, styles.cancelBtn]} onPress={onCancel}>
+                <Text style={styles.cancelBtnText}>Cerrar</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
         </View>
       </Modal>
     );
@@ -130,12 +137,18 @@ export default function WebPaymentSheet({
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <View style={styles.backdrop}>
-        <View style={styles.card}>
-          <Text style={styles.title}>{merchantName}</Text>
-          <Elements stripe={stripePromise} options={{ clientSecret }}>
-            <CheckoutForm amount={amount} onSuccess={onSuccess} onCancel={onCancel} />
-          </Elements>
-        </View>
+        <ScrollView
+          style={styles.modalScroll}
+          contentContainerStyle={styles.modalScrollContent}
+          showsVerticalScrollIndicator
+        >
+          <View style={styles.card}>
+            <Text style={styles.title}>{merchantName}</Text>
+            <Elements stripe={stripePromise} options={{ clientSecret }}>
+              <CheckoutForm amount={amount} onSuccess={onSuccess} onCancel={onCancel} />
+            </Elements>
+          </View>
+        </ScrollView>
       </View>
     </Modal>
   );
