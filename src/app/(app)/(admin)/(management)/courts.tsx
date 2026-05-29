@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -19,7 +19,7 @@ import { Court } from '../../../../types/types';
 import { useAdminCourts } from '../../../../hooks/admin/useAdminCourts';
 import { pistasStyles as styles } from '../../../../style/admin/courts.styles';
 import { CourtFormModal } from '../../../../components/admin/courts/CourtFormModal';
-import { SessionExpiredModal } from '../../../../components/alert.modal';
+import { SessionExpiredModal } from '../../../../components/general/alert.modal';
 import { CourtsFiltersModal } from '../../../../components/admin/courts/CourtsFiltersModal';
 import { MaintenanceDateModal } from '../../../../components/admin/courts/MaintenanceDateModal';
 import { CourtCard } from '../../../../components/admin/courts/CourtCard';

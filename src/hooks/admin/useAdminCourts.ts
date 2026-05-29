@@ -2,11 +2,11 @@
 import { Alert, useWindowDimensions } from 'react-native';
 import { Installation, Court, CourtType } from '../../types/types';
 import api from '../../services/api';
-import { useCourtForm } from '../useCourtForm';
-import { useCourtMaintenance } from '../useCourtMaintenance';
-import { useCourtFilters } from '../useCourtFilters';
+import { useCourtForm } from '../courts/useCourtForm';
+import { useCourtMaintenance } from '../courts/useCourtMaintenance';
+import { useCourtFilters } from '../courts/useCourtFilters';
 
-export { WEEK_DAYS, createDefaultWeeklySchedule } from '../courtUtils';
+export { WEEK_DAYS, createDefaultWeeklySchedule } from '../courts/courtUtils';
 
 export function useAdminCourts() {
   const { width } = useWindowDimensions();

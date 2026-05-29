@@ -15,7 +15,7 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '../../../../context/ThemeContext';
-import { SessionExpiredModal } from '../../../../components/alert.modal';
+import { SessionExpiredModal } from '../../../../components/general/alert.modal';
 import { reviewsStyles as styles } from '../../../../style/admin/reviews.styles';
 import { ReviewCard } from '../../../../components/admin/reviews/ReviewCard';
 import { ReviewFormModal } from '../../../../components/admin/reviews/ReviewFormModal';

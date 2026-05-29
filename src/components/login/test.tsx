@@ -2,6 +2,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { View, StyleSheet } from 'react-native';
 import { lightModeSemanticTokens } from '../../theme';
+import { liquidGlassStyles as styles } from '../../style/auth/loginComponents.styles';
 
 export default function LiquidGlass() {
   return (
@@ -16,18 +17,3 @@ export default function LiquidGlass() {
   );
 }
 
-const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  glass: {
-    width: 280,
-    height: 160,
-    borderRadius: 25,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: lightModeSemanticTokens.borderGlass,
-  },
-});

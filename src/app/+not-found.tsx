@@ -2,21 +2,20 @@ import { Link, Stack } from 'expo-router';
 import React from 'react';
 import {
   ImageBackground,
-  StyleSheet,
   Text,
   View,
   Platform,
 } from 'react-native';
 import { BlurViewCompat } from '../components/general/BlurViewCompat';
-import { GlassTextButton } from '../components/login/glassTextButton'; // Usamos tu componente de botón
+import { GlassTextButton } from '../components/login/glassTextButton';
 import { useAppTheme } from '../context/ThemeContext';
-import { AppTheme } from '../theme';
 import { useTranslation } from 'react-i18next';
+import createNotFoundStyles from '../style/general/notFound.styles';
 
 export default function NotFoundScreen() {
   const { isDarkMode, theme } = useAppTheme();
   const { t } = useTranslation();
-  const styles = React.useMemo(() => createStyles(theme), [theme]);
+  const styles = React.useMemo(() => createNotFoundStyles(theme), [theme]);
   const bgImage = isDarkMode
     ? require('../../assets/login-bg-dark.png')
     : require('../../assets/login-bg-light.png');
@@ -66,58 +65,3 @@ export default function NotFoundScreen() {
   );
 }
 
-const createStyles = (theme: AppTheme) =>
-  StyleSheet.create({
-    background: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    glass: {
-      width: '85%',
-      maxWidth: 400,
-      padding: 40,
-      borderRadius: 30,
-      borderWidth: 0.8,
-      borderColor: theme.borderGlass,
-      alignItems: 'center',
-      overflow: 'hidden',
-      ...Platform.select({
-        web: {
-          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.2)',
-        },
-        ios: {
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 8 },
-          shadowOpacity: 0.2,
-          shadowRadius: 10,
-        },
-        android: {
-          elevation: 5,
-        },
-      }),
-    },
-    errorCode: {
-      fontSize: 80,
-      fontWeight: '900',
-      color: theme.primary,
-      opacity: 0.8,
-      marginBottom: 10,
-    },
-    title: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      color: theme.textPrimary,
-      marginBottom: 10,
-      textAlign: 'center',
-    },
-    message: {
-      fontSize: 16,
-      color: theme.textSecondary,
-      textAlign: 'center',
-      lineHeight: 22,
-      textShadowColor: theme.surfaceGlass,
-      textShadowOffset: { width: 1, height: 1 },
-      textShadowRadius: 5,
-    },
-  });

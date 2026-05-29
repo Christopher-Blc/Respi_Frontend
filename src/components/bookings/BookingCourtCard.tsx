@@ -10,7 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
-import createReservasTabStyles from '../../style/bookingsTab.styles';
+import createReservasTabStyles from '../../style/bookings/bookingsTab.styles';
 import AvailabilityBar from './AvailabilityBar';
 import { CourtAvailability } from '../../types/types';
 import { API_PUBLIC_URL } from '../../constants';

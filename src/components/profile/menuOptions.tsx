@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity, View, Text } from 'react-native';
 import { useMemo } from 'react';
-import createProfileStyles from '../../style/profile.styles';
+import createProfileStyles from '../../style/profile/profile.styles';
 import { useAppTheme } from '../../context/ThemeContext';
 
 type Props = {

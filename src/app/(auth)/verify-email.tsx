@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Linking from 'expo-linking';
 import { BlurViewCompat } from '../../components/general/BlurViewCompat';
@@ -7,6 +7,7 @@ import { useAppTheme } from '../../context/ThemeContext';
 import api from '../../services/api';
 import RespiLogo from '../../components/login/respiLogo';
 import { GlassTextButton } from '../../components/login/glassTextButton';
+import { verifyEmailStyles as styles } from '../../style/auth/auth.styles';
 
 type VerificationStatus = 'loading' | 'success' | 'error';
 
@@ -212,65 +213,3 @@ export default function VerificationScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  glow: {
-    position: 'absolute',
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    top: '20%',
-    opacity: 0.9,
-  },
-  card: {
-    width: '100%',
-    maxWidth: 360,
-    borderRadius: 30,
-    paddingVertical: 28,
-    paddingHorizontal: 22,
-    borderWidth: 0.8,
-    overflow: 'hidden',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginTop: 6,
-  },
-  subtitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginTop: 2,
-    marginBottom: 16,
-  },
-  centeredBlock: {
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    minHeight: 120,
-    marginBottom: 10,
-  },
-  statusBadge: {
-    fontSize: 17,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  message: {
-    fontSize: 15,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  actionButton: {
-    width: '100%',
-    marginTop: 10,
-  },
-});

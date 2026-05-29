@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   Animated,
   Easing,
-  StyleSheet,
   Text,
   View,
   Keyboard,
@@ -17,6 +16,7 @@ import { GlassTextButton } from '../../components/login/glassTextButton';
 import api from '../../services/api';
 import { GlassTextInputPassword } from '../../components/login/glassTextInputPassword';
 import { PasswordStrengthIndicator } from '../../components/login/passwordStrengthIndicator';
+import { resetPasswordStyles as styles } from '../../style/auth/auth.styles';
 
 const RESET_PASSWORD_ENDPOINT = '/auth/reset-password';
 
@@ -214,72 +214,3 @@ export default function ResetPasswordScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  glow: {
-    position: 'absolute',
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    top: '20%',
-    opacity: 0.9,
-  },
-  card: {
-    width: '100%',
-    maxWidth: 360,
-    borderRadius: 30,
-    paddingVertical: 28,
-    paddingHorizontal: 22,
-    borderWidth: 0.8,
-    overflow: 'hidden',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginTop: 6,
-    marginBottom: 14,
-  },
-  message: {
-    fontSize: 14,
-    fontWeight: '500',
-    lineHeight: 20,
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  loaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 8,
-    marginBottom: 12,
-  },
-  loaderText: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  feedback: {
-    width: '100%',
-    textAlign: 'center',
-    fontSize: 13,
-    fontWeight: '600',
-    lineHeight: 18,
-    marginTop: 10,
-    marginBottom: 8,
-  },
-  actionButton: {
-    width: '100%',
-    marginTop: 16,
-  },
-  backButton: {
-    width: '100%',
-    marginTop: 10,
-  },
-});

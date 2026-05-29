@@ -13,14 +13,14 @@ import {
   removeNotificationSubscription,
   requestPushPermissionsAndToken,
   setupNotificationChannelAndroid,
-} from '../services/notificationsService';
+} from '../services/notifications/notificationsService';
 import api from '../services/api';
-import { registerBackgroundSync } from '../services/backgroundSyncService';
+import { registerBackgroundSync } from '../services/bookings/backgroundSyncService';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ROUTES } from '../utils/routes';
 
 // Importamos el Wrapper inteligente en lugar del StripeProvider nativo
-import StripeWrapper from '../components/StripeWrapper';
+import StripeWrapper from '../components/payment/StripeWrapper';
 
 /**
  * Este componente se encarga de que la web se vea como una App nativa.

@@ -14,9 +14,9 @@ import { useAppTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { GlassTextInputPassword } from '../login/glassTextInputPassword';
 import { PasswordStrengthIndicator } from '../login/passwordStrengthIndicator';
-import { SessionExpiredModal } from '../alert.modal';
-import { useChangePassword } from '../../hooks/useChangePassword';
-import createModalCommonStyles from '../../style/modalCommon.styles';
+import { SessionExpiredModal } from '../general/alert.modal';
+import { useChangePassword } from '../../hooks/auth/useChangePassword';
+import createModalCommonStyles from '../../style/general/modalCommon.styles';
 
 interface Props {
   visible: boolean;

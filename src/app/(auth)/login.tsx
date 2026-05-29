@@ -16,10 +16,13 @@ import { GlassTextInputPassword } from '../../components/login/glassTextInputPas
 import { GlassTextInput } from '../../components/login/glassTextInput';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import createLoginStyles from '../../style/login.styles';
+import createLoginStyles from '../../style/auth/login.styles';
 import RespiLogo from '../../components/login/respiLogo';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
+
+const sanitizeInput = (text: string) =>
+  text.replace(/[<>'"&]/g, (c) => ({ '<': '', '>': '', "'": '', '"': '', '&': '' }[c] ?? c));
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -107,7 +110,7 @@ const Login: React.FC = () => {
       >
         <RespiLogo />
 
-        <Text style={[styles.title, { color: theme.textTitle }]}>
+        <Text accessibilityRole="header" style={[styles.title, { color: theme.textTitle }]}>
           {t('authLoginTitle')}
         </Text>
 
@@ -120,7 +123,7 @@ const Login: React.FC = () => {
           placeholder={t('exampleEmail')}
           placeholderTextColor={loginTextColor}
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(v) => setEmail(sanitizeInput(v))}
         />
 
         <Text style={[styles.label, { color: loginTextColor }]}>
