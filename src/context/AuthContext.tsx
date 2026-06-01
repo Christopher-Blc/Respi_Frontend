@@ -20,6 +20,8 @@ import { JWTPayload } from '../types/types';
 import api from '../services/api';
 import axios from 'axios';
 
+type DecodedJWTPayload = JWTPayload & { exp?: number };
+
 const AuthContext = createContext<{
   userToken: string | null;
   role: 'SUPER_ADMIN' | 'CLIENTE' | null;
@@ -70,7 +72,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const decodeAndSetRole = (token: string): 'ok' | 'expired' | 'invalid' => {
     try {
-      const decoded = jwtDecode(token) as unknown as JWTPayload;
+      const decoded = jwtDecode(token) as DecodedJWTPayload;
 
       // BUG-SEC-001: Basic sanity check — ensure expected fields are present and token is not expired.
       const now = Math.floor(Date.now() / 1000);
@@ -99,8 +101,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const _toggleRoleEnvRaw = process.env.EXPO_PUBLIC_TOGGLE_ROLE_IDS;
   const toggleRoleIds = (_toggleRoleEnvRaw ?? '31,41')
     .split(',')
-    .map((id) => parseInt(id.trim(), 10))
-    .filter((id) => !isNaN(id));
+    .map((id: string) => parseInt(id.trim(), 10))
+    .filter((id: number) => !isNaN(id));
   // BUG-EDGE-009: Warn when the env var is explicitly set but produced no valid IDs,
   // so developers notice a misconfiguration instead of role-toggle silently breaking.
   if (_toggleRoleEnvRaw !== undefined && toggleRoleIds.length === 0) {

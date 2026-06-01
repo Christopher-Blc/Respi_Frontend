@@ -1,5 +1,15 @@
 import { StyleSheet } from 'react-native';
 
+export const WEB_SIDEBAR_LOGO_ICON_SIZE = 32;
+export const WEB_SIDEBAR_LOGO_PADDING_TOP = 20;
+export const WEB_SIDEBAR_LOGO_PADDING_BOTTOM = 16;
+export const WEB_SIDEBAR_DIVIDER_HEIGHT = 1;
+export const WEB_SIDEBAR_TOP_AREA_HEIGHT =
+  WEB_SIDEBAR_LOGO_PADDING_TOP +
+  WEB_SIDEBAR_LOGO_ICON_SIZE +
+  WEB_SIDEBAR_LOGO_PADDING_BOTTOM +
+  WEB_SIDEBAR_DIVIDER_HEIGHT;
+
 export const webBurgerMenuStyles = StyleSheet.create({
   burgerBtn: {
     marginLeft: 14,
@@ -51,8 +61,8 @@ export const webSidebarStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 16,
+    paddingTop: WEB_SIDEBAR_LOGO_PADDING_TOP,
+    paddingBottom: WEB_SIDEBAR_LOGO_PADDING_BOTTOM,
     gap: 12,
   },
   logoCircle: {
