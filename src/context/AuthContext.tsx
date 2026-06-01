@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import { SessionExpiredModal } from '../components/general/alert.modal';
 import {
+  getRefreshToken,
   getToken,
   logout,
   onForceLogout,
@@ -17,6 +18,7 @@ import { jwtDecode } from 'jwt-decode';
 import { router } from 'expo-router';
 import { JWTPayload } from '../types/types';
 import api from '../services/api';
+import axios from 'axios';
 
 const AuthContext = createContext<{
   userToken: string | null;
@@ -53,7 +55,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [showExpiredModal, setShowExpiredModal] = useState(false);
   // BUG-SEC-010: Tracks when role was last confirmed via server-side check.
   // Use refreshRoleVerification() to re-trigger verification on demand.
-  const [lastRoleVerifiedAt, setLastRoleVerifiedAt] = useState<number | null>(null);
+  const [lastRoleVerifiedAt, setLastRoleVerifiedAt] = useState<number | null>(
+    null,
+  );
   const suppressForcedLogoutModalRef = useRef(false);
   const isHandlingForcedLogoutRef = useRef(false);
 
@@ -64,45 +68,44 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   //   3. The useAdminRoleCheck hook provides an additional server-side role verification layer.
   // The decode here is used ONLY for UI routing (extracting role/sub for navigation decisions).
 
-  // Forward reference so decodeAndSetRole can call signOut during initial load.
-  const handleSignOutRef = useRef<(() => Promise<void>) | null>(null);
-
-  const decodeAndSetRole = (token: string, useSignOut?: boolean) => {
+  const decodeAndSetRole = (token: string): 'ok' | 'expired' | 'invalid' => {
     try {
       const decoded = jwtDecode(token) as unknown as JWTPayload;
 
       // BUG-SEC-001: Basic sanity check — ensure expected fields are present and token is not expired.
       const now = Math.floor(Date.now() / 1000);
       if (!decoded || !decoded.sub || !decoded.role || !decoded.exp) {
-        console.error('Token missing required fields (sub, role, exp). Signing out.');
-        if (useSignOut) void handleSignOutRef.current?.();
-        return;
+        console.error('Token missing required fields (sub, role, exp).');
+        setRole(null);
+        setUserId(null);
+        return 'invalid';
       }
       if (decoded.exp < now) {
-        console.warn('Stored token is expired (client-side exp check). Signing out.');
-        if (useSignOut) void handleSignOutRef.current?.();
-        return;
+        console.warn('Stored token is expired (client-side exp check).');
+        return 'expired';
       }
 
       setRole(decoded.role);
       setUserId(Number(decoded.sub));
+      return 'ok';
     } catch (error) {
       console.error('Error decodificando el token:', error);
       setRole(null);
       setUserId(null);
+      return 'invalid';
     }
   };
 
   const _toggleRoleEnvRaw = process.env.EXPO_PUBLIC_TOGGLE_ROLE_IDS;
   const toggleRoleIds = (_toggleRoleEnvRaw ?? '31,41')
     .split(',')
-    .map(id => parseInt(id.trim(), 10))
-    .filter(id => !isNaN(id));
+    .map((id) => parseInt(id.trim(), 10))
+    .filter((id) => !isNaN(id));
   // BUG-EDGE-009: Warn when the env var is explicitly set but produced no valid IDs,
   // so developers notice a misconfiguration instead of role-toggle silently breaking.
   if (_toggleRoleEnvRaw !== undefined && toggleRoleIds.length === 0) {
     console.warn(
-      '[AuthContext] EXPO_PUBLIC_TOGGLE_ROLE_IDS is set but could not be parsed. Role toggle will be disabled.'
+      '[AuthContext] EXPO_PUBLIC_TOGGLE_ROLE_IDS is set but could not be parsed. Role toggle will be disabled.',
     );
   }
   const canToggleRole = toggleRoleIds.includes(userId ?? -1);
@@ -148,8 +151,63 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         const token = await getToken();
         if (token) {
-          setUserToken(token);
-          decodeAndSetRole(token, true);
+          const decodeStatus = decodeAndSetRole(token);
+
+          if (decodeStatus === 'ok') {
+            setUserToken(token);
+            return;
+          }
+
+          // If access token is expired/invalid but refresh token exists, restore session.
+          const refreshToken = await getRefreshToken();
+          if (!refreshToken) {
+            await logout(false);
+            setUserToken(null);
+            setRole(null);
+            setUserId(null);
+            setRoleViewOverride(null);
+            return;
+          }
+
+          try {
+            const refreshResponse = await axios.post(
+              `${api.defaults.baseURL}/auth/refresh`,
+              { refresh_token: refreshToken },
+            );
+
+            const nextAccessToken = refreshResponse.data?.access_token as
+              | string
+              | undefined;
+            const nextRefreshToken = refreshResponse.data?.refresh_token as
+              | string
+              | undefined;
+
+            if (!nextAccessToken) {
+              throw new Error('Refresh response missing access_token');
+            }
+
+            await saveToken(nextAccessToken);
+            if (nextRefreshToken) {
+              await saveRefreshToken(nextRefreshToken);
+            }
+
+            const refreshedDecodeStatus = decodeAndSetRole(nextAccessToken);
+            if (refreshedDecodeStatus !== 'ok') {
+              throw new Error('Refreshed token is invalid or expired');
+            }
+
+            setUserToken(nextAccessToken);
+          } catch (refreshError) {
+            console.error(
+              'No se pudo restaurar la sesión con refresh token:',
+              refreshError,
+            );
+            await logout(false);
+            setUserToken(null);
+            setRole(null);
+            setUserId(null);
+            setRoleViewOverride(null);
+          }
         }
       } catch (error) {
         console.error('Fallo al recuperar token:', error);
@@ -175,7 +233,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const refreshRoleVerification = async (): Promise<void> => {
     try {
       const response = await api.get<{ role: string }>('/auth/me');
-      const serverRole = response.data?.role as 'SUPER_ADMIN' | 'CLIENTE' | null;
+      const serverRole = response.data?.role as
+        | 'SUPER_ADMIN'
+        | 'CLIENTE'
+        | null;
       if (serverRole) {
         setRole(serverRole);
         setLastRoleVerifiedAt(Date.now());
@@ -208,9 +269,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       suppressForcedLogoutModalRef.current = false;
     }, 2000);
   };
-
-  // Keep the ref up to date so decodeAndSetRole can always call the latest handleSignOut.
-  handleSignOutRef.current = handleSignOut;
 
   return (
     <AuthContext.Provider
