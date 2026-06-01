@@ -19,6 +19,7 @@ import WebBurgerMenu from '../../../components/general/WebBurgerMenu';
 import WebProfileBadge from '../../../components/general/WebProfileBadge';
 import { useTranslation } from 'react-i18next';
 import { RESPONSIVE_NAVIGATION_BREAKPOINT } from '../../../constants';
+import { WEB_SIDEBAR_TOP_AREA_HEIGHT } from '../../../style/general/generalComponents.styles';
 import {
   flattenNavigationItems,
   getUserNavigation,
@@ -38,7 +39,7 @@ export default function tabLayout() {
   // Altura base del tab bar + safe area inferior (barra de navegación Android/iOS)
   const TAB_BAR_BASE_HEIGHT = 56;
   const tabBarHeight = TAB_BAR_BASE_HEIGHT + insets.bottom;
-  const WEB_TOPBAR_HEIGHT = 69;
+  const WEB_TOPBAR_HEIGHT = WEB_SIDEBAR_TOP_AREA_HEIGHT;
 
   const webSidebarSections = getUserNavigation(t);
   const webBurgerNavItems = flattenNavigationItems(webSidebarSections);
@@ -229,6 +230,7 @@ export default function tabLayout() {
             sections={webSidebarSections}
             appName="RESPI"
             appSubtitle={t('tabsUserPortal')}
+            topAreaHeight={WEB_TOPBAR_HEIGHT}
           />
           <View style={{ flex: 1 }}>{tabs}</View>
         </View>

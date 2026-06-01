@@ -24,8 +24,9 @@ import {
   getAdminNavigation,
 } from '../../../utils/navigation';
 import { ROUTES } from '../../../utils/routes';
+import { WEB_SIDEBAR_TOP_AREA_HEIGHT } from '../../../style/general/generalComponents.styles';
 
-export const WEB_ADMIN_HEADER_HEIGHT = 75;
+export const WEB_ADMIN_HEADER_HEIGHT = WEB_SIDEBAR_TOP_AREA_HEIGHT;
 
 export default function AdminTabLayout() {
   const { isDarkMode, theme } = useAppTheme();
@@ -61,7 +62,7 @@ export default function AdminTabLayout() {
           borderBottomColor: theme.primarySoft,
           borderBottomWidth: 1,
         },
-        headerStyle: isWideScreen
+        headerStyle: isWeb
           ? {
               height: WEB_ADMIN_HEADER_HEIGHT,
             }
