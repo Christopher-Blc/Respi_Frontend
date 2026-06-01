@@ -100,7 +100,11 @@ export default function CreateBooking() {
   const [horaInicioMin, setHoraInicioMin] = useState<number | null>(null);
   const [showStartDropdown, setShowStartDropdown] = useState(false);
   const [nota, setNota] = useState('');
-  const [alertModal, setAlertModal] = useState({ visible: false, title: '', message: '' });
+  const [alertModal, setAlertModal] = useState({
+    visible: false,
+    title: '',
+    message: '',
+  });
   const [membershipName, setMembershipName] = useState('');
   const [membershipDiscountPct, setMembershipDiscountPct] = useState(0);
   const [loadingMembership, setLoadingMembership] = useState(true);
@@ -155,7 +159,7 @@ export default function CreateBooking() {
       start + duration <= closingMinutes;
       start += 30
     ) {
-      if (start <= minStartMinutes) continue;
+      if (start < minStartMinutes) continue;
       const end = start + duration;
       const hasOverlap = reservedRanges.some(
         (range) => start < range.end && end > range.start,
@@ -165,7 +169,13 @@ export default function CreateBooking() {
     }
 
     return slots;
-  }, [openingMinutes, closingMinutes, duration, reservedRanges, minStartMinutes]);
+  }, [
+    openingMinutes,
+    closingMinutes,
+    duration,
+    reservedRanges,
+    minStartMinutes,
+  ]);
 
   useEffect(() => {
     if (availableStarts.length === 0) {
@@ -270,8 +280,11 @@ export default function CreateBooking() {
       const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
       if (fechaReserva === today) {
         const nowMinutes = now.getHours() * 60 + now.getMinutes();
-        if (horaInicioMin <= nowMinutes) {
-          showError('Horario inválido', 'No puedes reservar un horario en el pasado. Por favor selecciona una hora futura.');
+        if (horaInicioMin < nowMinutes) {
+          showError(
+            'Horario inválido',
+            'No puedes reservar un horario en el pasado. Por favor selecciona una hora futura.',
+          );
           return;
         }
       }
@@ -450,9 +463,7 @@ export default function CreateBooking() {
             </Text>
 
             {loadingMembership ? (
-              <Text style={styles.totalMeta}>
-                Calculando precio...
-              </Text>
+              <Text style={styles.totalMeta}>Calculando precio...</Text>
             ) : hasMembershipDiscount ? (
               <>
                 <Text style={styles.totalOldValue}>
@@ -492,7 +503,9 @@ export default function CreateBooking() {
         title={alertModal.title}
         message={alertModal.message}
         confirmText={t('commonUnderstood')}
-        onConfirm={() => setAlertModal({ visible: false, title: '', message: '' })}
+        onConfirm={() =>
+          setAlertModal({ visible: false, title: '', message: '' })
+        }
       />
     </View>
   );

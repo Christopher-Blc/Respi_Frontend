@@ -345,7 +345,7 @@ export function useCreateBooking() {
       fechaInicio.getFullYear() === now.getFullYear() &&
       fechaInicio.getMonth() === now.getMonth() &&
       fechaInicio.getDate() === now.getDate();
-    if (isToday && fechaInicio <= now) {
+    if (isToday && fechaInicio < now) {
       Alert.alert(
         'Horario inválido',
         'No puedes reservar un horario en el pasado. Por favor selecciona una hora futura.',
