@@ -38,6 +38,7 @@ export default function tabLayout() {
   // Altura base del tab bar + safe area inferior (barra de navegación Android/iOS)
   const TAB_BAR_BASE_HEIGHT = 56;
   const tabBarHeight = TAB_BAR_BASE_HEIGHT + insets.bottom;
+  const WEB_TOPBAR_HEIGHT = 69;
 
   const webSidebarSections = getUserNavigation(t);
   const webBurgerNavItems = flattenNavigationItems(webSidebarSections);
@@ -49,6 +50,7 @@ export default function tabLayout() {
   const tabs = (
     <Tabs
       screenOptions={{
+        headerStyle: isWeb ? { height: WEB_TOPBAR_HEIGHT } : undefined,
         headerTitleContainerStyle: {
           paddingBottom: 10,
         },

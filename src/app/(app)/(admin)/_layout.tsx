@@ -25,7 +25,7 @@ import {
 } from '../../../utils/navigation';
 import { ROUTES } from '../../../utils/routes';
 
-export const WEB_ADMIN_HEADER_HEIGHT = 73;
+export const WEB_ADMIN_HEADER_HEIGHT = 75;
 
 export default function AdminTabLayout() {
   const { isDarkMode, theme } = useAppTheme();

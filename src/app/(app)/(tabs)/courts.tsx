@@ -195,6 +195,12 @@ export default function PistasTab() {
               pistaId,
               pistaNombre: pista.name || 'Pista',
               fecha: formattedDate,
+              horaApertura: String(pista.opening_time || ''),
+              horaCierre: String(pista.closing_time || ''),
+              precioHora: String(pista.price_per_hour ?? ''),
+              reservasActuales: JSON.stringify(
+                pista.current_reservations || [],
+              ),
             },
           });
         }}
