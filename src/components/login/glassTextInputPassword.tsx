@@ -12,6 +12,8 @@ interface Props {
   placeholderTextColor?: string;
   label?: string;
   autoComplete?: 'password' | 'current-password' | 'new-password' | 'off';
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 export const GlassTextInputPassword: React.FC<Props> = ({
@@ -21,6 +23,8 @@ export const GlassTextInputPassword: React.FC<Props> = ({
   placeholderTextColor,
   label,
   autoComplete = 'off',
+  onFocus, // <--- FALTABA EXTRAER ESTO
+  onBlur, // <--- FALTABA EXTRAER ESTO
 }) => {
   const { theme } = useAppTheme();
   const { t } = useTranslation();
@@ -51,8 +55,14 @@ export const GlassTextInputPassword: React.FC<Props> = ({
         mode="flat"
         underlineColor="transparent"
         activeUnderlineColor="transparent"
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
+        onFocus={() => {
+          setIsFocused(true);
+          onFocus && onFocus(); // Ahora funcionará perfectamente de forma opcional
+        }}
+        onBlur={() => {
+          setIsFocused(false);
+          onBlur && onBlur(); // Ahora funcionará perfectamente de forma opcional
+        }}
         selectionColor={theme.inputFocus}
         accessibilityLabel={placeholder || t('examplePassword')}
         style={[

@@ -381,9 +381,15 @@ export default function ProfileView({ profileState }: ProfileViewProps) {
             <MenuOption
               icon="lock-closed-outline"
               title={t('profilePrivacy')}
-              isLast
               value={undefined}
               onPress={() => handleOpenLegal('privacy')}
+            />
+            <MenuOption
+              icon="map-outline"
+              title={'Prototype 3D Map'}
+              value={undefined}
+              isLast
+              onPress={() => setMapModalVisible(true)}
             />
           </View>
         </View>
@@ -402,16 +408,6 @@ export default function ProfileView({ profileState }: ProfileViewProps) {
 
         <Text style={styles.RespiText}>ResPi®</Text>
         <Text style={styles.versionText}>{t('profileVersion')} 1.0.0</Text>
-        <View style={{ marginTop: 12, alignItems: 'center' }}>
-          <GlassTextButton
-            text={'Prototype 3D Map'}
-            onPress={() => setMapModalVisible(true)}
-            color={theme.primary}
-            borderColor={theme.borderSoft}
-            borderWidth={1}
-            style={{ paddingHorizontal: 18 }}
-          />
-        </View>
       </View>
 
       <MembresiaModal
@@ -453,7 +449,7 @@ export default function ProfileView({ profileState }: ProfileViewProps) {
         onRequestClose={() => setMapModalVisible(false)}
         animationType="slide"
       >
-        <MapaPoliRespi />
+        <MapaPoliRespi onClose={() => setMapModalVisible(false)} />
       </Modal>
 
       {/* EL MODAL DE CONTROL DE TEXTO LEGAL SE COLOCA AL FINAL CON SUS PROPS (Asegúrate de aplicar la Opción B en legalRights.modal.tsx) */}

@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Animated,
+  Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -36,7 +37,6 @@ export default function EditPasswordModal({ visible, onClose }: Props) {
     setNewPassword,
     confirmPassword,
     setConfirmPassword,
-    isSaving,
     saveActive,
     passwordsMatch,
     newSectionAnim,
@@ -70,6 +70,7 @@ export default function EditPasswordModal({ visible, onClose }: Props) {
       animationType="slide"
       presentationStyle="pageSheet"
     >
+      {/* Header */}
       <View style={[styles.headerContainer, { paddingTop: 20 }]}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={onClose}>
@@ -89,91 +90,97 @@ export default function EditPasswordModal({ visible, onClose }: Props) {
         </View>
       </View>
 
+      {/* Un solo KeyboardAvoidingView envolviendo la vista */}
       <KeyboardAvoidingView
-        style={{ flex: 1, backgroundColor: theme.backgroundCard }}
+        style={{
+          flex: 1,
+          backgroundColor: theme.backgroundCard,
+        }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        // Ajusta este offset si notas que se solapa con el header en iOS
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
       >
         <ScrollView
+          style={{ flex: 1 }}
+          // Eliminamos flex: 1 de aquí para que pueda hacer scroll al abrir el teclado
           contentContainerStyle={{
             flexGrow: 1,
             justifyContent: 'center',
             alignItems: 'center',
             paddingHorizontal: 18,
-            paddingVertical: 24,
+            paddingTop: 20,
+            paddingBottom: insets.bottom + 40, // Espacio extra abajo para que no pegue al borde inferior
           }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View style={{ width: '100%', maxWidth: 410 }}>
-            <View style={styles.settingsCard}>
-              <Text style={styles.titleText}>
-                {t('profileChangePassword', {
-                  defaultValue: 'Cambiar contraseña',
-                })}
-              </Text>
+          <View style={[styles.settingsCard, { width: '92%', maxWidth: 410 }]}>
+            <Text style={styles.titleText}>
+              {t('profileChangePassword', {
+                defaultValue: 'Cambiar contraseña',
+              })}
+            </Text>
 
-              <Text style={styles.description}>
-                {t('profileChangePasswordDescription', {
-                  defaultValue:
-                    'Ingresa tu contraseña actual y establece una nueva contraseña segura.',
-                })}
-              </Text>
+            <Text style={styles.description}>
+              {t('profileChangePasswordDescription', {
+                defaultValue:
+                  'Ingresa tu contraseña actual y establece una nueva contraseña segura.',
+              })}
+            </Text>
 
-              <Text style={styles.inputLabel}>
-                {t('profileCurrentPassword', {
-                  defaultValue: 'Contraseña actual',
+            <Text style={styles.inputLabel}>
+              {t('profileCurrentPassword', {
+                defaultValue: 'Contraseña actual',
+              })}
+            </Text>
+            <GlassTextInputPassword
+              value={currentPassword}
+              onChangeText={setCurrentPassword}
+              placeholder={t('examplePassword')}
+              autoComplete="current-password"
+            />
+
+            <Animated.View style={newSectionStyle}>
+              <Text style={[styles.inputLabel, { marginTop: 16 }]}>
+                {t('profileNewPassword', {
+                  defaultValue: 'Nueva contraseña',
                 })}
               </Text>
               <GlassTextInputPassword
-                value={currentPassword}
-                onChangeText={setCurrentPassword}
+                value={newPassword}
+                onChangeText={setNewPassword}
                 placeholder={t('examplePassword')}
-                autoComplete="current-password"
+                autoComplete="new-password"
               />
 
-              <Animated.View style={newSectionStyle}>
-                <Text style={[styles.inputLabel, { marginTop: 16 }]}>
-                  {t('profileNewPassword', {
-                    defaultValue: 'Nueva contraseña',
+              <PasswordStrengthIndicator password={newPassword} />
+
+              <Text style={[styles.inputLabel, { marginTop: 16 }]}>
+                {t('profileConfirmPassword', {
+                  defaultValue: 'Confirmar nueva contraseña',
+                })}
+              </Text>
+              <GlassTextInputPassword
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                placeholder={t('examplePassword')}
+                autoComplete="new-password"
+              />
+
+              {confirmPassword.length > 0 && !passwordsMatch && (
+                <Text
+                  style={{
+                    color: theme.errorText,
+                    fontSize: 12,
+                    marginTop: 4,
+                  }}
+                >
+                  {t('profilePasswordsMismatch', {
+                    defaultValue: 'Las contraseñas no coinciden.',
                   })}
                 </Text>
-                <GlassTextInputPassword
-                  value={newPassword}
-                  onChangeText={setNewPassword}
-                  placeholder={t('examplePassword')}
-                  autoComplete="new-password"
-                />
-
-                <PasswordStrengthIndicator password={newPassword} />
-
-                <Text style={[styles.inputLabel, { marginTop: 16 }]}>
-                  {t('profileConfirmPassword', {
-                    defaultValue: 'Confirmar nueva contraseña',
-                  })}
-                </Text>
-                <GlassTextInputPassword
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  placeholder={t('examplePassword')}
-                  autoComplete="new-password"
-                />
-
-                {confirmPassword.length > 0 && !passwordsMatch && (
-                  <Text
-                    style={{
-                      color: theme.errorText,
-                      fontSize: 12,
-                      marginTop: 4,
-                    }}
-                  >
-                    {t('profilePasswordsMismatch', {
-                      defaultValue: 'Las contraseñas no coinciden.',
-                    })}
-                  </Text>
-                )}
-              </Animated.View>
-            </View>
+              )}
+            </Animated.View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
