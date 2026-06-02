@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Platform } from 'react-native';
+import { View, Text, Platform, Modal } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
@@ -21,6 +21,7 @@ import api from '../../services/api';
 import { ROUTES } from '../../utils/routes';
 import { PRIVACY_TEXT, TERMS_TEXT } from '../../utils/termsAndPrivacy';
 import ProfileLegalModal from './legalRights.modal';
+import { MapaPoliRespi } from '../general/respi_poli_mapa';
 
 type ProfileViewProps = {
   profileState?: ReturnType<typeof useProfile>;
@@ -70,6 +71,7 @@ export default function ProfileView({ profileState }: ProfileViewProps) {
   // NUEVOS ESTADOS CENTRALIZADOS PARA LEGALES
   const [modalLegalVisible, setModalLegalVisible] = useState(false);
   const [legalType, setLegalType] = useState<'terms' | 'privacy'>('terms');
+  const [mapModalVisible, setMapModalVisible] = useState(false);
 
   //estados para darkmode que pilla de settings del dispositivo
   const [initialDarkModeValue, setInitialDarkModeValue] = useState(isDarkMode);
@@ -400,6 +402,16 @@ export default function ProfileView({ profileState }: ProfileViewProps) {
 
         <Text style={styles.RespiText}>ResPi®</Text>
         <Text style={styles.versionText}>{t('profileVersion')} 1.0.0</Text>
+        <View style={{ marginTop: 12, alignItems: 'center' }}>
+          <GlassTextButton
+            text={'Prototype 3D Map'}
+            onPress={() => setMapModalVisible(true)}
+            color={theme.primary}
+            borderColor={theme.borderSoft}
+            borderWidth={1}
+            style={{ paddingHorizontal: 18 }}
+          />
+        </View>
       </View>
 
       <MembresiaModal
@@ -435,6 +447,14 @@ export default function ProfileView({ profileState }: ProfileViewProps) {
         visible={modalEditPasswordVisible}
         onClose={() => setModalEditPasswordVisible(false)}
       />
+
+      <Modal
+        visible={mapModalVisible}
+        onRequestClose={() => setMapModalVisible(false)}
+        animationType="slide"
+      >
+        <MapaPoliRespi />
+      </Modal>
 
       {/* EL MODAL DE CONTROL DE TEXTO LEGAL SE COLOCA AL FINAL CON SUS PROPS (Asegúrate de aplicar la Opción B en legalRights.modal.tsx) */}
       <ProfileLegalModal
