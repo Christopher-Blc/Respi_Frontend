@@ -21,7 +21,7 @@ export default function bookingLayout() {
       />
       <Stack.Screen
         name="confirmation"
-        options={{ title: t('bookingLayoutConfirmTitle') }}
+        options={{ headerShown: false, title: t('bookingLayoutConfirmTitle') }}
       />
       <Stack.Screen
         name="courtTypes"

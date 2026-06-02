@@ -104,7 +104,7 @@ export default function EditUserNameModal({
       animationType="slide"
       presentationStyle="pageSheet"
     >
-      <View style={[styles.headerContainer, { paddingTop: insets.top + 12 }]}>
+      <View style={[styles.headerContainer, { paddingTop: 20 }]}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={onClose}>
             <Text style={styles.headerText}>{t('commonCancel')}</Text>

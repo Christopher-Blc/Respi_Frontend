@@ -155,12 +155,7 @@ export default function MembresiaModal({ visible, onClose }: Props) {
       transparent={false}
     >
       <View style={styles.container}>
-        <View
-          style={[
-            commonStyles.headerContainer,
-            { paddingTop: insets.top + 12 },
-          ]}
-        >
+        <View style={[commonStyles.headerContainer, { paddingTop: 20 }]}>
           <View style={commonStyles.headerRow}>
             <TouchableOpacity onPress={onClose}>
               <Text style={commonStyles.headerText}>{t('commonCancel')}</Text>
