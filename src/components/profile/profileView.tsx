@@ -13,13 +13,14 @@ import EditPasswordModal from '../../components/profile/editPassword.modal';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useHeaderHeight } from '@react-navigation/elements';
 import MembresiaModal from '../../components/profile/membership.modal';
-import { SessionExpiredModal } from '../../components/general/alert.modal';
 import { ThemePalette } from '../../theme';
 import { useProfile } from '../../hooks/profile/useProfile';
 import { useTranslation } from 'react-i18next';
 import { getAppLanguage } from '../../i18n';
 import api from '../../services/api';
 import { ROUTES } from '../../utils/routes';
+import { PRIVACY_TEXT, TERMS_TEXT } from '../../utils/termsAndPrivacy';
+import ProfileLegalModal from './legalRights.modal';
 
 type ProfileViewProps = {
   profileState?: ReturnType<typeof useProfile>;
@@ -65,7 +66,10 @@ export default function ProfileView({ profileState }: ProfileViewProps) {
     useState(false);
   const [modalEditPasswordVisible, setModalEditPasswordVisible] =
     useState(false);
-  const [modalPrivacyVisible, setModalPrivacyVisible] = useState(false);
+
+  // NUEVOS ESTADOS CENTRALIZADOS PARA LEGALES
+  const [modalLegalVisible, setModalLegalVisible] = useState(false);
+  const [legalType, setLegalType] = useState<'terms' | 'privacy'>('terms');
 
   //estados para darkmode que pilla de settings del dispositivo
   const [initialDarkModeValue, setInitialDarkModeValue] = useState(isDarkMode);
@@ -190,6 +194,12 @@ export default function ProfileView({ profileState }: ProfileViewProps) {
     } finally {
       setModalDarkmodeVisible(false);
     }
+  };
+
+  // Handlers para abrir el modal legal de forma separada
+  const handleOpenLegal = (type: 'terms' | 'privacy') => {
+    setLegalType(type);
+    setModalLegalVisible(true);
   };
 
   return (
@@ -319,7 +329,8 @@ export default function ProfileView({ profileState }: ProfileViewProps) {
             />
           </View>
         </View>
-        {/* Bloque unificado: desde Cambiar vista hasta Privacidad */}
+
+        {/* Bloque unificado: Ajustes, Términos y Privacidad separados */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('profileSettings')}</Text>
           <View
@@ -357,12 +368,20 @@ export default function ProfileView({ profileState }: ProfileViewProps) {
                 onPress={handleOpenNotifications}
               />
             )}
+            {/* BOTÓN 1 SEPARADO: Términos y Condiciones */}
+            <MenuOption
+              icon="document-text-outline"
+              title={t('profileTerms', { defaultValue: 'Términos de Uso' })}
+              value={undefined}
+              onPress={() => handleOpenLegal('terms')}
+            />
+            {/* BOTÓN 2 SEPARADO: Política de Privacidad */}
             <MenuOption
               icon="lock-closed-outline"
               title={t('profilePrivacy')}
               isLast
               value={undefined}
-              onPress={() => setModalPrivacyVisible(true)}
+              onPress={() => handleOpenLegal('privacy')}
             />
           </View>
         </View>
@@ -417,15 +436,23 @@ export default function ProfileView({ profileState }: ProfileViewProps) {
         onClose={() => setModalEditPasswordVisible(false)}
       />
 
-      <SessionExpiredModal
-        visible={modalPrivacyVisible}
-        title={t('profilePrivacy')}
-        message={t('profilePrivacyPlaceholder', {
-          defaultValue:
-            'Politica de privacidad en construccion. Proximamente anadiremos aqui toda la informacion legal.',
-        })}
-        confirmText={t('commonInformation', { defaultValue: 'Informacion' })}
-        onConfirm={() => setModalPrivacyVisible(false)}
+      {/* EL MODAL DE CONTROL DE TEXTO LEGAL SE COLOCA AL FINAL CON SUS PROPS (Asegúrate de aplicar la Opción B en legalRights.modal.tsx) */}
+      <ProfileLegalModal
+        visible={modalLegalVisible}
+        title={
+          legalType === 'terms'
+            ? t('profileTermsTitle', { defaultValue: 'Términos y Condiciones' })
+            : t('profilePrivacyTitle', {
+                defaultValue: 'Política de Privacidad',
+              })
+        }
+        message={
+          legalType === 'terms'
+            ? t('legal.termsText', { defaultValue: TERMS_TEXT })
+            : t('legal.privacyText', { defaultValue: PRIVACY_TEXT })
+        }
+        confirmText={t('commonClose', { defaultValue: 'Entendido' })}
+        onConfirm={() => setModalLegalVisible(false)}
       />
     </>
   );
