@@ -121,7 +121,10 @@ export default function ProfileView({ profileState }: ProfileViewProps) {
   );
   const showMariaCard = Number(user?.id) === 41;
   const isReviewFeatureEnabled =
-    Number(user?.id) === 41 || Number(user?.id) === 31 || Number(user?.id) === 39 || Number(user?.id) === 43;
+    Number(user?.id) === 41 ||
+    Number(user?.id) === 31 ||
+    Number(user?.id) === 39 ||
+    Number(user?.id) === 43;
   const showRoleOption = canToggleRole;
   const showMembershipOption = effectiveRole !== 'SUPER_ADMIN';
   const showReviewsOption = isReviewFeatureEnabled;
@@ -205,10 +208,7 @@ export default function ProfileView({ profileState }: ProfileViewProps) {
           {loading ? (
             <>
               <View
-                style={[
-                  styles.avatar,
-                  { backgroundColor: theme.borderSoft },
-                ]}
+                style={[styles.avatar, { backgroundColor: theme.borderSoft }]}
               />
               <View style={{ height: 15 }} />
               {effectiveRole !== 'SUPER_ADMIN' && (
@@ -228,10 +228,14 @@ export default function ProfileView({ profileState }: ProfileViewProps) {
               <View style={{ height: 15 }} />
               {effectiveRole !== 'SUPER_ADMIN' && (
                 <View style={styles.reservasCountCard}>
-                  <Text style={[styles.reservasNumber, { color: theme.textTitle }]}>
+                  <Text
+                    style={[styles.reservasNumber, { color: theme.textTitle }]}
+                  >
                     {totalReservas || 0}
                   </Text>
-                  <Text style={[styles.reservasLabel, { color: theme.textBody }]}>
+                  <Text
+                    style={[styles.reservasLabel, { color: theme.textBody }]}
+                  >
                     {t('profileReservations')}
                   </Text>
                 </View>
