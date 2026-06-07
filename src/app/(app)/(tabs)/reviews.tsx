@@ -21,8 +21,6 @@ import api from '../../../services/api';
 import { Court, JWTPayload, Reservation, Review } from '../../../types/types';
 import createReviewsStyles from '../../../style/reviews/reviews.styles';
 
-const FEATURE_USER_IDS = [41, 31, 39, 43];
-
 export default function ReviewsScreen() {
   const { theme } = useAppTheme();
   const insets = useSafeAreaInsets();
@@ -38,8 +36,6 @@ export default function ReviewsScreen() {
       return null;
     }
   }, [userToken]);
-
-  const isReviewFeatureEnabled = userId !== null && FEATURE_USER_IDS.includes(userId);
 
   // "Mis reseñas" state
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -65,9 +61,7 @@ export default function ReviewsScreen() {
     try {
       const [reviewsRes, reservationsRes] = await Promise.allSettled([
         api.get('/reviews'),
-        isReviewFeatureEnabled
-          ? api.get('/reservations/my-reservations')
-          : Promise.resolve(null),
+        api.get('/reservations/my-reservations'),
       ]);
 
       let mine: Review[] = [];
@@ -93,11 +87,7 @@ export default function ReviewsScreen() {
         reviewedCourtIds = new Set(mine.map((r) => Number(r.court_id)));
       }
 
-      if (
-        isReviewFeatureEnabled &&
-        reservationsRes.status === 'fulfilled' &&
-        reservationsRes.value
-      ) {
+      if (reservationsRes.status === 'fulfilled' && reservationsRes.value) {
         const data = reservationsRes.value.data;
         const allRes: Reservation[] = Array.isArray(data)
           ? data
@@ -124,7 +114,7 @@ export default function ReviewsScreen() {
     } finally {
       setLoading(false);
     }
-  }, [userId, isReviewFeatureEnabled]);
+  }, [userId]);
 
   useFocusEffect(
     useCallback(() => {
@@ -169,7 +159,9 @@ export default function ReviewsScreen() {
       const msg = error?.response?.data?.message;
       Alert.alert(
         'Reseñas',
-        Array.isArray(msg) ? msg.join(' ') : msg || 'No se pudo guardar la reseña.',
+        Array.isArray(msg)
+          ? msg.join(' ')
+          : msg || 'No se pudo guardar la reseña.',
       );
     } finally {
       setSubmitting(false);
@@ -306,7 +298,9 @@ export default function ReviewsScreen() {
                 {saving ? (
                   <ActivityIndicator size="small" color={theme.onPrimary} />
                 ) : (
-                  <Text style={[styles.editBtnText, { color: theme.onPrimary }]}>
+                  <Text
+                    style={[styles.editBtnText, { color: theme.onPrimary }]}
+                  >
                     Guardar
                   </Text>
                 )}
@@ -360,7 +354,10 @@ export default function ReviewsScreen() {
     <View
       style={[
         styles.createCard,
-        { backgroundColor: theme.backgroundCard, borderColor: theme.primarySoft },
+        {
+          backgroundColor: theme.backgroundCard,
+          borderColor: theme.primarySoft,
+        },
       ]}
     >
       <Text style={[styles.createTitle, { color: theme.textTitle }]}>
@@ -407,7 +404,9 @@ export default function ReviewsScreen() {
         )}
       </View>
 
-      <Text style={[styles.createLabel, { color: theme.textBody }]}>Título</Text>
+      <Text style={[styles.createLabel, { color: theme.textBody }]}>
+        Título
+      </Text>
       <TextInput
         value={reviewTitle}
         onChangeText={setReviewTitle}
@@ -511,7 +510,7 @@ export default function ReviewsScreen() {
           }
           ListHeaderComponent={
             <>
-              {isReviewFeatureEnabled && renderCreateSection()}
+              {renderCreateSection()}
               <Text style={[styles.pageTitle, { color: theme.textTitle }]}>
                 Mis reseñas
               </Text>
