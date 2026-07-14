@@ -100,6 +100,12 @@ function AuthNavigation() {
   useEffect(() => {
     if (isLoading) return;
     const inAuthGroup = segments[0] === '(auth)';
+    const inPublicGroup = segments[0] === '(public)';
+
+    // Las rutas públicas no deben ser redirigidas
+    if (inPublicGroup) {
+      return;
+    }
 
     if (!userToken) {
       if (!inAuthGroup) router.replace('/(auth)/login');
@@ -116,10 +122,7 @@ function AuthNavigation() {
 
       if (effectiveRole === 'SUPER_ADMIN' && !segments.includes('(admin)')) {
         router.replace('/(app)/(admin)');
-      } else if (
-        effectiveRole === 'CLIENTE' &&
-        !segments.includes('(tabs)')
-      ) {
+      } else if (effectiveRole === 'CLIENTE' && !segments.includes('(tabs)')) {
         router.replace('/(app)/(tabs)');
       }
     }
@@ -128,7 +131,8 @@ function AuthNavigation() {
   // BUG-SEC-009: While a token is present but the role has not yet been resolved,
   // render a loading screen to prevent any protected route (including admin) from
   // briefly flashing before the role-based redirect completes.
-  const roleIsPending = !isLoading && userToken !== null && effectiveRole === null;
+  const roleIsPending =
+    !isLoading && userToken !== null && effectiveRole === null;
 
   if (isLoading || !isThemeReady || roleIsPending) {
     return (
@@ -150,6 +154,7 @@ function AuthNavigation() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(app)" />
+        <Stack.Screen name="(public)" />
         <Stack.Screen name="index" />
       </Stack>
     </View>

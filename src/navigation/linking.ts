@@ -30,6 +30,11 @@ export const linking = {
           },
         },
       },
+      '(public)': {
+        screens: {
+          chats: 'public/chats',
+        },
+      },
     },
   },
 };
