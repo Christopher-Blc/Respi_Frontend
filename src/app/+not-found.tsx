@@ -15,11 +15,19 @@ export default function NotFoundScreen() {
     ? require('../../assets/login-bg-dark.png')
     : require('../../assets/login-bg-light.png');
 
-  // Si la ruta es /public/* o /api/*, redirige al servidor backend (redirección HTTP real)
+  // Si la ruta es /public/*, /api/*, o un archivo (.html, .json, etc), redirige al servidor backend
   useEffect(() => {
     if (Platform.OS === 'web') {
       const pathname = window.location.pathname;
-      if (pathname.startsWith('/public/') || pathname.startsWith('/api/')) {
+      // Detecta rutas que deben ir al backend:
+      // - Rutas públicas: /public/*
+      // - Rutas API: /api/*
+      // - Archivos con extensión: *.html, *.json, *.css, *.js, *.png, etc
+      const isPublicPath = pathname.startsWith('/public/');
+      const isApiPath = pathname.startsWith('/api/');
+      const hasExtension = /\.\w+$/.test(pathname); // Detecta archivos con extensión
+
+      if (isPublicPath || isApiPath || hasExtension) {
         // Redirección HTTP real para que el servidor backend la procese
         window.location.href = pathname;
       }
