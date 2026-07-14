@@ -15,19 +15,32 @@ export default function NotFoundScreen() {
     ? require('../../assets/login-bg-dark.png')
     : require('../../assets/login-bg-light.png');
 
-  // Si la ruta es /public/*, /api/*, o un archivo (.html, .json, etc), redirige al servidor backend
+  // Si la ruta es /public/*, /api/*, o un archivo estático, manéjalo según corresponda
   useEffect(() => {
     if (Platform.OS === 'web') {
       const pathname = window.location.pathname;
-      // Detecta rutas que deben ir al backend:
-      // - Rutas públicas: /public/*
-      // - Rutas API: /api/*
-      // - Archivos con extensión: *.html, *.json, *.css, *.js, *.png, etc
+
+      // Si es /public/algo.html, reescribe a /public/algo para que Expo Router la procese
+      if (pathname.match(/^\/public\/.*\.html$/)) {
+        const pathWithoutHtml = pathname.replace(/\.html$/, '');
+        window.location.href = pathWithoutHtml;
+        return;
+      }
+
+      // Si es /public/* o /api/*, o archivos estáticos (.png, .jpg, .css, .js, .json, etc)
+      // redirige al backend
       const isPublicPath = pathname.startsWith('/public/');
       const isApiPath = pathname.startsWith('/api/');
-      const hasExtension = /\.\w+$/.test(pathname); // Detecta archivos con extensión
+      const isStaticFile =
+        /\.(png|jpg|jpeg|gif|css|js|json|svg|woff|woff2|ttf|eot)$/.test(
+          pathname,
+        );
 
-      if (isPublicPath || isApiPath || hasExtension) {
+      if (
+        (isPublicPath && isStaticFile) ||
+        isApiPath ||
+        (isStaticFile && !pathname.startsWith('/public/'))
+      ) {
         // Redirección HTTP real para que el servidor backend la procese
         window.location.href = pathname;
       }
