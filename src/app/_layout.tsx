@@ -100,12 +100,6 @@ function AuthNavigation() {
   useEffect(() => {
     if (isLoading) return;
     const inAuthGroup = segments[0] === '(auth)';
-    const inPublicGroup = segments[0] === '(public)';
-
-    // Las rutas públicas no deben ser redirigidas
-    if (inPublicGroup) {
-      return;
-    }
 
     if (!userToken) {
       if (!inAuthGroup) router.replace('/(auth)/login');
@@ -154,7 +148,6 @@ function AuthNavigation() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(app)" />
-        <Stack.Screen name="(public)" />
         <Stack.Screen name="index" />
       </Stack>
     </View>

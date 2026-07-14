@@ -1,11 +1,6 @@
 import { Link, Stack } from 'expo-router';
-import React from 'react';
-import {
-  ImageBackground,
-  Text,
-  View,
-  Platform,
-} from 'react-native';
+import React, { useEffect } from 'react';
+import { ImageBackground, Text, View, Platform } from 'react-native';
 import { BlurViewCompat } from '../components/general/BlurViewCompat';
 import { GlassTextButton } from '../components/login/glassTextButton';
 import { useAppTheme } from '../context/ThemeContext';
@@ -19,6 +14,17 @@ export default function NotFoundScreen() {
   const bgImage = isDarkMode
     ? require('../../assets/login-bg-dark.png')
     : require('../../assets/login-bg-light.png');
+
+  // Si la ruta es /public/* o /api/*, redirige al servidor backend (redirección HTTP real)
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      const pathname = window.location.pathname;
+      if (pathname.startsWith('/public/') || pathname.startsWith('/api/')) {
+        // Redirección HTTP real para que el servidor backend la procese
+        window.location.href = pathname;
+      }
+    }
+  }, []);
 
   return (
     <>
@@ -64,4 +70,3 @@ export default function NotFoundScreen() {
     </>
   );
 }
-
